@@ -6,7 +6,7 @@ LDFLAG=-L/usr/local/lib $(LIB)
 
 all: server client
 
-OBJ=obj/net.o obj/common.o obj/message.o
+OBJ=obj/common.o obj/message.o
 
 client: obj/client.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@

@@ -10,6 +10,16 @@
 #include <stdio.h>
 #include <fcntl.h>
 
+// Networking
+#include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <errno.h>
+#include <signal.h>
+
+
 // External Libraries
 #include <log.h>
 #include <collectc/cc_array.h>
@@ -31,4 +41,12 @@
 
 #define CHECK(status, msg) _CHECK(status, msg)
 
+#define die(msg) { perror(msg); exit(1); }
+
+// integer comparator for hashtable
 int int_compare(const void *key1, const void *key2);
+
+void *get_in_addr(struct sockaddr *sa);
+char *addr_to_string(struct sockaddr *addr, socklen_t len);
+ssize_t read_all(int fd, void *buf, size_t len);
+ssize_t write_all(int fd, void *buf, size_t len);
