@@ -2,26 +2,16 @@
 
 #include "common.h"
 #include "net.h"
-#include <log.h>
-#include <pthread.h>
-#include <collectc/cc_hashtable.h>
-#include <collectc/cc_array.h>
+#include "message.h"
 
-#define MAX_CLIENTS 100
-#define MAX_EVENTS 10
-#define SERVPORT 5000
-#define MAX_MSG_LEN 512
-#define AVAIL -1
-
-typedef struct Server {
+typedef struct _Server {
 	CC_HashTable *connections; // Map socket fd to data of type User*.
 	struct sockaddr_in servaddr;
 	int fd;
 	int epollfd;
 } Server;
 
-
-typedef struct User 
+typedef struct _User 
 {
 	int fd; // socket connection
 	char *nick; // nickname
@@ -33,9 +23,3 @@ typedef struct User
 	size_t nsent; // number of bytes in request buffer recieved from user
 	size_t nrecv; // number of bytes in response buffer sent from server
 } User;
-
-
-void stop();
-void *routine(void *args);
-void main_loop();
-

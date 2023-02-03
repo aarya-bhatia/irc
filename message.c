@@ -105,21 +105,3 @@ int parse_message(char *str, Message *msg)
 
 	return 0;
 }
-
-int main()
-{
-	char s1[] = "NICK aarya\r\n";
-	char s2[] = "USER aarya * * :Aarya Bhatia\r\n";
-	char s3[] = "NICK aarya\r\nUSER aarya * * :Aarya Bhatia\r\n";
-
-	CC_Array *arr = parse_all_messages(s1);
-	CC_Array *arr2 = parse_all_messages(s2);
-	CC_Array *arr3 = parse_all_messages(s3);
-
-	cc_array_destroy(arr);
-	cc_array_destroy(arr2);
-	cc_array_destroy(arr3);
-
-	return 0;
-}
-

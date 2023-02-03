@@ -1,9 +1,8 @@
 #pragma once
 
 #include "common.h"
-#include <collectc/cc_array.h>
 
-typedef struct Message
+typedef struct _Message
 {
 	char *origin;
 	char *command;

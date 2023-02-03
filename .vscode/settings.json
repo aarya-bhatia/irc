@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cc_common.h": "c",
+        "server.h": "c",
+        "common.h": "c",
+        "cc_hashtable.h": "c"
+    }
+}

@@ -1,13 +1,6 @@
 #include "common.h"
 
-int CHECK(int status, char *msg)
+int int_compare(const void *key1, const void *key2)
 {
-	if(status < 0)
-	{
-		perror(msg);
-		exit(1);
-	}
-
-	return status;
+    return *(int *) key1 - *(int *) key2;
 }
-

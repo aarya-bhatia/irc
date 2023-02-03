@@ -6,10 +6,12 @@ LDFLAG=-L/usr/local/lib $(LIB)
 
 all: server client
 
-client: obj/client.o obj/net.o obj/common.o
+OBJ=obj/net.o obj/common.o obj/message.o
+
+client: obj/client.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
-server: obj/server.o obj/net.o obj/common.o
+server: obj/server.o $(OBJ)
 	$(CC) -pthread $^ $(LDFLAG) -o $@
 
 test: obj/test.o obj/common.o
@@ -23,4 +25,4 @@ obj/%.o: %.c
 	$(CC) $(CFLAG) $< -o $@
 
 clean:
-	rm -rf obj/*.o
+	rm -rf obj

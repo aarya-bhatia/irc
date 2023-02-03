@@ -1,4 +1,7 @@
 #include "common.h"
+#include "net.h"
+#include "message.h"
+
 #include <collectc/cc_hashtable.h>
 #include <collectc/cc_array.h>
 
@@ -8,6 +11,18 @@ int int_cmp(const void *i, const void *j){
 
 int main()
 {
+	char s1[] = "NICK aarya\r\n";
+	char s2[] = "USER aarya * * :Aarya Bhatia\r\n";
+	char s3[] = "NICK aarya\r\nUSER aarya * * :Aarya Bhatia\r\n";
+
+	CC_Array *arr = parse_all_messages(s1);
+	CC_Array *arr2 = parse_all_messages(s2);
+	CC_Array *arr3 = parse_all_messages(s3);
+
+	cc_array_destroy(arr);
+	cc_array_destroy(arr2);
+	cc_array_destroy(arr3);
+
 	log_trace("Hello %s", "world");
 	log_debug("Hello %s", "world");
 	log_info("Hello %s", "world");
