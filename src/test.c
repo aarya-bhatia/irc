@@ -1,5 +1,4 @@
 #include "common.h"
-#include "net.h"
 #include "message.h"
 
 #include <collectc/cc_hashtable.h>

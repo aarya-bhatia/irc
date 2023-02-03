@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common.h"
-#include "net.h"
 #include "message.h"
 
 typedef struct _Server {
