@@ -1,201 +1,113 @@
 #include "server.h"
 
-static CC_HashTable *connections = NULL;
-
-static volatile bool running = true;
-static int port = 0;
-static int server_fd = -1;
-static int *client_fds = NULL;
-static int num_clients = 0;
-
-static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t cv = PTHREAD_COND_INITIALIZER;
-
-typedef struct Server {
-	epoll_event events[MAX_CLIENTS];
-} Server;
-
-void start(Server *serv)
-{
-
-}
-
 /*
 void do_NICK(int fd, Message *msg);
 void do_USER(int fd, Message *msg);
 void do_PRIVMSG(int fd, Message *msg);
 */
 
-void stop()
+static struct epoll_event events[MAX_EVENTS];
+
+Server *start_server(int port);
 {
-	running = false;
+	Server *serv = calloc(1, sizeof *serv);
+	assert(serv);
 
-	if(client_fds != NULL)
-	{
-		for(size_t i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(client_fds[i] != -1)
-			{
-				if(close(client_fds[i]) == 0)
-				{
-					num_clients--;
-				}
-			}
-		}
-	}
+	// TCP Socket
+	serv->fd = socket(PF_INET, SOCK_STREAM, 0);
+	CHECK(serv->fd, "socket");
 
-	if(server_fd != -1) {
-		close(server_fd);
-	}
+	// Server Address
+	serv->servaddr.sin_family = AF_INET;
+	serv->servaddr.sin_port = htons(port);
+	serv->servaddr.sin_addr.s_addr = INADDR_ANY;
 
-	exit(0);
+	// Bind
+	CHECK(bind(serv->fd, (struct sockaddr *) &serv->servaddr, sizeof(struct sockaddr_in)),
+			"bind");
+
+	// Listen
+	CHECK(listen(server_fd, MAX_EVENTS), "listen");
+
+	int yes = 1;
+
+	// Set socket options
+	CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
+	CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof yes), "setsockopt");
+
+	// Create epoll fd
+	serv->epollfd = epoll_create(0);
+	CHECK(epollfd, "epoll_create");
+
+	// Make server non blocking
+	CHECK(fcntl(serv->fd, F_SETFL, fcntl(serv->fd, F_GETFL) | O_NONBLOCK), "fcntl");
+
+	log_info("server running on port %d", port);
 }
-
-
-void *routine(void *args)
-{
-	int *index = (int *) args;
-
-	pthread_mutex_lock(&m);
-	int client_fd = client_fds[*index];
-	pthread_mutex_unlock(&m);
-
-	log_info("idx: %d; thread %d; client fd: %d", *index, (int) pthread_self(), client_fd);
-
-	char *msg = calloc(2 * MAX_MSG_LEN, 1);
-	size_t msglen = 0;
-
-	while(running) 
-	{
-		ssize_t nread = read_all(client_fd, msg, MAX_MSG_LEN);
-
-		if(nread == 0) {
-			break;
-		}
-
-		if(nread == -1) {
-			perror("read_all");
-			break;
-		}
-
-		msglen = nread;
-		msg[msglen] = 0;
-		
-		log_debug("Msg recv: %s", msg);
-
-		if(write_all(client_fd, "OK\r\n", 4) == -1) {
-			perror("write_all");
-			break;
-		}
-	}
-
-	close(client_fd);
-
-	pthread_mutex_lock(&m);
-	client_fds[*index] = -1;
-	num_clients--;
-	log_info("num clients: %zu", num_clients);
-	pthread_cond_broadcast(&cv);
-	pthread_mutex_unlock(&m);
-
-	free(msg);
-	free(index);
-
-	return NULL;
-}
-
-void main_loop()
-{
-	pthread_t tid;
-
-	while(1) 
-	{
-		log_info("waiting for connections");
-		sleep(1);
-
-		pthread_mutex_lock(&m);
-
-		while(num_clients >= MAX_CLIENTS) 
-		{
-			pthread_cond_wait(&cv,&m);
-		}
-		
-		pthread_mutex_unlock(&m);
-
-		int client_fd = accept(server_fd, NULL, NULL);
-
-		if(client_fd == -1) {
-			perror("accept");
-			continue;
-		}
-
-		int *index = calloc(1, sizeof(int));
-
-		log_info("Got connection %d", client_fd);
-
-		pthread_mutex_lock(&m);
-
-		for(size_t i = 0; i < MAX_CLIENTS; i++) {
-			if(client_fds[i] == AVAIL) {
-				client_fds[i] = client_fd;
-				num_clients++;
-				*index = i;
-				break;
-			}
-		}
-
-		pthread_mutex_unlock(&m);
-
-		pthread_create(&tid, NULL, routine, (void *) index); 
-		pthread_detach(tid);
-	}
-}
-
 
 int main(int argc, char *argv[])
 {
-	if(argc == 2) 
+	if(argc != 2) 
 	{
-		if(!strcmp(argv[1],"help")||!strcmp(argv[1],"usage")){
-			fprintf(stderr, "Usage: %s [PORT]\n", *argv);
-			return 0;
+		fprintf(stderr, "Usage: %s port", *argv);
+		return 1;
+	}
+
+	int port = atoi(argv[1]);
+
+	Server *serv = start_server(port);
+
+	struct epoll_event ev = { .events = EPOLLIN, .data.fd = serv->fd };
+	CHECK(epoll_ctl(epollfd, EPOLL_CTL_ADD, serv->fd, &ev), "epoll_ctl");
+
+	while(1)
+	{
+		int num = epoll_wait(epollfd, serv->events, MAX_EVENTS, -1);
+		CHECK(num, "epoll_wait");
+
+		for(size_t i = 0; i < num; i++)
+		{
+			// new connections are available
+			if(events[i].data.fd == serv->fd)
+			{
+				while(1)
+				{
+					int conn_sock = accept(serv->fd, NULL, NULL);
+					
+					if(conn_sock == -1)
+					{
+						if(errno == EAGAIN || errno == EWOULDBLOCK) {
+							break;
+						}
+
+						perror("accept");
+						break;
+					}
+
+					User *user = calloc(1, sizeof *user);
+					user->fd = conn_sock;
+
+					// TODO: Do error handling
+
+					fcntl(conn_sock, F_SETFL, fcntl(conn_sock, F_GETFL) | O_NONBLOCK);
+					ev.events = EPOLLIN | EPOLLOUT;
+					ev.data.fd = conn_sock;
+
+					epoll_ctl(serv->epollfd, EPOLL_CTL_ADD, conn_sock, &ev);
+
+					cc_hashtable_add(serv->connections, conn_sock, user);
+
+					log_info("Got connection: %d", conn_sock);
+
+				}
+			}
+			else
+			{
+				int fd = events[i].data.fd;
+				log_info("Event on %d", fd);
+			}
 		}
-
-		port = atoi(argv[1]);
 	}
-	else
-	{
-		port = SERVPORT;
-	}
-
-	if(!(client_fds = calloc(MAX_CLIENTS, sizeof(int))))
-		die("calloc");
-
-	for(size_t i = 0; i < MAX_CLIENTS; i++) client_fds[i] = AVAIL;
-
-	num_clients = 0;
-
-	if((server_fd = socket(PF_INET, SOCK_STREAM, 0))<0) 
-		die("socket");
-
-	struct sockaddr_in servAddr;
-	servAddr.sin_family = AF_INET;
-	servAddr.sin_port = htons(port);
-	servAddr.sin_addr.s_addr = INADDR_ANY;
-
-	if((bind(server_fd, (struct sockaddr *) &servAddr, sizeof servAddr))<0) 
-		die("bind");
-
-	if((listen(server_fd, MAX_CLIENTS))<0)
-		die("listen");
-
-	log_info("server running on port %d", port);
-
-	signal(SIGINT,stop);
-
-	main_loop();
-
-	stop();
 
 	return 0;
 }

@@ -8,9 +8,18 @@
 #include <collectc/cc_array.h>
 
 #define MAX_CLIENTS 100
+#define MAX_EVENTS 10
 #define SERVPORT 5000
 #define MAX_MSG_LEN 512
 #define AVAIL -1
+
+typedef struct Server {
+	CC_HashTable *connections; // Map socket fd to data of type User*.
+	struct sockaddr_in servaddr;
+	int fd;
+	int epollfd;
+} Server;
+
 
 typedef struct User 
 {
