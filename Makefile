@@ -1,15 +1,23 @@
-all: request
+CC=gcc
+INC=-I/usr/local/include
+CFLAG=-std=c99 -Wall -Wextra -g -c $(INC)
+LIB=-llog -lcollectc
+LDFLAG=-L/usr/local/lib $(LIB)
 
-request: obj/request.o obj/log.o
-	gcc -std=c99 $^ -o $@
+all: server client
 
-obj/request.o: request.c
+client: obj/client.o obj/net.o obj/common.o
+	$(CC) $^ $(LDFLAG) -o $@
+
+server: obj/server.o obj/net.o obj/common.o
+	$(CC) -pthread $^ $(LDFLAG) -o $@
+
+test: obj/test.o obj/common.o
+	$(CC) $^ $(LDFLAG) -o $@
+
+obj/%.o: %.c
 	@mkdir -p obj;
-	gcc -std=c99 -Wall -g -c $< -o $@
-
-obj/log.o: log.c
-	@mkdir -p obj;
-	gcc -Wall -std=c99 -DLOG_USE_COLOR -g -c $< -o $@
+	$(CC) $(CFLAG) $< -o $@
 
 clean:
-	rm -rf obj request
+	rm -rf obj/*.o

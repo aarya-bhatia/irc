@@ -1,0 +1,61 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CC	Makefile	/^CC=gcc$/;"	m
+CFLAG	Makefile	/^CFLAG=-std=c99 -Wall -Wextra -g -c $(INC)$/;"	m
+CRLF	common.h	12;"	d
+INC	Makefile	/^INC=-I\/usr\/local\/include$/;"	m
+LDFLAG	Makefile	/^LDFLAG=-L\/usr\/local\/lib $(LIB)$/;"	m
+LIB	Makefile	/^LIB=-llog -lcollectc$/;"	m
+MAX_CLIENTS	server.h	8;"	d
+MAX_MSG_LEN	common.h	10;"	d
+MAX_MSG_LEN	server.h	10;"	d
+MAX_MSG_PARAM	common.h	11;"	d
+Message	message.h	/^typedef struct Message$/;"	s
+Message	message.h	/^} Message;$/;"	t	typeref:struct:Message
+Message::body	message.h	/^	char *body;$/;"	m	struct:Message	access:public
+Message::command	message.h	/^	char *command;$/;"	m	struct:Message	access:public
+Message::origin	message.h	/^	char *origin;$/;"	m	struct:Message	access:public
+Message::params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:Message	access:public
+SERVPORT	server.h	9;"	d
+_POSIX_C_SOURCE	message.c	1;"	d	file:
+addr_to_string	net.c	/^char *addr_to_string(struct sockaddr *addr, socklen_t len)$/;"	f	signature:(struct sockaddr *addr, socklen_t len)
+addr_to_string	net.h	/^char *addr_to_string(struct sockaddr *addr, socklen_t len);$/;"	p	signature:(struct sockaddr *addr, socklen_t len)
+body	message.h	/^	char *body;$/;"	m	struct:Message	access:public
+client_fds	server.c	/^static int *client_fds = NULL;$/;"	v	file:
+command	message.h	/^	char *command;$/;"	m	struct:Message	access:public
+cv	server.c	/^static pthread_cond_t cv = PTHREAD_COND_INITIALIZER;$/;"	v	file:
+die	net.h	13;"	d
+get_in_addr	net.c	/^void *get_in_addr(struct sockaddr *sa)$/;"	f	signature:(struct sockaddr *sa)
+get_in_addr	net.h	/^void *get_in_addr(struct sockaddr *sa);$/;"	p	signature:(struct sockaddr *sa)
+m	server.c	/^static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;$/;"	v	file:
+main	main.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
+main	message.c	/^int main()$/;"	f
+main	server.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
+main	test.c	/^int main()$/;"	f
+main_loop	server.c	/^void main_loop()$/;"	f
+main_loop	server.h	/^void main_loop();$/;"	p	signature:()
+message_destroy	message.c	/^void message_destroy(Message *msg)$/;"	f	signature:(Message *msg)
+message_destroy	message.h	/^void message_destroy(Message *msg);$/;"	p	signature:(Message *msg)
+message_init	message.c	/^void message_init(Message *msg)$/;"	f	signature:(Message *msg)
+message_init	message.h	/^void message_init(Message *msg);$/;"	p	signature:(Message *msg)
+num_clients	server.c	/^static int num_clients = 0;$/;"	v	file:
+origin	message.h	/^	char *origin;$/;"	m	struct:Message	access:public
+params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:Message	access:public
+parse_message	message.c	/^int parse_message(char *str, Message *msg)$/;"	f	signature:(char *str, Message *msg)
+parse_message	message.h	/^int parse_message(char *str, Message *msg);$/;"	p	signature:(char *str, Message *msg)
+parse_messages	message.c	/^void parse_messages(char *str)$/;"	f	signature:(char *str)
+parse_messages	message.h	/^void parse_messages(char *str);$/;"	p	signature:(char *str)
+read_all	net.c	/^ssize_t read_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
+read_all	net.h	/^ssize_t read_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)
+routine	server.c	/^void *routine(void *args)$/;"	f	signature:(void *args)
+routine	server.h	/^void *routine(void *args);$/;"	p	signature:(void *args)
+running	server.c	/^static volatile bool running = true;$/;"	v	file:
+server_fd	server.c	/^static int server_fd = -1;$/;"	v	file:
+stop	server.c	/^void stop()$/;"	f
+stop	server.h	/^void stop();$/;"	p	signature:()
+write_all	net.c	/^ssize_t write_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
+write_all	net.h	/^ssize_t write_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)
