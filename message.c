@@ -1,8 +1,4 @@
-#define _POSIX_C_SOURCE 200809L
-
 #include "message.h"
-
-#include <string.h>
 
 void message_init(Message *msg)
 {
@@ -23,7 +19,7 @@ void message_destroy(Message *msg)
 	}
 }
 
-void parse_messages(char *str)
+CC_Array *parse_all_messages(char *str)
 {
 	assert(str);
 	
@@ -32,19 +28,28 @@ void parse_messages(char *str)
 
 	int ret;
 
+	CC_Array *array;
+
+	cc_array_new(&array);
+
 	while(tok)
 	{
-		Message msg;
-		message_init(&msg);
+		Message *msg = calloc(1, sizeof *msg);
 
-		if((ret = parse_message(tok, &msg)) == -1) {
+		message_init(msg);
+
+		if((ret = parse_message(tok, msg)) == -1) {
 			log_warn("Invalid message");
+			message_destroy(msg);
 		}
-
-		message_destroy(&msg);
+		else {
+			cc_array_add(array, msg);
+		}
 
 		tok = strtok_r(NULL,"\r\n",&saveptr);
 	}
+
+	return array;
 }
 
 int parse_message(char *str, Message *msg)
@@ -107,9 +112,13 @@ int main()
 	char s2[] = "USER aarya * * :Aarya Bhatia\r\n";
 	char s3[] = "NICK aarya\r\nUSER aarya * * :Aarya Bhatia\r\n";
 
-	parse_messages(s1);
-	parse_messages(s2);
-	parse_messages(s3);
+	CC_Array *arr = parse_all_messages(s1);
+	CC_Array *arr2 = parse_all_messages(s2);
+	CC_Array *arr3 = parse_all_messages(s3);
+
+	cc_array_destroy(arr);
+	cc_array_destroy(arr2);
+	cc_array_destroy(arr3);
 
 	return 0;
 }

@@ -1,3 +1,0 @@
-1 "Welcome to the Internet Relay Network <nick>!<user>@<host>"
-433 "Nickname is already in use"
-

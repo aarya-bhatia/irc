@@ -15,6 +15,9 @@ server: obj/server.o obj/net.o obj/common.o
 test: obj/test.o obj/common.o
 	$(CC) $^ $(LDFLAG) -o $@
 
+message: obj/message.o obj/common.o
+	$(CC) $^ $(LDFLAG) -o $@
+
 obj/%.o: %.c
 	@mkdir -p obj;
 	$(CC) $(CFLAG) $< -o $@
