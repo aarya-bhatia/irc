@@ -4,58 +4,96 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-CC	Makefile	/^CC=gcc$/;"	m
-CFLAG	Makefile	/^CFLAG=-std=c99 -Wall -Wextra -g -c $(INC)$/;"	m
-CRLF	common.h	12;"	d
-INC	Makefile	/^INC=-I\/usr\/local\/include$/;"	m
-LDFLAG	Makefile	/^LDFLAG=-L\/usr\/local\/lib $(LIB)$/;"	m
-LIB	Makefile	/^LIB=-llog -lcollectc$/;"	m
-MAX_CLIENTS	server.h	8;"	d
-MAX_MSG_LEN	common.h	10;"	d
-MAX_MSG_LEN	server.h	10;"	d
-MAX_MSG_PARAM	common.h	11;"	d
-Message	message.h	/^typedef struct Message$/;"	s
-Message	message.h	/^} Message;$/;"	t	typeref:struct:Message
-Message::body	message.h	/^	char *body;$/;"	m	struct:Message	access:public
-Message::command	message.h	/^	char *command;$/;"	m	struct:Message	access:public
-Message::origin	message.h	/^	char *origin;$/;"	m	struct:Message	access:public
-Message::params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:Message	access:public
-SERVPORT	server.h	9;"	d
-_POSIX_C_SOURCE	message.c	1;"	d	file:
-addr_to_string	net.c	/^char *addr_to_string(struct sockaddr *addr, socklen_t len)$/;"	f	signature:(struct sockaddr *addr, socklen_t len)
-addr_to_string	net.h	/^char *addr_to_string(struct sockaddr *addr, socklen_t len);$/;"	p	signature:(struct sockaddr *addr, socklen_t len)
-body	message.h	/^	char *body;$/;"	m	struct:Message	access:public
-client_fds	server.c	/^static int *client_fds = NULL;$/;"	v	file:
-command	message.h	/^	char *command;$/;"	m	struct:Message	access:public
-cv	server.c	/^static pthread_cond_t cv = PTHREAD_COND_INITIALIZER;$/;"	v	file:
-die	net.h	13;"	d
-get_in_addr	net.c	/^void *get_in_addr(struct sockaddr *sa)$/;"	f	signature:(struct sockaddr *sa)
-get_in_addr	net.h	/^void *get_in_addr(struct sockaddr *sa);$/;"	p	signature:(struct sockaddr *sa)
-m	server.c	/^static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;$/;"	v	file:
-main	main.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
-main	message.c	/^int main()$/;"	f
+CHECK	common.h	42;"	d
+CRLF	common.h	32;"	d
+MAX_EVENTS	common.h	29;"	d
+MAX_MSG_LEN	common.h	30;"	d
+MAX_MSG_PARAM	common.h	31;"	d
+Message	message.h	/^} Message;$/;"	t	typeref:struct:_Message
+Server	server.h	/^} Server;$/;"	t	typeref:struct:_Server
+User	server.h	/^} User;$/;"	t	typeref:struct:_User
+_CHECK	common.h	34;"	d
+_Message	message.h	/^typedef struct _Message$/;"	s
+_Message::body	message.h	/^	char *body;$/;"	m	struct:_Message	access:public
+_Message::command	message.h	/^	char *command;$/;"	m	struct:_Message	access:public
+_Message::origin	message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
+_Message::params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
+_POSIX_C_SOURCE	common.h	3;"	d
+_Server	server.h	/^typedef struct _Server {$/;"	s
+_Server::connections	server.h	/^	CC_HashTable *connections; \/\/ Map socket fd to data of type User*.$/;"	m	struct:_Server	access:public
+_Server::epollfd	server.h	/^	int epollfd;$/;"	m	struct:_Server	access:public
+_Server::fd	server.h	/^	int fd;$/;"	m	struct:_Server	access:public
+_Server::servaddr	server.h	/^	struct sockaddr_in servaddr;$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+_User	server.h	/^typedef struct _User $/;"	s
+_User::fd	server.h	/^	int fd; \/\/ socket connection$/;"	m	struct:_User	access:public
+_User::inbox	server.h	/^	CC_Array *inbox;$/;"	m	struct:_User	access:public
+_User::name	server.h	/^	char *name; \/\/ username$/;"	m	struct:_User	access:public
+_User::nick	server.h	/^	char *nick; \/\/ nickname$/;"	m	struct:_User	access:public
+_User::nrecv	server.h	/^	size_t nrecv; \/\/ number of bytes in response buffer sent from server$/;"	m	struct:_User	access:public
+_User::nsent	server.h	/^	size_t nsent; \/\/ number of bytes in request buffer recieved from user$/;"	m	struct:_User	access:public
+_User::outbox	server.h	/^	CC_Array *outbox;$/;"	m	struct:_User	access:public
+_User::req_buf	server.h	/^	char req_buf[MAX_MSG_LEN + 1]; \/\/ the request message$/;"	m	struct:_User	access:public
+_User::req_len	server.h	/^	size_t req_len; \/\/ length of request buffer$/;"	m	struct:_User	access:public
+_User::res_buf	server.h	/^	char res_buf[MAX_MSG_LEN + 1]; \/\/ the response message$/;"	m	struct:_User	access:public
+_User::res_len	server.h	/^	size_t res_len; \/\/ length of response buffer$/;"	m	struct:_User	access:public
+accept_new_connections	server.c	/^void accept_new_connections(Server *serv)$/;"	f	signature:(Server *serv)
+accept_new_connections	server.h	/^void accept_new_connections(Server *serv);$/;"	p	signature:(Server *serv)
+addr_to_string	common.c	/^char *addr_to_string(struct sockaddr *addr, socklen_t len)$/;"	f	signature:(struct sockaddr *addr, socklen_t len)
+addr_to_string	common.h	/^char *addr_to_string(struct sockaddr *addr, socklen_t len);$/;"	p	signature:(struct sockaddr *addr, socklen_t len)
+body	message.h	/^	char *body;$/;"	m	struct:_Message	access:public
+client_disconnect	server.c	/^void client_disconnect(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
+client_disconnect	server.h	/^void client_disconnect(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+client_read_event	server.c	/^void client_read_event(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
+client_read_event	server.h	/^void client_read_event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+client_write_event	server.c	/^void client_write_event(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
+client_write_event	server.h	/^void client_write_event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+command	message.h	/^	char *command;$/;"	m	struct:_Message	access:public
+connections	server.h	/^	CC_HashTable *connections; \/\/ Map socket fd to data of type User*.$/;"	m	struct:_Server	access:public
+die	common.h	44;"	d
+do_NICK	server.h	/^void do_NICK(Server *serv, int fd, Message *msg);$/;"	p	signature:(Server *serv, int fd, Message *msg)
+do_PRIVMSG	server.h	/^void do_PRIVMSG(Server *serv, int fd, Message *msg);$/;"	p	signature:(Server *serv, int fd, Message *msg)
+do_USER	server.h	/^void do_USER(Server *serv, int fd, Message *msg);$/;"	p	signature:(Server *serv, int fd, Message *msg)
+epollfd	server.h	/^	int epollfd;$/;"	m	struct:_Server	access:public
+fd	server.h	/^	int fd; \/\/ socket connection$/;"	m	struct:_User	access:public
+fd	server.h	/^	int fd;$/;"	m	struct:_Server	access:public
+get_in_addr	common.c	/^void *get_in_addr(struct sockaddr *sa)$/;"	f	signature:(struct sockaddr *sa)
+get_in_addr	common.h	/^void *get_in_addr(struct sockaddr *sa);$/;"	p	signature:(struct sockaddr *sa)
+inbox	server.h	/^	CC_Array *inbox;$/;"	m	struct:_User	access:public
+int_cmp	test.c	/^int int_cmp(const void *i, const void *j){$/;"	f	signature:(const void *i, const void *j)
+int_compare	common.c	/^int int_compare(const void *key1, const void *key2)$/;"	f	signature:(const void *key1, const void *key2)
+int_compare	common.h	/^int int_compare(const void *key1, const void *key2);$/;"	p	signature:(const void *key1, const void *key2)
+main	client.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
 main	server.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
 main	test.c	/^int main()$/;"	f
-main_loop	server.c	/^void main_loop()$/;"	f
-main_loop	server.h	/^void main_loop();$/;"	p	signature:()
 message_destroy	message.c	/^void message_destroy(Message *msg)$/;"	f	signature:(Message *msg)
 message_destroy	message.h	/^void message_destroy(Message *msg);$/;"	p	signature:(Message *msg)
 message_init	message.c	/^void message_init(Message *msg)$/;"	f	signature:(Message *msg)
 message_init	message.h	/^void message_init(Message *msg);$/;"	p	signature:(Message *msg)
-num_clients	server.c	/^static int num_clients = 0;$/;"	v	file:
-origin	message.h	/^	char *origin;$/;"	m	struct:Message	access:public
-params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:Message	access:public
+name	server.h	/^	char *name; \/\/ username$/;"	m	struct:_User	access:public
+nick	server.h	/^	char *nick; \/\/ nickname$/;"	m	struct:_User	access:public
+nrecv	server.h	/^	size_t nrecv; \/\/ number of bytes in response buffer sent from server$/;"	m	struct:_User	access:public
+nsent	server.h	/^	size_t nsent; \/\/ number of bytes in request buffer recieved from user$/;"	m	struct:_User	access:public
+origin	message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
+outbox	server.h	/^	CC_Array *outbox;$/;"	m	struct:_User	access:public
+params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
+parse_all_messages	message.c	/^CC_Array *parse_all_messages(char *str)$/;"	f	signature:(char *str)
+parse_all_messages	message.h	/^CC_Array *parse_all_messages(char *str);$/;"	p	signature:(char *str)
 parse_message	message.c	/^int parse_message(char *str, Message *msg)$/;"	f	signature:(char *str, Message *msg)
 parse_message	message.h	/^int parse_message(char *str, Message *msg);$/;"	p	signature:(char *str, Message *msg)
-parse_messages	message.c	/^void parse_messages(char *str)$/;"	f	signature:(char *str)
-parse_messages	message.h	/^void parse_messages(char *str);$/;"	p	signature:(char *str)
-read_all	net.c	/^ssize_t read_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
-read_all	net.h	/^ssize_t read_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)
-routine	server.c	/^void *routine(void *args)$/;"	f	signature:(void *args)
-routine	server.h	/^void *routine(void *args);$/;"	p	signature:(void *args)
-running	server.c	/^static volatile bool running = true;$/;"	v	file:
-server_fd	server.c	/^static int server_fd = -1;$/;"	v	file:
-stop	server.c	/^void stop()$/;"	f
-stop	server.h	/^void stop();$/;"	p	signature:()
-write_all	net.c	/^ssize_t write_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
-write_all	net.h	/^ssize_t write_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)
+quit	server.c	/^void quit(Server *serv)$/;"	f	signature:(Server *serv)
+quit	server.h	/^void quit(Server *serv);$/;"	p	signature:(Server *serv)
+read_all	common.c	/^ssize_t read_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
+read_all	common.h	/^ssize_t read_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)
+req_buf	server.h	/^	char req_buf[MAX_MSG_LEN + 1]; \/\/ the request message$/;"	m	struct:_User	access:public
+req_len	server.h	/^	size_t req_len; \/\/ length of request buffer$/;"	m	struct:_User	access:public
+res_buf	server.h	/^	char res_buf[MAX_MSG_LEN + 1]; \/\/ the response message$/;"	m	struct:_User	access:public
+res_len	server.h	/^	size_t res_len; \/\/ length of response buffer$/;"	m	struct:_User	access:public
+servaddr	server.h	/^	struct sockaddr_in servaddr;$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+server	server.c	/^static Server *server = NULL;$/;"	v	file:
+sighandler	server.c	/^void sighandler(int sig)$/;"	f	signature:(int sig)
+start_server	server.c	/^Server *start_server(int port)$/;"	f	signature:(int port)
+start_server	server.h	/^Server *start_server(int port);$/;"	p	signature:(int port)
+user_destroy	server.c	/^void user_destroy(User *usr)$/;"	f	signature:(User *usr)
+user_destroy	server.h	/^void user_destroy(User *usr);$/;"	p	signature:(User *usr)
+write_all	common.c	/^ssize_t write_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
+write_all	common.h	/^ssize_t write_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)
