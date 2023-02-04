@@ -2,13 +2,14 @@
 
 int main(int argc, char *argv[])
 {
-	if(argc != 3) {
-		fprintf(stderr, "Usage: %s hostname port\n", *argv);
+	if(argc != 4) {
+		fprintf(stderr, "Usage: %s hostname port nick\n", *argv);
 		return 1;
 	}
 
 	char *hostname = argv[1];
 	char *port = argv[2];
+	char *nick = argv[3];
 
 	struct addrinfo hints, *servinfo = NULL;
 
@@ -30,28 +31,31 @@ int main(int argc, char *argv[])
 
 	freeaddrinfo(servinfo);
 
-	log_info("Connection with server is established...\n");
+	log_info("Connection with server is established...");
 
 	////////////////////////////////////////////////////////
 
 	char prompt[1024], servmsg[1024], usermsg[1024];
 	int write_status, read_status;
 
-	// Get user nickname from stdin
-	sprintf(prompt, "Enter Nickname >");
-	write_all(1, prompt, strlen(prompt));
-	scanf("%s",usermsg);
-
+	// Registration
+	
 	// Send user nickname to server
-	char *nick = strdup(usermsg);
-	sprintf(servmsg, "NICK %s\r\n", nick); 
-	log_debug("Sending message: ", servmsg);
-	write_all(sock, servmsg, strlen(servmsg));
+	sprintf(servmsg, "NICK %s\r\n", nick);
+	int num_sent = write_all(sock, servmsg, strlen(servmsg));
+	log_info("sent %d bytes", num_sent);
+
+	log_info("waiting for reply...");
 
 	// Get server reply
-	read_all(sock, servmsg, sizeof(servmsg));
-	write(1, "Server > ", strlen("Server > "));
+	int num_recv = read_all(sock, servmsg, MAX_MSG_LEN);
+	log_info("recieved %d bytes:", num_recv);
 	puts(servmsg);
+
+#if 1
+	close(sock);
+	exit(0);
+#endif
 
 	// Get user name from stdin
 	sprintf(prompt, "Enter Name >");

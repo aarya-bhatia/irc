@@ -12,7 +12,6 @@ typedef struct _Message
 
 void message_init(Message *msg);
 void message_destroy(Message *msg);
-
 int parse_message(char *str, Message *msg);
 CC_Array *parse_all_messages(char *str);
 

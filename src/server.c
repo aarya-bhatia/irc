@@ -1,11 +1,7 @@
 #include "server.h"
 #include <sys/epoll.h>
 
-/*
-void do_NICK(int fd, Message *msg);
-void do_USER(int fd, Message *msg);
-void do_PRIVMSG(int fd, Message *msg);
-*/
+static Server *server = NULL;
 
 void user_destroy(User *usr)
 {
@@ -16,6 +12,9 @@ void user_destroy(User *usr)
 
 	free(usr->nick);
 	free(usr->name);
+
+	cc_array_destroy(usr->inbox);
+	cc_array_destroy(usr->outbox);
 
 	shutdown(usr->fd, SHUT_RDWR);
 	close(usr->fd);
@@ -104,6 +103,145 @@ Server *start_server(int port)
 	return serv;
 }
 
+void accept_new_connections(Server *serv)
+{
+	while (1)
+	{
+		int conn_sock = accept(serv->fd, NULL, NULL);
+
+		if (conn_sock == -1)
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
+				return;
+			}
+
+			die("accept");
+		}
+
+		User *user = calloc(1, sizeof(User));
+		user->fd = conn_sock;
+
+		if (cc_array_new(&user->inbox) != CC_OK)
+		{
+			log_error("Failed to create CC_Array");
+			user_destroy(user);
+			continue;
+		}
+
+		if (cc_array_new(&user->outbox) != CC_OK)
+		{
+			log_error("Failed to create CC_Array");
+			user_destroy(user);
+			continue;
+		}
+
+		if (fcntl(conn_sock, F_SETFL, fcntl(conn_sock, F_GETFL) | O_NONBLOCK) != 0)
+		{
+			perror("fcntl");
+			user_destroy(user);
+			continue;
+		}
+
+		struct epoll_event ev = {.data.fd = conn_sock, .events = EPOLLIN | EPOLLOUT};
+
+		if (epoll_ctl(serv->epollfd, EPOLL_CTL_ADD, conn_sock, &ev) != 0)
+		{
+			perror("epoll_ctl");
+			user_destroy(user);
+			continue;
+		}
+
+		int *key = calloc(1, sizeof(int));
+
+		if (!key)
+		{
+			perror("calloc");
+			user_destroy(user);
+			continue;
+		}
+
+		*key = user->fd;
+
+		if (cc_hashtable_add(serv->connections, (void *)key, user) != CC_OK)
+		{
+			perror("cc_hashtable_add");
+			user_destroy(user);
+			continue;
+		}
+
+		log_info("Got connection: %d", conn_sock);
+	}
+}
+
+void client_read_event(Server *serv, User *usr)
+{
+	assert(usr);
+	assert(serv);
+
+	ssize_t nread = read_all(usr->fd, usr->req_buf + usr->req_len, MAX_MSG_LEN - usr->req_len);
+
+	log_debug("%zd bytes read from fd=%d", nread, usr->fd);
+
+	if (nread == -1)
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+		{
+			return;
+		}
+
+		client_disconnect(serv, usr);
+	}
+
+	usr->req_len += nread;
+	usr->req_buf[usr->req_len] = 0;
+
+	log_debug("message: %s", usr->req_buf);
+
+	if (strstr(usr->req_buf, "\r\n"))
+	{
+		CC_Array *messages = parse_all_messages(usr->req_buf);
+
+		CC_ArrayIter itr;
+		cc_array_iter_init(&itr, messages);
+
+		Message *val;
+
+		while(cc_array_iter_next(&itr, (void **) &val) != CC_ITER_END)
+		{
+			cc_array_add(usr->inbox, val);
+		}
+
+		usr->req_len = 0;
+		usr->req_buf[0] = 0;
+	}
+}
+
+void client_write_event(Server *serv, User *usr)
+{
+	assert(usr);
+	assert(serv);
+}
+
+void client_disconnect(Server *serv, User *usr)
+{
+	assert(serv);
+	assert(usr);
+
+	log_info("Closing connection with user=%s fd=%d", usr->nick, usr->fd);
+	epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, usr->fd, NULL);
+	cc_hashtable_remove(serv->connections, (void *)&usr->fd, NULL);
+	user_destroy(usr);
+}
+
+void sighandler(int sig)
+{
+	if (sig == SIGINT)
+	{
+		quit(server);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc != 2)
@@ -116,10 +254,15 @@ int main(int argc, char *argv[])
 
 	Server *serv = start_server(port);
 
+	server = serv;
+
 	struct epoll_event events[MAX_EVENTS] = {0};
 
 	struct epoll_event ev = {.events = EPOLLIN, .data.fd = serv->fd};
+
 	CHECK(epoll_ctl(serv->epollfd, EPOLL_CTL_ADD, serv->fd, &ev), "epoll_ctl");
+
+	signal(SIGINT, sighandler);
 
 	while (1)
 	{
@@ -128,72 +271,43 @@ int main(int argc, char *argv[])
 
 		for (int i = 0; i < num; i++)
 		{
-			// new connections are available
 			if (events[i].data.fd == serv->fd)
 			{
-				while (1)
-				{
-					int conn_sock = accept(serv->fd, NULL, NULL);
-
-					if (conn_sock == -1)
-					{
-						if (errno == EAGAIN || errno == EWOULDBLOCK)
-						{
-							break;
-						}
-
-						perror("accept");
-						break;
-					}
-
-					User *user = calloc(1, sizeof *user);
-					user->fd = conn_sock;
-
-					// TODO: Do error handling
-
-					fcntl(conn_sock, F_SETFL, fcntl(conn_sock, F_GETFL) | O_NONBLOCK);
-					ev.events = EPOLLIN | EPOLLOUT;
-					ev.data.fd = conn_sock;
-
-					epoll_ctl(serv->epollfd, EPOLL_CTL_ADD, conn_sock, &ev);
-
-					int *key = calloc(1, sizeof *key);
-					*key = conn_sock;
-
-					cc_hashtable_add(serv->connections, (void *)key, user);
-
-					log_info("Got connection: %d", conn_sock);
-				}
+				accept_new_connections(serv);
 			}
 			else
 			{
 				int e = events[i].events;
 				int fd = events[i].data.fd;
 
-				if (e & (EPOLLERR | EPOLLHUP))
+				User *usr;
+
+				if (cc_hashtable_get(serv->connections, (void *)&fd, (void **)&usr) != CC_OK)
 				{
-					User *usr;
-
-					cc_hashtable_remove(serv->connections, (void *)&fd, (void **)&usr);
-
-					assert(usr->fd == fd);
-
-					log_info("Connection closed with user=%s fd=%d", usr->nick, usr->fd);
-					user_destroy(usr);
+					epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, fd, NULL);
+					continue;
 				}
 
-				// TODO
+				if (e & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+				{
+					client_disconnect(serv, usr);
+					continue;
+				}
 
 				if (e & EPOLLIN)
 				{
+					client_read_event(serv, usr);
 				}
 
 				if (e & EPOLLOUT)
 				{
+					client_write_event(serv, usr);
 				}
 			}
 		}
 	}
+
+	cc_hashtable_destroy(serv->connections);
 
 	return 0;
 }

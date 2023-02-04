@@ -1,0 +1,85 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CC	Makefile	/^CC=gcc$/;"	m
+CFLAG	Makefile	/^CFLAG=-std=c99 -Wall -Wextra -g -c $(INC)$/;"	m
+CHECK	src/common.h	42;"	d
+CRLF	src/common.h	32;"	d
+INC	Makefile	/^INC=-I\/usr\/local\/include$/;"	m
+LDFLAG	Makefile	/^LDFLAG=-L\/usr\/local\/lib $(LIB)$/;"	m
+LIB	Makefile	/^LIB=-llog -lcollectc$/;"	m
+MAX_EVENTS	src/common.h	29;"	d
+MAX_MSG_LEN	src/common.h	30;"	d
+MAX_MSG_PARAM	src/common.h	31;"	d
+Message	src/message.h	/^} Message;$/;"	t	typeref:struct:_Message
+OBJ	Makefile	/^OBJ=obj\/common.o obj\/message.o$/;"	m
+Server	src/server.h	/^} Server;$/;"	t	typeref:struct:_Server
+User	src/server.h	/^} User;$/;"	t	typeref:struct:_User
+_CHECK	src/common.h	34;"	d
+_Message	src/message.h	/^typedef struct _Message$/;"	s
+_Message::body	src/message.h	/^	char *body;$/;"	m	struct:_Message	access:public
+_Message::command	src/message.h	/^	char *command;$/;"	m	struct:_Message	access:public
+_Message::origin	src/message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
+_Message::params	src/message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
+_POSIX_C_SOURCE	src/common.h	3;"	d
+_Server	src/server.h	/^typedef struct _Server {$/;"	s
+_Server::connections	src/server.h	/^	CC_HashTable *connections; \/\/ Map socket fd to data of type User*.$/;"	m	struct:_Server	access:public
+_Server::epollfd	src/server.h	/^	int epollfd;$/;"	m	struct:_Server	access:public
+_Server::fd	src/server.h	/^	int fd;$/;"	m	struct:_Server	access:public
+_Server::servaddr	src/server.h	/^	struct sockaddr_in servaddr;$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+_User	src/server.h	/^typedef struct _User $/;"	s
+_User::fd	src/server.h	/^	int fd; \/\/ socket connection$/;"	m	struct:_User	access:public
+_User::name	src/server.h	/^	char *name; \/\/ username$/;"	m	struct:_User	access:public
+_User::nick	src/server.h	/^	char *nick; \/\/ nickname$/;"	m	struct:_User	access:public
+_User::nrecv	src/server.h	/^	size_t nrecv; \/\/ number of bytes in response buffer sent from server$/;"	m	struct:_User	access:public
+_User::nsent	src/server.h	/^	size_t nsent; \/\/ number of bytes in request buffer recieved from user$/;"	m	struct:_User	access:public
+_User::req_buf	src/server.h	/^	char req_buf[MAX_MSG_LEN + 1]; \/\/ the request message$/;"	m	struct:_User	access:public
+_User::req_len	src/server.h	/^	size_t req_len; \/\/ length of request buffer$/;"	m	struct:_User	access:public
+_User::res_buf	src/server.h	/^	char res_buf[MAX_MSG_LEN + 1]; \/\/ the response message$/;"	m	struct:_User	access:public
+_User::res_len	src/server.h	/^	size_t res_len; \/\/ length of response buffer$/;"	m	struct:_User	access:public
+addr_to_string	src/common.c	/^char *addr_to_string(struct sockaddr *addr, socklen_t len)$/;"	f	signature:(struct sockaddr *addr, socklen_t len)
+addr_to_string	src/common.h	/^char *addr_to_string(struct sockaddr *addr, socklen_t len);$/;"	p	signature:(struct sockaddr *addr, socklen_t len)
+body	src/message.h	/^	char *body;$/;"	m	struct:_Message	access:public
+command	src/message.h	/^	char *command;$/;"	m	struct:_Message	access:public
+connections	src/server.h	/^	CC_HashTable *connections; \/\/ Map socket fd to data of type User*.$/;"	m	struct:_Server	access:public
+die	src/common.h	44;"	d
+epollfd	src/server.h	/^	int epollfd;$/;"	m	struct:_Server	access:public
+fd	src/server.h	/^	int fd; \/\/ socket connection$/;"	m	struct:_User	access:public
+fd	src/server.h	/^	int fd;$/;"	m	struct:_Server	access:public
+get_in_addr	src/common.c	/^void *get_in_addr(struct sockaddr *sa)$/;"	f	signature:(struct sockaddr *sa)
+get_in_addr	src/common.h	/^void *get_in_addr(struct sockaddr *sa);$/;"	p	signature:(struct sockaddr *sa)
+int_cmp	src/test.c	/^int int_cmp(const void *i, const void *j){$/;"	f	signature:(const void *i, const void *j)
+int_compare	src/common.c	/^int int_compare(const void *key1, const void *key2)$/;"	f	signature:(const void *key1, const void *key2)
+int_compare	src/common.h	/^int int_compare(const void *key1, const void *key2);$/;"	p	signature:(const void *key1, const void *key2)
+main	src/client.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
+main	src/server.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
+main	src/test.c	/^int main()$/;"	f
+message_destroy	src/message.c	/^void message_destroy(Message *msg)$/;"	f	signature:(Message *msg)
+message_destroy	src/message.h	/^void message_destroy(Message *msg);$/;"	p	signature:(Message *msg)
+message_init	src/message.c	/^void message_init(Message *msg)$/;"	f	signature:(Message *msg)
+message_init	src/message.h	/^void message_init(Message *msg);$/;"	p	signature:(Message *msg)
+name	src/server.h	/^	char *name; \/\/ username$/;"	m	struct:_User	access:public
+nick	src/server.h	/^	char *nick; \/\/ nickname$/;"	m	struct:_User	access:public
+nrecv	src/server.h	/^	size_t nrecv; \/\/ number of bytes in response buffer sent from server$/;"	m	struct:_User	access:public
+nsent	src/server.h	/^	size_t nsent; \/\/ number of bytes in request buffer recieved from user$/;"	m	struct:_User	access:public
+origin	src/message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
+params	src/message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
+parse_all_messages	src/message.c	/^CC_Array *parse_all_messages(char *str)$/;"	f	signature:(char *str)
+parse_all_messages	src/message.h	/^CC_Array *parse_all_messages(char *str);$/;"	p	signature:(char *str)
+parse_message	src/message.c	/^int parse_message(char *str, Message *msg)$/;"	f	signature:(char *str, Message *msg)
+parse_message	src/message.h	/^int parse_message(char *str, Message *msg);$/;"	p	signature:(char *str, Message *msg)
+quit	src/server.c	/^void quit(Server *serv)$/;"	f	signature:(Server *serv)
+read_all	src/common.c	/^ssize_t read_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
+read_all	src/common.h	/^ssize_t read_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)
+req_buf	src/server.h	/^	char req_buf[MAX_MSG_LEN + 1]; \/\/ the request message$/;"	m	struct:_User	access:public
+req_len	src/server.h	/^	size_t req_len; \/\/ length of request buffer$/;"	m	struct:_User	access:public
+res_buf	src/server.h	/^	char res_buf[MAX_MSG_LEN + 1]; \/\/ the response message$/;"	m	struct:_User	access:public
+res_len	src/server.h	/^	size_t res_len; \/\/ length of response buffer$/;"	m	struct:_User	access:public
+servaddr	src/server.h	/^	struct sockaddr_in servaddr;$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+start_server	src/server.c	/^Server *start_server(int port)$/;"	f	signature:(int port)
+user_destroy	src/server.c	/^void user_destroy(User *usr)$/;"	f	signature:(User *usr)
+write_all	src/common.c	/^ssize_t write_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
+write_all	src/common.h	/^ssize_t write_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)

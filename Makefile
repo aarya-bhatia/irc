@@ -14,7 +14,7 @@ client: obj/client.o $(OBJ)
 server: obj/server.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
-test: obj/test.o obj/common.o
+test: obj/test.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
 obj/%.o: src/%.c
