@@ -8,6 +8,7 @@ typedef struct _Message
 	char *command;
 	char *params[MAX_MSG_PARAM];
 	char *body;
+	size_t n_params;
 } Message;
 
 void message_init(Message *msg);

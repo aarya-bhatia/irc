@@ -3,6 +3,63 @@
 
 static Server *server = NULL;
 
+void do_NICK(Server *serv, User *usr, Message *msg, char **response)
+{
+	assert(serv);
+	assert(usr);
+	assert(msg);
+
+	if(msg->n_params != 1)
+	{
+		asprintf(response, "%s INVALID_PARAMS\r\n", serv->hostname);
+		return;
+	}
+
+	char *p0 = msg->params[0];
+	assert(p0);
+
+	usr->nick = strdup(p0);
+	log_debug("user %d nick set to %s", usr->fd, usr->nick);
+
+	asprintf(response, "%s OK\r\n", serv->hostname);
+}
+
+void do_USER(Server *serv, User *usr, Message *msg, char **response)
+{
+	assert(serv);
+	assert(usr);
+	assert(msg);
+
+	if(msg->n_params != 3)
+	{
+		asprintf(response, "%s INVALID_PARAMS\r\n", serv->hostname);
+		return;
+	}
+
+	if(!msg->body)
+	{
+		asprintf(response, "%s ERR_NO_NAME_FOUND\r\n", serv->hostname);
+		return;
+	}
+
+	char *p0 = msg->params[0];
+	assert(p0);
+
+	if(!usr->nick || strcmp(usr->nick, p0))
+	{
+		free(usr->nick);
+		usr->nick = strdup(p0);
+	}
+
+	usr->name = strdup(msg->body);
+
+	log_debug("user %d nick=%s name=%s", usr->fd, usr->nick, usr->name);
+	asprintf(response, "%s OK\r\n", serv->hostname);
+	
+}
+
+void do_PRIVMSG(Server *serv, User *usr, Message *msg, char **response);
+
 void user_destroy(User *usr)
 {
 	if (!usr)
@@ -44,6 +101,11 @@ void quit(Server *serv)
 	log_debug("Hashtable destroyed: size=%zu", cc_hashtable_size(serv->connections));
 
 	close(serv->fd);
+	close(serv->epollfd);
+	free(serv->hostname);
+	free(serv->port);
+	free(serv);
+
 	log_debug("Server stopped");
 	;
 	exit(0);
@@ -62,6 +124,9 @@ Server *start_server(int port)
 	serv->servaddr.sin_family = AF_INET;
 	serv->servaddr.sin_port = htons(port);
 	serv->servaddr.sin_addr.s_addr = INADDR_ANY;
+
+	serv->hostname = strdup(addr_to_string((struct sockaddr *) &serv->servaddr, sizeof(serv->servaddr)));
+	asprintf(&serv->port, "%d", port);
 
 	// Bind
 	CHECK(bind(serv->fd, (struct sockaddr *)&serv->servaddr, sizeof(struct sockaddr_in)), "bind");
@@ -181,7 +246,10 @@ void client_read_event(Server *serv, User *usr)
 
 	ssize_t nread = read_all(usr->fd, usr->req_buf + usr->req_len, MAX_MSG_LEN - usr->req_len);
 
-	log_debug("%zd bytes read from fd=%d", nread, usr->fd);
+	if(nread == 0) 
+	{
+		return;
+	}
 
 	if (nread == -1)
 	{
@@ -196,21 +264,46 @@ void client_read_event(Server *serv, User *usr)
 	usr->req_len += nread;
 	usr->req_buf[usr->req_len] = 0;
 
-	log_debug("message: %s", usr->req_buf);
+	log_debug("Read %zd bytes from fd %d", nread, usr->fd);
 
 	if (strstr(usr->req_buf, "\r\n"))
 	{
+		// Process request
 		CC_Array *messages = parse_all_messages(usr->req_buf);
 
 		CC_ArrayIter itr;
 		cc_array_iter_init(&itr, messages);
 
-		Message *val;
+		Message *message;
 
-		while(cc_array_iter_next(&itr, (void **) &val) != CC_ITER_END)
+		while(cc_array_iter_next(&itr, (void **) &message) != CC_ITER_END)
 		{
-			cc_array_add(usr->inbox, val);
+			char *response;
+
+			if(message->command) 
+			{
+				if(!strncmp(message->command, "NICK", strlen("NICK")))
+				{
+					do_NICK(serv, usr, message, &response);
+				}
+				else if(!strncmp(message->command, "USER", strlen("USER")))
+				{
+					do_USER(serv, usr, message, &response);
+				}
+				else 
+				{
+					asprintf(&response, "%s INVALID\r\n", serv->hostname);
+				}
+
+				cc_array_add(usr->outbox, response);
+				log_debug("New message added for user %d", usr->fd);
+			}
+
+			message_destroy(message);
+			free(message);
 		}
+
+		cc_array_destroy(messages);
 
 		usr->req_len = 0;
 		usr->req_buf[0] = 0;
@@ -221,7 +314,53 @@ void client_write_event(Server *serv, User *usr)
 {
 	assert(usr);
 	assert(serv);
+
+	// Message is still being sent
+	if(usr->res_off < usr->res_len)
+	{
+		ssize_t nsent = write_all(usr->fd, usr->res_buf + usr->res_off, usr->res_len - usr->res_off);
+
+		log_debug("Sent %zd bytes to user %d", nsent, usr->fd);
+
+		if(nsent == 0) 
+		{
+			return;
+		}
+
+		if (nsent == -1)
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
+				return;
+			}
+
+			client_disconnect(serv, usr);
+		}
+
+		// Entire message was sent
+		if(usr->res_off >= usr->res_len)
+		{
+			usr->res_off = usr->res_len = 0;
+		}
+	}
+
+	// Check for pending messages
+	
+	if(cc_array_size(usr->outbox) > 0)
+	{
+		char *msg;
+		if(cc_array_remove_last(usr->outbox, (void **) &msg) == 0)
+		{
+			strcpy(usr->res_buf, msg);
+			usr->res_len = strlen(msg);
+			usr->res_off = 0;
+			free(msg);
+
+			client_write_event(serv, usr);
+		}
+	}
 }
+
 
 void client_disconnect(Server *serv, User *usr)
 {

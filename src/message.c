@@ -99,6 +99,8 @@ int parse_message(char *str, Message *msg)
 	log_debug("Command: %s", msg->command);
 	log_debug("Body: %s", msg->body);
 
+	msg->n_params = i;
+
 	for(size_t j = 0; j < i; j++) {
 		log_debug("Param %d: %s", j+1, msg->params[j]);
 	}

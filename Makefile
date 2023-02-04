@@ -1,6 +1,6 @@
 CC=gcc
 INC=-I/usr/local/include
-CFLAG=-std=c99 -Wall -Wextra -g -c $(INC)
+CFLAG=-std=c99 -Wall -Wextra -g -gdwarf-4 -c $(INC)
 LIB=-llog -lcollectc
 LDFLAG=-L/usr/local/lib $(LIB)
 

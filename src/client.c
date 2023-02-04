@@ -2,7 +2,8 @@
 
 int main(int argc, char *argv[])
 {
-	if(argc != 4) {
+	if (argc != 4)
+	{
 		fprintf(stderr, "Usage: %s hostname port nick\n", *argv);
 		return 1;
 	}
@@ -13,20 +14,21 @@ int main(int argc, char *argv[])
 
 	struct addrinfo hints, *servinfo = NULL;
 
-	memset(&hints,0,sizeof hints);
-	hints.ai_family=AF_INET;
-	hints.ai_socktype=SOCK_STREAM;
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
 
-	if(getaddrinfo(hostname, port, &hints, &servinfo) != 0)
+	if (getaddrinfo(hostname, port, &hints, &servinfo) != 0)
 		die("getaddrinfo");
 
 	int sock = socket(servinfo->ai_family,
-			servinfo->ai_socktype,
-			servinfo->ai_protocol);
+					  servinfo->ai_socktype,
+					  servinfo->ai_protocol);
 
-	if(sock < 0) die("socket");
+	if (sock < 0)
+		die("socket");
 
-	if(connect(sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
+	if (connect(sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
 		die("connect");
 
 	freeaddrinfo(servinfo);
@@ -39,7 +41,7 @@ int main(int argc, char *argv[])
 	int write_status, read_status;
 
 	// Registration
-	
+
 	// Send user nickname to server
 	sprintf(servmsg, "NICK %s\r\n", nick);
 	int num_sent = write_all(sock, servmsg, strlen(servmsg));
@@ -60,14 +62,14 @@ int main(int argc, char *argv[])
 	// Get user name from stdin
 	sprintf(prompt, "Enter Name >");
 	write_all(1, prompt, strlen(prompt));
-	scanf("%s",usermsg);
+	scanf("%s", usermsg);
 
 	// Send user name to server
 	char *name = strdup(usermsg);
 	sprintf(servmsg, "USER %s * * :%s\r\n", nick, name);
 	log_debug("Sending message: ", servmsg);
 	write_all(sock, servmsg, strlen(servmsg));
-	
+
 	// Get server reply
 	read_all(sock, servmsg, sizeof(servmsg));
 	write(1, "Server > ", strlen("Server >"));

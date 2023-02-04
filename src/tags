@@ -4,13 +4,120 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CC_ARRAY_FOREACH	/usr/local/include/collectc/cc_array.h	149;"	d
+CC_ARRAY_FOREACH_ZIP	/usr/local/include/collectc/cc_array.h	159;"	d
+CC_Array	/usr/local/include/collectc/cc_array.h	/^typedef struct cc_array_s CC_Array;$/;"	t	typeref:struct:cc_array_s
+CC_ArrayConf	/usr/local/include/collectc/cc_array.h	/^} CC_ArrayConf;$/;"	t	typeref:struct:cc_array_conf_s
+CC_ArrayIter	/usr/local/include/collectc/cc_array.h	/^} CC_ArrayIter;$/;"	t	typeref:struct:cc_array_iter_s
+CC_ArrayZipIter	/usr/local/include/collectc/cc_array.h	/^} CC_ArrayZipIter;$/;"	t	typeref:struct:array_zip_iter_s
+CC_CMP_STRING	/usr/local/include/collectc/cc_common.h	67;"	d
+CC_DEQUE_FOREACH	/usr/local/include/collectc/cc_deque.h	142;"	d
+CC_DEQUE_FOREACH_ZIP	/usr/local/include/collectc/cc_deque.h	152;"	d
+CC_Deque	/usr/local/include/collectc/cc_deque.h	/^typedef struct cc_deque_s CC_Deque;$/;"	t	typeref:struct:cc_deque_s
+CC_DequeConf	/usr/local/include/collectc/cc_deque.h	/^} CC_DequeConf;$/;"	t	typeref:struct:cc_deque_conf_s
+CC_DequeIter	/usr/local/include/collectc/cc_deque.h	/^} CC_DequeIter;$/;"	t	typeref:struct:cc_deque_iter_s
+CC_DequeZipIter	/usr/local/include/collectc/cc_deque.h	/^} CC_DequeZipIter;$/;"	t	typeref:struct:cc_deque_zip_iter_s
+CC_ERR_ALLOC	/usr/local/include/collectc/cc_common.h	/^    CC_ERR_ALLOC            = 1,$/;"	e	enum:cc_stat
+CC_ERR_INVALID_CAPACITY	/usr/local/include/collectc/cc_common.h	/^    CC_ERR_INVALID_CAPACITY = 2,$/;"	e	enum:cc_stat
+CC_ERR_INVALID_RANGE	/usr/local/include/collectc/cc_common.h	/^    CC_ERR_INVALID_RANGE    = 3,$/;"	e	enum:cc_stat
+CC_ERR_KEY_NOT_FOUND	/usr/local/include/collectc/cc_common.h	/^    CC_ERR_KEY_NOT_FOUND    = 6,$/;"	e	enum:cc_stat
+CC_ERR_MAX_CAPACITY	/usr/local/include/collectc/cc_common.h	/^    CC_ERR_MAX_CAPACITY     = 4,$/;"	e	enum:cc_stat
+CC_ERR_OUT_OF_RANGE	/usr/local/include/collectc/cc_common.h	/^    CC_ERR_OUT_OF_RANGE     = 8,$/;"	e	enum:cc_stat
+CC_ERR_VALUE_NOT_FOUND	/usr/local/include/collectc/cc_common.h	/^    CC_ERR_VALUE_NOT_FOUND  = 7,$/;"	e	enum:cc_stat
+CC_HASHSET_FOREACH	/usr/local/include/collectc/cc_hashset.h	69;"	d
+CC_HASHTABLE_FOREACH	/usr/local/include/collectc/cc_hashtable.h	148;"	d
+CC_HashSet	/usr/local/include/collectc/cc_hashset.h	/^typedef struct cc_hashset_s CC_HashSet;$/;"	t	typeref:struct:cc_hashset_s
+CC_HashSetConf	/usr/local/include/collectc/cc_hashset.h	/^typedef CC_HashTableConf CC_HashSetConf;$/;"	t
+CC_HashSetIter	/usr/local/include/collectc/cc_hashset.h	/^} CC_HashSetIter;$/;"	t	typeref:struct:cc_hashset_iter_s
+CC_HashTable	/usr/local/include/collectc/cc_hashtable.h	/^typedef struct cc_hashtable_s CC_HashTable;$/;"	t	typeref:struct:cc_hashtable_s
+CC_HashTableConf	/usr/local/include/collectc/cc_hashtable.h	/^} CC_HashTableConf;$/;"	t	typeref:struct:cc_hashtable_conf_s
+CC_HashTableIter	/usr/local/include/collectc/cc_hashtable.h	/^} CC_HashTableIter;$/;"	t	typeref:struct:cc_hashtable_iter
+CC_ITER_END	/usr/local/include/collectc/cc_common.h	/^    CC_ITER_END             = 9,$/;"	e	enum:cc_stat
+CC_LIST_FOREACH	/usr/local/include/collectc/cc_list.h	169;"	d
+CC_LIST_FOREACH_ZIP	/usr/local/include/collectc/cc_list.h	179;"	d
+CC_List	/usr/local/include/collectc/cc_list.h	/^typedef struct cc_list_s CC_List;$/;"	t	typeref:struct:cc_list_s
+CC_ListConf	/usr/local/include/collectc/cc_list.h	/^} CC_ListConf;$/;"	t	typeref:struct:cc_list_conf_s
+CC_ListIter	/usr/local/include/collectc/cc_list.h	/^} CC_ListIter;$/;"	t	typeref:struct:cc_list_iter_s
+CC_ListZipIter	/usr/local/include/collectc/cc_list.h	/^} CC_ListZipIter;$/;"	t	typeref:struct:cc_list_zip_iter_s
+CC_MAX_ELEMENTS	/usr/local/include/collectc/cc_common.h	50;"	d
+CC_OK	/usr/local/include/collectc/cc_common.h	/^    CC_OK                   = 0,$/;"	e	enum:cc_stat
+CC_PQueue	/usr/local/include/collectc/cc_pqueue.h	/^typedef struct cc_pqueue_s CC_PQueue;$/;"	t	typeref:struct:cc_pqueue_s
+CC_PQueueConf	/usr/local/include/collectc/cc_pqueue.h	/^} CC_PQueueConf;$/;"	t	typeref:struct:cc_pqueue_conf_s
+CC_Rbuf	/usr/local/include/collectc/cc_ring_buffer.h	/^typedef struct ring_buffer CC_Rbuf;$/;"	t	typeref:struct:ring_buffer
+CC_RbufConf	/usr/local/include/collectc/cc_ring_buffer.h	/^typedef struct ring_buffer_conf CC_RbufConf;$/;"	t	typeref:struct:ring_buffer_conf
+CC_SLIST_FOREACH	/usr/local/include/collectc/cc_slist.h	150;"	d
+CC_SLIST_FOREACH_ZIP	/usr/local/include/collectc/cc_slist.h	160;"	d
+CC_SList	/usr/local/include/collectc/cc_slist.h	/^typedef struct cc_slist_s CC_SList;$/;"	t	typeref:struct:cc_slist_s
+CC_SListConf	/usr/local/include/collectc/cc_slist.h	/^} CC_SListConf;$/;"	t	typeref:struct:cc_slist_conf_s
+CC_SListIter	/usr/local/include/collectc/cc_slist.h	/^} CC_SListIter;$/;"	t	typeref:struct:cc_slist_iter_s
+CC_SListZipIter	/usr/local/include/collectc/cc_slist.h	/^} CC_SListZipIter;$/;"	t	typeref:struct:cc_slist_zip_iter_s
+CC_TREESET_FOREACH	/usr/local/include/collectc/cc_treeset.h	73;"	d
+CC_TREETABLE_FOREACH	/usr/local/include/collectc/cc_treetable.h	129;"	d
+CC_TSTTABLE_FOREACH	/usr/local/include/collectc/cc_tsttable.h	70;"	d
+CC_TSTTable	/usr/local/include/collectc/cc_tsttable.h	/^typedef struct cc_tsttable_s CC_TSTTable;$/;"	t	typeref:struct:cc_tsttable_s
+CC_TSTTableConf	/usr/local/include/collectc/cc_tsttable.h	/^} CC_TSTTableConf;$/;"	t	typeref:struct:cc_tsttable_conf_s
+CC_TSTTableEntry	/usr/local/include/collectc/cc_tsttable.h	/^} CC_TSTTableEntry;$/;"	t	typeref:struct:cc_tsttable_data_s
+CC_TSTTableIter	/usr/local/include/collectc/cc_tsttable.h	/^} CC_TSTTableIter;$/;"	t	typeref:struct:cc_tsttable_iter_s
+CC_TreeSet	/usr/local/include/collectc/cc_treeset.h	/^typedef struct cc_treeset_s CC_TreeSet;$/;"	t	typeref:struct:cc_treeset_s
+CC_TreeSetConf	/usr/local/include/collectc/cc_treeset.h	/^typedef CC_TreeTableConf CC_TreeSetConf;$/;"	t
+CC_TreeSetIter	/usr/local/include/collectc/cc_treeset.h	/^} CC_TreeSetIter;$/;"	t	typeref:struct:cc_treeset_iter_s
+CC_TreeTable	/usr/local/include/collectc/cc_treetable.h	/^typedef struct cc_treetable_s CC_TreeTable;$/;"	t	typeref:struct:cc_treetable_s
+CC_TreeTableConf	/usr/local/include/collectc/cc_treetable.h	/^} CC_TreeTableConf;$/;"	t	typeref:struct:cc_treetable_conf_s
+CC_TreeTableEntry	/usr/local/include/collectc/cc_treetable.h	/^} CC_TreeTableEntry;$/;"	t	typeref:struct:tree_table_entry_s
+CC_TreeTableIter	/usr/local/include/collectc/cc_treetable.h	/^} CC_TreeTableIter;$/;"	t	typeref:struct:tree_table_iter_s
 CHECK	common.h	42;"	d
+COLLECTIONS_C_ARRAY_H	/usr/local/include/collectc/cc_array.h	22;"	d
+COLLECTIONS_C_CC_DEQUE_H	/usr/local/include/collectc/cc_deque.h	22;"	d
+COLLECTIONS_C_CC_HASHSET_H	/usr/local/include/collectc/cc_hashset.h	22;"	d
+COLLECTIONS_C_CC_HASHTABLE_H	/usr/local/include/collectc/cc_hashtable.h	22;"	d
+COLLECTIONS_C_CC_LIST_H	/usr/local/include/collectc/cc_list.h	22;"	d
+COLLECTIONS_C_CC_PQUEUE_H	/usr/local/include/collectc/cc_pqueue.h	22;"	d
+COLLECTIONS_C_CC_RBUF_H	/usr/local/include/collectc/cc_ring_buffer.h	10;"	d
+COLLECTIONS_C_CC_SLIST_H	/usr/local/include/collectc/cc_slist.h	22;"	d
+COLLECTIONS_C_CC_TREESET_H	/usr/local/include/collectc/cc_treeset.h	22;"	d
+COLLECTIONS_C_CC_TREETABLE_H	/usr/local/include/collectc/cc_treetable.h	22;"	d
+COLLECTIONS_C_CC_TSTTABLE_H	/usr/local/include/collectc/cc_tsttable.h	2;"	d
+COLLECTIONS_C_COMMON_H	/usr/local/include/collectc/cc_common.h	22;"	d
+COLLECTIONS_C_QUEUE_H	/usr/local/include/collectc/cc_queue.h	22;"	d
+COLLECTIONS_C_STACK_H	/usr/local/include/collectc/cc_stack.h	22;"	d
 CRLF	common.h	32;"	d
+DEFAULT_CC_RBUF_CAPACITY	/usr/local/include/collectc/cc_ring_buffer.h	14;"	d
+FORCE_INLINE	/usr/local/include/collectc/cc_common.h	55;"	d
+FORCE_INLINE	/usr/local/include/collectc/cc_common.h	60;"	d
+GENERAL_HASH	/usr/local/include/collectc/cc_hashtable.h	162;"	d
+INLINE	/usr/local/include/collectc/cc_common.h	54;"	d
+INLINE	/usr/local/include/collectc/cc_common.h	59;"	d
+KEY_LENGTH_POINTER	/usr/local/include/collectc/cc_hashtable.h	28;"	d
+KEY_LENGTH_VARIABLE	/usr/local/include/collectc/cc_hashtable.h	27;"	d
 MAX_EVENTS	common.h	29;"	d
 MAX_MSG_LEN	common.h	30;"	d
 MAX_MSG_PARAM	common.h	31;"	d
+MAX_POW_TWO	/usr/local/include/collectc/cc_common.h	30;"	d
+MAX_POW_TWO	/usr/local/include/collectc/cc_common.h	32;"	d
 Message	message.h	/^} Message;$/;"	t	typeref:struct:_Message
+Node	/usr/local/include/collectc/cc_list.h	/^} Node;$/;"	t	typeref:struct:node_s
+POINTER_HASH	/usr/local/include/collectc/cc_hashtable.h	164;"	d
+QUEUE_FOREACH	/usr/local/include/collectc/cc_queue.h	79;"	d
+QUEUE_FOREACH_ZIP	/usr/local/include/collectc/cc_queue.h	89;"	d
+Queue	/usr/local/include/collectc/cc_queue.h	/^typedef struct queue_s Queue;$/;"	t	typeref:struct:queue_s
+QueueConf	/usr/local/include/collectc/cc_queue.h	/^typedef CC_DequeConf QueueConf;$/;"	t
+QueueIter	/usr/local/include/collectc/cc_queue.h	/^} QueueIter;$/;"	t	typeref:struct:queue_iter_s
+QueueZipIter	/usr/local/include/collectc/cc_queue.h	/^} QueueZipIter;$/;"	t	typeref:struct:queue_zip_iter_s
+RBNode	/usr/local/include/collectc/cc_treetable.h	/^} RBNode;$/;"	t	typeref:struct:rbnode_s
+RB_ERROR_BLACK_HEIGHT	/usr/local/include/collectc/cc_treetable.h	141;"	d
+RB_ERROR_CONSECUTIVE_RED	/usr/local/include/collectc/cc_treetable.h	140;"	d
+RB_ERROR_OK	/usr/local/include/collectc/cc_treetable.h	143;"	d
+RB_ERROR_TREE_STRUCTURE	/usr/local/include/collectc/cc_treetable.h	142;"	d
+SNode	/usr/local/include/collectc/cc_slist.h	/^} SNode;$/;"	t	typeref:struct:snode_s
+STACK_FOREACH	/usr/local/include/collectc/cc_stack.h	84;"	d
+STACK_FOREACH_ZIP	/usr/local/include/collectc/cc_stack.h	94;"	d
+STRING_HASH	/usr/local/include/collectc/cc_hashtable.h	163;"	d
 Server	server.h	/^} Server;$/;"	t	typeref:struct:_Server
+Stack	/usr/local/include/collectc/cc_stack.h	/^typedef struct stack_s Stack;$/;"	t	typeref:struct:stack_s
+StackConf	/usr/local/include/collectc/cc_stack.h	/^typedef CC_ArrayConf StackConf;$/;"	t
+StackIter	/usr/local/include/collectc/cc_stack.h	/^} StackIter;$/;"	t	typeref:struct:stack_iter_s
+StackZipIter	/usr/local/include/collectc/cc_stack.h	/^} StackZipIter;$/;"	t	typeref:struct:stack_zip_iter_s
+TableEntry	/usr/local/include/collectc/cc_hashtable.h	/^} TableEntry;$/;"	t	typeref:struct:table_entry_s
 User	server.h	/^} User;$/;"	t	typeref:struct:_User
 _CHECK	common.h	34;"	d
 _Message	message.h	/^typedef struct _Message$/;"	s
@@ -40,60 +147,207 @@ accept_new_connections	server.c	/^void accept_new_connections(Server *serv)$/;"	
 accept_new_connections	server.h	/^void accept_new_connections(Server *serv);$/;"	p	signature:(Server *serv)
 addr_to_string	common.c	/^char *addr_to_string(struct sockaddr *addr, socklen_t len)$/;"	f	signature:(struct sockaddr *addr, socklen_t len)
 addr_to_string	common.h	/^char *addr_to_string(struct sockaddr *addr, socklen_t len);$/;"	p	signature:(struct sockaddr *addr, socklen_t len)
+advanced_on_remove	/usr/local/include/collectc/cc_tsttable.h	/^    bool            advanced_on_remove;$/;"	m	struct:cc_tsttable_iter_s
+ar	/usr/local/include/collectc/cc_array.h	/^    CC_Array  *ar;$/;"	m	struct:cc_array_iter_s
+ar1	/usr/local/include/collectc/cc_array.h	/^    CC_Array *ar1;$/;"	m	struct:array_zip_iter_s
+ar2	/usr/local/include/collectc/cc_array.h	/^    CC_Array *ar2;$/;"	m	struct:array_zip_iter_s
+array_zip_iter_s	/usr/local/include/collectc/cc_array.h	/^typedef struct array_zip_iter_s {$/;"	s
 body	message.h	/^	char *body;$/;"	m	struct:_Message	access:public
+bucket_index	/usr/local/include/collectc/cc_hashtable.h	/^    size_t         bucket_index;$/;"	m	struct:cc_hashtable_iter
+capacity	/usr/local/include/collectc/cc_array.h	/^    size_t capacity;$/;"	m	struct:cc_array_conf_s
+capacity	/usr/local/include/collectc/cc_deque.h	/^    size_t capacity;$/;"	m	struct:cc_deque_conf_s
+capacity	/usr/local/include/collectc/cc_pqueue.h	/^    size_t capacity;$/;"	m	struct:cc_pqueue_conf_s
+cc_array_conf_s	/usr/local/include/collectc/cc_array.h	/^typedef struct cc_array_conf_s {$/;"	s
+cc_array_iter_s	/usr/local/include/collectc/cc_array.h	/^typedef struct cc_array_iter_s {$/;"	s
+cc_deque_conf_s	/usr/local/include/collectc/cc_deque.h	/^typedef struct cc_deque_conf_s {$/;"	s
+cc_deque_iter_s	/usr/local/include/collectc/cc_deque.h	/^typedef struct cc_deque_iter_s {$/;"	s
+cc_deque_zip_iter_s	/usr/local/include/collectc/cc_deque.h	/^typedef struct cc_deque_zip_iter_s {$/;"	s
+cc_hashset_iter_s	/usr/local/include/collectc/cc_hashset.h	/^typedef struct cc_hashset_iter_s {$/;"	s
+cc_hashtable_conf_s	/usr/local/include/collectc/cc_hashtable.h	/^typedef struct cc_hashtable_conf_s {$/;"	s
+cc_hashtable_iter	/usr/local/include/collectc/cc_hashtable.h	/^typedef struct cc_hashtable_iter {$/;"	s
+cc_list_conf_s	/usr/local/include/collectc/cc_list.h	/^typedef struct cc_list_conf_s {$/;"	s
+cc_list_iter_s	/usr/local/include/collectc/cc_list.h	/^typedef struct cc_list_iter_s {$/;"	s
+cc_list_zip_iter_s	/usr/local/include/collectc/cc_list.h	/^typedef struct cc_list_zip_iter_s {$/;"	s
+cc_pqueue_conf_s	/usr/local/include/collectc/cc_pqueue.h	/^typedef struct cc_pqueue_conf_s {$/;"	s
+cc_slist_conf_s	/usr/local/include/collectc/cc_slist.h	/^typedef struct cc_slist_conf_s {$/;"	s
+cc_slist_iter_s	/usr/local/include/collectc/cc_slist.h	/^typedef struct cc_slist_iter_s {$/;"	s
+cc_slist_zip_iter_s	/usr/local/include/collectc/cc_slist.h	/^typedef struct cc_slist_zip_iter_s {$/;"	s
+cc_stat	/usr/local/include/collectc/cc_common.h	/^enum cc_stat {$/;"	g
+cc_treeset_iter_s	/usr/local/include/collectc/cc_treeset.h	/^typedef struct cc_treeset_iter_s {$/;"	s
+cc_treetable_conf_s	/usr/local/include/collectc/cc_treetable.h	/^typedef struct cc_treetable_conf_s {$/;"	s
+cc_tsttable_conf_s	/usr/local/include/collectc/cc_tsttable.h	/^typedef struct cc_tsttable_conf_s {$/;"	s
+cc_tsttable_data_s	/usr/local/include/collectc/cc_tsttable.h	/^typedef struct cc_tsttable_data_s {$/;"	s
+cc_tsttable_iter_s	/usr/local/include/collectc/cc_tsttable.h	/^typedef struct cc_tsttable_iter_s {$/;"	s
+char_cmp	/usr/local/include/collectc/cc_tsttable.h	/^    int    (*char_cmp)    (char c1, char c2);$/;"	m	struct:cc_tsttable_conf_s
 client_disconnect	server.c	/^void client_disconnect(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
 client_disconnect	server.h	/^void client_disconnect(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
 client_read_event	server.c	/^void client_read_event(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
 client_read_event	server.h	/^void client_read_event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
 client_write_event	server.c	/^void client_write_event(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
 client_write_event	server.h	/^void client_write_event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+cmp	/usr/local/include/collectc/cc_pqueue.h	/^    int (*cmp) (const void *a, const void *b);$/;"	m	struct:cc_pqueue_conf_s
+cmp	/usr/local/include/collectc/cc_treetable.h	/^    int    (*cmp)         (const void *k1, const void *k2);$/;"	m	struct:cc_treetable_conf_s
+color	/usr/local/include/collectc/cc_treetable.h	/^    char  color;$/;"	m	struct:rbnode_s
 command	message.h	/^	char *command;$/;"	m	struct:_Message	access:public
 connections	server.h	/^	CC_HashTable *connections; \/\/ Map socket fd to data of type User*.$/;"	m	struct:_Server	access:public
+current	/usr/local/include/collectc/cc_slist.h	/^    SNode   *current;$/;"	m	struct:cc_slist_iter_s
+current	/usr/local/include/collectc/cc_treetable.h	/^    RBNode    *current;$/;"	m	struct:tree_table_iter_s
+current_node	/usr/local/include/collectc/cc_tsttable.h	/^    void            *current_node;$/;"	m	struct:cc_tsttable_iter_s
+d1	/usr/local/include/collectc/cc_deque.h	/^    CC_Deque *d1;$/;"	m	struct:cc_deque_zip_iter_s
+d2	/usr/local/include/collectc/cc_deque.h	/^    CC_Deque *d2;$/;"	m	struct:cc_deque_zip_iter_s
+data	/usr/local/include/collectc/cc_list.h	/^    void          *data;$/;"	m	struct:node_s
+data	/usr/local/include/collectc/cc_slist.h	/^    void           *data;$/;"	m	struct:snode_s
+deque	/usr/local/include/collectc/cc_deque.h	/^    CC_Deque *deque;$/;"	m	struct:cc_deque_iter_s
 die	common.h	44;"	d
 do_NICK	server.h	/^void do_NICK(Server *serv, int fd, Message *msg);$/;"	p	signature:(Server *serv, int fd, Message *msg)
 do_PRIVMSG	server.h	/^void do_PRIVMSG(Server *serv, int fd, Message *msg);$/;"	p	signature:(Server *serv, int fd, Message *msg)
 do_USER	server.h	/^void do_USER(Server *serv, int fd, Message *msg);$/;"	p	signature:(Server *serv, int fd, Message *msg)
 epollfd	server.h	/^	int epollfd;$/;"	m	struct:_Server	access:public
+exp_factor	/usr/local/include/collectc/cc_array.h	/^    float  exp_factor;$/;"	m	struct:cc_array_conf_s
+exp_factor	/usr/local/include/collectc/cc_pqueue.h	/^    float  exp_factor;$/;"	m	struct:cc_pqueue_conf_s
 fd	server.h	/^	int fd; \/\/ socket connection$/;"	m	struct:_User	access:public
 fd	server.h	/^	int fd;$/;"	m	struct:_Server	access:public
 get_in_addr	common.c	/^void *get_in_addr(struct sockaddr *sa)$/;"	f	signature:(struct sockaddr *sa)
 get_in_addr	common.h	/^void *get_in_addr(struct sockaddr *sa);$/;"	p	signature:(struct sockaddr *sa)
+hash	/usr/local/include/collectc/cc_hashtable.h	/^    size_t    hash;$/;"	m	struct:table_entry_s
+hash	/usr/local/include/collectc/cc_hashtable.h	/^    size_t (*hash)        (const void *key, int l, uint32_t seed);$/;"	m	struct:cc_hashtable_conf_s
+hash_seed	/usr/local/include/collectc/cc_hashtable.h	/^    uint32_t hash_seed;$/;"	m	struct:cc_hashtable_conf_s
+i	/usr/local/include/collectc/cc_queue.h	/^    CC_DequeIter i;$/;"	m	struct:queue_iter_s
+i	/usr/local/include/collectc/cc_queue.h	/^    CC_DequeZipIter i;$/;"	m	struct:queue_zip_iter_s
+i	/usr/local/include/collectc/cc_stack.h	/^    CC_ArrayIter i;$/;"	m	struct:stack_iter_s
+i	/usr/local/include/collectc/cc_stack.h	/^    CC_ArrayZipIter i;$/;"	m	struct:stack_zip_iter_s
+i	/usr/local/include/collectc/cc_treeset.h	/^    CC_TreeTableIter i;$/;"	m	struct:cc_treeset_iter_s
 inbox	server.h	/^	CC_Array *inbox;$/;"	m	struct:_User	access:public
+index	/usr/local/include/collectc/cc_array.h	/^    size_t    index;$/;"	m	struct:array_zip_iter_s
+index	/usr/local/include/collectc/cc_array.h	/^    size_t  index;$/;"	m	struct:cc_array_iter_s
+index	/usr/local/include/collectc/cc_deque.h	/^    size_t index;$/;"	m	struct:cc_deque_iter_s
+index	/usr/local/include/collectc/cc_deque.h	/^    size_t index;$/;"	m	struct:cc_deque_zip_iter_s
+index	/usr/local/include/collectc/cc_list.h	/^    size_t  index;$/;"	m	struct:cc_list_iter_s
+index	/usr/local/include/collectc/cc_list.h	/^    size_t index;$/;"	m	struct:cc_list_zip_iter_s
+index	/usr/local/include/collectc/cc_slist.h	/^    size_t  index;$/;"	m	struct:cc_slist_iter_s
+index	/usr/local/include/collectc/cc_slist.h	/^    size_t index;$/;"	m	struct:cc_slist_zip_iter_s
+initial_capacity	/usr/local/include/collectc/cc_hashtable.h	/^    size_t   initial_capacity;$/;"	m	struct:cc_hashtable_conf_s
 int_cmp	test.c	/^int int_cmp(const void *i, const void *j){$/;"	f	signature:(const void *i, const void *j)
 int_compare	common.c	/^int int_compare(const void *key1, const void *key2)$/;"	f	signature:(const void *key1, const void *key2)
 int_compare	common.h	/^int int_compare(const void *key1, const void *key2);$/;"	p	signature:(const void *key1, const void *key2)
+iter	/usr/local/include/collectc/cc_hashset.h	/^    CC_HashTableIter iter;$/;"	m	struct:cc_hashset_iter_s
+key	/usr/local/include/collectc/cc_hashtable.h	/^    void     *key;$/;"	m	struct:table_entry_s
+key	/usr/local/include/collectc/cc_treetable.h	/^    void *key;$/;"	m	struct:rbnode_s
+key	/usr/local/include/collectc/cc_treetable.h	/^    void *key;$/;"	m	struct:tree_table_entry_s
+key	/usr/local/include/collectc/cc_tsttable.h	/^    char *key;$/;"	m	struct:cc_tsttable_data_s
+key_compare	/usr/local/include/collectc/cc_hashtable.h	/^    int    (*key_compare) (const void *key1, const void *key2);$/;"	m	struct:cc_hashtable_conf_s
+key_length	/usr/local/include/collectc/cc_hashtable.h	/^    int      key_length;$/;"	m	struct:cc_hashtable_conf_s
+l1	/usr/local/include/collectc/cc_list.h	/^    CC_List *l1;$/;"	m	struct:cc_list_zip_iter_s
+l1	/usr/local/include/collectc/cc_slist.h	/^    CC_SList *l1;$/;"	m	struct:cc_slist_zip_iter_s
+l1_current	/usr/local/include/collectc/cc_slist.h	/^    SNode *l1_current;$/;"	m	struct:cc_slist_zip_iter_s
+l1_last	/usr/local/include/collectc/cc_list.h	/^    Node *l1_last;$/;"	m	struct:cc_list_zip_iter_s
+l1_next	/usr/local/include/collectc/cc_list.h	/^    Node *l1_next;$/;"	m	struct:cc_list_zip_iter_s
+l1_next	/usr/local/include/collectc/cc_slist.h	/^    SNode *l1_next;$/;"	m	struct:cc_slist_zip_iter_s
+l1_prev	/usr/local/include/collectc/cc_slist.h	/^    SNode *l1_prev;$/;"	m	struct:cc_slist_zip_iter_s
+l2	/usr/local/include/collectc/cc_list.h	/^    CC_List *l2;$/;"	m	struct:cc_list_zip_iter_s
+l2	/usr/local/include/collectc/cc_slist.h	/^    CC_SList *l2;$/;"	m	struct:cc_slist_zip_iter_s
+l2_current	/usr/local/include/collectc/cc_slist.h	/^    SNode *l2_current;$/;"	m	struct:cc_slist_zip_iter_s
+l2_last	/usr/local/include/collectc/cc_list.h	/^    Node *l2_last;$/;"	m	struct:cc_list_zip_iter_s
+l2_next	/usr/local/include/collectc/cc_list.h	/^    Node *l2_next;$/;"	m	struct:cc_list_zip_iter_s
+l2_next	/usr/local/include/collectc/cc_slist.h	/^    SNode *l2_next;$/;"	m	struct:cc_slist_zip_iter_s
+l2_prev	/usr/local/include/collectc/cc_slist.h	/^    SNode *l2_prev;$/;"	m	struct:cc_slist_zip_iter_s
+last	/usr/local/include/collectc/cc_list.h	/^    Node   *last;$/;"	m	struct:cc_list_iter_s
+last_removed	/usr/local/include/collectc/cc_array.h	/^    bool      last_removed;$/;"	m	struct:array_zip_iter_s
+last_removed	/usr/local/include/collectc/cc_array.h	/^    bool last_removed;$/;"	m	struct:cc_array_iter_s
+last_removed	/usr/local/include/collectc/cc_deque.h	/^    bool last_removed;$/;"	m	struct:cc_deque_iter_s
+last_removed	/usr/local/include/collectc/cc_deque.h	/^    bool last_removed;$/;"	m	struct:cc_deque_zip_iter_s
+left	/usr/local/include/collectc/cc_treetable.h	/^    struct rbnode_s *left;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s
+list	/usr/local/include/collectc/cc_list.h	/^    CC_List   *list;$/;"	m	struct:cc_list_iter_s
+list	/usr/local/include/collectc/cc_slist.h	/^    CC_SList  *list;$/;"	m	struct:cc_slist_iter_s
+load_factor	/usr/local/include/collectc/cc_hashtable.h	/^    float    load_factor;$/;"	m	struct:cc_hashtable_conf_s
 main	client.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
 main	server.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
 main	test.c	/^int main()$/;"	f
+mem_alloc	/usr/local/include/collectc/cc_array.h	/^    void *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_array_conf_s
+mem_alloc	/usr/local/include/collectc/cc_deque.h	/^    void *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_deque_conf_s
+mem_alloc	/usr/local/include/collectc/cc_hashtable.h	/^    void  *(*mem_alloc)   (size_t size);$/;"	m	struct:cc_hashtable_conf_s
+mem_alloc	/usr/local/include/collectc/cc_list.h	/^    void  *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_list_conf_s
+mem_alloc	/usr/local/include/collectc/cc_pqueue.h	/^    void *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_pqueue_conf_s
+mem_alloc	/usr/local/include/collectc/cc_slist.h	/^    void  *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_slist_conf_s
+mem_alloc	/usr/local/include/collectc/cc_treetable.h	/^    void  *(*mem_alloc)   (size_t size);$/;"	m	struct:cc_treetable_conf_s
+mem_alloc	/usr/local/include/collectc/cc_tsttable.h	/^    void  *(*mem_alloc)   (size_t size);$/;"	m	struct:cc_tsttable_conf_s
+mem_calloc	/usr/local/include/collectc/cc_array.h	/^    void *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_array_conf_s
+mem_calloc	/usr/local/include/collectc/cc_deque.h	/^    void *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_deque_conf_s
+mem_calloc	/usr/local/include/collectc/cc_hashtable.h	/^    void  *(*mem_calloc)  (size_t blocks, size_t size);$/;"	m	struct:cc_hashtable_conf_s
+mem_calloc	/usr/local/include/collectc/cc_list.h	/^    void  *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_list_conf_s
+mem_calloc	/usr/local/include/collectc/cc_pqueue.h	/^    void *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_pqueue_conf_s
+mem_calloc	/usr/local/include/collectc/cc_slist.h	/^    void  *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_slist_conf_s
+mem_calloc	/usr/local/include/collectc/cc_treetable.h	/^    void  *(*mem_calloc)  (size_t blocks, size_t size);$/;"	m	struct:cc_treetable_conf_s
+mem_calloc	/usr/local/include/collectc/cc_tsttable.h	/^    void  *(*mem_calloc)  (size_t blocks, size_t size);$/;"	m	struct:cc_tsttable_conf_s
+mem_free	/usr/local/include/collectc/cc_array.h	/^    void  (*mem_free)   (void *block);$/;"	m	struct:cc_array_conf_s
+mem_free	/usr/local/include/collectc/cc_deque.h	/^    void  (*mem_free)   (void *block);$/;"	m	struct:cc_deque_conf_s
+mem_free	/usr/local/include/collectc/cc_hashtable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_hashtable_conf_s
+mem_free	/usr/local/include/collectc/cc_list.h	/^    void   (*mem_free)   (void *block);$/;"	m	struct:cc_list_conf_s
+mem_free	/usr/local/include/collectc/cc_pqueue.h	/^    void  (*mem_free)   (void *block);$/;"	m	struct:cc_pqueue_conf_s
+mem_free	/usr/local/include/collectc/cc_slist.h	/^    void   (*mem_free)   (void *block);$/;"	m	struct:cc_slist_conf_s
+mem_free	/usr/local/include/collectc/cc_treetable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_treetable_conf_s
+mem_free	/usr/local/include/collectc/cc_tsttable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_tsttable_conf_s
 message_destroy	message.c	/^void message_destroy(Message *msg)$/;"	f	signature:(Message *msg)
 message_destroy	message.h	/^void message_destroy(Message *msg);$/;"	p	signature:(Message *msg)
 message_init	message.c	/^void message_init(Message *msg)$/;"	f	signature:(Message *msg)
 message_init	message.h	/^void message_init(Message *msg);$/;"	p	signature:(Message *msg)
 name	server.h	/^	char *name; \/\/ username$/;"	m	struct:_User	access:public
+next	/usr/local/include/collectc/cc_hashtable.h	/^    struct table_entry_s *next;$/;"	m	struct:table_entry_s	typeref:struct:table_entry_s::table_entry_s
+next	/usr/local/include/collectc/cc_list.h	/^    Node   *next;$/;"	m	struct:cc_list_iter_s
+next	/usr/local/include/collectc/cc_list.h	/^    struct node_s *next;$/;"	m	struct:node_s	typeref:struct:node_s::node_s
+next	/usr/local/include/collectc/cc_slist.h	/^    SNode   *next;$/;"	m	struct:cc_slist_iter_s
+next	/usr/local/include/collectc/cc_slist.h	/^    struct snode_s *next;$/;"	m	struct:snode_s	typeref:struct:snode_s::snode_s
+next	/usr/local/include/collectc/cc_treetable.h	/^    RBNode    *next;$/;"	m	struct:tree_table_iter_s
+next_entry	/usr/local/include/collectc/cc_hashtable.h	/^    TableEntry    *next_entry;$/;"	m	struct:cc_hashtable_iter
+next_node	/usr/local/include/collectc/cc_tsttable.h	/^    void            *next_node;$/;"	m	struct:cc_tsttable_iter_s
+next_stat	/usr/local/include/collectc/cc_tsttable.h	/^    enum cc_stat    next_stat;$/;"	m	struct:cc_tsttable_iter_s	typeref:enum:cc_tsttable_iter_s::cc_stat
 nick	server.h	/^	char *nick; \/\/ nickname$/;"	m	struct:_User	access:public
+node_s	/usr/local/include/collectc/cc_list.h	/^typedef struct node_s {$/;"	s
 nrecv	server.h	/^	size_t nrecv; \/\/ number of bytes in response buffer sent from server$/;"	m	struct:_User	access:public
 nsent	server.h	/^	size_t nsent; \/\/ number of bytes in request buffer recieved from user$/;"	m	struct:_User	access:public
 origin	message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
 outbox	server.h	/^	CC_Array *outbox;$/;"	m	struct:_User	access:public
 params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
+parent	/usr/local/include/collectc/cc_treetable.h	/^    struct rbnode_s *parent;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s
 parse_all_messages	message.c	/^CC_Array *parse_all_messages(char *str)$/;"	f	signature:(char *str)
 parse_all_messages	message.h	/^CC_Array *parse_all_messages(char *str);$/;"	p	signature:(char *str)
 parse_message	message.c	/^int parse_message(char *str, Message *msg)$/;"	f	signature:(char *str, Message *msg)
 parse_message	message.h	/^int parse_message(char *str, Message *msg);$/;"	p	signature:(char *str, Message *msg)
+prev	/usr/local/include/collectc/cc_list.h	/^    struct node_s *prev;$/;"	m	struct:node_s	typeref:struct:node_s::node_s
+prev	/usr/local/include/collectc/cc_slist.h	/^    SNode   *prev;$/;"	m	struct:cc_slist_iter_s
+prev_entry	/usr/local/include/collectc/cc_hashtable.h	/^    TableEntry    *prev_entry;$/;"	m	struct:cc_hashtable_iter
+previous_node	/usr/local/include/collectc/cc_tsttable.h	/^    void            *previous_node;$/;"	m	struct:cc_tsttable_iter_s
+queue_iter_s	/usr/local/include/collectc/cc_queue.h	/^typedef struct queue_iter_s {$/;"	s
+queue_zip_iter_s	/usr/local/include/collectc/cc_queue.h	/^typedef struct queue_zip_iter_s {$/;"	s
 quit	server.c	/^void quit(Server *serv)$/;"	f	signature:(Server *serv)
 quit	server.h	/^void quit(Server *serv);$/;"	p	signature:(Server *serv)
+rbnode_s	/usr/local/include/collectc/cc_treetable.h	/^typedef struct rbnode_s {$/;"	s
 read_all	common.c	/^ssize_t read_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
 read_all	common.h	/^ssize_t read_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)
 req_buf	server.h	/^	char req_buf[MAX_MSG_LEN + 1]; \/\/ the request message$/;"	m	struct:_User	access:public
 req_len	server.h	/^	size_t req_len; \/\/ length of request buffer$/;"	m	struct:_User	access:public
 res_buf	server.h	/^	char res_buf[MAX_MSG_LEN + 1]; \/\/ the response message$/;"	m	struct:_User	access:public
 res_len	server.h	/^	size_t res_len; \/\/ length of response buffer$/;"	m	struct:_User	access:public
+right	/usr/local/include/collectc/cc_treetable.h	/^    struct rbnode_s *right;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s
 servaddr	server.h	/^	struct sockaddr_in servaddr;$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
 server	server.c	/^static Server *server = NULL;$/;"	v	file:
 sighandler	server.c	/^void sighandler(int sig)$/;"	f	signature:(int sig)
+snode_s	/usr/local/include/collectc/cc_slist.h	/^typedef struct snode_s {$/;"	s
+stack_iter_s	/usr/local/include/collectc/cc_stack.h	/^typedef struct stack_iter_s {$/;"	s
+stack_zip_iter_s	/usr/local/include/collectc/cc_stack.h	/^typedef struct stack_zip_iter_s {$/;"	s
 start_server	server.c	/^Server *start_server(int port)$/;"	f	signature:(int port)
 start_server	server.h	/^Server *start_server(int port);$/;"	p	signature:(int port)
+table	/usr/local/include/collectc/cc_hashtable.h	/^    CC_HashTable  *table;$/;"	m	struct:cc_hashtable_iter
+table	/usr/local/include/collectc/cc_treetable.h	/^    CC_TreeTable *table;$/;"	m	struct:tree_table_iter_s
+table	/usr/local/include/collectc/cc_tsttable.h	/^    CC_TSTTable        *table;$/;"	m	struct:cc_tsttable_iter_s
+table_entry_s	/usr/local/include/collectc/cc_hashtable.h	/^typedef struct table_entry_s {$/;"	s
+tree_table_entry_s	/usr/local/include/collectc/cc_treetable.h	/^typedef struct tree_table_entry_s {$/;"	s
+tree_table_iter_s	/usr/local/include/collectc/cc_treetable.h	/^typedef struct tree_table_iter_s {$/;"	s
 user_destroy	server.c	/^void user_destroy(User *usr)$/;"	f	signature:(User *usr)
 user_destroy	server.h	/^void user_destroy(User *usr);$/;"	p	signature:(User *usr)
+value	/usr/local/include/collectc/cc_hashtable.h	/^    void     *value;$/;"	m	struct:table_entry_s
+value	/usr/local/include/collectc/cc_treetable.h	/^    void *value;$/;"	m	struct:rbnode_s
+value	/usr/local/include/collectc/cc_treetable.h	/^    void *value;$/;"	m	struct:tree_table_entry_s
+value	/usr/local/include/collectc/cc_tsttable.h	/^    void *value;$/;"	m	struct:cc_tsttable_data_s
 write_all	common.c	/^ssize_t write_all(int fd, void *buf, size_t len)$/;"	f	signature:(int fd, void *buf, size_t len)
 write_all	common.h	/^ssize_t write_all(int fd, void *buf, size_t len);$/;"	p	signature:(int fd, void *buf, size_t len)
