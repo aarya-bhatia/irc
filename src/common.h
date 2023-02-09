@@ -20,29 +20,30 @@
 #include <errno.h>
 #include <signal.h>
 
-
 // External Libraries
-#include <log.h>
-#include <collectc/cc_array.h>
-#include <collectc/cc_hashtable.h>
-#include <collectc/cc_common.h>
+#include "include/log.h"
+#include "include/collectc/cc_common.h"
 
 #define MAX_EVENTS 10
 #define MAX_MSG_LEN 512
 #define MAX_MSG_PARAM 15
 #define CRLF "\r\n"
 
-#define _CHECK(status, msg)                              \
-        if (status < 0)                                 \
-        {                                               \
-            log_error("Failed with status %d", status); \
-            perror(msg);                                \
-            exit(1);                                    \
-        }                                               \
+#define _CHECK(status, msg)                         \
+    if (status < 0)                                 \
+    {                                               \
+        log_error("Failed with status %d", status); \
+        perror(msg);                                \
+        exit(1);                                    \
+    }
 
 #define CHECK(status, msg) _CHECK(status, msg)
 
-#define die(msg) { perror(msg); exit(1); }
+#define die(msg)     \
+    {                \
+        perror(msg); \
+        exit(1);     \
+    }
 
 // integer comparator for hashtable
 int int_compare(const void *key1, const void *key2);

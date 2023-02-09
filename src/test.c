@@ -55,7 +55,7 @@ int main()
 
 	while (cc_hashtable_iter_next(&itr, &entry) != CC_ITER_END) 
 	{
-		printf("Key:%d value:%s hash:%zu\n", *(int*)entry->key, entry->value, entry->hash);
+		printf("Key:%d value:%s hash:%zu\n", *(int*)entry->key, (char *) entry->value, entry->hash);
 	}
 	
 	cc_hashtable_destroy(ht);

@@ -1,65 +1,12 @@
 #include "server.h"
 #include <sys/epoll.h>
 
+// the global server object
 static Server *server = NULL;
 
-void do_NICK(Server *serv, User *usr, Message *msg, char **response)
-{
-	assert(serv);
-	assert(usr);
-	assert(msg);
-
-	if(msg->n_params != 1)
-	{
-		asprintf(response, "%s INVALID_PARAMS\r\n", serv->hostname);
-		return;
-	}
-
-	char *p0 = msg->params[0];
-	assert(p0);
-
-	usr->nick = strdup(p0);
-	log_debug("user %d nick set to %s", usr->fd, usr->nick);
-
-	asprintf(response, "%s OK\r\n", serv->hostname);
-}
-
-void do_USER(Server *serv, User *usr, Message *msg, char **response)
-{
-	assert(serv);
-	assert(usr);
-	assert(msg);
-
-	if(msg->n_params != 3)
-	{
-		asprintf(response, "%s INVALID_PARAMS\r\n", serv->hostname);
-		return;
-	}
-
-	if(!msg->body)
-	{
-		asprintf(response, "%s ERR_NO_NAME_FOUND\r\n", serv->hostname);
-		return;
-	}
-
-	char *p0 = msg->params[0];
-	assert(p0);
-
-	if(!usr->nick || strcmp(usr->nick, p0))
-	{
-		free(usr->nick);
-		usr->nick = strdup(p0);
-	}
-
-	usr->name = strdup(msg->body);
-
-	log_debug("user %d nick=%s name=%s", usr->fd, usr->nick, usr->name);
-	asprintf(response, "%s OK\r\n", serv->hostname);
-	
-}
-
-void do_PRIVMSG(Server *serv, User *usr, Message *msg, char **response);
-
+/**
+ * Close connection with user and free all memory associated with them.
+ */
 void user_destroy(User *usr)
 {
 	if (!usr)
@@ -68,16 +15,23 @@ void user_destroy(User *usr)
 	}
 
 	free(usr->nick);
-	free(usr->name);
+	free(usr->username);
+	free(usr->realname);
 
-	cc_array_destroy(usr->inbox);
-	cc_array_destroy(usr->outbox);
+	CC_ListIter iter;
+	cc_list_iter_init(&iter, usr->msg_queue);
+	char *value;
+	while (cc_list_iter_next(&iter, (void **) &value) != CC_ITER_END)
+	{
+		free(value);
+	}
+	cc_list_destroy(usr->msg_queue);
 
 	shutdown(usr->fd, SHUT_RDWR);
 	close(usr->fd);
 }
 
-void quit(Server *serv)
+void Server_destroy(Server *serv)
 {
 	assert(serv);
 	CC_HashTableIter itr;
@@ -98,7 +52,7 @@ void quit(Server *serv)
 		user_destroy(usr);
 	}
 
-	log_debug("Hashtable destroyed: size=%zu", cc_hashtable_size(serv->connections));
+	cc_hashtable_destroy(serv->connections);
 
 	close(serv->fd);
 	close(serv->epollfd);
@@ -107,11 +61,13 @@ void quit(Server *serv)
 	free(serv);
 
 	log_debug("Server stopped");
-	;
 	exit(0);
 }
 
-Server *start_server(int port)
+/**
+ * Create and initialise the server. Bind socket to given port.
+ */
+Server *Server_create(int port)
 {
 	Server *serv = calloc(1, sizeof *serv);
 	assert(serv);
@@ -125,7 +81,7 @@ Server *start_server(int port)
 	serv->servaddr.sin_port = htons(port);
 	serv->servaddr.sin_addr.s_addr = INADDR_ANY;
 
-	serv->hostname = strdup(addr_to_string((struct sockaddr *) &serv->servaddr, sizeof(serv->servaddr)));
+	serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr, sizeof(serv->servaddr)));
 	asprintf(&serv->port, "%d", port);
 
 	// Bind
@@ -168,6 +124,9 @@ Server *start_server(int port)
 	return serv;
 }
 
+/**
+ * There are new connections available
+ */
 void accept_new_connections(Server *serv)
 {
 	while (1)
@@ -187,16 +146,9 @@ void accept_new_connections(Server *serv)
 		User *user = calloc(1, sizeof(User));
 		user->fd = conn_sock;
 
-		if (cc_array_new(&user->inbox) != CC_OK)
+		if (cc_list_new(&user->msg_queue) != CC_OK)
 		{
-			log_error("Failed to create CC_Array");
-			user_destroy(user);
-			continue;
-		}
-
-		if (cc_array_new(&user->outbox) != CC_OK)
-		{
-			log_error("Failed to create CC_Array");
+			perror("CC_LIST");
 			user_destroy(user);
 			continue;
 		}
@@ -239,14 +191,63 @@ void accept_new_connections(Server *serv)
 	}
 }
 
-void client_read_event(Server *serv, User *usr)
+void Server_process_request(Server *serv, User *usr)
+{
+	assert(serv);
+	assert(usr);
+	assert(strstr(usr->req_buf, "\r\n"));
+
+	CC_Array *messages = parse_all_messages(usr->req_buf);
+	assert(messages);
+
+	CC_ArrayIter itr;
+	cc_array_iter_init(&itr, messages);
+
+	Message *message = NULL;
+
+	while (cc_array_iter_next(&itr, (void **)&message) != CC_ITER_END)
+	{
+		assert(message);
+
+		char *response = NULL;
+
+		if (message->command)
+		{
+			if (!strncmp(message->command, "NICK", strlen("NICK")))
+			{
+				response = Server_Nick_Command(serv, usr, message);
+			}
+			else if (!strncmp(message->command, "USER", strlen("USER")))
+			{
+				response = Server_User_Command(serv, usr, message);
+			}
+			else
+			{
+				asprintf(&response, "%s INVALID\r\n", serv->hostname);
+			}
+
+			cc_list_add_last(usr->msg_queue, response);
+			log_debug("New message added for user %d", usr->fd);
+		}
+
+		message_destroy(message);
+		free(message);
+	}
+
+	cc_array_destroy(messages);
+}
+
+/**
+ * User is available to send data to server
+ */
+void User_Read_Event(Server *serv, User *usr)
 {
 	assert(usr);
 	assert(serv);
 
 	ssize_t nread = read_all(usr->fd, usr->req_buf + usr->req_len, MAX_MSG_LEN - usr->req_len);
 
-	if(nread == 0) 
+	if (nread == 0)
 	{
 		return;
 	}
@@ -268,61 +269,30 @@ void client_read_event(Server *serv, User *usr)
 
 	if (strstr(usr->req_buf, "\r\n"))
 	{
-		// Process request
-		CC_Array *messages = parse_all_messages(usr->req_buf);
-
-		CC_ArrayIter itr;
-		cc_array_iter_init(&itr, messages);
-
-		Message *message;
-
-		while(cc_array_iter_next(&itr, (void **) &message) != CC_ITER_END)
-		{
-			char *response;
-
-			if(message->command) 
-			{
-				if(!strncmp(message->command, "NICK", strlen("NICK")))
-				{
-					do_NICK(serv, usr, message, &response);
-				}
-				else if(!strncmp(message->command, "USER", strlen("USER")))
-				{
-					do_USER(serv, usr, message, &response);
-				}
-				else 
-				{
-					asprintf(&response, "%s INVALID\r\n", serv->hostname);
-				}
-
-				cc_array_add(usr->outbox, response);
-				log_debug("New message added for user %d", usr->fd);
-			}
-
-			message_destroy(message);
-			free(message);
-		}
-
-		cc_array_destroy(messages);
+		Server_process_request(serv, usr);
 
 		usr->req_len = 0;
 		usr->req_buf[0] = 0;
 	}
 }
 
-void client_write_event(Server *serv, User *usr)
+/**
+ * User is available to recieve data from server
+ */
+void User_Write_Event(Server *serv, User *usr)
 {
 	assert(usr);
 	assert(serv);
 
 	// Message is still being sent
-	if(usr->res_off < usr->res_len)
+	if (usr->res_len > 0 && usr->res_off < usr->res_len)
 	{
+		// Send remaining message to user
 		ssize_t nsent = write_all(usr->fd, usr->res_buf + usr->res_off, usr->res_len - usr->res_off);
 
 		log_debug("Sent %zd bytes to user %d", nsent, usr->fd);
 
-		if(nsent == 0) 
+		if (nsent == 0)
 		{
 			return;
 		}
@@ -337,30 +307,30 @@ void client_write_event(Server *serv, User *usr)
 			client_disconnect(serv, usr);
 		}
 
+		usr->res_off += nsent;
+
 		// Entire message was sent
-		if(usr->res_off >= usr->res_len)
+		if (usr->res_off >= usr->res_len)
 		{
+			// Mark response buffer as empty
 			usr->res_off = usr->res_len = 0;
 		}
 	}
 
 	// Check for pending messages
-	
-	if(cc_array_size(usr->outbox) > 0)
+	if (cc_list_size(usr->msg_queue) > 0)
 	{
+		// Dequeue one message and fill response buffer with message contents
 		char *msg;
-		if(cc_array_remove_last(usr->outbox, (void **) &msg) == 0)
+		if (cc_list_remove_first(usr->msg_queue, (void **)&msg) == CC_OK)
 		{
 			strcpy(usr->res_buf, msg);
 			usr->res_len = strlen(msg);
 			usr->res_off = 0;
 			free(msg);
-
-			client_write_event(serv, usr);
 		}
 	}
 }
-
 
 void client_disconnect(Server *serv, User *usr)
 {
@@ -377,7 +347,10 @@ void sighandler(int sig)
 {
 	if (sig == SIGINT)
 	{
-		quit(server);
+		if (server)
+		{
+			Server_destroy(server);
+		}
 	}
 }
 
@@ -391,7 +364,7 @@ int main(int argc, char *argv[])
 
 	int port = atoi(argv[1]);
 
-	Server *serv = start_server(port);
+	Server *serv = Server_create(port);
 
 	server = serv;
 
@@ -435,12 +408,12 @@ int main(int argc, char *argv[])
 
 				if (e & EPOLLIN)
 				{
-					client_read_event(serv, usr);
+					User_Read_Event(serv, usr);
 				}
 
 				if (e & EPOLLOUT)
 				{
-					client_write_event(serv, usr);
+					User_Write_Event(serv, usr);
 				}
 			}
 		}
