@@ -66,21 +66,19 @@ int main(int argc, char *argv[])
 
 				if (e & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 				{
-					log_debug("user%d disconnected", usr->fd);
+					log_debug("user %d disconnected", usr->fd);
 					User_Disconnect(serv, usr);
 					continue;
 				}
 
-				int ret;
-
 				if (e & EPOLLIN)
 				{
-					if((ret = User_Read_Event(serv, usr)) == -1) { log_error("Error %d", ret); continue; }
+					if(User_Read_Event(serv, usr) == -1) { continue; }
 				}
 
 				if (e & EPOLLOUT)
 				{
-					if((ret = User_Write_Event(serv, usr)) == -1) { log_error("Error %d", ret); continue; }
+					if(User_Write_Event(serv, usr) == -1) { continue; }
 				}
 			}
 		}
@@ -172,16 +170,16 @@ Server *Server_create(int port)
 	serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr, sizeof(serv->servaddr)));
 	asprintf(&serv->port, "%d", port);
 
+	int yes = 1;
+
+	// Set socket options
+	CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
+
 	// Bind
 	CHECK(bind(serv->fd, (struct sockaddr *)&serv->servaddr, sizeof(struct sockaddr_in)), "bind");
 
 	// Listen
 	CHECK(listen(serv->fd, MAX_EVENTS), "listen");
-
-	int yes = 1;
-
-	// Set socket options
-	CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
 
 	// Create epoll fd
 	serv->epollfd = epoll_create(MAX_EVENTS);
@@ -319,7 +317,7 @@ void Server_process_request(Server *serv, User *usr)
 
 			cc_list_add_last(usr->msg_queue, response);
 
-			log_debug("New message added for user %d: %s", usr->fd, response);
+			// log_debug("New message added for user %d", usr->fd);
 		}
 
 		message_destroy(message);
@@ -340,21 +338,10 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 
 	ssize_t nread = read_all(usr->fd, usr->req_buf + usr->req_len, MAX_MSG_LEN - usr->req_len);
 
-	if(nread == 0 && !strstr(usr->req_buf, "\r\n"))
+	if(nread <= 0 && !strstr(usr->req_buf, "\r\n"))
 	{
 		User_Disconnect(serv, usr);
 		return -1;	
-	}
-
-	if (nread == -1)
-	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-		{
-			return 0;
-		}
-
-		User_Disconnect(serv, usr);
-		return -1;
 	}
 
 	usr->req_len += nread;
@@ -388,7 +375,7 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 			t[2] = 0; // Shorten the request buffer to last complete message
 		}
 
-		log_info("Processing %d messages from user%d", count, usr->fd);
+		log_info("Processing %d messages from user %d", count, usr->fd);
 
 		// Process all CRLF-terminated messages from request buffer
 		Server_process_request(serv, usr);
@@ -397,7 +384,7 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 		strcpy(usr->req_buf, tmp);
 		usr->req_len = strlen(tmp);
 
-		log_info("Request buffer size for user%d: %zu", usr->fd, usr->req_len);
+		log_debug("Request buffer size for user %d: %zu", usr->fd, usr->req_len);
 	}
 
 	return nread;
@@ -419,13 +406,8 @@ ssize_t User_Write_Event(Server *serv, User *usr)
 
 		log_debug("Sent %zd bytes to user %d", nsent, usr->fd);
 
-		if (nsent == -1)
+		if (nsent <= 0)
 		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-			{
-				return 0;
-			}
-
 			User_Disconnect(serv, usr);
 			return -1;
 		}
@@ -455,7 +437,7 @@ ssize_t User_Write_Event(Server *serv, User *usr)
 			usr->res_off = 0;
 			free(msg);
 
-			log_debug("user%d response buffer: %s", usr->fd, usr->res_buf);
+			// log_debug("user %d response buffer: %s", usr->fd, usr->res_buf);
 		}
 	}
 
@@ -467,7 +449,7 @@ void User_Disconnect(Server *serv, User *usr)
 	assert(serv);
 	assert(usr);
 
-	log_info("Closing connection with user%d: %s", usr->fd, usr->nick);
+	log_info("Closing connection with user %d: %s", usr->fd, usr->nick);
 	epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, usr->fd, NULL);
 	cc_hashtable_remove(serv->connections, (void *)&usr->fd, NULL);
 	User_Destroy(usr);

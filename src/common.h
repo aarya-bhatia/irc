@@ -45,6 +45,9 @@
         exit(1);     \
     }
 
+
+int create_and_bind_socket(char *hostname, char *port);
+
 // integer comparator for hashtable
 int int_compare(const void *key1, const void *key2);
 

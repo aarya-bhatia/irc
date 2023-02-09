@@ -1,5 +1,34 @@
 #include "common.h"
 
+int create_and_bind_socket(char *hostname, char *port)
+{
+	struct addrinfo hints, *servinfo = NULL;
+
+	memset(&hints, 0, sizeof hints);
+
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+
+	if (getaddrinfo(hostname, port, &hints, &servinfo) != 0)
+		die("getaddrinfo");
+
+	int sock = socket(servinfo->ai_family,
+					  servinfo->ai_socktype,
+					  servinfo->ai_protocol);
+
+	if (sock < 0)
+		die("socket");
+
+	if (connect(sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
+		die("connect");
+
+	freeaddrinfo(servinfo);
+
+	log_info("Connection established");
+
+	return sock;
+}
+
 int int_compare(const void *key1, const void *key2)
 {
 	return *(int *)key1 - *(int *)key2;
@@ -26,11 +55,11 @@ ssize_t read_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_read = 0;
 
+	errno = 0;
+
 	while (bytes_read < len)
 	{
 		ssize_t ret = read(fd, buf + bytes_read, len - bytes_read);
-
-		log_debug("%zd bytes read", ret);
 
 		if (ret == 0)
 		{
@@ -43,6 +72,12 @@ ssize_t read_all(int fd, char *buf, size_t len)
 				continue;
 			}
 
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
+				errno = 0;
+				return bytes_read;
+			}
+
 			perror("read");
 			break;
 		}
@@ -50,11 +85,7 @@ ssize_t read_all(int fd, char *buf, size_t len)
 		{
 			bytes_read += ret;
 			buf[bytes_read] = 0;
-
-			if(strstr(buf, "\r\n")) 
-			{
-				break;
-			}
+			// log_debug("%zd bytes read", ret);
 		}
 	}
 
@@ -64,6 +95,8 @@ ssize_t read_all(int fd, char *buf, size_t len)
 ssize_t write_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_written = 0;
+
+	errno = 0;
 
 	while (bytes_written < len)
 	{
@@ -81,6 +114,12 @@ ssize_t write_all(int fd, char *buf, size_t len)
 			{
 				continue;
 			}
+
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
+				return bytes_written;
+			}
+
 			perror("write");
 			break;
 		}

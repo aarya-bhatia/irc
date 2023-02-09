@@ -1,13 +1,5 @@
 #include "common.h"
 
-int create_and_bind_socket(char *hostname, char *port);
-
-void recv_input(char prompt[], char input[])
-{
-	write(1, prompt, strlen(prompt));
-	scanf("%s", input);
-}
-
 int main(int argc, char *argv[])
 {
 	if (argc != 4)
@@ -28,64 +20,41 @@ int main(int argc, char *argv[])
 	char prompt[MAX_MSG_LEN];
 	char servmsg[MAX_MSG_LEN];
 
-	int write_status, read_status;
+	int nread;
 
-	///////////////// REGISTRATION ///////////////////
-
-	// Send user nickname to server
+	// Send user nickname to server and read reply
 	sprintf(servmsg, "NICK %s\r\n", nick);
-	write_all(sock, servmsg, strlen(servmsg));
+	write(sock, servmsg, strlen(servmsg));
 
-	// read reply
-	read_all(sock, servmsg, MAX_MSG_LEN);
+	nread = read(sock, servmsg, MAX_MSG_LEN);
+	if (nread == -1)
+		die("read");
+	servmsg[nread] = 0;
+
 	puts(servmsg);
 
-	// Recv user name and realname as input
+	// Recv username, realname as input
 	sprintf(prompt, "Enter username >");
-	recv_input(prompt, username);
+	write(1, prompt, strlen(prompt));
+	scanf("%s", username);
 
 	sprintf(prompt, "Enter realname >");
-	recv_input(prompt, realname);
+	write(1, prompt, strlen(prompt));
+	scanf("%s", realname);
 
-	// Send user name to server
+	// Send user name to server and read reply
 	sprintf(servmsg, "USER %s * * :%s\r\n", username, realname);
-	write_all(sock, servmsg, strlen(servmsg));
+	write(sock, servmsg, strlen(servmsg));
 
-	// Get server reply
-	read_all(sock, servmsg, MAX_MSG_LEN);
+	nread = read(sock, servmsg, MAX_MSG_LEN);
+	if (nread == -1)
+		die("read");
+	servmsg[nread] = 0;
+
 	puts(servmsg);
 
-	// Exit
 	close(sock);
 	log_info("Goodbye!");
+
 	return 0;
-}
-
-int create_and_bind_socket(char *hostname, char *port)
-{
-	struct addrinfo hints, *servinfo = NULL;
-
-	memset(&hints, 0, sizeof hints);
-
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-
-	if (getaddrinfo(hostname, port, &hints, &servinfo) != 0)
-		die("getaddrinfo");
-
-	int sock = socket(servinfo->ai_family,
-					  servinfo->ai_socktype,
-					  servinfo->ai_protocol);
-
-	if (sock < 0)
-		die("socket");
-
-	if (connect(sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
-		die("connect");
-
-	freeaddrinfo(servinfo);
-
-	log_info("Connection with server is established...");
-
-	return sock;
 }

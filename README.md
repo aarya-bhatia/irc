@@ -1,22 +1,4 @@
-# Proposal
-
-Project Title: Inter Relay Chat Protocl
-
-Members: Aarya Bhatia (aaryab2@illinois.edu)
-
-## Summary
-
-In this project I will be implementing a client and server following the IRC (Inter Relay Chat) protocol. The IRC is a distributed chat server which acts as a single entity for the client. In the IRC protocol, the servers relay messages from one client to another through other servers.
-
-The goal of this project is to get familar with distributed systems and learn about an important networking protocol used by many internet users. It will also teach me the principles of routing, as the IRC servers will route the messages to a client that may be connected to a different server.
-
-The IRC is a large system so I will only implement a subset of commands for this project. I will use the checkpoints specified below as a timeline for this project.
-
-One challenge in this project is to write my code in a flexible way, so I can easily add/exapnd features and commands as the project grows.
-
-After doing this project, I will gain a better understanding of real network protocols and understand the challenges faced by the IRC protocol / think of soltuions that can allow this to be more scalable.
-
-I will follow the [https://www.rfc-editor.org/rfc/rfc1459](RFC 1459) for the IRC Server specifications.
+# IRC Project
 
 ## Server
 
