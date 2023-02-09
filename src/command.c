@@ -13,7 +13,7 @@ char *Server_Nick_Command(Server *serv, User *usr, Message *msg)
 
     if (msg->n_params != 1)
     {
-        asprintf(&response, "%s INVALID_PARAMS\r\n", serv->hostname);
+        asprintf(&response, ":%s INVALID_PARAMS\r\n", serv->hostname);
         return response;
     }
 
@@ -26,7 +26,7 @@ char *Server_Nick_Command(Server *serv, User *usr, Message *msg)
         log_debug("user%d registration complete", usr->fd);
     }
 
-    asprintf(&response, "%s OK\r\n", serv->hostname);
+    asprintf(&response, ":%s OK\r\n", serv->hostname);
     return response;
 }
 
@@ -42,13 +42,13 @@ char *Server_User_Command(Server *serv, User *usr, Message *msg)
 
     if (msg->n_params != 3)
     {
-        asprintf(&response, "%s INVALID_PARAMS\r\n", serv->hostname);
+        asprintf(&response, ":%s INVALID_PARAMS\r\n", serv->hostname);
         return response;
     }
 
     if (!msg->body)
     {
-        asprintf(&response, "%s ERR_NO_NAME_FOUND\r\n", serv->hostname);
+        asprintf(&response, ":%s ERR_NO_NAME_FOUND\r\n", serv->hostname);
         return response;
     }
 
@@ -63,7 +63,7 @@ char *Server_User_Command(Server *serv, User *usr, Message *msg)
         log_debug("user%d registration complete", usr->fd);
     }
 
-    asprintf(&response, "%s OK\r\n", serv->hostname);
+    asprintf(&response, ":%s OK\r\n", serv->hostname);
     return response;
 }
 

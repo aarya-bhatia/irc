@@ -50,5 +50,6 @@ int int_compare(const void *key1, const void *key2);
 
 void *get_in_addr(struct sockaddr *sa);
 char *addr_to_string(struct sockaddr *addr, socklen_t len);
-ssize_t read_all(int fd, void *buf, size_t len);
-ssize_t write_all(int fd, void *buf, size_t len);
+
+ssize_t read_all(int fd, char *buf, size_t len);
+ssize_t write_all(int fd, char *buf, size_t len);

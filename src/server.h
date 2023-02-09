@@ -33,15 +33,13 @@ typedef struct _User
 
 Server *Server_create(int port);
 void Server_destroy(Server *serv);
-
+void Server_accept_all(Server *serv);
 void Server_process_request(Server *serv, User *usr);
 char *Server_Nick_Command(Server *serv, User *usr, Message *msg);
 char *Server_User_Command(Server *serv, User *usr, Message *msg);
 char *Server_Privmsg_Command(Server *serv, User *usr, Message *msg);
 
-void accept_new_connections(Server *serv);
-
-void User_Read_Event(Server *serv, User *usr);
-void User_Write_Event(Server *serv, User *usr);
-void client_disconnect(Server *serv, User *usr);
-void user_destroy(User *usr);
+ssize_t User_Read_Event(Server *serv, User *usr);
+ssize_t User_Write_Event(Server *serv, User *usr);
+void User_Disconnect(Server *serv, User *usr);
+void User_Destroy(User *usr);

@@ -22,13 +22,15 @@ char *addr_to_string(struct sockaddr *addr, socklen_t len)
 	return s;
 }
 
-ssize_t read_all(int fd, void *buf, size_t len)
+ssize_t read_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_read = 0;
 
 	while (bytes_read < len)
 	{
 		ssize_t ret = read(fd, buf + bytes_read, len - bytes_read);
+
+		log_debug("%zd bytes read", ret);
 
 		if (ret == 0)
 		{
@@ -40,25 +42,34 @@ ssize_t read_all(int fd, void *buf, size_t len)
 			{
 				continue;
 			}
+
 			perror("read");
 			break;
 		}
 		else
 		{
 			bytes_read += ret;
+			buf[bytes_read] = 0;
+
+			if(strstr(buf, "\r\n")) 
+			{
+				break;
+			}
 		}
 	}
 
 	return bytes_read;
 }
 
-ssize_t write_all(int fd, void *buf, size_t len)
+ssize_t write_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_written = 0;
 
 	while (bytes_written < len)
 	{
 		ssize_t ret = write(fd, buf + bytes_written, len - bytes_written);
+
+		log_debug("%zd bytes sent", ret);
 
 		if (ret == 0)
 		{
