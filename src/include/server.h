@@ -2,12 +2,9 @@
 
 #include "common.h"
 #include "message.h"
-
 #include "collectc/cc_array.h"
 #include "collectc/cc_hashtable.h"
 #include "collectc/cc_list.h"
-
-#include <sys/epoll.h>
 
 typedef struct _Server
 {

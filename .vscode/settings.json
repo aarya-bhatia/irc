@@ -4,6 +4,7 @@
         "server.h": "c",
         "common.h": "c",
         "cc_hashtable.h": "c",
-        "cc_array.h": "c"
+        "cc_array.h": "c",
+        "queue.h": "c"
     }
 }

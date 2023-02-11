@@ -1,8 +1,12 @@
-#include "common.h"
-#include "message.h"
+#include "include/common.h"
+#include "include/message.h"
+#include "include/aaryab2/queue.h"
+
+#include <pthread.h>
 
 // Todo: Make threads to read from server, and read from stdin
 // Make thread safe queue to pull/push messages from/to server
+
 
 int main(int argc, char *argv[])
 {

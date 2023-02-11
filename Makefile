@@ -9,7 +9,7 @@ all: server client
 OBJ=obj/common.o obj/message.o
 
 client: obj/client.o $(OBJ)
-	$(CC) $^ $(LDFLAG) -o $@
+	$(CC) -pthread $^ $(LDFLAG) -o $@
 
 server: obj/server.o obj/command.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@

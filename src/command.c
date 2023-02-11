@@ -1,6 +1,6 @@
-#include "common.h"
-#include "server.h"
-#include "replies.h"
+#include "include/common.h"
+#include "include/server.h"
+#include "include/replies.h"
 
 // TODO: Add server hostname prefixes
 

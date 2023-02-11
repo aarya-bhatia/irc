@@ -1,5 +1,5 @@
-#include "common.h"
-#include "message.h"
+#include "include/common.h"
+#include "include/message.h"
 
 void message_init(Message *msg)
 {
