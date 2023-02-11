@@ -1,6 +1,9 @@
 #include "common.h"
 #include "message.h"
 
+// Todo: Make threads to read from server, and read from stdin
+// Make thread safe queue to pull/push messages from/to server
+
 int main(int argc, char *argv[])
 {
 	if (argc != 3)
