@@ -7,7 +7,7 @@
 /**
  * Struct representing a queue
  */
-typedef struct queue queue;
+typedef struct thread_queue thread_queue;
 
 /**
  * Allocate and return a pointer to a new queue (on the heap).
@@ -18,24 +18,24 @@ typedef struct queue queue;
  * have a 'max_size').
  * Else, the queue will block if the user tries to push when the queue is full.
  */
-queue *queue_create(ssize_t max_size);
+thread_queue *thread_queue_create(ssize_t max_size);
 
 /**
  * Destroys all queue elements by deallocating all the storage capacity
  * allocated by the 'queue'.
  */
-void queue_destroy(queue *this);
+void thread_queue_destroy(thread_queue *this);
 
 /**
  * Adds a new 'element' to the end of the queue in constant time.
  * Note: Can be called by multiple threads.
  * Note: Blocks if the queue is full (defined by it's max_size).
  */
-void queue_push(queue *this, void *element);
+void thread_queue_push(thread_queue *this, void *element);
 
 /**
  * Removes the element at the front of the queue in constant time.
  * Note: Can be called by multiple threads.
  * Note: Blocks if the queue is empty.
  */
-void *queue_pull(queue *this);
+void *thread_queue_pull(thread_queue *this);

@@ -1,5 +1,5 @@
 
-#include "queue.h"
+#include "thread_queue.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,25 +7,25 @@
 #include <assert.h>
 
 /**
- * This queue is implemented with a linked list of queue_nodes.
+ * This thread_queue is implemented with a linked list of thread_queue_nodes.
  */
-typedef struct queue_node
+typedef struct thread_queue_node
 {
     void *data;
-    struct queue_node *next;
-} queue_node;
+    struct thread_queue_node *next;
+} thread_queue_node;
 
-struct queue
+struct thread_queue
 {
-    /* queue_node pointers to the head and tail of the queue */
-    queue_node *head, *tail;
+    /* thread_queue_node pointers to the head and tail of the thread_queue */
+    thread_queue_node *head, *tail;
 
-    /* The number of elements in the queue */
+    /* The number of elements in the thread_queue */
     ssize_t size;
 
     /**
-     * The maximum number of elements the queue can hold.
-     * max_size is non-positive if the queue does not have a max size.
+     * The maximum number of elements the thread_queue can hold.
+     * max_size is non-positive if the thread_queue does not have a max size.
      */
     ssize_t max_size;
 
@@ -34,9 +34,9 @@ struct queue
     pthread_mutex_t m;
 };
 
-queue *queue_create(ssize_t max_size)
+thread_queue *thread_queue_create(ssize_t max_size)
 {
-    queue *q = (queue *)calloc(1, sizeof(queue));
+    thread_queue *q = (thread_queue *)calloc(1, sizeof(thread_queue));
 
     if (!q) 
     {
@@ -51,18 +51,18 @@ queue *queue_create(ssize_t max_size)
     return q;
 }
 
-void queue_destroy(queue *this)
+void thread_queue_destroy(thread_queue *this)
 {
     if (!this)
     {
         return;
     }
 
-    queue_node *itr = this->head;
+    thread_queue_node *itr = this->head;
 
     while (itr)
     {
-        queue_node *tmp = itr->next;
+        thread_queue_node *tmp = itr->next;
         free(itr);
         itr = tmp;
     }
@@ -73,14 +73,14 @@ void queue_destroy(queue *this)
     free(this);
 }
 
-void queue_push(queue *this, void *data)
+void thread_queue_push(thread_queue *this, void *data)
 {
     if (!this)
     {
         return;
     }
 
-    queue_node *qnode = (queue_node *) malloc(sizeof(*qnode));
+    thread_queue_node *qnode = (thread_queue_node *) malloc(sizeof(*qnode));
 
     if (!qnode)
     {
@@ -117,7 +117,7 @@ void queue_push(queue *this, void *data)
     pthread_mutex_unlock(&this->m);
 }
 
-void *queue_pull(queue *this)
+void *thread_queue_pull(thread_queue *this)
 {
     if (!this)
     {
@@ -131,7 +131,7 @@ void *queue_pull(queue *this)
         pthread_cond_wait(&this->cv, &this->m);
     }
 
-    queue_node *node = this->head;
+    thread_queue_node *node = this->head;
 
     if(this->head == this->tail) {
         this->head = NULL;
