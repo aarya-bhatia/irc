@@ -11,8 +11,11 @@ typedef struct Client {
 	char username[30];
 	char realname[30];
 	int sock;
+
 } Client;
 
 void Client_init(Client *client, char *hostname, char *port);
-
 void Client_destroy(Client *client);
+
+void *start_inbox_thread(void *client);
+void *start_outbox_thread(void *client);

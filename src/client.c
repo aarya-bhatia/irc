@@ -6,6 +6,24 @@
 // Make thread safe queue to pull/push messages from/to server
 
 static Client g_client;
+static pthread_t inbox_thread;
+static pthread_t outbox_thread;
+
+void stop(int sig)
+{
+	(void)sig;
+
+	pthread_cancel(inbox_thread);
+	pthread_cancel(outbox_thread);
+
+	pthread_join(inbox_thread, NULL);
+	pthread_join(outbox_thread, NULL);
+
+	Client_destroy(&g_client);
+
+	log_info("Goodbye!");
+	exit(0);
+}
 
 int main(int argc, char *argv[])
 {
@@ -17,45 +35,49 @@ int main(int argc, char *argv[])
 
 	Client_init(&g_client, argv[1], argv[2]);
 
+	pthread_create(&inbox_thread, NULL, start_inbox_thread, (void *)&g_client);
+	pthread_create(&outbox_thread, NULL, start_outbox_thread, (void *)&g_client);
+
 	char prompt[MAX_MSG_LEN];
 	char servmsg[MAX_MSG_LEN];
 
-	int nread;
+	signal(SIGINT, stop);
 
-	// Input nick, username and realname
+	// Register client
 	sprintf(prompt, "Enter your nick > ");
 	write(1, prompt, strlen(prompt));
 	scanf("%s", g_client.nick);
-
 	sprintf(prompt, "Enter your username > ");
 	write(1, prompt, strlen(prompt));
 	scanf("%s", g_client.username);
-
 	sprintf(prompt, "Enter your realname > ");
 	write(1, prompt, strlen(prompt));
 	scanf("%s", g_client.realname);
 
-	// Register client
-
 	sprintf(servmsg, "NICK %s\r\nUSER %s * * :%s\r\n", g_client.nick, g_client.username, g_client.realname);
 
-	if (write(g_client.sock, servmsg, strlen(servmsg)) == -1)
-		die("write");
+	thread_queue_push(g_client.outbox, strdup(servmsg));
 
-	nread = read(g_client.sock, servmsg, MAX_MSG_LEN);
+	char *line = NULL;
+	size_t cap = 0;
+	ssize_t ret;
 
-	if (nread == -1)
-		die("read");
+	while (1)
+	{
+		printf("Enter command > ");
+		if ((ret = getline(&line, &cap, stdin)) <= 0)
+		{
+			break;
+		}
 
-	servmsg[nread] = 0;
+		if (line[ret - 1] == '\n')
+			line[ret - 1] = 0;
+		else
+			line[ret] = 0;
+	}
 
-	puts(servmsg);
-
-	Client_destroy(&g_client);
-
-	log_info("Goodbye!");
-
-	return 0;
+	stop(0);
+	exit(0);
 }
 
 void Client_init(Client *client, char *hostname, char *port)
@@ -84,4 +106,45 @@ void Client_destroy(Client *client)
 
 	shutdown(client->sock, SHUT_RDWR);
 	close(client->sock);
+}
+
+void *start_inbox_thread(void *args)
+{
+	Client *client = (Client *)args;
+
+	char buf[MAX_MSG_LEN + 1];
+
+	while (1)
+	{
+		int nread = read(client->sock, buf, MAX_MSG_LEN);
+		if (nread == -1)
+			die("read");
+
+		buf[nread] = 0;
+
+		log_info("Message from server: %s", buf);
+
+		// log_info("Inbox: Read %d bytes from server", nread);
+		// thread_queue_push(client->inbox, strdup(buf));
+	}
+
+	return (void *)client;
+}
+
+void *start_outbox_thread(void *args)
+{
+	Client *client = (Client *)args;
+
+	while (1)
+	{
+		char *msg = (char *)thread_queue_pull(client->outbox);
+		int written = write(client->sock, msg, strlen(msg));
+		if (written == -1)
+			die("write");
+
+		log_info("Outbox: Sent %d bytes to server", written);
+		free(msg);
+	}
+
+	return (void *)client;
 }
