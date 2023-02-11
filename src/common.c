@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include <stdarg.h>
+
 char *make_string(char *format, ...)
 {
     va_list args;

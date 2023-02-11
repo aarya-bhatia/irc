@@ -1,6 +1,6 @@
 
 #include "server.h"
-#include <string.h>
+#include <time.h>
 
 static Server *g_server = NULL;
 

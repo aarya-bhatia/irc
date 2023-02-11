@@ -10,9 +10,8 @@ bool _is_nick_available(Server *serv, char *nick)
 {
     CC_HashTableIter iter;
     cc_hashtable_iter_init(&iter, serv->connections);
-    void *out;
-    while(cc_hashtable_iter_next(&iter, &out) != CC_ITER_END){
-        User *user = (User *) out;    
+    User *user;
+    while(cc_hashtable_iter_next(&iter, (void **) &user) != CC_ITER_END){
         if(user && user->nick && strcmp(user->nick, nick) == 0) {
             return false;
         }
@@ -72,7 +71,7 @@ void Server_reply_to_User(Server *serv, User *usr, Message *msg)
         return;
     }
 
-    if(user->realname && user->username)
+    if(usr->realname && usr->username)
     {
         User_add_msg(usr, make_reply(ERR_ALREADYREGISTRED_MSG, usr->nick));
         return;

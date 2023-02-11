@@ -1,3 +1,4 @@
+#include "common.h"
 #include "message.h"
 
 void message_init(Message *msg)
