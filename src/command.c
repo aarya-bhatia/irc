@@ -1,7 +1,8 @@
 #include "common.h"
 #include "server.h"
+#include "replies.h"
 
-char *Server_Nick_Command(Server *serv, User *usr, Message *msg)
+void Server_reply_to_Nick(Server *serv, User *usr, Message *msg)
 {
     assert(serv);
     assert(usr);
@@ -9,28 +10,28 @@ char *Server_Nick_Command(Server *serv, User *usr, Message *msg)
 
     assert(!strcmp(msg->command, "NICK"));
 
-    char *response;
-
     if (msg->n_params != 1)
     {
-        asprintf(&response, ":%s INVALID_PARAMS\r\n", serv->hostname);
-        return response;
+        // invalid params
     }
 
     assert(msg->params[0]);
+
     usr->nick = strdup(msg->params[0]);
-    log_debug("user%d set nick to %s", usr->fd, usr->nick);
+
+    log_info("user %d set nick to %s", usr->fd, usr->nick);
 
     if (usr->nick && usr->username && usr->realname)
     {
-        log_debug("user%d registration complete", usr->fd);
+        // Registration completed
+        cc_list_add_last(usr->msg_queue, Reply_Welcome(serv, usr));
+        cc_list_add_last(usr->msg_queue, Reply_Your_Host(serv, usr));
+        cc_list_add_last(usr->msg_queue, Reply_Created(serv, usr));
+        cc_list_add_last(usr->msg_queue, Reply_My_Info(serv, usr));
     }
-
-    asprintf(&response, ":%s OK\r\n", serv->hostname);
-    return response;
 }
 
-char *Server_User_Command(Server *serv, User *usr, Message *msg)
+void Server_reply_to_User(Server *serv, User *usr, Message *msg)
 {
     assert(serv);
     assert(usr);
@@ -38,21 +39,18 @@ char *Server_User_Command(Server *serv, User *usr, Message *msg)
 
     assert(!strcmp(msg->command, "USER"));
 
-    char *response;
-
     if (msg->n_params != 3)
     {
-        asprintf(&response, ":%s INVALID_PARAMS\r\n", serv->hostname);
-        return response;
+        // invalid params
     }
 
     if (!msg->body)
     {
-        asprintf(&response, ":%s ERR_NO_NAME_FOUND\r\n", serv->hostname);
-        return response;
+        // invalid message
     }
 
     assert(msg->params[0]);
+
     usr->username = strdup(msg->params[0]);
     usr->realname = strdup(msg->body);
 
@@ -60,11 +58,12 @@ char *Server_User_Command(Server *serv, User *usr, Message *msg)
 
     if (usr->nick && usr->username && usr->realname)
     {
-        log_debug("user%d registration complete", usr->fd);
+        // Registration completed
+        cc_list_add_last(usr->msg_queue, Reply_Welcome(serv, usr));
+        cc_list_add_last(usr->msg_queue, Reply_Your_Host(serv, usr));
+        cc_list_add_last(usr->msg_queue, Reply_Created(serv, usr));
+        cc_list_add_last(usr->msg_queue, Reply_My_Info(serv, usr));
     }
-
-    asprintf(&response, ":%s OK\r\n", serv->hostname);
-    return response;
 }
 
-char *Server_Privmsg_Command(Server *serv, User *usr, Message *msg);
+void Server_reply_to_Privmsg(Server *serv, User *usr, Message *msg);

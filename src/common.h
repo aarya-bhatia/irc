@@ -3,6 +3,7 @@
 #define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
 
+// Standard Libraries
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -10,6 +11,10 @@
 #include <assert.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <time.h>
 
 // Networking
 #include <netdb.h>
@@ -21,8 +26,9 @@
 #include <signal.h>
 
 // External Libraries
-#include "include/log.h"
-#include "include/collectc/cc_common.h"
+#include "log.h"
+#include "collectc/cc_common.h"
+#include "collectc/cc_array.h"
 
 #define MAX_EVENTS 10
 #define MAX_MSG_LEN 512
@@ -45,14 +51,15 @@
         exit(1);     \
     }
 
+char *make_string(char *format, ...); /* makes a string like printf of exact size */
 
-int create_and_bind_socket(char *hostname, char *port);
+int create_and_bind_socket(char *hostname, char *port); /* creates tcp socket to connect to given host and port  */
 
-// integer comparator for hashtable
-int int_compare(const void *key1, const void *key2);
+int int_compare(const void *key1, const void *key2); /* integer comparator for hashtable */
 
-void *get_in_addr(struct sockaddr *sa);
-char *addr_to_string(struct sockaddr *addr, socklen_t len);
+void *get_in_addr(struct sockaddr *sa); /* returns the in_addr of ivp4 and ipv6 addresses */
+
+char *addr_to_string(struct sockaddr *addr, socklen_t len); /* get ip address from sockaddr */
 
 ssize_t read_all(int fd, char *buf, size_t len);
 ssize_t write_all(int fd, char *buf, size_t len);

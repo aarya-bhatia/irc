@@ -1,5 +1,26 @@
 #include "common.h"
 
+char *make_string(char *format, ...)
+{
+    va_list args;
+
+    // Find the length of the output string
+
+    va_start(args, format);
+    int n = vsnprintf(NULL, 0, format, args);
+    va_end(args);
+
+    // Create the output string
+
+    char *s = calloc(1, n + 1);
+
+    va_start(args, format);
+    vsprintf(s, format, args);
+    va_end(args);
+
+    return s;
+}
+
 int create_and_bind_socket(char *hostname, char *port)
 {
 	struct addrinfo hints, *servinfo = NULL;

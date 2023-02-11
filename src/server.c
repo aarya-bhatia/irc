@@ -1,5 +1,4 @@
 #include "server.h"
-#include <sys/epoll.h>
 
 static Server *g_server = NULL;
 
@@ -7,12 +6,12 @@ void sighandler(int sig);
 
 /**
  * To start IRC server on given port
-*/
+ */
 int main(int argc, char *argv[])
 {
 	if (argc != 2)
 	{
-		fprintf(stderr, "Usage: %s port", *argv);
+		fprintf(stderr, "Usage: %s <port>", *argv);
 		return 1;
 	}
 
@@ -22,21 +21,24 @@ int main(int argc, char *argv[])
 
 	g_server = serv;
 
+	// Array for events returned from epoll
 	struct epoll_event events[MAX_EVENTS] = {0};
 
+	// Event for listener socket
 	struct epoll_event ev = {.events = EPOLLIN, .data.fd = serv->fd};
 
 	CHECK(epoll_ctl(serv->epollfd, EPOLL_CTL_ADD, serv->fd, &ev), "epoll_ctl");
 
-	// signal(SIGINT, sighandler);
-
+	// Setup signal handler to stop server
 	struct sigaction sa;
-
 	sigemptyset(&sa.sa_mask);
 	sa.sa_handler = sighandler;
 	sa.sa_flags = SA_RESTART;
 
 	if (sigaction(SIGINT, &sa, NULL) == -1)
+		die("sigaction");
+
+	if (sigaction(SIGPIPE, &sa, NULL) == -1)
 		die("sigaction");
 
 	while (1)
@@ -73,12 +75,18 @@ int main(int argc, char *argv[])
 
 				if (e & EPOLLIN)
 				{
-					if(User_Read_Event(serv, usr) == -1) { continue; }
+					if (User_Read_Event(serv, usr) == -1)
+					{
+						continue;
+					}
 				}
 
 				if (e & EPOLLOUT)
 				{
-					if(User_Write_Event(serv, usr) == -1) { continue; }
+					if (User_Write_Event(serv, usr) == -1)
+					{
+						continue;
+					}
 				}
 			}
 		}
@@ -88,7 +96,6 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-
 
 /**
  * Close connection with user and free all memory associated with them.
@@ -103,11 +110,12 @@ void User_Destroy(User *usr)
 	free(usr->nick);
 	free(usr->username);
 	free(usr->realname);
+	free(usr->hostname);
 
 	CC_ListIter iter;
 	cc_list_iter_init(&iter, usr->msg_queue);
 	char *value;
-	while (cc_list_iter_next(&iter, (void **) &value) != CC_ITER_END)
+	while (cc_list_iter_next(&iter, (void **)&value) != CC_ITER_END)
 	{
 		free(value);
 	}
@@ -170,6 +178,13 @@ Server *Server_create(int port)
 	serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr, sizeof(serv->servaddr)));
 	asprintf(&serv->port, "%d", port);
 
+	time_t t = time(NULL);
+	struct tm *tm = localtime(&t);
+
+	size_t n = strftime(serv->created_at, sizeof(serv->created_at), "%c", tm);
+
+	assert(n > 0);
+
 	int yes = 1;
 
 	// Set socket options
@@ -215,9 +230,12 @@ Server *Server_create(int port)
  */
 void Server_accept_all(Server *serv)
 {
+	struct sockaddr_storage client_addr;
+	socklen_t addrlen = sizeof(client_addr);
+
 	while (1)
 	{
-		int conn_sock = accept(serv->fd, NULL, NULL);
+		int conn_sock = accept(serv->fd, (struct sockaddr *)&client_addr, &addrlen);
 
 		if (conn_sock == -1)
 		{
@@ -231,6 +249,7 @@ void Server_accept_all(Server *serv)
 
 		User *user = calloc(1, sizeof(User));
 		user->fd = conn_sock;
+		user->hostname = strdup(addr_to_string((struct sockaddr *)&client_addr, addrlen));
 
 		if (cc_list_new(&user->msg_queue) != CC_OK)
 		{
@@ -273,7 +292,7 @@ void Server_accept_all(Server *serv)
 			continue;
 		}
 
-		log_info("Got connection: %d", conn_sock);
+		log_info("Got connection %d from %s", conn_sock, user->hostname);
 	}
 }
 
@@ -283,6 +302,7 @@ void Server_process_request(Server *serv, User *usr)
 	assert(usr);
 	assert(strstr(usr->req_buf, "\r\n"));
 
+	// Get array of parsed messages
 	CC_Array *messages = parse_all_messages(usr->req_buf);
 	assert(messages);
 
@@ -294,30 +314,27 @@ void Server_process_request(Server *serv, User *usr)
 
 	Message *message = NULL;
 
+	// Iterate over the request messages and add response message(s) 
+	// to user's message queue in the same order.
 	while (cc_array_iter_next(&itr, (void **)&message) != CC_ITER_END)
 	{
 		assert(message);
-
-		char *response = NULL;
 
 		if (message->command)
 		{
 			if (!strncmp(message->command, "NICK", strlen("NICK")))
 			{
-				response = Server_Nick_Command(serv, usr, message);
+				Server_reply_to_Nick(serv, usr, message);
 			}
 			else if (!strncmp(message->command, "USER", strlen("USER")))
 			{
-				response = Server_User_Command(serv, usr, message);
+				Server_reply_to_User(serv, usr, message);
 			}
 			else
 			{
-				asprintf(&response, "%s INVALID\r\n", serv->hostname);
+				// Invalid command
+				log_debug("Invalid command: %s", message->command);
 			}
-
-			cc_list_add_last(usr->msg_queue, response);
-
-			// log_debug("New message added for user %d", usr->fd);
 		}
 
 		message_destroy(message);
@@ -325,7 +342,6 @@ void Server_process_request(Server *serv, User *usr)
 	}
 
 	cc_array_destroy(messages);
-
 }
 
 /**
@@ -336,16 +352,18 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 	assert(usr);
 	assert(serv);
 
+	// Read at most MAX_MSG_LEN bytes into the buffer
 	ssize_t nread = read_all(usr->fd, usr->req_buf + usr->req_len, MAX_MSG_LEN - usr->req_len);
 
-	if(nread <= 0 && !strstr(usr->req_buf, "\r\n"))
+	// If no bytes read and no messages sent
+	if (nread <= 0 && !strstr(usr->req_buf, "\r\n"))
 	{
 		User_Disconnect(serv, usr);
-		return -1;	
+		return -1;
 	}
 
 	usr->req_len += nread;
-	usr->req_buf[usr->req_len] = 0;
+	usr->req_buf[usr->req_len] = 0; // Null terminate the buffer
 
 	log_debug("Read %zd bytes from fd %d", nread, usr->fd);
 
@@ -361,7 +379,7 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 		char *s = usr->req_buf, *t = NULL;
 
 		// Find last "\r\n" and store in t
-		while((s = strstr(s, "\r\n")) != NULL) 
+		while ((s = strstr(s, "\r\n")) != NULL)
 		{
 			count++;
 			t = s;
@@ -369,10 +387,10 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 		}
 
 		// Check if there is a partial message
-		if(t - usr->req_buf > 2)
+		if (t - usr->req_buf > 2)
 		{
 			strcpy(tmp, t + 2); // Copy partial message to temp buffer
-			t[2] = 0; // Shorten the request buffer to last complete message
+			t[2] = 0;			// Shorten the request buffer to last complete message
 		}
 
 		log_info("Processing %d messages from user %d", count, usr->fd);
@@ -398,7 +416,7 @@ ssize_t User_Write_Event(Server *serv, User *usr)
 	assert(usr);
 	assert(serv);
 
-	// Message is still being sent
+	// A message is still being sent
 	if (usr->res_len && usr->res_off < usr->res_len)
 	{
 		// Send remaining message to user
@@ -436,8 +454,6 @@ ssize_t User_Write_Event(Server *serv, User *usr)
 			usr->res_len = strlen(msg);
 			usr->res_off = 0;
 			free(msg);
-
-			// log_debug("user %d response buffer: %s", usr->fd, usr->res_buf);
 		}
 	}
 
@@ -449,7 +465,7 @@ void User_Disconnect(Server *serv, User *usr)
 	assert(serv);
 	assert(usr);
 
-	log_info("Closing connection with user %d: %s", usr->fd, usr->nick);
+	log_info("Closing connection with user (%d): %s", usr->fd, usr->nick);
 	epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, usr->fd, NULL);
 	cc_hashtable_remove(serv->connections, (void *)&usr->fd, NULL);
 	User_Destroy(usr);
@@ -459,9 +475,15 @@ void sighandler(int sig)
 {
 	if (sig == SIGINT)
 	{
+		log_info("SIGINT Recieved...");
+
 		if (g_server)
 		{
 			Server_destroy(g_server);
 		}
+	}
+	else if (sig == SIGPIPE)
+	{
+		log_info("SIGPIPE Recieved...");
 	}
 }

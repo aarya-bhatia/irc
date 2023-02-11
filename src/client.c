@@ -24,14 +24,8 @@ int main(int argc, char *argv[])
 
 	// Send user nickname to server and read reply
 	sprintf(servmsg, "NICK %s\r\n", nick);
-	write(sock, servmsg, strlen(servmsg));
-
-	nread = read(sock, servmsg, MAX_MSG_LEN);
-	if (nread == -1)
-		die("read");
-	servmsg[nread] = 0;
-
-	puts(servmsg);
+	if (write(sock, servmsg, strlen(servmsg)) == -1)
+		die("write");
 
 	// Recv username, realname as input
 	sprintf(prompt, "Enter username >");
@@ -44,7 +38,8 @@ int main(int argc, char *argv[])
 
 	// Send user name to server and read reply
 	sprintf(servmsg, "USER %s * * :%s\r\n", username, realname);
-	write(sock, servmsg, strlen(servmsg));
+	if (write(sock, servmsg, strlen(servmsg)) == -1)
+		die("write");
 
 	nread = read(sock, servmsg, MAX_MSG_LEN);
 	if (nread == -1)

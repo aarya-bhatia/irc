@@ -1,17 +1,17 @@
 CC=gcc
-INC=-Iinclude
-CFLAG=-std=c99 -Wall -Wextra -g -gdwarf-4 -c $(INC)
+INC=-Isrc
+CFLAG=-std=c99 -Wall -Werror -Wextra -pedantic -g -gdwarf-4 -c $(INC)
 LIB=-llog -lcollectc
 LDFLAG=-Llib $(LIB)
 
-all: server client test
+all: server client
 
 OBJ=obj/common.o obj/message.o
 
 client: obj/client.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
-server: obj/server.o obj/command.o $(OBJ)
+server: obj/server.o obj/command.o obj/replies.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
 test: obj/test.o $(OBJ)
@@ -25,4 +25,4 @@ tags:
 	cd src && ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .
 
 clean:
-	rm -rf obj server client test
+	rm -rf obj server client
