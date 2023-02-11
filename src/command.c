@@ -10,8 +10,9 @@ bool _is_nick_available(Server *serv, char *nick)
 {
     CC_HashTableIter iter;
     cc_hashtable_iter_init(&iter, serv->connections);
-    User *user;
-    while(cc_hashtable_iter_next(&iter, (void **) &user) != CC_ITER_END){
+    TableEntry *entry = NULL;
+    while(cc_hashtable_iter_next(&iter, &entry) != CC_ITER_END){
+        User *user = entry->value;
         if(user && user->nick && strcmp(user->nick, nick) == 0) {
             return false;
         }
