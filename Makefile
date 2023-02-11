@@ -1,6 +1,6 @@
 CC=gcc
 INC=-Isrc
-CFLAG=-std=c99 -Wall -Werror -Wextra -pedantic -g -gdwarf-4 -c $(INC)
+CFLAG=-std=c99 -Wall -Wextra -pedantic -g -c $(INC)
 LIB=-llog -lcollectc
 LDFLAG=-Llib $(LIB)
 
@@ -11,7 +11,7 @@ OBJ=obj/common.o obj/message.o
 client: obj/client.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
-server: obj/server.o obj/command.o obj/replies.o $(OBJ)
+server: obj/server.o obj/command.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
 test: obj/test.o $(OBJ)

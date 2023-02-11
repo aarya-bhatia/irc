@@ -1,19 +1,43 @@
+// #define _GNU_SOURCE
+
+// Standard Libraries
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <assert.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <time.h>
+
+// Networking
+#include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <errno.h>
+#include <signal.h>
+
 #include "common.h"
+#include "message.h"
 
 int main(int argc, char *argv[])
 {
-	if (argc != 4)
+	if (argc != 3)
 	{
-		fprintf(stderr, "Usage: %s <hostname> <port> <nick>\n", *argv);
+		fprintf(stderr, "Usage: %s <hostname> <port>\n", *argv);
 		return 1;
 	}
 
 	char *hostname = argv[1];
 	char *port = argv[2];
-	char *nick = argv[3];
-
 	int sock = create_and_bind_socket(hostname, port);
 
+	char nick[30];
 	char username[30];
 	char realname[30];
 
@@ -22,28 +46,31 @@ int main(int argc, char *argv[])
 
 	int nread;
 
-	// Send user nickname to server and read reply
-	sprintf(servmsg, "NICK %s\r\n", nick);
-	if (write(sock, servmsg, strlen(servmsg)) == -1)
-		die("write");
+	// Input nick, username and realname
+	sprintf(prompt, "Enter your nick > ");
+	write(1, prompt, strlen(prompt));
+	scanf("%s", nick);
 
-	// Recv username, realname as input
-	sprintf(prompt, "Enter username >");
+	sprintf(prompt, "Enter your username > ");
 	write(1, prompt, strlen(prompt));
 	scanf("%s", username);
 
-	sprintf(prompt, "Enter realname >");
+	sprintf(prompt, "Enter your realname > ");
 	write(1, prompt, strlen(prompt));
 	scanf("%s", realname);
 
-	// Send user name to server and read reply
-	sprintf(servmsg, "USER %s * * :%s\r\n", username, realname);
+	// Register client
+
+	sprintf(servmsg, "NICK %s\r\nUSER %s * * :%s\r\n", nick, username, realname);
+
 	if (write(sock, servmsg, strlen(servmsg)) == -1)
 		die("write");
 
 	nread = read(sock, servmsg, MAX_MSG_LEN);
+
 	if (nread == -1)
 		die("read");
+
 	servmsg[nread] = 0;
 
 	puts(servmsg);

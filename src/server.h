@@ -1,7 +1,32 @@
 #pragma once
 
+#define _GNU_SOURCE
+
+// Standard Libraries
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <assert.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <time.h>
+
+// Networking
+#include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <errno.h>
+#include <signal.h>
+
 #include "common.h"
 #include "message.h"
+
 #include "collectc/cc_array.h"
 #include "collectc/cc_hashtable.h"
 #include "collectc/cc_list.h"
@@ -47,3 +72,5 @@ ssize_t User_Read_Event(Server *serv, User *usr);
 ssize_t User_Write_Event(Server *serv, User *usr);
 void User_Disconnect(Server *serv, User *usr);
 void User_Destroy(User *usr);
+
+void User_add_msg(User *usr, char *msg);

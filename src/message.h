@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "collectc/cc_array.h"
 
 typedef struct _Message
 {

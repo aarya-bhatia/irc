@@ -1,4 +1,6 @@
+
 #include "server.h"
+#include <string.h>
 
 static Server *g_server = NULL;
 
@@ -251,6 +253,8 @@ void Server_accept_all(Server *serv)
 		user->fd = conn_sock;
 		user->hostname = strdup(addr_to_string((struct sockaddr *)&client_addr, addrlen));
 
+		user->nick = make_string("user%05d", (rand() % (int)1e5));
+
 		if (cc_list_new(&user->msg_queue) != CC_OK)
 		{
 			perror("CC_LIST");
@@ -314,7 +318,7 @@ void Server_process_request(Server *serv, User *usr)
 
 	Message *message = NULL;
 
-	// Iterate over the request messages and add response message(s) 
+	// Iterate over the request messages and add response message(s)
 	// to user's message queue in the same order.
 	while (cc_array_iter_next(&itr, (void **)&message) != CC_ITER_END)
 	{
@@ -469,6 +473,15 @@ void User_Disconnect(Server *serv, User *usr)
 	epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, usr->fd, NULL);
 	cc_hashtable_remove(serv->connections, (void *)&usr->fd, NULL);
 	User_Destroy(usr);
+}
+
+void User_add_msg(User *usr, char *msg)
+{
+	assert(usr);
+	assert(msg);
+	assert(usr->msg_queue);
+
+	cc_list_add_last(usr->msg_queue, msg);
 }
 
 void sighandler(int sig)

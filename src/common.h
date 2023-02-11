@@ -1,29 +1,6 @@
 #pragma once
 
-#define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
-
-// Standard Libraries
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <assert.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <time.h>
-
-// Networking
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <errno.h>
-#include <signal.h>
 
 // External Libraries
 #include "log.h"
@@ -62,4 +39,5 @@ void *get_in_addr(struct sockaddr *sa); /* returns the in_addr of ivp4 and ipv6 
 char *addr_to_string(struct sockaddr *addr, socklen_t len); /* get ip address from sockaddr */
 
 ssize_t read_all(int fd, char *buf, size_t len);
+
 ssize_t write_all(int fd, char *buf, size_t len);
