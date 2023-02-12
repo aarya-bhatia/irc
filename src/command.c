@@ -21,7 +21,7 @@ bool _is_nick_available(Server *serv, char *nick)
     return true;
 }
 
-void Server_reply_to_Nick(Server *serv, User *usr, Message *msg)
+void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
 {
     assert(serv);
     assert(usr);
@@ -58,7 +58,7 @@ void Server_reply_to_Nick(Server *serv, User *usr, Message *msg)
     }
 }
 
-void Server_reply_to_User(Server *serv, User *usr, Message *msg)
+void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
 {
     assert(serv);
     assert(usr);
@@ -96,4 +96,14 @@ void Server_reply_to_User(Server *serv, User *usr, Message *msg)
     }
 }
 
-void Server_reply_to_Privmsg(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);
+
+void Server_reply_to_PING(Server *serv, User *usr, Message *msg)
+{
+    assert(serv);
+    assert(usr);
+    assert(msg);
+
+    assert(!strcmp(msg->command, "PING"));
+    User_add_msg(usr, make_reply("PONG %s", serv->hostname));
+}

@@ -1,6 +1,6 @@
 #include "include/client.h"
-
-// static pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
+#include <sys/epoll.h>
+#include <sys/timerfd.h>
 
 void Client_init(Client *client)
 {
@@ -92,9 +92,58 @@ void *start_writer_thread(void *args)
 		if (written == -1)
 			die("write");
 
-		// printf("Outbox: Sent %d bytes to server", written);
+		printf("Outbox: Sent %d bytes to server\n", written);
 
 		free(msg);
+	}
+
+	return (void *)client;
+}
+
+void *start_ping_thread(void *args)
+{
+	Client *client = (Client *)args;
+
+	// create a timer
+
+	int epollfd = epoll_create1(0);
+
+	struct epoll_event events[10];
+
+	struct itimerspec tv = {
+		.it_interval.tv_sec = 3,
+		.it_interval.tv_nsec = 0,
+		.it_value.tv_sec = 3,
+		.it_value.tv_nsec = 0};
+
+	int timerfd = timerfd_create(CLOCK_MONOTONIC, 0);
+
+	struct epoll_event ev = {.data.fd = timerfd, .events = EPOLLIN};
+	epoll_ctl(epollfd, EPOLL_CTL_ADD, timerfd, &ev);
+
+	if (timerfd_settime(timerfd, 0, &tv, NULL) != 0)
+		die("timerfd_settime");
+
+	while (1)
+	{
+		int n = epoll_wait(epollfd, events, sizeof events, 1000);
+
+		if (n == 0)
+		{
+			continue;
+		}
+
+		uint64_t t = 0;
+
+		// Timer expired
+		if(read(timerfd, &t, 8) > 0)
+		{
+			log_debug("Timer expired at %d", (int)time(NULL));
+			char *msg = strdup("PING\r\n");
+			thread_queue_push(client->queue, msg);
+			sleep(1);
+		}
+
 	}
 
 	return (void *)client;

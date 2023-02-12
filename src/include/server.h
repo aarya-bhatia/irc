@@ -39,9 +39,10 @@ void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
 void Server_process_request(Server *serv, User *usr);
 
-void Server_reply_to_Nick(Server *serv, User *usr, Message *msg);
-void Server_reply_to_User(Server *serv, User *usr, Message *msg);
-void Server_reply_to_Privmsg(Server *serv, User *usr, Message *msg);
+void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);
+void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PING(Server *serv, User *usr, Message *msg);
 
 ssize_t User_Read_Event(Server *serv, User *usr);
 ssize_t User_Write_Event(Server *serv, User *usr);

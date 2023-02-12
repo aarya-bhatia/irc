@@ -202,11 +202,15 @@ void Server_process_request(Server *serv, User *usr)
 		{
 			if (!strncmp(message->command, "NICK", strlen("NICK")))
 			{
-				Server_reply_to_Nick(serv, usr, message);
+				Server_reply_to_NICK(serv, usr, message);
 			}
 			else if (!strncmp(message->command, "USER", strlen("USER")))
 			{
-				Server_reply_to_User(serv, usr, message);
+				Server_reply_to_USER(serv, usr, message);
+			}
+			else if(!strncmp(message->command, "PING", strlen("PING")))
+			{
+				Server_reply_to_PING(serv, usr, message);
 			}
 			else
 			{
