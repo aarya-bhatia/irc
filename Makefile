@@ -7,11 +7,13 @@ LDFLAG=-Llib $(LIB)
 all: server client
 
 OBJ=obj/common.o obj/message.o
+SERVER_OBJ=obj/server_main.o obj/server.o obj/user.o obj/command.o $(OBJ)
+CLIENT_OBJ=obj/client_main.o obj/client.o $(OBJ)
 
-client: obj/client.o $(OBJ)
+client: $(CLIENT_OBJ)
 	$(CC) -pthread $^ $(LDFLAG) -o $@
 
-server: obj/server.o obj/command.o $(OBJ)
+server: $(SERVER_OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
 test: obj/test.o $(OBJ)
@@ -25,4 +27,4 @@ tags:
 	cd src && ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .
 
 clean:
-	rm -rf obj server client
+	rm -rf obj server client *.out

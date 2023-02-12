@@ -6,6 +6,8 @@
 #include "collectc/cc_hashtable.h"
 #include "collectc/cc_list.h"
 
+#include <sys/epoll.h>
+
 typedef struct _Server
 {
 	CC_HashTable *connections; // Map socket fd to User data
