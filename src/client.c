@@ -1,6 +1,6 @@
 #include "include/client.h"
 
-#include <pthread.h>
+// static pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void Client_init(Client *client)
 {
@@ -65,7 +65,13 @@ void *start_reader_thread(void *args)
 
 		buf[nread] = 0;
 
+		if (nread >= 2 && !strncmp(buf + nread - 2, "\r\n", 2))
+		{
+			buf[nread - 2] = 0;
+		}
+
 		log_info("Message from server: %s", buf);
+		// usleep(1000);
 	}
 
 	return (void *)client;

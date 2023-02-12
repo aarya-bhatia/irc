@@ -1,17 +1,11 @@
 #include "include/client.h"
 
-#include <pthread.h>
-
-// The irc client
-static Client g_client;
-
-// The reader thread will read messages from server and print them to stdout
-static pthread_t reader_thread;
-
-// The writer thread will pull messages from client queue and send them to server
-static pthread_t writer_thread;
-
 void stop(int sig);
+
+// int g_pipe[2];
+Client g_client;
+pthread_t g_reader_thread;
+pthread_t g_writer_thread;
 
 int main(int argc, char *argv[])
 {
@@ -21,17 +15,25 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // if(pipe(g_pipe) < 0) die("pipe");
+
     Client_init(&g_client);
 
     Client_connect(&g_client, argv[1], argv[2]);
 
-    pthread_create(&reader_thread, NULL, start_reader_thread, (void *)&g_client);
+    pthread_create(&g_reader_thread, NULL, start_reader_thread, (void *)&g_client);
 
-    pthread_create(&writer_thread, NULL, start_writer_thread, (void *)&g_client);
+    pthread_create(&g_writer_thread, NULL, start_writer_thread, (void *)&g_client);
 
     char buffer[MAX_MSG_LEN] = {0};
 
-    signal(SIGINT, stop);
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_handler = stop;
+    sa.sa_flags = SA_RESTART;
+
+    if (sigaction(SIGINT, &sa, NULL) == -1)
+        die("sigaction");
 
     // Register client
 
@@ -76,16 +78,16 @@ int main(int argc, char *argv[])
 /* signal handler */
 void stop(int sig)
 {
-	(void)sig;
+    (void)sig;
 
-	pthread_cancel(reader_thread);
-	pthread_cancel(writer_thread);
+    pthread_cancel(g_reader_thread);
+    pthread_cancel(g_writer_thread);
 
-	pthread_join(reader_thread, NULL);
-	pthread_join(writer_thread, NULL);
+    pthread_join(g_reader_thread, NULL);
+    pthread_join(g_writer_thread, NULL);
 
-	Client_destroy(&g_client);
+    Client_destroy(&g_client);
 
-	log_info("Goodbye!");
-	exit(0);
+    log_info("Goodbye!");
+    exit(0);
 }
