@@ -1,8 +1,9 @@
 #include "include/client.h"
 
+#define DEBUG
+
 void stop(int sig);
 
-// int g_pipe[2];
 Client g_client;
 pthread_t g_reader_thread;
 pthread_t g_writer_thread;
@@ -14,8 +15,6 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage: %s <hostname> <port>\n", *argv);
         return 1;
     }
-
-    // if(pipe(g_pipe) < 0) die("pipe");
 
     Client_init(&g_client);
 
@@ -37,6 +36,11 @@ int main(int argc, char *argv[])
 
     // Register client
 
+#ifdef DEBUG
+    strcpy(g_client.nick, "aaryab2");
+    strcpy(g_client.username, "aarya.bhatia1678");
+    strcpy(g_client.realname, "Aarya Bhatia");
+#else
     sprintf(buffer, "Enter your nick > ");
     write(1, buffer, strlen(buffer));
     scanf("%s", g_client.nick);
@@ -48,6 +52,7 @@ int main(int argc, char *argv[])
     sprintf(buffer, "Enter your realname > ");
     write(1, buffer, strlen(buffer));
     scanf("%s", g_client.realname);
+#endif
 
     sprintf(buffer, "NICK %s\r\nUSER %s * * :%s\r\n", g_client.nick, g_client.username, g_client.realname);
 
@@ -56,6 +61,8 @@ int main(int argc, char *argv[])
     char *line = NULL;
     size_t cap = 0;
     ssize_t ret;
+
+    sleep(1);
 
     while (1)
     {
@@ -66,9 +73,22 @@ int main(int argc, char *argv[])
         }
 
         if (line[ret - 1] == '\n')
+        {
             line[ret - 1] = 0;
+        }
         else
+        {
             line[ret] = 0;
+        }
+
+        if(!strcmp(line, "exit"))
+        {
+            break;
+        }
+        else 
+        {
+            printf("Command not found: %s\n", line);
+        }
     }
 
     stop(0);

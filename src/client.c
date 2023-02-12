@@ -70,8 +70,10 @@ void *start_reader_thread(void *args)
 			buf[nread - 2] = 0;
 		}
 
-		log_info("Message from server: %s", buf);
-		// usleep(1000);
+		char *str = "Server > "; 
+		write(1, str, strlen(str));
+		write(1, buf, strlen(buf));
+		write(1, "\n", 1);
 	}
 
 	return (void *)client;
@@ -90,7 +92,7 @@ void *start_writer_thread(void *args)
 		if (written == -1)
 			die("write");
 
-		log_info("Outbox: Sent %d bytes to server", written);
+		// printf("Outbox: Sent %d bytes to server", written);
 
 		free(msg);
 	}
