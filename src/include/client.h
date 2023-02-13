@@ -5,6 +5,7 @@
 #include "include/aaryab2/thread_queue.h"
 
 #include <pthread.h>
+#include <time.h>
 
 typedef struct Client {
 	char nick[30];
@@ -23,3 +24,7 @@ void Client_disconnect(Client *client);
 void *start_reader_thread(void *client);
 void *start_writer_thread(void *client);
 void *start_ping_thread(void *client);
+
+extern volatile bool g_is_running;
+extern time_t g_last_request;
+extern pthread_mutex_t g_mutex;

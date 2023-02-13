@@ -2,7 +2,7 @@
 
 #define DEBUG
 
-void stop(int sig);
+void sig_handler(int sig);
 
 // The irc client
 Client g_client;
@@ -13,7 +13,12 @@ pthread_t g_reader_thread;
 // The writer thread will pull messages from client queue and send them to server
 pthread_t g_writer_thread;
 
+// Periodically send a PING request to the server
 pthread_t g_ping_thread;
+
+time_t g_last_request;
+volatile bool g_is_running = true;
+pthread_mutex_t g_mutex;
 
 int main(int argc, char *argv[])
 {
@@ -22,6 +27,10 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage: %s <hostname> <port>\n", *argv);
         return 1;
     }
+
+    g_last_request = time(NULL);
+
+    pthread_mutex_init(&g_mutex, NULL);
 
     Client_init(&g_client);
 
@@ -37,13 +46,13 @@ int main(int argc, char *argv[])
 
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);
-    sa.sa_handler = stop;
+    sa.sa_handler = sig_handler;
     sa.sa_flags = SA_RESTART;
 
     if (sigaction(SIGINT, &sa, NULL) == -1)
         die("sigaction");
 
-    // Register client
+        // Register client
 
 #ifdef DEBUG
     // strcpy(g_client.nick, "aaryab2");
@@ -72,9 +81,12 @@ int main(int argc, char *argv[])
     size_t cap = 0;
     ssize_t ret;
 
-    while (1)
+    while (g_is_running)
     {
+        pthread_mutex_lock(&g_mutex);
         printf("Enter command > ");
+        pthread_mutex_unlock(&g_mutex);
+
         if ((ret = getline(&line, &cap, stdin)) <= 0)
         {
             break;
@@ -89,24 +101,18 @@ int main(int argc, char *argv[])
             line[ret] = 0;
         }
 
-        if(!strcmp(line, "exit"))
+        if (!strcmp(line, "exit"))
         {
+            g_is_running = false;
             break;
         }
-        else 
+        else
         {
+            pthread_mutex_lock(&g_mutex);
             printf("Command not found: %s\n", line);
+            pthread_mutex_unlock(&g_mutex);
         }
     }
-
-    stop(0);
-    exit(0);
-}
-
-/* signal handler */
-void stop(int sig)
-{
-    (void)sig;
 
     pthread_cancel(g_reader_thread);
     pthread_cancel(g_writer_thread);
@@ -116,8 +122,17 @@ void stop(int sig)
     pthread_join(g_writer_thread, NULL);
     pthread_join(g_ping_thread, NULL);
 
+    pthread_mutex_destroy(&g_mutex);
+
     Client_destroy(&g_client);
 
     log_info("Goodbye!");
     exit(0);
+}
+
+void sig_handler(int sig)
+{
+    (void)sig;
+    write(1, "Preparing to exit...", 50);
+    g_is_running = false;
 }

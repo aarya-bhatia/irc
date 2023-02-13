@@ -56,7 +56,7 @@ void *start_reader_thread(void *args)
 
 	char buf[MAX_MSG_LEN + 1];
 
-	while (1)
+	while (g_is_running)
 	{
 		int nread = read(client->sock, buf, MAX_MSG_LEN);
 
@@ -70,10 +70,13 @@ void *start_reader_thread(void *args)
 			buf[nread - 2] = 0;
 		}
 
-		char *str = "Server > "; 
+		char *str = "Server > ";
+
+		pthread_mutex_lock(&g_mutex);
 		write(1, str, strlen(str));
 		write(1, buf, strlen(buf));
 		write(1, "\n", 1);
+		pthread_mutex_unlock(&g_mutex);
 	}
 
 	return (void *)client;
@@ -83,7 +86,7 @@ void *start_writer_thread(void *args)
 {
 	Client *client = (Client *)args;
 
-	while (1)
+	while (g_is_running)
 	{
 		char *msg = thread_queue_pull(client->queue);
 
@@ -92,7 +95,10 @@ void *start_writer_thread(void *args)
 		if (written == -1)
 			die("write");
 
-		printf("Outbox: Sent %d bytes to server\n", written);
+		pthread_mutex_lock(&g_mutex);
+		log_info("Outbox: Sent %d bytes to server", written);
+		g_last_request = time(NULL);
+		pthread_mutex_unlock(&g_mutex);
 
 		free(msg);
 	}
@@ -124,7 +130,7 @@ void *start_ping_thread(void *args)
 	if (timerfd_settime(timerfd, 0, &tv, NULL) != 0)
 		die("timerfd_settime");
 
-	while (1)
+	while (g_is_running)
 	{
 		int n = epoll_wait(epollfd, events, sizeof events, 1000);
 
@@ -136,14 +142,33 @@ void *start_ping_thread(void *args)
 		uint64_t t = 0;
 
 		// Timer expired
-		if(read(timerfd, &t, 8) > 0)
+		if (read(timerfd, &t, 8) > 0)
 		{
+			pthread_mutex_lock(&g_mutex);
 			log_debug("Timer expired at %d", (int)time(NULL));
-			char *msg = strdup("PING\r\n");
-			thread_queue_push(client->queue, msg);
-			sleep(1);
-		}
+			pthread_mutex_unlock(&g_mutex);
 
+			bool send_ping = false;
+
+			// Check time since last message sent
+			pthread_mutex_lock(&g_mutex);
+			double elapsed_seconds = difftime(time(NULL), g_last_request);
+
+			if (elapsed_seconds > 5)
+			{
+				send_ping = true;
+			}
+
+			pthread_mutex_unlock(&g_mutex);
+
+			if (send_ping)
+			{
+				// Make ping request
+				char *msg = strdup("PING\r\n");
+				thread_queue_push(client->queue, msg);
+				sleep(1);
+			}
+		}
 	}
 
 	return (void *)client;
