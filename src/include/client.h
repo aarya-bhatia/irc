@@ -7,12 +7,13 @@
 #include <pthread.h>
 #include <time.h>
 
-typedef struct Client {
+typedef struct Client
+{
 	char nick[30];
 	char username[30];
 	char realname[30];
 	int sock;
-	thread_queue *queue;	
+	thread_queue *queue;
 } Client;
 
 void Client_init(Client *client);
@@ -25,6 +26,6 @@ void *start_reader_thread(void *client);
 void *start_writer_thread(void *client);
 void *start_ping_thread(void *client);
 
-extern volatile bool g_is_running;
-extern time_t g_last_request;
 extern pthread_mutex_t g_mutex;
+extern volatile bool g_is_running;
+extern volatile time_t g_last_request;

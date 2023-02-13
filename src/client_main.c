@@ -16,7 +16,7 @@ pthread_t g_writer_thread;
 // Periodically send a PING request to the server
 pthread_t g_ping_thread;
 
-time_t g_last_request;
+volatile time_t g_last_request;
 volatile bool g_is_running = true;
 pthread_mutex_t g_mutex;
 
@@ -75,17 +75,25 @@ int main(int argc, char *argv[])
     sprintf(buffer, "NICK %s\r\nUSER %s * * :%s\r\n", g_client.nick, g_client.username, g_client.realname);
 
     thread_queue_push(g_client.queue, strdup(buffer));
-    sleep(1);
+    // sleep(1);
 
     char *line = NULL;
     size_t cap = 0;
     ssize_t ret;
 
-    while (g_is_running)
+    while (1)
     {
         pthread_mutex_lock(&g_mutex);
-        printf("Enter command > ");
+        if (!g_is_running)
+        {
+            pthread_mutex_unlock(&g_mutex);
+            break;
+        }
         pthread_mutex_unlock(&g_mutex);
+
+        // pthread_mutex_lock(&g_mutex);
+        // printf("Enter command > ");
+        // pthread_mutex_unlock(&g_mutex);
 
         if ((ret = getline(&line, &cap, stdin)) <= 0)
         {
@@ -103,20 +111,31 @@ int main(int argc, char *argv[])
 
         if (!strcmp(line, "exit"))
         {
+            pthread_mutex_lock(&g_mutex);
             g_is_running = false;
+            pthread_mutex_unlock(&g_mutex);
             break;
         }
         else
         {
-            pthread_mutex_lock(&g_mutex);
-            printf("Command not found: %s\n", line);
-            pthread_mutex_unlock(&g_mutex);
+            if (strlen(line) == 0)
+            {
+                pthread_mutex_lock(&g_mutex);
+                printf("Enter Command: \n");
+                pthread_mutex_unlock(&g_mutex);
+            }
+            else
+            {
+                pthread_mutex_lock(&g_mutex);
+                printf("Command not found: %s\n", line);
+                pthread_mutex_unlock(&g_mutex);
+            }
         }
     }
 
-    pthread_cancel(g_reader_thread);
-    pthread_cancel(g_writer_thread);
-    pthread_cancel(g_ping_thread);
+    // pthread_cancel(g_reader_thread);
+    // pthread_cancel(g_writer_thread);
+    // pthread_cancel(g_ping_thread);
 
     pthread_join(g_reader_thread, NULL);
     pthread_join(g_writer_thread, NULL);
@@ -133,6 +152,5 @@ int main(int argc, char *argv[])
 void sig_handler(int sig)
 {
     (void)sig;
-    write(1, "Preparing to exit...", 50);
     g_is_running = false;
 }

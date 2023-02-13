@@ -56,8 +56,16 @@ void *start_reader_thread(void *args)
 
 	char buf[MAX_MSG_LEN + 1];
 
-	while (g_is_running)
+	while (1)
 	{
+		pthread_mutex_lock(&g_mutex);
+		if (!g_is_running)
+		{
+			pthread_mutex_unlock(&g_mutex);
+			break;
+		}
+		pthread_mutex_unlock(&g_mutex);
+
 		int nread = read(client->sock, buf, MAX_MSG_LEN);
 
 		if (nread == -1)
@@ -65,17 +73,15 @@ void *start_reader_thread(void *args)
 
 		buf[nread] = 0;
 
-		if (nread >= 2 && !strncmp(buf + nread - 2, "\r\n", 2))
-		{
-			buf[nread - 2] = 0;
-		}
-
-		char *str = "Server > ";
+		// if (nread >= 2 && !strncmp(buf + nread - 2, "\r\n", 2))
+		// {
+		// 	buf[nread - 2] = 0;
+		// }
 
 		pthread_mutex_lock(&g_mutex);
-		write(1, str, strlen(str));
+		write(1, "Server: ", strlen("Server: "));
 		write(1, buf, strlen(buf));
-		write(1, "\n", 1);
+		// write(1, "\n", 1);
 		pthread_mutex_unlock(&g_mutex);
 	}
 
@@ -86,8 +92,16 @@ void *start_writer_thread(void *args)
 {
 	Client *client = (Client *)args;
 
-	while (g_is_running)
+	while (1)
 	{
+		pthread_mutex_lock(&g_mutex);
+		if (!g_is_running)
+		{
+			pthread_mutex_unlock(&g_mutex);
+			break;
+		}
+		pthread_mutex_unlock(&g_mutex);
+
 		char *msg = thread_queue_pull(client->queue);
 
 		int written = write(client->sock, msg, strlen(msg));
@@ -130,8 +144,16 @@ void *start_ping_thread(void *args)
 	if (timerfd_settime(timerfd, 0, &tv, NULL) != 0)
 		die("timerfd_settime");
 
-	while (g_is_running)
+	while (1)
 	{
+		pthread_mutex_lock(&g_mutex);
+		if (!g_is_running)
+		{
+			pthread_mutex_unlock(&g_mutex);
+			break;
+		}
+		pthread_mutex_unlock(&g_mutex);
+
 		int n = epoll_wait(epollfd, events, sizeof events, 1000);
 
 		if (n == 0)
