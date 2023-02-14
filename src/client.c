@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
 			{
 				if (event & (EPOLLERR | EPOLLHUP))
 				{
-					die(NULL);
+					die("Server disconnected");
 				}
 
 				// socket is ready to send data i.e. client can read
