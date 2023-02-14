@@ -23,7 +23,7 @@
 #include <signal.h>
 
 // External Libraries
-#include "log.h"
+#include "log/log.h"
 #include "collectc/cc_common.h"
 #include "collectc/cc_array.h"
 
