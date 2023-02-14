@@ -8,7 +8,7 @@ all: server client
 
 OBJ=obj/common.o obj/message.o
 SERVER_OBJ=obj/server_main.o obj/server.o obj/user.o obj/command.o $(OBJ)
-CLIENT_OBJ=obj/client.o $(OBJ)
+CLIENT_OBJ=obj/client.o obj/iostream.o obj/timer.o $(OBJ)
 
 client: $(CLIENT_OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
