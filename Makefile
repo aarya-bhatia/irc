@@ -8,7 +8,7 @@ all: server client
 
 OBJ=obj/common.o obj/message.o
 SERVER_OBJ=obj/server_main.o obj/server.o obj/user.o obj/command.o $(OBJ)
-CLIENT_OBJ=obj/epoll_client.o obj/client.o $(OBJ)
+CLIENT_OBJ=obj/client.o $(OBJ)
 
 client: $(CLIENT_OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
@@ -23,6 +23,7 @@ libaaryab2:
 	mkdir -p obj/lib/aaryab2;
 	mkdir -p lib;
 	cc $(CFLAG) src/include/aaryab2/String.c -o obj/lib/aaryab2/String.o;
+	rm -rf lib/libaaryab2.a;
 	ar rs lib/libaaryab2.a obj/lib/aaryab2/String.o;
 	ar t lib/libaaryab2.a;
 

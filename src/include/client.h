@@ -2,16 +2,19 @@
 
 #include "include/common.h"
 #include "include/message.h"
+#include "include/client.h"
+#include "include/collectc/cc_list.h"
 
-typedef struct Client
-{
-	char nick[30];
-	char username[30];
-	char realname[30];
-	int sock;
-} Client;
+#include <sys/epoll.h>
+#include <sys/timerfd.h>
+#include <time.h>
 
-void Client_init(Client *client);
-void Client_destroy(Client *client);
-void Client_connect(Client *client, char *hostname, char *port);
-void Client_disconnect(Client *client);
+#define DEBUG
+#define PING_INTERVAL_SEC 3
+#define EPOLL_TIMEOUT 1000
+#define MAX_QUEUE_SIZE 100
+#define MAX_EPOLL_EVENTS 3 // stdin, socket, timer
+
+void read_user_input();
+void read_from_socket(int sock, char read_buf[], size_t *read_buf_len);
+void write_to_socket(int sock, char write_buf[], size_t *write_buf_len, size_t *write_buf_off);
