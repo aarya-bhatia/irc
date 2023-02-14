@@ -1,30 +1,54 @@
 {
-    "configurations": [
-   
+  "configurations": [
+    {
+      "name": "(gdb) Launch Client",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/client",
+      "args": ["localhost", "5000"],
+      "stopAtEntry": true,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
         {
-            "name": "(gdb) Launch",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/server",
-            "args": ["5000"],
-            "stopAtEntry": false,
-            "cwd": "${fileDirname}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
         }
-    ],
-    "version": "2.0.0"
+      ]
+    },
+
+    {
+      "name": "(gdb) Launch Server",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/server",
+      "args": ["5000"],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ],
+  "version": "2.0.0"
 }

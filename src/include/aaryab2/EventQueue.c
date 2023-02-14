@@ -1,5 +1,5 @@
 
-#include "thread_queue.h"
+#include "EventQueue.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,25 +7,25 @@
 #include <assert.h>
 
 /**
- * This thread_queue is implemented with a linked list of thread_queue_nodes.
+ * This EventQueue is implemented with a linked list of EventQueue_nodes.
  */
-typedef struct thread_queue_node
+typedef struct EventQueue_node
 {
     void *data;
-    struct thread_queue_node *next;
-} thread_queue_node;
+    struct EventQueue_node *next;
+} EventQueue_node;
 
-struct thread_queue
+struct EventQueue
 {
-    /* thread_queue_node pointers to the head and tail of the thread_queue */
-    thread_queue_node *head, *tail;
+    /* EventQueue_node pointers to the head and tail of the EventQueue */
+    EventQueue_node *head, *tail;
 
-    /* The number of elements in the thread_queue */
+    /* The number of elements in the EventQueue */
     ssize_t size;
 
     /**
-     * The maximum number of elements the thread_queue can hold.
-     * max_size is non-positive if the thread_queue does not have a max size.
+     * The maximum number of elements the EventQueue can hold.
+     * max_size is non-positive if the EventQueue does not have a max size.
      */
     ssize_t max_size;
 
@@ -34,9 +34,9 @@ struct thread_queue
     pthread_mutex_t m;
 };
 
-thread_queue *thread_queue_create(ssize_t max_size)
+EventQueue *EventQueue_create(ssize_t max_size)
 {
-    thread_queue *q = (thread_queue *)calloc(1, sizeof(thread_queue));
+    EventQueue *q = (EventQueue *)calloc(1, sizeof(EventQueue));
 
     if (!q) 
     {
@@ -51,18 +51,18 @@ thread_queue *thread_queue_create(ssize_t max_size)
     return q;
 }
 
-void thread_queue_destroy(thread_queue *this)
+void EventQueue_destroy(EventQueue *this)
 {
     if (!this)
     {
         return;
     }
 
-    thread_queue_node *itr = this->head;
+    EventQueue_node *itr = this->head;
 
     while (itr)
     {
-        thread_queue_node *tmp = itr->next;
+        EventQueue_node *tmp = itr->next;
         free(itr);
         itr = tmp;
     }
@@ -73,14 +73,14 @@ void thread_queue_destroy(thread_queue *this)
     free(this);
 }
 
-void thread_queue_push(thread_queue *this, void *data)
+void EventQueue_push(EventQueue *this, void *data)
 {
     if (!this)
     {
         return;
     }
 
-    thread_queue_node *qnode = (thread_queue_node *) malloc(sizeof(*qnode));
+    EventQueue_node *qnode = (EventQueue_node *) malloc(sizeof(*qnode));
 
     if (!qnode)
     {
@@ -117,7 +117,7 @@ void thread_queue_push(thread_queue *this, void *data)
     pthread_mutex_unlock(&this->m);
 }
 
-void *thread_queue_pull(thread_queue *this)
+void *EventQueue_pull(EventQueue *this)
 {
     if (!this)
     {
@@ -131,7 +131,7 @@ void *thread_queue_pull(thread_queue *this)
         pthread_cond_wait(&this->cv, &this->m);
     }
 
-    thread_queue_node *node = this->head;
+    EventQueue_node *node = this->head;
 
     if(this->head == this->tail) {
         this->head = NULL;
