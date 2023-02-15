@@ -1,6 +1,6 @@
 #include "include/server.h"
 
-static Server *g_server = NULL;
+static volatile bool g_alive = true;
 
 void sighandler(int sig);
 
@@ -15,11 +15,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    int port = atoi(argv[1]);
-
-    Server *serv = Server_create(port);
-
-    g_server = serv;
+    // Create and start an IRC server on given port
+    Server *serv = Server_create(atoi(argv[1]));
 
     // Array for events returned from epoll
     struct epoll_event events[MAX_EVENTS] = {0};
@@ -41,15 +38,18 @@ int main(int argc, char *argv[])
     if (sigaction(SIGPIPE, &sa, NULL) == -1)
         die("sigaction");
 
-    while (1)
+    // Run while g_alive flag is set
+    while (g_alive)
     {
         int num = epoll_wait(serv->epollfd, events, MAX_EVENTS, -1);
         CHECK(num, "epoll_wait");
 
         for (int i = 0; i < num; i++)
         {
+            // Event on listening socket
             if (events[i].data.fd == serv->fd)
             {
+                // Accept all new connections
                 Server_accept_all(serv);
             }
             else
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
                 if (e & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
                 {
-                    log_debug("user %d disconnected", usr->fd);
+                    log_debug("user %s disconnected", usr->nick);
                     User_Disconnect(serv, usr);
                     continue;
                 }
@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
     }
 
     cc_hashtable_destroy(serv->connections);
+    Server_destroy(serv);
 
     return 0;
 }
@@ -101,15 +102,6 @@ void sighandler(int sig)
 {
     if (sig == SIGINT)
     {
-        log_info("SIGINT Recieved...");
-
-        if (g_server)
-        {
-            Server_destroy(g_server);
-        }
-    }
-    else if (sig == SIGPIPE)
-    {
-        log_info("SIGPIPE Recieved...");
+        g_alive = false;
     }
 }

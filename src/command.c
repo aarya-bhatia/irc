@@ -45,7 +45,7 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
 
     usr->nick = strdup(msg->params[0]);
 
-    log_info("user %d set nick to %s", usr->fd, usr->nick);
+    log_info("user %s updated nick", usr->nick);
 
     if (usr->nick && usr->username && usr->realname)
     {
@@ -83,7 +83,7 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
     usr->username = strdup(msg->params[0]);
     usr->realname = strdup(msg->body);
 
-    log_debug("user %d username=%s realname=%s", usr->fd, usr->username, usr->realname);
+    log_debug("user %s set username to %s and realname to %s", usr->nick, usr->username, usr->realname);
 
     if (usr->nick && usr->username && usr->realname)
     {

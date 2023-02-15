@@ -49,7 +49,7 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 			t[2] = 0;			// Shorten the request buffer to last complete message
 		}
 
-		log_info("Processing %d messages from user %d", count, usr->fd);
+		log_info("Processing %d messages from user %s", count, usr->nick);
 
 		// Process all CRLF-terminated messages from request buffer
 		Server_process_request(serv, usr);
@@ -58,7 +58,7 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 		strcpy(usr->req_buf, tmp);
 		usr->req_len = strlen(tmp);
 
-		log_debug("Request buffer size for user %d: %zu", usr->fd, usr->req_len);
+		log_debug("Request buffer size for user %s: %zu", usr->nick, usr->req_len);
 	}
 
 	return nread;
@@ -78,7 +78,7 @@ ssize_t User_Write_Event(Server *serv, User *usr)
 		// Send remaining message to user
 		ssize_t nsent = write_all(usr->fd, usr->res_buf + usr->res_off, usr->res_len - usr->res_off);
 
-		log_debug("Sent %zd bytes to user %d", nsent, usr->fd);
+		log_debug("Sent %zd bytes to user %s", nsent, usr->nick);
 
 		if (nsent <= 0)
 		{
