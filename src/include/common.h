@@ -48,6 +48,8 @@
         exit(1);     \
     }
 
+#define make_reply(format, ...) make_string(format "\r\n", __VA_ARGS__)
+
 char *make_string(char *format, ...); /* makes a string like printf of exact size */
 
 int create_and_bind_socket(char *hostname, char *port); /* creates tcp socket to connect to given host and port  */

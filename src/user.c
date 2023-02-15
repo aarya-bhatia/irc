@@ -21,8 +21,9 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 	usr->req_len += nread;
 	usr->req_buf[usr->req_len] = 0; // Null terminate the buffer
 
-	log_debug("Read %zd bytes from fd %d", nread, usr->fd);
+	log_debug("Read %zd bytes from user %s", nread, usr->nick);
 
+	// Checks if a complete message exists (if buffer has a \r\n)
 	if (strstr(usr->req_buf, "\r\n"))
 	{
 		// Buffer to store partial message
@@ -132,8 +133,14 @@ void User_add_msg(User *usr, char *msg)
 	assert(usr);
 	assert(msg);
 	assert(usr->msg_queue);
+	assert(strlen(msg) <= MAX_MSG_LEN);
 
 	cc_list_add_last(usr->msg_queue, msg);
+}
+
+void _free_callback(void *str)
+{
+	free(str);
 }
 
 /**
@@ -150,16 +157,7 @@ void User_Destroy(User *usr)
 	free(usr->username);
 	free(usr->realname);
 	free(usr->hostname);
-
-	CC_ListIter iter;
-	cc_list_iter_init(&iter, usr->msg_queue);
-	char *value;
-	while (cc_list_iter_next(&iter, (void **)&value) != CC_ITER_END)
-	{
-		free(value);
-	}
-	cc_list_destroy(usr->msg_queue);
-
+	cc_list_destroy_cb(usr->msg_queue, _free_callback);
 	shutdown(usr->fd, SHUT_RDWR);
 	close(usr->fd);
 }

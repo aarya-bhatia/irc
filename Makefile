@@ -19,6 +19,9 @@ server: $(SERVER_OBJ)
 test: obj/test.o $(OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
+ht: obj/test/ht.o $(OBJ)
+	$(CC) $^ $(LDFLAG) -o $@
+	
 libaaryab2:
 	mkdir -p obj/lib/aaryab2;
 	mkdir -p lib;
@@ -27,8 +30,12 @@ libaaryab2:
 	ar rs lib/libaaryab2.a obj/lib/aaryab2/String.o;
 	ar t lib/libaaryab2.a;
 
+obj/test/%.o: test/%.c
+	@mkdir -p $(dir $@);
+	$(CC) $(CFLAG) $< -o $@
+
 obj/%.o: src/%.c
-	@mkdir -p obj;
+	@mkdir -p $(dir $@);
 	$(CC) $(CFLAG) $< -o $@
 
 tags:

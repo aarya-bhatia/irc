@@ -4,8 +4,6 @@
 
 // TODO: Add server hostname prefixes
 
-#define make_reply(format, ...) make_string(format "\r\n", __VA_ARGS__)
-
 bool _is_nick_available(Server *serv, char *nick)
 {
     CC_HashTableIter iter;

@@ -50,15 +50,13 @@ Server *Server_create(int port)
 	serv->servaddr.sin_family = AF_INET;
 	serv->servaddr.sin_port = htons(port);
 	serv->servaddr.sin_addr.s_addr = INADDR_ANY;
-
 	serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr, sizeof(serv->servaddr)));
-	asprintf(&serv->port, "%d", port);
+	serv->port = make_string("%d", port);
 
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
 
 	size_t n = strftime(serv->created_at, sizeof(serv->created_at), "%c", tm);
-
 	assert(n > 0);
 
 	int yes = 1;
@@ -72,13 +70,14 @@ Server *Server_create(int port)
 	// Listen
 	CHECK(listen(serv->fd, MAX_EVENTS), "listen");
 
-	// Create epoll fd
-	serv->epollfd = epoll_create(MAX_EVENTS);
+	// Create epoll fd for listen socket and clients
+	serv->epollfd = epoll_create(1+MAX_EVENTS);
 	CHECK(serv->epollfd, "epoll_create");
 
 	// Make server non blocking
 	CHECK(fcntl(serv->fd, F_SETFL, fcntl(serv->fd, F_GETFL) | O_NONBLOCK), "fcntl");
 
+	// Hashtable settings
 	CC_HashTableConf htc;
 
 	// Initialize all fields to default values
@@ -95,7 +94,6 @@ Server *Server_create(int port)
 	}
 
 	log_info("Hashtable initialized with capacity %zu", cc_hashtable_capacity(serv->connections));
-
 	log_info("server running on port %d", port);
 
 	return serv;
@@ -126,7 +124,6 @@ void Server_accept_all(Server *serv)
 		User *user = calloc(1, sizeof(User));
 		user->fd = conn_sock;
 		user->hostname = strdup(addr_to_string((struct sockaddr *)&client_addr, addrlen));
-
 		user->nick = make_string("user%05d", (rand() % (int)1e5));
 
 		if (cc_list_new(&user->msg_queue) != CC_OK)

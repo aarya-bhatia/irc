@@ -27,15 +27,11 @@
 
     {
       "name": "(gdb) Launch Server",
-      "type": "cppdbg",
+      "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/server",
       "args": ["5000"],
-      "stopAtEntry": false,
       "cwd": "${fileDirname}",
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "gdb",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",

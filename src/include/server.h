@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "message.h"
+
 #include "collectc/cc_array.h"
 #include "collectc/cc_hashtable.h"
 #include "collectc/cc_list.h"
@@ -21,7 +22,7 @@ typedef struct _Server
 
 typedef struct _User
 {
-	int fd; 						// socket connection
+	int fd; // socket connection
 	char *nick;
 	char *username;
 	char *realname;

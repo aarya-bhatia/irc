@@ -6,5 +6,6 @@
         "cc_hashtable.h": "c",
         "cc_array.h": "c",
         "queue.h": "c"
-    }
+    },
+    "cmake.configureOnOpen": true
 }
