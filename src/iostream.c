@@ -14,7 +14,21 @@ void IOStream_open(IOStream *stream, int sock)
 
 void IOStream_enqueue(IOStream *stream, char *message)
 {
+    assert(message);
+    assert(strlen(message) <= MAX_MSG_LEN);
+    assert(strstr(message, "\r\n"));
 	cc_list_add_last(stream->queue, message);
+}
+
+char *IOStream_dequeue(IOStream *stream)
+{
+    if(cc_list_size(stream->queue)==0){
+        return NULL;
+    }
+
+    char *message;
+    cc_list_remove_first(stream->queue, (void **) &message);
+    return message;
 }
 
 void IOStream_read(IOStream *stream)
@@ -79,17 +93,14 @@ void IOStream_write(IOStream *stream)
         return;
     }
 
-    // No more messages
-    if (cc_list_size(stream->queue) == 0)
-    {
+    // Pop a message from queue
+    char *message = IOStream_dequeue(stream);
+
+    if(!message) {
+        // No more messages
         return;
     }
 
-    // Pop a message from queue
-    char *message;
-    cc_list_remove_first(stream->queue, (void **)&message);
-
-    assert(message);
     assert(strlen(message) <= MAX_MSG_LEN);
 
     // Copy the message to request buffer

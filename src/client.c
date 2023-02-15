@@ -8,9 +8,9 @@
 #define DEBUG
 #define PING_INTERVAL_SEC 3
 #define EPOLL_TIMEOUT 1000
-#define MAX_EPOLL_EVENTS 3 // stdin, socket, timer
+#define MAX_EPOLL_EVENTS 3 // (stdin, socket, timer)
 
-void read_user_input(char**,size_t*);
+void read_user_input(char **, size_t *);
 volatile bool g_is_running = true;
 
 void _signal_handler(int sig)
@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
 	char *host = argv[1];
 	char *port = argv[2];
 
-	char client_nick[30] = {0};
-	char client_username[30] = {0};
-	char client_realname[30] = {0};
+	char client_nick[30];
+	char client_username[30];
+	char client_realname[30];
 
 	char *line = NULL;
 	size_t line_len = 0;
@@ -90,9 +90,7 @@ int main(int argc, char *argv[])
 	scanf("%s", client_realname);
 #endif
 
-	char *initial_requests = NULL;
-	asprintf(&initial_requests, "NICK %s\r\nUSER %s * * :%s\r\n", client_nick, client_username, client_realname);
-	IOStream_enqueue(&stream, initial_requests);
+	IOStream_enqueue(&stream, make_string("NICK %s\r\nUSER %s * * :%s\r\n", client_nick, client_username, client_realname));
 
 	while (g_is_running)
 	{
@@ -122,7 +120,15 @@ int main(int argc, char *argv[])
 				// Read the next line till \n
 				read_user_input(&line, &line_len);
 				assert(line);
+
+				if (strlen(line) > MAX_MSG_LEN)
+				{
+					log_error("Message is greater than %d bytes", MAX_MSG_LEN);
+					continue;
+				}
+
 				IOStream_enqueue(&stream, strdup(line));
+				continue;
 			}
 
 			// timer event
@@ -136,6 +142,8 @@ int main(int argc, char *argv[])
 					IOStream_enqueue(&stream, strdup("PING\r\n"));
 					sleep(1);
 				}
+
+				continue;
 			}
 
 			// socket event
@@ -157,15 +165,16 @@ int main(int argc, char *argv[])
 				{
 					IOStream_write(&stream);
 				}
+
+				continue;
 			}
 		}
 	}
 
 	free(line);
-
 	close(epoll_fd);
-
 	Timer_stop(&t);
+	IOStream_close(&stream);
 
 	return 0;
 }

@@ -19,5 +19,6 @@ typedef struct IOStream
 void IOStream_open(IOStream *, int);
 void IOStream_read(IOStream *);
 void IOStream_write(IOStream *);
+char *IOStream_dequeue(IOStream *stream);
 void IOStream_enqueue(IOStream *, char *);
 void IOStream_close(IOStream *);
