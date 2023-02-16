@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
 
 	// Array to store the returned events from epoll_wait
 	struct epoll_event events[5];
+	memset(events, 0, sizeof events);
 
 	// Create fd for epoll
 	int epoll_fd = epoll_create1(0);
@@ -201,6 +202,11 @@ void _signal_handler(int sig)
 
 void Client_init(Client *client)
 {
+	memset(client, 0, sizeof *client);
+
+	client->client_inbox = calloc(1, sizeof *client->client_inbox);
+	client->client_outbox = calloc(1, sizeof *client->client_outbox);
+
 	queue_init(client->client_inbox);
 	queue_init(client->client_outbox);
 }
@@ -209,6 +215,9 @@ void Client_destroy(Client *client)
 {
 	queue_destroy(client->client_inbox, _free_callback);
 	queue_destroy(client->client_outbox, _free_callback);
+
+	free(client->client_inbox);
+	free(client->client_outbox);
 
 	shutdown(client->client_sock, SHUT_RDWR);
 	close(client->client_sock);

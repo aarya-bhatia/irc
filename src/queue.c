@@ -1,8 +1,9 @@
+#include "include/common.h"
 #include "include/queue.h"
 
 void queue_init(queue_t *q)
 {
-    cc_list_new(&q->l);
+    if(cc_list_new(&(q->l)) != CC_OK) die("cc_list_new");
     pthread_mutex_init(&q->m, NULL);
     pthread_cond_init(&q->cv, NULL);
 }
