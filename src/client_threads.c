@@ -79,6 +79,8 @@ void *inbox_thread_routine(void *args)
         }
 
         Message msg_info;
+        
+        message_init(&msg_info);
 
         if (parse_message(message, &msg_info) == -1)
         {
@@ -87,7 +89,10 @@ void *inbox_thread_routine(void *args)
         else
         {
             // process message
+            puts(message);
         }
+
+        message_destroy(&msg_info);
 
         free(message);
     }
