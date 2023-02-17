@@ -45,6 +45,7 @@ void Server_process_request(Server *serv, User *usr)
 			else if (!strcmp(message->command, "QUIT"))
 			{
 				Server_reply_to_QUIT(serv, usr, message);
+				assert(cc_list_size(usr->msg_queue) > 0);
 				usr->quit = true;
 			}
 			else if (!usr->registered)

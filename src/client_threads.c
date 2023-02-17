@@ -13,31 +13,33 @@ void *inbox_thread_routine(void *args)
     while (1)
     {
         char *message = queue_dequeue(client->client_inbox);
-
-        SAFE(mutex_stdout, {
-            printf("Server: %s\n", message);
-        });
-
-        if (strstr(message, "ERROR"))
-        {
-            free(message);
-            break;
-        }
+        char *msgcopy = strdup(message);
 
         Message msg_info;
 
         message_init(&msg_info);
 
-        if (parse_message(message, &msg_info) == -1)
+        if (parse_message(msgcopy, &msg_info) == -1)
         {
             SAFE(mutex_stdout, { log_error("Failed to parse message"); });
         }
         else
         {
             // process message
+            SAFE(mutex_stdout, {
+                printf("Server: %s\n", message);
+            });
         }
 
+        free(msgcopy);
         message_destroy(&msg_info);
+
+        if (strstr(message, "ERROR"))
+        {
+            SAFE(mutex_stdout, { log_debug("inbox_thread: bye"); });
+            free(message);
+            break;
+        }
 
         free(message);
     }
@@ -140,6 +142,7 @@ void *reader_thread_routine(void *args)
 
                 if (strstr(tok, "ERROR"))
                 {
+                    SAFE(mutex_stdout, { log_debug("reader_thread: bye"); });
                     quit = true;
                     break;
                 }
@@ -178,8 +181,6 @@ void *outbox_thread_routine(void *args)
     {
         char *message = queue_dequeue(client->client_outbox);
 
-        // log_debug("outbox_thread: sending message: %s", message);
-
         ssize_t nsent = write_all(client->client_sock, message, strlen(message));
 
         if (nsent == -1)
@@ -189,6 +190,7 @@ void *outbox_thread_routine(void *args)
 
         if (!strncmp(message, "QUIT", 4))
         {
+            SAFE(mutex_stdout, { log_debug("outbox_thread: bye"); });
             free(message);
             break;
         }

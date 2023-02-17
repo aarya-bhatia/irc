@@ -88,7 +88,8 @@ int main(int argc, char *argv[])
                         continue;
                     }
 
-                    if (cc_list_size(usr->msg_queue) == 0 && usr->quit)
+                    // User is quitting and all pending messages were sent
+                    if (usr->quit && cc_list_size(usr->msg_queue) == 0 && usr->res_len == 0)
                     {
                         User_Disconnect(serv, usr);
                         continue;
