@@ -87,6 +87,12 @@ int main(int argc, char *argv[])
                     {
                         continue;
                     }
+
+                    if (cc_list_size(usr->msg_queue) == 0 && usr->quit)
+                    {
+                        User_Disconnect(serv, usr);
+                        continue;
+                    }
                 }
             }
         }

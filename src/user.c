@@ -30,27 +30,16 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 		char tmp[MAX_MSG_LEN + 1];
 		tmp[0] = 0;
 
-		// Number of avail messages
-		int count = 0;
-
-		char *s = usr->req_buf, *t = NULL;
-
-		// Find last "\r\n" and store in t
-		while ((s = strstr(s, "\r\n")) != NULL)
-		{
-			count++;
-			t = s;
-			s += 2;
-		}
+		// get last "\r\n"
+		char *t = rstrstr(usr->req_buf, "\r\n");
+		t += 2;
 
 		// Check if there is a partial message
-		if (t - usr->req_buf > 2)
+		if (*t)
 		{
-			strcpy(tmp, t + 2); // Copy partial message to temp buffer
-			t[2] = 0;			// Shorten the request buffer to last complete message
+			strcpy(tmp, t); // Copy partial message to temp buffer
+			*t = 0;			// Shorten the request buffer to last complete message
 		}
-
-		log_info("Processing %d messages from user %s", count, usr->nick);
 
 		// Process all CRLF-terminated messages from request buffer
 		Server_process_request(serv, usr);
@@ -59,7 +48,7 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 		strcpy(usr->req_buf, tmp);
 		usr->req_len = strlen(tmp);
 
-		log_debug("Request buffer size for user %s: %zu", usr->nick, usr->req_len);
+		// log_debug("Request buffer size for user %s: %zu", usr->nick, usr->req_len);
 	}
 
 	return nread;

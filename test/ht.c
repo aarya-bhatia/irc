@@ -45,10 +45,14 @@ int main()
 	printf("%d %d\n", *out, *out2);
 
 	cc_hashtable_remove(table, &x1, &out);
+	cc_hashtable_remove(table, &y1, &out);
+
 	free(x);
+	free(y);
 
 	cc_hashtable_destroy(table);
-	free(y);
+
+	char *ptr = malloc(1);
 
 	return 0;
 }

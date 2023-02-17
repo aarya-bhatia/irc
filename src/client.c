@@ -59,7 +59,13 @@ int main(int argc, char *argv[])
 #endif
 
 	// Register signal handler to quit on CTRL-C
-	signal(SIGINT, _signal_handler);
+	// struct sigaction sa;
+	// sigemptyset(&sa.sa_mask);
+	// sa.sa_handler = _signal_handler;
+	// sa.sa_flags = SA_RESTART;
+
+	// if (sigaction(SIGINT, &sa, NULL) == -1)
+	// 	die("sigaction");
 
 	// Register the client in IRC network
 	char *registration = make_string("NICK %s\r\nUSER %s * * :%s\r\n", client.client_nick, client.client_username, client.client_realname);
@@ -83,7 +89,7 @@ int main(int argc, char *argv[])
 		line[nread - 1] = 0; // remove newline character
 
 		// Empty
-		if(strlen(line) == 0)
+		if (strlen(line) == 0)
 		{
 			continue;
 		}
@@ -94,33 +100,28 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		if (!strcmp(line, "exit"))
-		{
-			alive = false;
-
-			// This message will allow the inbox/outbox thread to quit safely
-			queue_enqueue(client.client_inbox, strdup("exit"));
-			queue_enqueue(client.client_outbox, strdup("exit"));
-
-			break;
-		}
-
 		// Send message to server
 		queue_enqueue(client.client_outbox, make_string("%s\r\n", line));
+
+		if (!strncmp(line, "QUIT", 4))
+		{
+			alive = false;
+			break;
+		}
 	}
 
 	free(line);
 
+	SAFE(mutex_stdout, { log_debug("joining theads"); });
+
 	pthread_join(inbox_thread, NULL);
-	log_debug("inbox thread quit");
+	SAFE(mutex_stdout, { log_debug("inbox thread quit"); });
 
 	pthread_join(outbox_thread, NULL);
-	log_debug("outbox thread quit");
+	SAFE(mutex_stdout, { log_debug("outbox thread quit"); });
 
-	pthread_kill(reader_thread, SIGINT);
-
-	// TODO: How to kill reader_thread? It may be blocked on a read call
 	pthread_join(reader_thread, NULL);
+	SAFE(mutex_stdout, { log_debug("reader thread quit"); });
 
 	Client_destroy(&client);
 	printf("Goodbye!\n");
@@ -138,6 +139,7 @@ void _signal_handler(int sig)
 	(void)sig;
 	log_debug("alive: %d", alive);
 	alive = false;
+
 }
 
 void Client_init(Client *client)

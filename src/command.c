@@ -2,8 +2,6 @@
 #include "include/server.h"
 #include "include/replies.h"
 
-// TODO: Add server hostname prefixes
-
 bool _is_nick_available(Server *serv, char *nick)
 {
     CC_HashTableIter iter;
@@ -100,8 +98,6 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
     }
 }
 
-void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);
-
 void Server_reply_to_PING(Server *serv, User *usr, Message *msg)
 {
     assert(serv);
@@ -111,3 +107,29 @@ void Server_reply_to_PING(Server *serv, User *usr, Message *msg)
     assert(!strcmp(msg->command, "PING"));
     User_add_msg(usr, make_reply("PONG %s", serv->hostname));
 }
+
+void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);
+
+void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg)
+{
+    assert(serv);
+    assert(usr);
+    assert(msg);
+
+    assert(!strcmp(msg->command, "QUIT"));
+
+    char *reason = (msg->body ? msg->body : "Client Quit");
+
+    User_add_msg(usr, make_reply("ERROR :Closing Link: %s (%s)", usr->hostname, reason));
+}
+
+void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);
+void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);
+
+void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);
+void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);
+void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);
+
+void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);
+void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);

@@ -35,6 +35,7 @@ typedef struct _User
 	char res_buf[MAX_MSG_LEN + 1]; // the response message
 	bool registered;
 	bool nick_changed;
+	bool quit;
 } User;
 
 Server *Server_create(int port);
@@ -46,6 +47,18 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);
 void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PING(Server *serv, User *usr, Message *msg);
+void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg);
+
+void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);
+void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);
+
+void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);
+void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);
+void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);
+
+void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);
+void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);
 
 ssize_t User_Read_Event(Server *serv, User *usr);
 ssize_t User_Write_Event(Server *serv, User *usr);

@@ -1,5 +1,68 @@
 #include "include/server.h"
+#include "include/replies.h"
 #include <time.h>
+
+void Server_process_request(Server *serv, User *usr)
+{
+	assert(serv);
+	assert(usr);
+	assert(strstr(usr->req_buf, "\r\n"));
+
+	// Get array of parsed messages
+	CC_Array *messages = parse_all_messages(usr->req_buf);
+	assert(messages);
+
+	log_debug("Processing %zu messages from user %s", cc_array_size(messages), usr->nick);
+
+	usr->req_buf[0] = 0;
+	usr->req_len = 0;
+
+	CC_ArrayIter itr;
+	cc_array_iter_init(&itr, messages);
+
+	Message *message = NULL;
+
+	// Iterate over the request messages and add response message(s)
+	// to user's message queue in the same order.
+	while (cc_array_iter_next(&itr, (void **)&message) != CC_ITER_END)
+	{
+		assert(message);
+
+		if (message->command)
+		{
+			if (!strcmp(message->command, "NICK"))
+			{
+				Server_reply_to_NICK(serv, usr, message);
+			}
+			else if (!strcmp(message->command, "USER"))
+			{
+				Server_reply_to_USER(serv, usr, message);
+			}
+			else if (!strcmp(message->command, "PING"))
+			{
+				Server_reply_to_PING(serv, usr, message);
+			}
+			else if (!strcmp(message->command, "QUIT"))
+			{
+				Server_reply_to_QUIT(serv, usr, message);
+				usr->quit = true;
+			}
+			else if (!usr->registered)
+			{
+				User_add_msg(usr, make_reply(ERR_NOTREGISTERED_MSG, usr->nick));
+			}
+			else
+			{
+				User_add_msg(usr, make_reply(ERR_UNKNOWNCOMMAND_MSG, usr->nick, message->command));
+			}
+		}
+
+		message_destroy(message);
+		free(message);
+	}
+
+	cc_array_destroy(messages);
+}
 
 void Server_destroy(Server *serv)
 {
@@ -13,8 +76,6 @@ void Server_destroy(Server *serv)
 	{
 		int *key = elem->key;
 		User *usr = (User *)elem->value;
-
-		log_debug("Key: %d", *key);
 
 		cc_hashtable_iter_remove(&itr, (void **)&usr);
 
@@ -42,8 +103,8 @@ Server *Server_create(int port)
 	Server *serv = calloc(1, sizeof *serv);
 	assert(serv);
 
-	// TCP Socket
-	serv->fd = socket(PF_INET, SOCK_STREAM, 0);
+	// TCP Socket non-blocking
+	serv->fd = socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	CHECK(serv->fd, "socket");
 
 	// Server Address
@@ -73,9 +134,6 @@ Server *Server_create(int port)
 	// Create epoll fd for listen socket and clients
 	serv->epollfd = epoll_create(1 + MAX_EVENTS);
 	CHECK(serv->epollfd, "epoll_create");
-
-	// Make server non blocking
-	CHECK(fcntl(serv->fd, F_SETFL, fcntl(serv->fd, F_GETFL) | O_NONBLOCK), "fcntl");
 
 	// Hashtable settings
 	CC_HashTableConf htc;
@@ -127,6 +185,7 @@ void Server_accept_all(Server *serv)
 		user->nick = make_string("user%05d", (rand() % (int)1e5));
 		user->registered = false;
 		user->nick_changed = false;
+		user->quit = false;
 
 		if (cc_list_new(&user->msg_queue) != CC_OK)
 		{
@@ -171,56 +230,4 @@ void Server_accept_all(Server *serv)
 
 		log_info("Got connection %d from %s", conn_sock, user->hostname);
 	}
-}
-
-void Server_process_request(Server *serv, User *usr)
-{
-	assert(serv);
-	assert(usr);
-	assert(strstr(usr->req_buf, "\r\n"));
-
-	// Get array of parsed messages
-	CC_Array *messages = parse_all_messages(usr->req_buf);
-	assert(messages);
-
-	// buffer may contain partial messages
-	usr->req_len = strlen(usr->req_buf);
-
-	CC_ArrayIter itr;
-	cc_array_iter_init(&itr, messages);
-
-	Message *message = NULL;
-
-	// Iterate over the request messages and add response message(s)
-	// to user's message queue in the same order.
-	while (cc_array_iter_next(&itr, (void **)&message) != CC_ITER_END)
-	{
-		assert(message);
-
-		if (message->command)
-		{
-			if (!strncmp(message->command, "NICK", strlen("NICK")))
-			{
-				Server_reply_to_NICK(serv, usr, message);
-			}
-			else if (!strncmp(message->command, "USER", strlen("USER")))
-			{
-				Server_reply_to_USER(serv, usr, message);
-			}
-			else if (!strncmp(message->command, "PING", strlen("PING")))
-			{
-				Server_reply_to_PING(serv, usr, message);
-			}
-			else
-			{
-				// Invalid command
-				log_debug("Invalid command: %s", message->command);
-			}
-		}
-
-		message_destroy(message);
-		free(message);
-	}
-
-	cc_array_destroy(messages);
 }

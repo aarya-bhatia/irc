@@ -1,8 +1,11 @@
 #include "include/client.h"
 #include <sys/epoll.h>
 
-extern pthread_mutex_t mutex_stdout;
+#define EPOLL_TIMEOUT 2500 // Seconds
 
+extern pthread_mutex_t mutex_stdout; // use this lock before printing to stdout
+
+/* This thread will process messages from the inbox queue and display them to stdout */
 void *inbox_thread_routine(void *args)
 {
     Client *client = (Client *)args;
@@ -11,30 +14,30 @@ void *inbox_thread_routine(void *args)
     {
         char *message = queue_dequeue(client->client_inbox);
 
-        if (!strcmp(message, "exit"))
+        SAFE(mutex_stdout, {
+            printf("Server: %s\n", message);
+        });
+
+        if (strstr(message, "ERROR"))
         {
             free(message);
             break;
         }
 
-        SAFE(mutex_stdout, {
-            printf("Server: %s\n", message);
-        });
+        Message msg_info;
 
-        // Message msg_info;
+        message_init(&msg_info);
 
-        // message_init(&msg_info);
+        if (parse_message(message, &msg_info) == -1)
+        {
+            SAFE(mutex_stdout, { log_error("Failed to parse message"); });
+        }
+        else
+        {
+            // process message
+        }
 
-        // if (parse_message(message, &msg_info) == -1)
-        // {
-        //     SAFE(mutex_stdout, { log_error("Failed to parse message"); });
-        // }
-        // else
-        // {
-        //     // process message
-        // }
-
-        // message_destroy(&msg_info);
+        message_destroy(&msg_info);
 
         free(message);
     }
@@ -42,6 +45,7 @@ void *inbox_thread_routine(void *args)
     return client;
 }
 
+/* This thread will read message from server add them to the inbox queue */
 void *reader_thread_routine(void *args)
 {
     Client *client = (Client *)args;
@@ -57,15 +61,19 @@ void *reader_thread_routine(void *args)
 
     struct epoll_event events[1];
 
-    while (1)
+    bool quit = false;
+
+    while (!quit)
     {
-        int nfd = epoll_wait(epollfd, events, 1, 2000);
+        int nfd = epoll_wait(epollfd, events, 1, EPOLL_TIMEOUT);
 
         if (nfd == -1)
         {
             perror("epoll_wait");
             break;
         }
+
+        // SAFE(mutex_stdout, { log_debug("polled %d events", nfd); });
 
         // No events polled
         if (nfd == 0)
@@ -129,6 +137,13 @@ void *reader_thread_routine(void *args)
             while (tok)
             {
                 queue_enqueue(client->client_inbox, strdup(tok));
+
+                if (strstr(tok, "ERROR"))
+                {
+                    quit = true;
+                    break;
+                }
+
                 tok = strtok(NULL, "\r\n");
                 count++;
             }
@@ -151,11 +166,10 @@ void *reader_thread_routine(void *args)
 
     close(epollfd);
 
-    SAFE(mutex_stdout, { log_debug("reader_thread quitting"); });
-
     return client;
 }
 
+/* This thread will send the messages from the outbox queue to the server */
 void *outbox_thread_routine(void *args)
 {
     Client *client = (Client *)args;
@@ -164,13 +178,7 @@ void *outbox_thread_routine(void *args)
     {
         char *message = queue_dequeue(client->client_outbox);
 
-        if (!strcmp(message, "exit"))
-        {
-            free(message);
-            break;
-        }
-
-        log_debug("outbox_thread: sending message: %s", message);
+        // log_debug("outbox_thread: sending message: %s", message);
 
         ssize_t nsent = write_all(client->client_sock, message, strlen(message));
 
@@ -178,6 +186,12 @@ void *outbox_thread_routine(void *args)
             die("write_all");
 
         SAFE(mutex_stdout, { log_debug("outbox_thread: sent %zd bytes", nsent); });
+
+        if (!strncmp(message, "QUIT", 4))
+        {
+            free(message);
+            break;
+        }
 
         free(message);
     }

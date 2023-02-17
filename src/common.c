@@ -144,7 +144,7 @@ ssize_t write_all(int fd, char *buf, size_t len)
 		errno = 0;
 		ssize_t ret = write(fd, buf + bytes_written, len - bytes_written);
 
-		log_debug("%zd bytes sent", ret);
+		// log_debug("%zd bytes sent", ret);
 
 		if (ret == 0)
 		{
