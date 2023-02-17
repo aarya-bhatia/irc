@@ -4,23 +4,41 @@
 
 char *make_string(char *format, ...)
 {
-    va_list args;
+	va_list args;
 
-    // Find the length of the output string
+	// Find the length of the output string
 
-    va_start(args, format);
-    int n = vsnprintf(NULL, 0, format, args);
-    va_end(args);
+	va_start(args, format);
+	int n = vsnprintf(NULL, 0, format, args);
+	va_end(args);
 
-    // Create the output string
+	// Create the output string
 
-    char *s = calloc(1, n + 1);
+	char *s = calloc(1, n + 1);
 
-    va_start(args, format);
-    vsprintf(s, format, args);
-    va_end(args);
+	va_start(args, format);
+	vsprintf(s, format, args);
+	va_end(args);
 
-    return s;
+	return s;
+}
+
+char *rstrstr(char *string, char *pattern)
+{
+	char *next = strstr(string, pattern);
+	char *prev = next;
+
+	while (next)
+	{
+		next = strstr(prev + 2, "\r\n");
+
+		if (next)
+		{
+			prev = next;
+		}
+	}
+
+	return prev;
 }
 
 int create_and_bind_socket(char *hostname, char *port)
@@ -78,10 +96,9 @@ ssize_t read_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_read = 0;
 
-	errno = 0;
-
 	while (bytes_read < len)
 	{
+		errno = 0;
 		ssize_t ret = read(fd, buf + bytes_read, len - bytes_read);
 
 		if (ret == 0)
@@ -97,7 +114,6 @@ ssize_t read_all(int fd, char *buf, size_t len)
 
 			if (errno == EAGAIN || errno == EWOULDBLOCK)
 			{
-				errno = 0;
 				return bytes_read;
 			}
 
@@ -119,10 +135,9 @@ ssize_t write_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_written = 0;
 
-	errno = 0;
-
 	while (bytes_written < len)
 	{
+		errno = 0;
 		ssize_t ret = write(fd, buf + bytes_written, len - bytes_written);
 
 		log_debug("%zd bytes sent", ret);

@@ -20,8 +20,6 @@ void *reader_thread_routine(void *args);
 void *inbox_thread_routine(void *args);
 void *outbox_thread_routine(void *args);
 
-void read_user_input(char **, size_t *);
-
 void Client_init(Client *client);
 void Client_destroy(Client *client);
 
