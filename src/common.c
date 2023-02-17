@@ -107,10 +107,10 @@ ssize_t read_all(int fd, char *buf, size_t len)
 		}
 		else if (ret == -1)
 		{
-			if (errno == EINTR)
-			{
-				continue;
-			}
+			// if (errno == EINTR)
+			// {
+			// 	continue;
+			// }
 
 			if (errno == EAGAIN || errno == EWOULDBLOCK)
 			{
@@ -124,7 +124,11 @@ ssize_t read_all(int fd, char *buf, size_t len)
 		{
 			bytes_read += ret;
 			buf[bytes_read] = 0;
-			// log_debug("%zd bytes read", ret);
+		}
+
+		if(strstr(buf, "\r\n")) 
+		{
+			return bytes_read;
 		}
 	}
 

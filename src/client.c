@@ -8,9 +8,10 @@
 #define EPOLL_TIMEOUT 1000
 #define MAX_EPOLL_EVENTS 6
 
-volatile bool alive = true;
+static volatile bool alive = true;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_stdout = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char *argv[])
 {
@@ -31,7 +32,10 @@ int main(int argc, char *argv[])
 	char *port = argv[2];
 
 	// establish connection with the server
-	client.client_sock = create_and_bind_socket(host, port); // TODO: should socket be non blocking?
+	client.client_sock = create_and_bind_socket(host, port);
+
+	// Make client socket non blocking
+	fcntl(client.client_sock, F_SETFL, fcntl(client.client_sock, F_GETFL) | O_NONBLOCK);
 
 	// Get nick, username and realname of client
 #ifdef DEBUG
@@ -73,47 +77,53 @@ int main(int argc, char *argv[])
 	while (alive)
 	{
 		// Read the next line till \n
-		printf("Enter command\n");
 		ssize_t nread = getline(&line, &line_len, stdin);
-
 		if (nread == -1)
 			die("getline");
+		line[nread - 1] = 0; // remove newline character
 
-		line[nread] = 0;
-
-		strcpy(line + nread - 1, "\r\n");
-
-		log_debug("%ld bytes read from stdin", nread);
+		// Empty
+		if(strlen(line) == 0)
+		{
+			continue;
+		}
 
 		if (strlen(line) > MAX_MSG_LEN)
 		{
-			log_error("Message is greater than %d bytes", MAX_MSG_LEN);
+			SAFE(mutex_stdout, { log_error("Message is greater than %d bytes", MAX_MSG_LEN); });
 			continue;
 		}
 
 		if (!strcmp(line, "exit"))
 		{
 			alive = false;
+
+			// This message will allow the inbox/outbox thread to quit safely
+			queue_enqueue(client.client_inbox, strdup("exit"));
+			queue_enqueue(client.client_outbox, strdup("exit"));
+
 			break;
 		}
 
-		queue_enqueue(client.client_inbox, make_string("%s\r\n"));
+		// Send message to server
+		queue_enqueue(client.client_outbox, make_string("%s\r\n", line));
 	}
 
 	free(line);
 
-	// This message will allow the inbox/outbox thread to quit safely
-	queue_enqueue(client.client_inbox, strdup("exit"));
-	queue_enqueue(client.client_outbox, strdup("exit"));
-
 	pthread_join(inbox_thread, NULL);
+	log_debug("inbox thread quit");
+
 	pthread_join(outbox_thread, NULL);
+	log_debug("outbox thread quit");
+
+	pthread_kill(reader_thread, SIGINT);
 
 	// TODO: How to kill reader_thread? It may be blocked on a read call
-	pthread_kill(reader_thread, SIGINT);
 	pthread_join(reader_thread, NULL);
 
 	Client_destroy(&client);
+	printf("Goodbye!\n");
 
 	return 0;
 }
@@ -126,6 +136,7 @@ void _free_callback(void *data)
 void _signal_handler(int sig)
 {
 	(void)sig;
+	log_debug("alive: %d", alive);
 	alive = false;
 }
 
