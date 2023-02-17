@@ -71,7 +71,7 @@ Server *Server_create(int port)
 	CHECK(listen(serv->fd, MAX_EVENTS), "listen");
 
 	// Create epoll fd for listen socket and clients
-	serv->epollfd = epoll_create(1+MAX_EVENTS);
+	serv->epollfd = epoll_create(1 + MAX_EVENTS);
 	CHECK(serv->epollfd, "epoll_create");
 
 	// Make server non blocking
@@ -125,6 +125,8 @@ void Server_accept_all(Server *serv)
 		user->fd = conn_sock;
 		user->hostname = strdup(addr_to_string((struct sockaddr *)&client_addr, addrlen));
 		user->nick = make_string("user%05d", (rand() % (int)1e5));
+		user->registered = false;
+		user->nick_changed = false;
 
 		if (cc_list_new(&user->msg_queue) != CC_OK)
 		{
@@ -205,7 +207,7 @@ void Server_process_request(Server *serv, User *usr)
 			{
 				Server_reply_to_USER(serv, usr, message);
 			}
-			else if(!strncmp(message->command, "PING", strlen("PING")))
+			else if (!strncmp(message->command, "PING", strlen("PING")))
 			{
 				Server_reply_to_PING(serv, usr, message);
 			}

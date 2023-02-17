@@ -27,12 +27,14 @@ typedef struct _User
 	char *username;
 	char *realname;
 	char *hostname;
-	char req_buf[MAX_MSG_LEN + 1]; // the request message
-	char res_buf[MAX_MSG_LEN + 1]; // the response message
+	CC_List *msg_queue;			   // messages to be delivered to user
 	size_t req_len;				   // length of request buffer
 	size_t res_len;				   // length of response buffer
 	size_t res_off;				   // no of bytes of the response sent
-	CC_List *msg_queue;			   // messages to be delivered to user
+	char req_buf[MAX_MSG_LEN + 1]; // the request message
+	char res_buf[MAX_MSG_LEN + 1]; // the response message
+	bool registered;
+	bool nick_changed;
 } User;
 
 Server *Server_create(int port);

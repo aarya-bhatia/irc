@@ -9,9 +9,11 @@ bool _is_nick_available(Server *serv, char *nick)
     CC_HashTableIter iter;
     cc_hashtable_iter_init(&iter, serv->connections);
     TableEntry *entry = NULL;
-    while(cc_hashtable_iter_next(&iter, &entry) != CC_ITER_END){
+    while (cc_hashtable_iter_next(&iter, &entry) != CC_ITER_END)
+    {
         User *user = entry->value;
-        if(user && user->nick && strcmp(user->nick, nick) == 0) {
+        if (user && user->nick && strcmp(user->nick, nick) == 0)
+        {
             return false;
         }
     }
@@ -35,7 +37,7 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
 
     assert(msg->params[0]);
 
-    if(!_is_nick_available(serv, msg->params[0]))
+    if (!_is_nick_available(serv, msg->params[0]))
     {
         User_add_msg(usr, make_reply(ERR_NICKNAMEINUSE_MSG, msg->params[0]));
         return;
@@ -45,9 +47,12 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
 
     log_info("user %s updated nick", usr->nick);
 
-    if (usr->nick && usr->username && usr->realname)
+    usr->nick_changed = true;
+
+    if (!usr->registered && usr->username && usr->realname)
     {
         // Registration completed
+        usr->registered = true;
 
         User_add_msg(usr, make_reply(RPL_WELCOME_MSG, usr->nick, usr->nick));
         User_add_msg(usr, make_reply(RPL_YOURHOST_MSG, usr->nick, usr->hostname));
@@ -70,7 +75,7 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
         return;
     }
 
-    if(usr->realname && usr->username)
+    if (usr->realname && usr->username)
     {
         User_add_msg(usr, make_reply(ERR_ALREADYREGISTRED_MSG, usr->nick));
         return;
@@ -83,9 +88,10 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
 
     log_debug("user %s set username to %s and realname to %s", usr->nick, usr->username, usr->realname);
 
-    if (usr->nick && usr->username && usr->realname)
+    if (usr->nick_changed && !usr->registered)
     {
         // Registration completed
+        usr->registered = true;
 
         User_add_msg(usr, make_reply(RPL_WELCOME_MSG, usr->nick, usr->nick));
         User_add_msg(usr, make_reply(RPL_YOURHOST_MSG, usr->nick, usr->hostname));

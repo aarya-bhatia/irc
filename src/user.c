@@ -71,6 +71,7 @@ ssize_t User_Read_Event(Server *serv, User *usr)
 ssize_t User_Write_Event(Server *serv, User *usr)
 {
 	assert(usr);
+	assert(usr->msg_queue);
 	assert(serv);
 
 	// A message is still being sent
