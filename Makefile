@@ -1,6 +1,6 @@
 CC=cc
 INC=-Isrc -Isrc/include
-CFLAG=-std=c99 -Wall -Wextra -pedantic -g -O0 -c $(INC)
+CFLAG=-std=c99 -Wall -Wextra -pedantic -gdwarf-4 -O0 -c $(INC)
 LIB=-llog -lcollectc -laaryab2
 LDFLAG=-Llib $(LIB)
 

@@ -59,14 +59,17 @@ void *reader_thread_routine(void *args)
 
     while (1)
     {
-        int nfd = epoll_wait(epollfd, events, 1, 1000);
+        int nfd = epoll_wait(epollfd, events, 1, 2000);
 
         if (nfd == -1)
-            die("epoll_wait");
+        {
+            perror("epoll_wait");
+            break;
+        }
 
+        // No events polled
         if (nfd == 0)
         {
-            SAFE(mutex_stdout, { log_debug("no events polled"); });
             continue;
         }
 
@@ -75,9 +78,10 @@ void *reader_thread_routine(void *args)
             continue;
         }
 
+        // Server disconnect
         if (events[0].events & (EPOLLERR | EPOLLHUP))
         {
-            SAFE(mutex_stdout, { log_debug("reader_thread quitting"); });
+            SAFE(mutex_stdout, { log_info("Server disconnect"); });
             break;
         }
 
@@ -90,7 +94,6 @@ void *reader_thread_routine(void *args)
 
             if (nrecv == 0)
             {
-                SAFE(mutex_stdout, { log_debug("reader_thread quitting"); });
                 break;
             }
 
@@ -147,6 +150,8 @@ void *reader_thread_routine(void *args)
     }
 
     close(epollfd);
+
+    SAFE(mutex_stdout, { log_debug("reader_thread quitting"); });
 
     return client;
 }
