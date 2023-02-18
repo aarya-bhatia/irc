@@ -30,7 +30,7 @@ char *rstrstr(char *string, char *pattern)
 
 	while (next)
 	{
-		next = strstr(prev + 2, "\r\n");
+		next = strstr(prev + strlen(pattern), pattern);
 
 		if (next)
 		{
