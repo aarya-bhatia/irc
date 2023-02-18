@@ -42,7 +42,12 @@ int main(int argc, char *argv[])
     while (g_alive)
     {
         int num = epoll_wait(serv->epollfd, events, MAX_EVENTS, -1);
-        CHECK(num, "epoll_wait");
+
+        if(num == -1){
+            perror("epoll_wait");
+            g_alive = false;
+            break;
+        }
 
         for (int i = 0; i < num; i++)
         {
@@ -99,7 +104,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    cc_hashtable_destroy(serv->connections);
     Server_destroy(serv);
 
     return 0;
