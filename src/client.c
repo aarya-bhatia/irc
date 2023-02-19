@@ -1,5 +1,4 @@
 #include "include/client.h"
-#include "include/timer.h"
 #include "include/queue.h"
 #include <sys/epoll.h>
 
