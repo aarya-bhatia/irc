@@ -5,7 +5,8 @@
         "common.h": "c",
         "cc_hashtable.h": "c",
         "cc_array.h": "c",
-        "queue.h": "c"
+        "queue.h": "c",
+        "cc_list.h": "c"
     },
     "cmake.configureOnOpen": true
 }

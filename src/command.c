@@ -19,6 +19,23 @@ bool _is_nick_available(Server *serv, char *nick)
     return true;
 }
 
+void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg)
+{
+    assert(serv);
+    assert(usr);
+    assert(msg);
+    assert(!strcmp(msg->command,"MOTD"));
+
+    if(serv->motd)
+    {
+        User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, serv->motd));
+    }
+    else {
+        User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
+    }
+
+}
+
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
 {
     assert(serv);

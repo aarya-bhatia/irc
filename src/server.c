@@ -1,6 +1,7 @@
 #include "include/server.h"
 #include "include/replies.h"
 #include <time.h>
+#include <sys/stat.h>
 
 void Server_process_request(Server *serv, User *usr)
 {
@@ -30,7 +31,11 @@ void Server_process_request(Server *serv, User *usr)
 
 		if (message->command)
 		{
-			if (!strcmp(message->command, "NICK"))
+			if(!strcmp(message->command, "MOTD"))
+			{
+				Server_reply_to_MOTD(serv, usr, message);
+			}
+			else if (!strcmp(message->command, "NICK"))
 			{
 				Server_reply_to_NICK(serv, usr, message);
 			}
@@ -86,6 +91,7 @@ void Server_destroy(Server *serv)
 
 	cc_hashtable_destroy(serv->connections);
 
+	free(serv->motd);
 	close(serv->fd);
 	close(serv->epollfd);
 	free(serv->hostname);
@@ -94,6 +100,59 @@ void Server_destroy(Server *serv)
 
 	log_debug("Server stopped");
 	exit(0);
+}
+
+char *_get_motd(char *fname)
+{
+	FILE *motd_file = fopen(fname, "r");
+	char *res = NULL;
+	size_t res_len = 0;
+
+	if (!motd_file)
+	{
+		log_warn("failed to open %s", fname);
+	}
+	else
+	{
+		size_t num_lines = 1;
+
+		// count number of lines
+		for (int c = fgetc(motd_file); c != EOF; c = fgetc(motd_file))
+		{
+			if (c == '\n')
+			{
+				num_lines = num_lines + 1;
+			}
+		}
+
+		fseek(motd_file, 0, SEEK_SET); // go to beginning
+
+		time_t t = time(NULL);
+		struct tm tm = *localtime(&t);
+		char *mday = make_string("%d", tm.tm_mday); // day of month
+		int mday_int = atoi(mday);
+		free(mday);
+
+		size_t line_no = mday_int % num_lines; // select a line from file to use
+
+		for (size_t i = 0; i < line_no + 1; i++)
+		{
+			if (getline(&res, &res_len, motd_file) == -1)
+			{
+				perror("getline");
+				break;
+			}
+		}
+	}
+
+	if(res && res[res_len-1] == '\n')
+	{
+		res[res_len-1] = 0;
+	}
+
+	fclose(motd_file);
+
+	return res;
 }
 
 /**
@@ -114,6 +173,11 @@ Server *Server_create(int port)
 	serv->servaddr.sin_addr.s_addr = INADDR_ANY;
 	serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr, sizeof(serv->servaddr)));
 	serv->port = make_string("%d", port);
+	serv->motd = _get_motd("motd.txt");
+
+	if(serv->motd){
+		log_info("MOTD: %s", serv->motd);
+	}
 
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);

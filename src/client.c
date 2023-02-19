@@ -138,7 +138,6 @@ void _signal_handler(int sig)
 	(void)sig;
 	log_debug("alive: %d", alive);
 	alive = false;
-
 }
 
 void Client_init(Client *client)

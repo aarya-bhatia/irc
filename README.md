@@ -1,26 +1,5 @@
 # IRC Project
 
-TODO
-
-## Server
-
-- Configuration File
-- Command line args to start server
-- server registration - password authentication
-- commands - implement basic commands for messaging and query information
-- server will use polling to read/write to user sockets
-- all operations are done asynchronously
-- main loop
-  - read all available input
-  - read user's messages into private buffer
-  - parse all available messages
-  - go through messages and create response
-  - add replies for each message to the user's outbox queue (in order of arrival)
-  - for messages to another user, update other user's queue synchronously
-  - when user is available to receive data, pull message from queue and send it to them
-- broadcast all actions to network
-- must know about all servers, users and channels across network as soon as something changes
-
 ## Timeline
 
 ### Checkpoint #1

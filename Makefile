@@ -6,7 +6,7 @@ LDFLAG=-Llib $(LIB)
 
 all: server client
 
-OBJ=obj/common.o obj/message.o obj/queue.o obj/timer.o
+OBJ=obj/common.o obj/message.o obj/queue.o
 SERVER_OBJ=obj/server_main.o obj/server.o obj/user.o obj/command.o $(OBJ)
 CLIENT_OBJ=obj/client.o obj/client_threads.o $(OBJ)
 

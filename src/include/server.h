@@ -18,6 +18,7 @@ typedef struct _Server
 	char *hostname;
 	char *port;
 	char created_at[64];
+	char *motd; // message of the day
 } Server;
 
 typedef struct _User
@@ -48,6 +49,7 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PING(Server *serv, User *usr, Message *msg);
 void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg);
+void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);
 
 void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);
 void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);
