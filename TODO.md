@@ -1,7 +1,5 @@
 # Todo
 
-- Send MOTD message by default on user registration
-
 ## File databases
 
 - Save registered user's username, realname, nick history to file
