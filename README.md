@@ -52,11 +52,12 @@ The PRIVMSG command is used to deliver a message to from one client to another w
 
 Replies
 
+- RPL_AWAY
+
 - ERR_NORECIPEINT
 - ERR_NOSUCHNICK
-- RPL_AWAY
-- ERR_NOTEXTTOSEND
 - ERR_TOOMANYTARGETS
+- ERROR
 
 4. QUIT
 
