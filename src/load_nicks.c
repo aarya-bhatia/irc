@@ -1,11 +1,18 @@
 #include "include/common.h"
+#include "include/collectc/cc_array.h"
 
 /**
- * Load all nicks from file and create a disoint set where nicks owned by same user are linked.
+ * Load all nicks from file into a hashmap with the key being the username and value begin an array of every associated nick.
+ *
+ * Each line of file should start with "username:" followed by a comma separated list of nicks for that username.
  */
-void *load_nicks()
+CC_Array *load_nicks(const char *filename)
 {
-	FILE *file = fopen("data/nicks", "r");
+	CC_Array *nicks;
+
+	cc_array_new(&nicks);
+
+	FILE *file = fopen(filename, "r");
 
 	char *line = NULL;
 	size_t len = 0;
@@ -37,6 +44,11 @@ void *load_nicks()
 			continue;
 		}
 
+		// Add all nicks on each line into one array
+
+		CC_Array *linked;
+		cc_array_new(&linked);
+	
 		char *saveptr = NULL;
 		char *token = strtok_r(line, ",", &saveptr);
 
@@ -47,12 +59,17 @@ void *load_nicks()
 			if(token && token[0] != 0)
 			{
 				char *nick = strdup(token);
+				cc_array_add(linked, nick);
 			}
 
 			token = strtok_r(NULL, ",", &saveptr);
 		}
+
+		cc_array_add(nicks, linked);
 	}
 
 	free(line);
 	fclose(file);
+
+	return nicks;
 }
