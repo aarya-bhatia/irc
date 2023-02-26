@@ -73,6 +73,7 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
         User_add_msg(usr, make_reply(RPL_YOURHOST_MSG, usr->nick, usr->hostname));
         User_add_msg(usr, make_reply(RPL_CREATED_MSG, usr->nick, serv->created_at));
         User_add_msg(usr, make_reply(RPL_MYINFO_MSG, usr->nick, serv->hostname, "*", "*", "*"));
+        User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, serv->motd));
     }
 }
 
@@ -112,6 +113,7 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
         User_add_msg(usr, make_reply(RPL_YOURHOST_MSG, usr->nick, usr->hostname));
         User_add_msg(usr, make_reply(RPL_CREATED_MSG, usr->nick, serv->created_at));
         User_add_msg(usr, make_reply(RPL_MYINFO_MSG, usr->nick, serv->hostname, "*", "*", "*"));
+        User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, serv->motd));
     }
 }
 
