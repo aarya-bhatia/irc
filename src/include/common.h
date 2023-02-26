@@ -52,6 +52,9 @@
 
 #define make_reply(format, ...) make_string(format "\r\n", __VA_ARGS__) /* suffix each string with delimiter <cr><lf> */
 
+
+char *trimwhitespace(char *str);
+
 char *make_string(char *format, ...); /* allocates a string from format string and args with exact size */
 
 char *rstrstr(char *string, char *pattern); /* reverse strstr: returns pointer to last occurrence of pattern in string */

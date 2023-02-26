@@ -1,7 +1,13 @@
 #include "include/common.h"
 
 #include <stdarg.h>
+#include <ctype.h>
 
+/**
+ * Use this utility function to allocate a string with given format and args.
+ * The purpose of this function is to check the size of the resultant string
+ * after all substitutions and allocate only those many bytes.
+ */
 char *make_string(char *format, ...)
 {
 	va_list args;
@@ -23,6 +29,38 @@ char *make_string(char *format, ...)
 	return s;
 }
 
+/**
+ * Note: This function returns a pointer to a substring of the original string.
+ * If the given string was allocated dynamically, the caller must not overwrite
+ * that pointer with the returned value, since the original pointer must be
+ * deallocated using the same allocator with which it was allocated.  The return
+ * value must NOT be deallocated using free() etc.
+ *
+ */
+char *trimwhitespace(char *str)
+{
+  char *end;
+
+  // Trim leading space
+  while(isspace((unsigned char)*str)) str++;
+
+  if(*str == 0)  // All spaces?
+    return str;
+
+  // Trim trailing space
+  end = str + strlen(str) - 1;
+  while(end > str && isspace((unsigned char)*end)) end--;
+
+  // Write new null terminator character
+  end[1] = '\0';
+
+  return str;
+}
+
+/**
+ * Return a pointer to the last occurrence of substring "pattern" in
+ * given string "string". Returns NULL if pattern not found.
+ */
 char *rstrstr(char *string, char *pattern)
 {
 	char *next = strstr(string, pattern);
@@ -41,6 +79,12 @@ char *rstrstr(char *string, char *pattern)
 	return prev;
 }
 
+/**
+ *
+ * This function will create and bind a TCP socket to give hostname and port.
+ * Returns the socket fd if succeeded.
+ * Kills the process if failure.
+ */
 int create_and_bind_socket(char *hostname, char *port)
 {
 	struct addrinfo hints, *servinfo = NULL;
@@ -70,11 +114,19 @@ int create_and_bind_socket(char *hostname, char *port)
 	return sock;
 }
 
+/**
+ * Simple comparison function to compare two integers
+ * given by pointers key1 and key2.
+ * The return values are similar to strcmp.
+ */
 int int_compare(const void *key1, const void *key2)
 {
 	return *(int *)key1 - *(int *)key2;
 }
 
+/**
+ * Returns the in_addr part of a sockaddr struct of either ipv4 or ipv6 type.
+ */
 void *get_in_addr(struct sockaddr *sa)
 {
 	if (sa->sa_family == AF_INET)
@@ -85,6 +137,10 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
+/**
+ * Returns a pointer to a static string containing the IP address
+ * of the given sockaddr.
+ */
 char *addr_to_string(struct sockaddr *addr, socklen_t len)
 {
 	static char s[100];
@@ -92,6 +148,9 @@ char *addr_to_string(struct sockaddr *addr, socklen_t len)
 	return s;
 }
 
+/**
+ * Used to read at most len bytes from fd into buffer.
+ */
 ssize_t read_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_read = 0;
@@ -135,6 +194,9 @@ ssize_t read_all(int fd, char *buf, size_t len)
 	return bytes_read;
 }
 
+/**
+ * Used to write at most len bytes of buf to fd.
+ */
 ssize_t write_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_written = 0;
@@ -143,8 +205,6 @@ ssize_t write_all(int fd, char *buf, size_t len)
 	{
 		errno = 0;
 		ssize_t ret = write(fd, buf + bytes_written, len - bytes_written);
-
-		// log_debug("%zd bytes sent", ret);
 
 		if (ret == 0)
 		{
