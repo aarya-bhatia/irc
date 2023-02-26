@@ -279,7 +279,7 @@ RPL_WHOWASUSER_MSG	include/replies.h	48;"	d
 RPL_YOUREOPER_MSG	include/replies.h	84;"	d
 RPL_YOURESERVICE_MSG	include/replies.h	86;"	d
 RPL_YOURHOST_MSG	include/replies.h	4;"	d
-SAFE	include/common.h	60;"	d
+SAFE	include/common.h	63;"	d
 SNode	include/collectc/cc_slist.h	/^} SNode;$/;"	t	typeref:struct:snode_s
 STACK_FOREACH	include/collectc/cc_stack.h	84;"	d
 STACK_FOREACH_ZIP	include/collectc/cc_stack.h	94;"	d
@@ -293,7 +293,7 @@ Server_destroy	include/server.h	/^void Server_destroy(Server *serv);$/;"	p	signa
 Server_destroy	server.c	/^void Server_destroy(Server *serv)$/;"	f	signature:(Server *serv)
 Server_process_request	include/server.h	/^void Server_process_request(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
 Server_process_request	server.c	/^void Server_process_request(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
-Server_reply_to_CONNECT	command.c	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_CONNECT	command.c	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_CONNECT	include/server.h	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_JOIN	command.c	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_JOIN	include/server.h	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
@@ -369,8 +369,9 @@ User_Read_Event	include/server.h	/^ssize_t User_Read_Event(Server *serv, User *u
 User_Read_Event	user.c	/^ssize_t User_Read_Event(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
 User_Write_Event	include/server.h	/^ssize_t User_Write_Event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
 User_Write_Event	user.c	/^ssize_t User_Write_Event(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
-User_add_msg	include/server.h	/^void User_add_msg(User *usr, char *msg);/;"	p	signature:(User *usr, char *msg)
+User_add_msg	include/server.h	/^void User_add_msg(User *usr, char *msg);$/;"	p	signature:(User *usr, char *msg)
 User_add_msg	user.c	/^void User_add_msg(User *usr, char *msg)$/;"	f	signature:(User *usr, char *msg)
+User_load_nicks	user.c	/^void User_load_nicks(User *usr)$/;"	f	signature:(User *usr)
 _CHECK	include/common.h	35;"	d
 _GNU_SOURCE	include/common.h	3;"	d
 _GetCapacity	include/aaryab2/String.c	/^size_t _GetCapacity(size_t n)$/;"	f	signature:(size_t n)
@@ -400,6 +401,7 @@ _User::hostname	include/server.h	/^	char *hostname;$/;"	m	struct:_User	access:pu
 _User::msg_queue	include/server.h	/^	CC_List *msg_queue;			   \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
 _User::nick	include/server.h	/^	char *nick;$/;"	m	struct:_User	access:public
 _User::nick_changed	include/server.h	/^	bool nick_changed;$/;"	m	struct:_User	access:public
+_User::nick_history	include/server.h	/^	CC_List *nick_history;		   \/\/ all nicks owned by user$/;"	m	struct:_User	access:public
 _User::quit	include/server.h	/^	bool quit;$/;"	m	struct:_User	access:public
 _User::realname	include/server.h	/^	char *realname;$/;"	m	struct:_User	access:public
 _User::registered	include/server.h	/^	bool registered;$/;"	m	struct:_User	access:public
@@ -1010,6 +1012,7 @@ next_node	include/collectc/cc_tsttable.h	/^    void            *next_node;$/;"	m
 next_stat	include/collectc/cc_tsttable.h	/^    enum cc_stat    next_stat;$/;"	m	struct:cc_tsttable_iter_s	typeref:enum:cc_tsttable_iter_s::cc_stat	access:public
 nick	include/server.h	/^	char *nick;$/;"	m	struct:_User	access:public
 nick_changed	include/server.h	/^	bool nick_changed;$/;"	m	struct:_User	access:public
+nick_history	include/server.h	/^	CC_List *nick_history;		   \/\/ all nicks owned by user$/;"	m	struct:_User	access:public
 node_s	include/collectc/cc_list.h	/^typedef struct node_s {$/;"	s
 node_s::data	include/collectc/cc_list.h	/^    void          *data;$/;"	m	struct:node_s	access:public
 node_s::next	include/collectc/cc_list.h	/^    struct node_s *next;$/;"	m	struct:node_s	typeref:struct:node_s::node_s	access:public
@@ -1130,6 +1133,8 @@ tree_table_iter_s	include/collectc/cc_treetable.h	/^typedef struct tree_table_it
 tree_table_iter_s::current	include/collectc/cc_treetable.h	/^    RBNode    *current;$/;"	m	struct:tree_table_iter_s	access:public
 tree_table_iter_s::next	include/collectc/cc_treetable.h	/^    RBNode    *next;$/;"	m	struct:tree_table_iter_s	access:public
 tree_table_iter_s::table	include/collectc/cc_treetable.h	/^    CC_TreeTable *table;$/;"	m	struct:tree_table_iter_s	access:public
+trimwhitespace	common.c	/^char *trimwhitespace(char *str)$/;"	f	signature:(char *str)
+trimwhitespace	include/common.h	/^char *trimwhitespace(char *str);$/;"	p	signature:(char *str)
 udata	include/log/log.h	/^  void *udata;$/;"	m	struct:__anon1	access:public
 username	include/server.h	/^	char *username;$/;"	m	struct:_User	access:public
 value	include/collectc/cc_hashtable.h	/^    void     *value;$/;"	m	struct:table_entry_s	access:public

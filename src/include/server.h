@@ -68,3 +68,4 @@ void User_Disconnect(Server *serv, User *usr);
 void User_Destroy(User *usr);
 
 void User_add_msg(User *usr, char *msg);
+

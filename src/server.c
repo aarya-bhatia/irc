@@ -244,7 +244,9 @@ void Server_accept_all(Server *serv)
 			die("accept");
 		}
 
+
 		User *user = calloc(1, sizeof(User));
+
 		user->fd = conn_sock;
 		user->hostname = strdup(addr_to_string((struct sockaddr *)&client_addr, addrlen));
 		user->nick = make_string("user%05d", (rand() % (int)1e5));
