@@ -1,5 +1,9 @@
 # Todo
 
+- Add nick_map to server struct and load_nicks on creation
+- Update nick_map on user registration event and nick changes
+- Write nick_map to file on session close.
+
 ## File databases
 
 - Save registered user's username, realname, nick history to file
