@@ -73,13 +73,63 @@ void Server_process_request(Server *serv, User *usr)
 	cc_array_destroy(messages);
 }
 
+void write_nicks_to_file(Server *serv, char *filename)
+{
+	FILE *nick_file = fopen(filename, "w");
+
+	if (!nick_file)
+	{
+		log_error("Failed to open nick file: %s", filename);
+		return;
+	}
+
+	CC_HashTableIter itr;
+	TableEntry *elem;
+
+	cc_hashtable_iter_init(&itr, serv->user_to_nicks_map);
+
+	while (cc_hashtable_iter_next(&itr, &elem) != CC_ITER_END)
+	{
+		fwrite(elem->key, 1, strlen(elem->key), nick_file);
+		fputc(':', nick_file);
+
+		CC_Array *nicks = elem->value;
+		if (nicks)
+		{
+			char *nick = NULL;
+
+			for (size_t i = 0; i < cc_array_size(nicks); i++)
+			{
+				if (cc_array_get_at(nicks, i, (void **)&nick) == CC_OK)
+				{
+					fwrite(nick, 1, strlen(nick), nick_file);
+				}
+
+				if (i + 1 < cc_array_size(nicks))
+				{
+					fputc(',', nick_file);
+				}
+			}
+		}
+
+		fputc('\n', nick_file);
+	}
+
+	fclose(nick_file);
+
+	log_info("Wrote nicks to file: %s", NICKS_FILENAME);
+}
+
 void Server_destroy(Server *serv)
 {
 	assert(serv);
-	CC_HashTableIter itr;
-	cc_hashtable_iter_init(&itr, serv->connections);
 
+	write_nicks_to_file(serv, NICKS_FILENAME);
+
+	CC_HashTableIter itr;
 	TableEntry *elem;
+
+	cc_hashtable_iter_init(&itr, serv->connections);
 
 	while (cc_hashtable_iter_next(&itr, &elem) != CC_ITER_END)
 	{
@@ -170,8 +220,6 @@ Server *Server_create(int port)
 	serv->fd = socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	CHECK(serv->fd, "socket");
 
-	log_debug("listen socket fd = %d", serv->fd);
-
 	// Server Address
 	serv->servaddr.sin_family = AF_INET;
 	serv->servaddr.sin_port = htons(port);
@@ -203,8 +251,6 @@ Server *Server_create(int port)
 	// Create epoll fd for listen socket and clients
 	serv->epollfd = epoll_create(1 + MAX_EVENTS);
 	CHECK(serv->epollfd, "epoll_create");
-
-	log_debug("epoll fd = %d", serv->epollfd);
 
 	// Hashtable settings
 	CC_HashTableConf htc;

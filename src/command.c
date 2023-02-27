@@ -2,17 +2,26 @@
 #include "include/server.h"
 #include "include/replies.h"
 
-bool _is_nick_available(Server *serv, char *nick)
+bool is_nick_available(Server *serv, char *nick)
 {
     CC_HashTableIter iter;
-    cc_hashtable_iter_init(&iter, serv->connections);
+    cc_hashtable_iter_init(&iter, serv->user_to_nicks_map);
+
     TableEntry *entry = NULL;
     while (cc_hashtable_iter_next(&iter, &entry) != CC_ITER_END)
     {
-        User *user = entry->value;
-        if (user && user->nick && strcmp(user->nick, nick) == 0)
+        CC_Array *nicks = entry->value;
+
+        CC_ArrayIter iter;
+        cc_array_iter_init(&iter, nicks);
+
+        char *found;
+        while (cc_array_iter_next(&iter, (void **)&found) != CC_ITER_END)
         {
-            return false;
+            if (!strcmp(found, nick))
+            {
+                return false;
+            }
         }
     }
 
@@ -24,16 +33,16 @@ void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg)
     assert(serv);
     assert(usr);
     assert(msg);
-    assert(!strcmp(msg->command,"MOTD"));
+    assert(!strcmp(msg->command, "MOTD"));
 
-		char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
+    char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
-    if(motd)
+    if (motd)
     {
         User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
     }
-    else 
-		{
+    else
+    {
         User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
     }
 }
@@ -54,7 +63,7 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
 
     assert(msg->params[0]);
 
-    if (!_is_nick_available(serv, msg->params[0]))
+    if (!is_nick_available(serv, msg->params[0]))
     {
         User_add_msg(usr, make_reply(ERR_NICKNAMEINUSE_MSG, msg->params[0]));
         return;
@@ -66,6 +75,24 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
 
     usr->nick_changed = true;
 
+    if (usr->nick_changed && usr->username && usr->nick)
+    {
+        if (!cc_hashtable_contains_key(serv->user_to_nicks_map, usr->username))
+        {
+            CC_Array *arr = NULL;
+            cc_array_new(&arr);
+            cc_hashtable_add(serv->user_to_nicks_map, usr->username, arr);
+        }
+
+        CC_Array *nicks = NULL;
+
+        if (cc_hashtable_get(serv->user_to_nicks_map, usr->username, (void **)&nicks) == CC_OK)
+        {
+            cc_array_add(nicks, usr->nick);
+            log_info("Added nick %s to users_to_nick_map", usr->nick);
+        }
+    }
+
     if (!usr->registered && usr->username && usr->realname)
     {
         // Registration completed
@@ -75,17 +102,17 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
         User_add_msg(usr, make_reply(RPL_YOURHOST_MSG, usr->nick, usr->hostname));
         User_add_msg(usr, make_reply(RPL_CREATED_MSG, usr->nick, serv->created_at));
         User_add_msg(usr, make_reply(RPL_MYINFO_MSG, usr->nick, serv->hostname, "*", "*", "*"));
-				
-				char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
-				if(motd)
-				{
-						User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
-				}
-				else 
-				{
-						User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
-				}
+        char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
+
+        if (motd)
+        {
+            User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
+        }
+        else
+        {
+            User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
+        }
     }
 }
 
@@ -116,6 +143,24 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
 
     log_debug("user %s set username to %s and realname to %s", usr->nick, usr->username, usr->realname);
 
+    if (usr->nick_changed && usr->nick && usr->username)
+    {
+        if (!cc_hashtable_contains_key(serv->user_to_nicks_map, usr->username))
+        {
+            CC_Array *arr = NULL;
+            cc_array_new(&arr);
+            cc_hashtable_add(serv->user_to_nicks_map, usr->username, arr);
+        }
+
+        CC_Array *nicks = NULL;
+
+        if (cc_hashtable_get(serv->user_to_nicks_map, usr->username, (void **)&nicks) == CC_OK)
+        {
+            cc_array_add(nicks, usr->nick);
+            log_info("Added nick %s to users_to_nick_map", usr->nick);
+        }
+    }
+
     if (usr->nick_changed && !usr->registered)
     {
         // Registration completed
@@ -126,16 +171,16 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
         User_add_msg(usr, make_reply(RPL_CREATED_MSG, usr->nick, serv->created_at));
         User_add_msg(usr, make_reply(RPL_MYINFO_MSG, usr->nick, serv->hostname, "*", "*", "*"));
 
-				char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
+        char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
-				if(motd)
-				{
-						User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
-				}
-				else 
-				{
-						User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
-				}
+        if (motd)
+        {
+            User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
+        }
+        else
+        {
+            User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
+        }
     }
 }
 

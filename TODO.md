@@ -1,5 +1,8 @@
 # Todo
 
+- memory check
+- delete nick map
+
 ## Nicks
 
 - Update nick_map on user registration event and nick changes
