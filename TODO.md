@@ -1,16 +1,6 @@
 # Todo
 
-- memory check
 - delete nick map
-
-## Nicks
-
-- Update nick_map on user registration event and nick changes
-- Write nick_map to file on session close.
-
-## File databases
-
-- Save registered user's username, realname, nick history to file
 
 ## PRIVMSG
 
