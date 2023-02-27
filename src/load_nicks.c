@@ -9,14 +9,6 @@
  */
 CC_HashTable *load_nicks(const char *filename)
 {
-	FILE *file = fopen(filename, "r");
-
-	if (!file)
-	{
-		log_error("Failed to open nicks file");
-		return NULL;
-	}
-
 	CC_HashTable *nick_map = NULL;
 
 	// Create a new HashTable with integer keys
@@ -24,6 +16,15 @@ CC_HashTable *load_nicks(const char *filename)
 	{
 		log_error("Failed to create hashtable");
 		return NULL;
+	}
+
+	FILE *file = fopen(filename, "r");
+
+	if (!file)
+	{
+		fclose(fopen(filename, "w"));
+		log_error("Created nicks file: %s", filename);
+		return nick_map;
 	}
 
 	char *line = NULL;
@@ -55,8 +56,6 @@ CC_HashTable *load_nicks(const char *filename)
 
 		char *nicks = strtok_r(NULL, "", &saveptr1);
 
-		nicks = trimwhitespace(nicks);
-
 		// skip this user
 		if (!nicks || nicks[0] == 0)
 		{
@@ -75,7 +74,7 @@ CC_HashTable *load_nicks(const char *filename)
 		}
 
 		char *saveptr = NULL;
-		char *token = strtok_r(line, ",", &saveptr);
+		char *token = strtok_r(nicks, ",", &saveptr);
 
 		while (token)
 		{
@@ -91,7 +90,7 @@ CC_HashTable *load_nicks(const char *filename)
 		}
 
 		log_debug("Added %d nicks for username %s", cc_array_size(linked), username);
-		cc_hashtable_add(nick_map, username, linked);
+		cc_hashtable_add(nick_map, strdup(username), linked);
 	}
 
 	free(line);

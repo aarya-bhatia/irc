@@ -73,7 +73,10 @@ void Server_process_request(Server *serv, User *usr)
 	cc_array_destroy(messages);
 }
 
-void write_nicks_to_file(Server *serv, char *filename)
+/**
+ * Copy nicks to file and free the memory associated with nick_map
+ */
+void save_and_destroy_nicks(Server *serv, char *filename)
 {
 	FILE *nick_file = fopen(filename, "w");
 
@@ -94,6 +97,7 @@ void write_nicks_to_file(Server *serv, char *filename)
 		fputc(':', nick_file);
 
 		CC_Array *nicks = elem->value;
+
 		if (nicks)
 		{
 			char *nick = NULL;
@@ -113,7 +117,12 @@ void write_nicks_to_file(Server *serv, char *filename)
 		}
 
 		fputc('\n', nick_file);
+
+		// cc_hashtable_iter_remove(&itr, (void **) &nicks);
+		// cc_array_destroy_cb(nicks, free);
 	}
+
+	cc_hashtable_destroy(serv->user_to_nicks_map);
 
 	fclose(nick_file);
 
@@ -124,7 +133,7 @@ void Server_destroy(Server *serv)
 {
 	assert(serv);
 
-	write_nicks_to_file(serv, NICKS_FILENAME);
+	save_and_destroy_nicks(serv, NICKS_FILENAME);
 
 	CC_HashTableIter itr;
 	TableEntry *elem;
