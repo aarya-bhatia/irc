@@ -1,0 +1,1085 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CC_ARRAY_FOREACH	collectc/cc_array.h	149;"	d
+CC_ARRAY_FOREACH_ZIP	collectc/cc_array.h	159;"	d
+CC_Array	collectc/cc_array.h	/^typedef struct cc_array_s CC_Array;$/;"	t	typeref:struct:cc_array_s
+CC_ArrayConf	collectc/cc_array.h	/^} CC_ArrayConf;$/;"	t	typeref:struct:cc_array_conf_s
+CC_ArrayIter	collectc/cc_array.h	/^} CC_ArrayIter;$/;"	t	typeref:struct:cc_array_iter_s
+CC_ArrayZipIter	collectc/cc_array.h	/^} CC_ArrayZipIter;$/;"	t	typeref:struct:array_zip_iter_s
+CC_CMP_STRING	collectc/cc_common.h	67;"	d
+CC_DEQUE_FOREACH	collectc/cc_deque.h	142;"	d
+CC_DEQUE_FOREACH_ZIP	collectc/cc_deque.h	152;"	d
+CC_Deque	collectc/cc_deque.h	/^typedef struct cc_deque_s CC_Deque;$/;"	t	typeref:struct:cc_deque_s
+CC_DequeConf	collectc/cc_deque.h	/^} CC_DequeConf;$/;"	t	typeref:struct:cc_deque_conf_s
+CC_DequeIter	collectc/cc_deque.h	/^} CC_DequeIter;$/;"	t	typeref:struct:cc_deque_iter_s
+CC_DequeZipIter	collectc/cc_deque.h	/^} CC_DequeZipIter;$/;"	t	typeref:struct:cc_deque_zip_iter_s
+CC_ERR_ALLOC	collectc/cc_common.h	/^    CC_ERR_ALLOC            = 1,$/;"	e	enum:cc_stat
+CC_ERR_INVALID_CAPACITY	collectc/cc_common.h	/^    CC_ERR_INVALID_CAPACITY = 2,$/;"	e	enum:cc_stat
+CC_ERR_INVALID_RANGE	collectc/cc_common.h	/^    CC_ERR_INVALID_RANGE    = 3,$/;"	e	enum:cc_stat
+CC_ERR_KEY_NOT_FOUND	collectc/cc_common.h	/^    CC_ERR_KEY_NOT_FOUND    = 6,$/;"	e	enum:cc_stat
+CC_ERR_MAX_CAPACITY	collectc/cc_common.h	/^    CC_ERR_MAX_CAPACITY     = 4,$/;"	e	enum:cc_stat
+CC_ERR_OUT_OF_RANGE	collectc/cc_common.h	/^    CC_ERR_OUT_OF_RANGE     = 8,$/;"	e	enum:cc_stat
+CC_ERR_VALUE_NOT_FOUND	collectc/cc_common.h	/^    CC_ERR_VALUE_NOT_FOUND  = 7,$/;"	e	enum:cc_stat
+CC_HASHSET_FOREACH	collectc/cc_hashset.h	69;"	d
+CC_HASHTABLE_FOREACH	collectc/cc_hashtable.h	148;"	d
+CC_HashSet	collectc/cc_hashset.h	/^typedef struct cc_hashset_s CC_HashSet;$/;"	t	typeref:struct:cc_hashset_s
+CC_HashSetConf	collectc/cc_hashset.h	/^typedef CC_HashTableConf CC_HashSetConf;$/;"	t
+CC_HashSetIter	collectc/cc_hashset.h	/^} CC_HashSetIter;$/;"	t	typeref:struct:cc_hashset_iter_s
+CC_HashTable	collectc/cc_hashtable.h	/^typedef struct cc_hashtable_s CC_HashTable;$/;"	t	typeref:struct:cc_hashtable_s
+CC_HashTableConf	collectc/cc_hashtable.h	/^} CC_HashTableConf;$/;"	t	typeref:struct:cc_hashtable_conf_s
+CC_HashTableIter	collectc/cc_hashtable.h	/^} CC_HashTableIter;$/;"	t	typeref:struct:cc_hashtable_iter
+CC_ITER_END	collectc/cc_common.h	/^    CC_ITER_END             = 9,$/;"	e	enum:cc_stat
+CC_LIST_FOREACH	collectc/cc_list.h	169;"	d
+CC_LIST_FOREACH_ZIP	collectc/cc_list.h	179;"	d
+CC_List	collectc/cc_list.h	/^typedef struct cc_list_s CC_List;$/;"	t	typeref:struct:cc_list_s
+CC_ListConf	collectc/cc_list.h	/^} CC_ListConf;$/;"	t	typeref:struct:cc_list_conf_s
+CC_ListIter	collectc/cc_list.h	/^} CC_ListIter;$/;"	t	typeref:struct:cc_list_iter_s
+CC_ListZipIter	collectc/cc_list.h	/^} CC_ListZipIter;$/;"	t	typeref:struct:cc_list_zip_iter_s
+CC_MAX_ELEMENTS	collectc/cc_common.h	50;"	d
+CC_OK	collectc/cc_common.h	/^    CC_OK                   = 0,$/;"	e	enum:cc_stat
+CC_PQueue	collectc/cc_pqueue.h	/^typedef struct cc_pqueue_s CC_PQueue;$/;"	t	typeref:struct:cc_pqueue_s
+CC_PQueueConf	collectc/cc_pqueue.h	/^} CC_PQueueConf;$/;"	t	typeref:struct:cc_pqueue_conf_s
+CC_Rbuf	collectc/cc_ring_buffer.h	/^typedef struct ring_buffer CC_Rbuf;$/;"	t	typeref:struct:ring_buffer
+CC_RbufConf	collectc/cc_ring_buffer.h	/^typedef struct ring_buffer_conf CC_RbufConf;$/;"	t	typeref:struct:ring_buffer_conf
+CC_SLIST_FOREACH	collectc/cc_slist.h	150;"	d
+CC_SLIST_FOREACH_ZIP	collectc/cc_slist.h	160;"	d
+CC_SList	collectc/cc_slist.h	/^typedef struct cc_slist_s CC_SList;$/;"	t	typeref:struct:cc_slist_s
+CC_SListConf	collectc/cc_slist.h	/^} CC_SListConf;$/;"	t	typeref:struct:cc_slist_conf_s
+CC_SListIter	collectc/cc_slist.h	/^} CC_SListIter;$/;"	t	typeref:struct:cc_slist_iter_s
+CC_SListZipIter	collectc/cc_slist.h	/^} CC_SListZipIter;$/;"	t	typeref:struct:cc_slist_zip_iter_s
+CC_TREESET_FOREACH	collectc/cc_treeset.h	73;"	d
+CC_TREETABLE_FOREACH	collectc/cc_treetable.h	129;"	d
+CC_TSTTABLE_FOREACH	collectc/cc_tsttable.h	70;"	d
+CC_TSTTable	collectc/cc_tsttable.h	/^typedef struct cc_tsttable_s CC_TSTTable;$/;"	t	typeref:struct:cc_tsttable_s
+CC_TSTTableConf	collectc/cc_tsttable.h	/^} CC_TSTTableConf;$/;"	t	typeref:struct:cc_tsttable_conf_s
+CC_TSTTableEntry	collectc/cc_tsttable.h	/^} CC_TSTTableEntry;$/;"	t	typeref:struct:cc_tsttable_data_s
+CC_TSTTableIter	collectc/cc_tsttable.h	/^} CC_TSTTableIter;$/;"	t	typeref:struct:cc_tsttable_iter_s
+CC_TreeSet	collectc/cc_treeset.h	/^typedef struct cc_treeset_s CC_TreeSet;$/;"	t	typeref:struct:cc_treeset_s
+CC_TreeSetConf	collectc/cc_treeset.h	/^typedef CC_TreeTableConf CC_TreeSetConf;$/;"	t
+CC_TreeSetIter	collectc/cc_treeset.h	/^} CC_TreeSetIter;$/;"	t	typeref:struct:cc_treeset_iter_s
+CC_TreeTable	collectc/cc_treetable.h	/^typedef struct cc_treetable_s CC_TreeTable;$/;"	t	typeref:struct:cc_treetable_s
+CC_TreeTableConf	collectc/cc_treetable.h	/^} CC_TreeTableConf;$/;"	t	typeref:struct:cc_treetable_conf_s
+CC_TreeTableEntry	collectc/cc_treetable.h	/^} CC_TreeTableEntry;$/;"	t	typeref:struct:tree_table_entry_s
+CC_TreeTableIter	collectc/cc_treetable.h	/^} CC_TreeTableIter;$/;"	t	typeref:struct:tree_table_iter_s
+CHECK	common.h	44;"	d
+COLLECTIONS_C_ARRAY_H	collectc/cc_array.h	22;"	d
+COLLECTIONS_C_CC_DEQUE_H	collectc/cc_deque.h	22;"	d
+COLLECTIONS_C_CC_HASHSET_H	collectc/cc_hashset.h	22;"	d
+COLLECTIONS_C_CC_HASHTABLE_H	collectc/cc_hashtable.h	22;"	d
+COLLECTIONS_C_CC_LIST_H	collectc/cc_list.h	22;"	d
+COLLECTIONS_C_CC_PQUEUE_H	collectc/cc_pqueue.h	22;"	d
+COLLECTIONS_C_CC_RBUF_H	collectc/cc_ring_buffer.h	10;"	d
+COLLECTIONS_C_CC_SLIST_H	collectc/cc_slist.h	22;"	d
+COLLECTIONS_C_CC_TREESET_H	collectc/cc_treeset.h	22;"	d
+COLLECTIONS_C_CC_TREETABLE_H	collectc/cc_treetable.h	22;"	d
+COLLECTIONS_C_CC_TSTTABLE_H	collectc/cc_tsttable.h	2;"	d
+COLLECTIONS_C_COMMON_H	collectc/cc_common.h	22;"	d
+COLLECTIONS_C_QUEUE_H	collectc/cc_queue.h	22;"	d
+COLLECTIONS_C_STACK_H	collectc/cc_stack.h	22;"	d
+CRLF	common.h	33;"	d
+Client	client.h	/^typedef struct Client$/;"	s
+Client	client.h	/^} Client;$/;"	t	typeref:struct:Client
+Client::client_inbox	client.h	/^    queue_t *client_inbox;$/;"	m	struct:Client	access:public
+Client::client_nick	client.h	/^    char client_nick[30];$/;"	m	struct:Client	access:public
+Client::client_outbox	client.h	/^    queue_t *client_outbox;$/;"	m	struct:Client	access:public
+Client::client_realname	client.h	/^    char client_realname[30];$/;"	m	struct:Client	access:public
+Client::client_sock	client.h	/^    int client_sock;$/;"	m	struct:Client	access:public
+Client::client_username	client.h	/^    char client_username[30];$/;"	m	struct:Client	access:public
+Client_destroy	client.h	/^void Client_destroy(Client *client);$/;"	p	signature:(Client *client)
+Client_init	client.h	/^void Client_init(Client *client);$/;"	p	signature:(Client *client)
+CstrToString	aaryab2/String.c	/^String *CstrToString(char *cstr)$/;"	f	signature:(char *cstr)
+CstrToString	aaryab2/String.h	/^String *CstrToString(char *cstr);$/;"	p	signature:(char *cstr)
+DEFAULT_CC_RBUF_CAPACITY	collectc/cc_ring_buffer.h	14;"	d
+ERR_ALREADYREGISTRED_MSG	replies.h	118;"	d
+ERR_BADCHANNELKEY_MSG	replies.h	127;"	d
+ERR_BANNEDFROMCHAN_MSG	replies.h	126;"	d
+ERR_CANNOTSENDTOCHAN_MSG	replies.h	93;"	d
+ERR_CANTKILLSERVER_MSG	replies.h	135;"	d
+ERR_CHANNELISFULL_MSG	replies.h	120;"	d
+ERR_CHANOPPRIVTOOLOW_MSG	replies.h	133;"	d
+ERR_CHANOPRIVSNEEDED_MSG	replies.h	132;"	d
+ERR_ERRONEUSNICKNAME_MSG	replies.h	105;"	d
+ERR_FORBIDDENNICKNAME_MSG	replies.h	107;"	d
+ERR_INVALIDCAP_MSG	replies.h	98;"	d
+ERR_INVALIDMODEPARAM_MSG	replies.h	148;"	d
+ERR_INVITEONLYCHAN_MSG	replies.h	125;"	d
+ERR_KICKDENY_MSG	replies.h	134;"	d
+ERR_LISTFULL_MSG	replies.h	130;"	d
+ERR_NEEDMOREPARAMS_MSG	replies.h	117;"	d
+ERR_NEEDREGGEDNICK_MSG	replies.h	129;"	d
+ERR_NICKNAMEINUSE_MSG	replies.h	108;"	d
+ERR_NICKNAMETOOLONG_MSG	replies.h	106;"	d
+ERR_NICKREGISTER_MSG	replies.h	137;"	d
+ERR_NOCHANMODES_MSG	replies.h	128;"	d
+ERR_NOINVITE_MSG	replies.h	146;"	d
+ERR_NOMOTD_MSG	replies.h	103;"	d
+ERR_NONICKCHANGE_MSG	replies.h	114;"	d
+ERR_NONICKNAMEGIVEN_MSG	replies.h	104;"	d
+ERR_NONONREG_MSG	replies.h	138;"	d
+ERR_NOOPERHOST_MSG	replies.h	139;"	d
+ERR_NOORIGIN_MSG	replies.h	97;"	d
+ERR_NOPRIVILEGES_MSG	replies.h	131;"	d
+ERR_NORECIPIENT_MSG	replies.h	99;"	d
+ERR_NOSUCHCHANNEL_MSG	replies.h	92;"	d
+ERR_NOSUCHNICK_MSG	replies.h	90;"	d
+ERR_NOSUCHSERVER_MSG	replies.h	91;"	d
+ERR_NOTEXTTOSEND_MSG	replies.h	100;"	d
+ERR_NOTONCHANNEL_MSG	replies.h	110;"	d
+ERR_NOTONSAMECHANNEL_MSG	replies.h	140;"	d
+ERR_NOTREGISTEREDSERVER_MSG	replies.h	116;"	d
+ERR_NOTREGISTERED_MSG	replies.h	115;"	d
+ERR_OPONLYCHANNEL_MSG	replies.h	122;"	d
+ERR_PASSWDMISMATCH_MSG	replies.h	119;"	d
+ERR_REGONLYCHANNEL_MSG	replies.h	123;"	d
+ERR_RESTRICTED_MSG	replies.h	136;"	d
+ERR_SECURECHANNEL_MSG	replies.h	121;"	d
+ERR_SUMMONDISABLED_MSG	replies.h	112;"	d
+ERR_TOOMANYCHANNELS_MSG	replies.h	94;"	d
+ERR_TOOMANYTARGETS_MSG	replies.h	96;"	d
+ERR_UMODEUNKNOWNFLAG2_MSG	replies.h	143;"	d
+ERR_UMODEUNKNOWNFLAG_MSG	replies.h	142;"	d
+ERR_UNKNOWNCOMMAND_MSG	replies.h	102;"	d
+ERR_UNKNOWNMODE_MSG	replies.h	124;"	d
+ERR_USERNOTINCHANNEL_MSG	replies.h	109;"	d
+ERR_USERNOTONSERV_MSG	replies.h	145;"	d
+ERR_USERONCHANNEL_MSG	replies.h	111;"	d
+ERR_USERSDISABLED_MSG	replies.h	113;"	d
+ERR_USERSDONTMATCH_MSG	replies.h	144;"	d
+ERR_WASNOSUCHNICK_MSG	replies.h	95;"	d
+ERR_WILDTOPLEVEL_MSG	replies.h	101;"	d
+FORCE_INLINE	collectc/cc_common.h	55;"	d
+FORCE_INLINE	collectc/cc_common.h	60;"	d
+GENERAL_HASH	collectc/cc_hashtable.h	162;"	d
+INITIAL_CAPACITY	aaryab2/String.h	5;"	d
+INLINE	collectc/cc_common.h	54;"	d
+INLINE	collectc/cc_common.h	59;"	d
+KEY_LENGTH_POINTER	collectc/cc_hashtable.h	28;"	d
+KEY_LENGTH_VARIABLE	collectc/cc_hashtable.h	27;"	d
+LOG_DEBUG	log/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_ERROR	log/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_FATAL	log/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_H	log/log.h	9;"	d
+LOG_INFO	log/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_TRACE	log/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_VERSION	log/log.h	16;"	d
+LOG_WARN	log/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+MAX	aaryab2/String.h	7;"	d
+MAX_EVENTS	common.h	30;"	d
+MAX_MSG_LEN	common.h	31;"	d
+MAX_MSG_PARAM	common.h	32;"	d
+MAX_POW_TWO	collectc/cc_common.h	30;"	d
+MAX_POW_TWO	collectc/cc_common.h	32;"	d
+MIN	aaryab2/String.h	8;"	d
+Message	message.h	/^} Message;$/;"	t	typeref:struct:_Message
+Node	collectc/cc_list.h	/^} Node;$/;"	t	typeref:struct:node_s
+POINTER_HASH	collectc/cc_hashtable.h	164;"	d
+QUEUE_FOREACH	collectc/cc_queue.h	79;"	d
+QUEUE_FOREACH_ZIP	collectc/cc_queue.h	89;"	d
+Queue	collectc/cc_queue.h	/^typedef struct queue_s Queue;$/;"	t	typeref:struct:queue_s
+QueueConf	collectc/cc_queue.h	/^typedef CC_DequeConf QueueConf;$/;"	t
+QueueIter	collectc/cc_queue.h	/^} QueueIter;$/;"	t	typeref:struct:queue_iter_s
+QueueZipIter	collectc/cc_queue.h	/^} QueueZipIter;$/;"	t	typeref:struct:queue_zip_iter_s
+RBNode	collectc/cc_treetable.h	/^} RBNode;$/;"	t	typeref:struct:rbnode_s
+RB_ERROR_BLACK_HEIGHT	collectc/cc_treetable.h	141;"	d
+RB_ERROR_CONSECUTIVE_RED	collectc/cc_treetable.h	140;"	d
+RB_ERROR_OK	collectc/cc_treetable.h	143;"	d
+RB_ERROR_TREE_STRUCTURE	collectc/cc_treetable.h	142;"	d
+RPL_ADMINEMAIL_MSG	replies.h	30;"	d
+RPL_ADMINLOC1_MSG	replies.h	28;"	d
+RPL_ADMINLOC2_MSG	replies.h	29;"	d
+RPL_ADMINME_MSG	replies.h	27;"	d
+RPL_AWAY_MSG	replies.h	38;"	d
+RPL_BANLIST_MSG	replies.h	74;"	d
+RPL_CHANNELMODEIS_MSG	replies.h	56;"	d
+RPL_CREATED_MSG	replies.h	5;"	d
+RPL_CREATIONTIME_MSG	replies.h	57;"	d
+RPL_ENDOFBANLIST_MSG	replies.h	75;"	d
+RPL_ENDOFEXCEPTLIST_MSG	replies.h	67;"	d
+RPL_ENDOFINFO_MSG	replies.h	78;"	d
+RPL_ENDOFINVITELIST_MSG	replies.h	65;"	d
+RPL_ENDOFLINKS_MSG	replies.h	72;"	d
+RPL_ENDOFMOTD_MSG	replies.h	81;"	d
+RPL_ENDOFNAMES_MSG	replies.h	73;"	d
+RPL_ENDOFSTATS_MSG	replies.h	17;"	d
+RPL_ENDOFWHOIS_MSG	replies.h	51;"	d
+RPL_ENDOFWHOWAS_MSG	replies.h	76;"	d
+RPL_ENDOFWHO_MSG	replies.h	49;"	d
+RPL_EXCEPTLIST_MSG	replies.h	66;"	d
+RPL_HOSTHIDDEN_MSG	replies.h	88;"	d
+RPL_INFO_MSG	replies.h	77;"	d
+RPL_INVITELIST_MSG	replies.h	64;"	d
+RPL_INVITING_MSG	replies.h	63;"	d
+RPL_ISON_MSG	replies.h	40;"	d
+RPL_ISUPPORT1_MSG	replies.h	8;"	d
+RPL_ISUPPORT2_MSG	replies.h	9;"	d
+RPL_ISUPPORTNET_MSG	replies.h	7;"	d
+RPL_LINKS_MSG	replies.h	71;"	d
+RPL_LISTEND_MSG	replies.h	55;"	d
+RPL_LISTSTART_MSG	replies.h	53;"	d
+RPL_LIST_MSG	replies.h	54;"	d
+RPL_LOCALUSERS_MSG	replies.h	32;"	d
+RPL_LUSERCHANNELS_MSG	replies.h	25;"	d
+RPL_LUSERCLIENT_MSG	replies.h	22;"	d
+RPL_LUSERME_MSG	replies.h	26;"	d
+RPL_LUSEROP_MSG	replies.h	23;"	d
+RPL_LUSERUNKNOWN_MSG	replies.h	24;"	d
+RPL_MOTDSTART_MSG	replies.h	80;"	d
+RPL_MOTD_MSG	replies.h	79;"	d
+RPL_MYINFO_MSG	replies.h	6;"	d
+RPL_NAMREPLY_MSG	replies.h	70;"	d
+RPL_NETUSERS_MSG	replies.h	33;"	d
+RPL_NOTOPIC_MSG	replies.h	59;"	d
+RPL_NOWAWAY_MSG	replies.h	42;"	d
+RPL_REHASHING_MSG	replies.h	85;"	d
+RPL_SERVLISTEND_MSG	replies.h	20;"	d
+RPL_SERVLIST_MSG	replies.h	19;"	d
+RPL_STATSCOMMANDS_MSG	replies.h	15;"	d
+RPL_STATSCONN_MSG	replies.h	34;"	d
+RPL_STATSLINKINFO_MSG	replies.h	14;"	d
+RPL_STATSUPTIME	replies.h	21;"	d
+RPL_STATSXLINE_MSG	replies.h	16;"	d
+RPL_TIME_MSG	replies.h	87;"	d
+RPL_TOPICSETBY_MSG	replies.h	61;"	d
+RPL_TOPIC_MSG	replies.h	60;"	d
+RPL_TRACEEND_MSG	replies.h	31;"	d
+RPL_TRACELINK_MSG	replies.h	11;"	d
+RPL_TRACEOPERATOR_MSG	replies.h	12;"	d
+RPL_TRACESERVER_MSG	replies.h	13;"	d
+RPL_UMODEIS_MSG	replies.h	18;"	d
+RPL_UNAWAY_MSG	replies.h	41;"	d
+RPL_USERHOST_MSG	replies.h	39;"	d
+RPL_VERSION_MSG	replies.h	68;"	d
+RPL_WELCOME_MSG	replies.h	3;"	d
+RPL_WHOISBOT_MSG	replies.h	62;"	d
+RPL_WHOISCERTFP_MSG	replies.h	36;"	d
+RPL_WHOISCHANNELS_MSG	replies.h	52;"	d
+RPL_WHOISHOST_MSG	replies.h	82;"	d
+RPL_WHOISIDLE_MSG	replies.h	50;"	d
+RPL_WHOISLOGGEDIN_MSG	replies.h	58;"	d
+RPL_WHOISMODES_MSG	replies.h	83;"	d
+RPL_WHOISOPERATOR_MSG	replies.h	47;"	d
+RPL_WHOISREGNICK_MSG	replies.h	43;"	d
+RPL_WHOISSERVER_MSG	replies.h	46;"	d
+RPL_WHOISSERVICE_MSG	replies.h	44;"	d
+RPL_WHOISSSL_MSG	replies.h	35;"	d
+RPL_WHOISUSER_MSG	replies.h	45;"	d
+RPL_WHOREPLY_MSG	replies.h	69;"	d
+RPL_WHOWASUSER_MSG	replies.h	48;"	d
+RPL_YOUREOPER_MSG	replies.h	84;"	d
+RPL_YOURESERVICE_MSG	replies.h	86;"	d
+RPL_YOURHOST_MSG	replies.h	4;"	d
+SAFE	common.h	63;"	d
+SNode	collectc/cc_slist.h	/^} SNode;$/;"	t	typeref:struct:snode_s
+STACK_FOREACH	collectc/cc_stack.h	84;"	d
+STACK_FOREACH_ZIP	collectc/cc_stack.h	94;"	d
+STRING_HASH	collectc/cc_hashtable.h	163;"	d
+Server	server.h	/^} Server;$/;"	t	typeref:struct:_Server
+Server_accept_all	server.h	/^void Server_accept_all(Server *serv);$/;"	p	signature:(Server *serv)
+Server_create	server.h	/^Server *Server_create(int port);$/;"	p	signature:(int port)
+Server_destroy	server.h	/^void Server_destroy(Server *serv);$/;"	p	signature:(Server *serv)
+Server_process_request	server.h	/^void Server_process_request(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+Server_reply_to_CONNECT	server.h	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_JOIN	server.h	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_LIST	server.h	/^void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_MOTD	server.h	/^void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NAMES	server.h	/^void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NICK	server.h	/^void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PASS	server.h	/^void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PING	server.h	/^void Server_reply_to_PING(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PRIVMSG	server.h	/^void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_QUIT	server.h	/^void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_SERVER	server.h	/^void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_USER	server.h	/^void Server_reply_to_USER(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_WHO	server.h	/^void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_WHOIS	server.h	/^void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Stack	collectc/cc_stack.h	/^typedef struct stack_s Stack;$/;"	t	typeref:struct:stack_s
+StackConf	collectc/cc_stack.h	/^typedef CC_ArrayConf StackConf;$/;"	t
+StackIter	collectc/cc_stack.h	/^} StackIter;$/;"	t	typeref:struct:stack_iter_s
+StackZipIter	collectc/cc_stack.h	/^} StackZipIter;$/;"	t	typeref:struct:stack_zip_iter_s
+String	aaryab2/String.h	/^typedef struct _String String;$/;"	t	typeref:struct:_String
+StringAdd	aaryab2/String.c	/^void StringAdd(String *this, char c)$/;"	f	signature:(String *this, char c)
+StringAdd	aaryab2/String.h	/^void StringAdd(String *this, char c);$/;"	p	signature:(String *this, char c)
+StringAddCstr	aaryab2/String.c	/^void StringAddCstr(String *this, char *cstr)$/;"	f	signature:(String *this, char *cstr)
+StringAddCstr	aaryab2/String.h	/^void StringAddCstr(String *this, char *cstr);$/;"	p	signature:(String *this, char *cstr)
+StringAppend	aaryab2/String.c	/^void StringAppend(String *this, const String *other)$/;"	f	signature:(String *this, const String *other)
+StringAppend	aaryab2/String.h	/^void StringAppend(String *this, const String *other);$/;"	p	signature:(String *this, const String *other)
+StringCapacity	aaryab2/String.c	/^size_t StringCapacity(const String *this)$/;"	f	signature:(const String *this)
+StringCapacity	aaryab2/String.h	/^size_t StringCapacity(const String *this);$/;"	p	signature:(const String *this)
+StringConstructor	aaryab2/String.c	/^String *StringConstructor(size_t n)$/;"	f	signature:(size_t n)
+StringConstructor	aaryab2/String.h	/^String *StringConstructor(size_t n);$/;"	p	signature:(size_t n)
+StringDefaultConstructor	aaryab2/String.c	/^String *StringDefaultConstructor()$/;"	f
+StringDefaultConstructor	aaryab2/String.h	/^String *StringDefaultConstructor();$/;"	p	signature:()
+StringDestructor	aaryab2/String.c	/^void StringDestructor(String *this)$/;"	f	signature:(String *this)
+StringDestructor	aaryab2/String.h	/^void StringDestructor(String *this);$/;"	p	signature:(String *this)
+StringReserve	aaryab2/String.c	/^void StringReserve(String *this, size_t capacity)$/;"	f	signature:(String *this, size_t capacity)
+StringReserve	aaryab2/String.h	/^void StringReserve(String *this, size_t capacity);$/;"	p	signature:(String *this, size_t capacity)
+StringResize	aaryab2/String.c	/^void StringResize(String *this, size_t size)$/;"	f	signature:(String *this, size_t size)
+StringResize	aaryab2/String.h	/^void StringResize(String *this, size_t size);$/;"	p	signature:(String *this, size_t size)
+StringSize	aaryab2/String.c	/^size_t StringSize(const String *this)$/;"	f	signature:(const String *this)
+StringSize	aaryab2/String.h	/^size_t StringSize(const String *this);$/;"	p	signature:(const String *this)
+StringSlice	aaryab2/String.c	/^char *StringSlice(String *this, size_t start, size_t end)$/;"	f	signature:(String *this, size_t start, size_t end)
+StringSlice	aaryab2/String.h	/^char *StringSlice(String *this, size_t start, size_t end);$/;"	p	signature:(String *this, size_t start, size_t end)
+StringToCstr	aaryab2/String.c	/^char *StringToCstr(String *this)$/;"	f	signature:(String *this)
+StringToCstr	aaryab2/String.h	/^char *StringToCstr(String *this);$/;"	p	signature:(String *this)
+StringWrite	aaryab2/String.c	/^void StringWrite(String *this, int fd)$/;"	f	signature:(String *this, int fd)
+StringWrite	aaryab2/String.h	/^void StringWrite(String *this, int fd);$/;"	p	signature:(String *this, int fd)
+TableEntry	collectc/cc_hashtable.h	/^} TableEntry;$/;"	t	typeref:struct:table_entry_s
+Timer	timer.h	/^typedef struct Timer$/;"	s
+Timer	timer.h	/^} Timer;$/;"	t	typeref:struct:Timer
+Timer::prev	timer.h	/^    time_t prev;$/;"	m	struct:Timer	access:public
+Timer::timerfd	timer.h	/^    int timerfd;$/;"	m	struct:Timer	access:public
+Timer_expired	timer.h	/^bool Timer_expired(Timer *t);$/;"	p	signature:(Timer *t)
+Timer_init	timer.h	/^void Timer_init(Timer *t, int duration_sec);$/;"	p	signature:(Timer *t, int duration_sec)
+Timer_stop	timer.h	/^void Timer_stop(Timer *t);$/;"	p	signature:(Timer *t)
+User	server.h	/^} User;$/;"	t	typeref:struct:_User
+User_Destroy	server.h	/^void User_Destroy(User *usr);$/;"	p	signature:(User *usr)
+User_Disconnect	server.h	/^void User_Disconnect(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+User_Read_Event	server.h	/^ssize_t User_Read_Event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+User_Write_Event	server.h	/^ssize_t User_Write_Event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+User_add_msg	server.h	/^void User_add_msg(User *usr, char *msg);$/;"	p	signature:(User *usr, char *msg)
+_CHECK	common.h	35;"	d
+_GNU_SOURCE	common.h	3;"	d
+_GetCapacity	aaryab2/String.c	/^size_t _GetCapacity(size_t n)$/;"	f	signature:(size_t n)
+_GetCapacity	aaryab2/String.h	/^size_t _GetCapacity(size_t n);$/;"	p	signature:(size_t n)
+_Message	message.h	/^typedef struct _Message$/;"	s
+_Message::body	message.h	/^	char *body;$/;"	m	struct:_Message	access:public
+_Message::command	message.h	/^	char *command;$/;"	m	struct:_Message	access:public
+_Message::n_params	message.h	/^	size_t n_params;$/;"	m	struct:_Message	access:public
+_Message::origin	message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
+_Message::params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
+_Server	server.h	/^typedef struct _Server$/;"	s
+_Server::connections	server.h	/^	CC_HashTable *connections; \/\/ Map socket fd to User data object$/;"	m	struct:_Server	access:public
+_Server::created_at	server.h	/^	char created_at[64]; \/\/ server time created at as string$/;"	m	struct:_Server	access:public
+_Server::epollfd	server.h	/^	int epollfd; \/\/ epoll fd$/;"	m	struct:_Server	access:public
+_Server::fd	server.h	/^	int fd; \/\/ listen socket$/;"	m	struct:_Server	access:public
+_Server::hostname	server.h	/^	char *hostname; \/\/ server hostname$/;"	m	struct:_Server	access:public
+_Server::motd_file	server.h	/^	char *motd_file; \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
+_Server::port	server.h	/^	char *port; \/\/ server port$/;"	m	struct:_Server	access:public
+_Server::servaddr	server.h	/^	struct sockaddr_in servaddr; \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+_Server::user_to_nicks_map	server.h	/^	CC_HashTable *user_to_nicks_map; \/\/ Map username to array of nicks owned by user$/;"	m	struct:_Server	access:public
+_String	aaryab2/String.c	/^struct _String$/;"	s	file:
+_String::buffer	aaryab2/String.c	/^	char *buffer;$/;"	m	struct:_String	file:	access:public
+_String::capacity	aaryab2/String.c	/^	size_t capacity;$/;"	m	struct:_String	file:	access:public
+_String::size	aaryab2/String.c	/^	size_t size;$/;"	m	struct:_String	file:	access:public
+_User	server.h	/^typedef struct _User$/;"	s
+_User::fd	server.h	/^	int fd; \/\/ socket connection$/;"	m	struct:_User	access:public
+_User::hostname	server.h	/^	char *hostname;$/;"	m	struct:_User	access:public
+_User::msg_queue	server.h	/^	CC_List *msg_queue;			   \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
+_User::nick	server.h	/^	char *nick;$/;"	m	struct:_User	access:public
+_User::nick_changed	server.h	/^	bool nick_changed;$/;"	m	struct:_User	access:public
+_User::quit	server.h	/^	bool quit;$/;"	m	struct:_User	access:public
+_User::realname	server.h	/^	char *realname;$/;"	m	struct:_User	access:public
+_User::registered	server.h	/^	bool registered;$/;"	m	struct:_User	access:public
+_User::req_buf	server.h	/^	char req_buf[MAX_MSG_LEN + 1]; \/\/ the request message$/;"	m	struct:_User	access:public
+_User::req_len	server.h	/^	size_t req_len;				   \/\/ length of request buffer$/;"	m	struct:_User	access:public
+_User::res_buf	server.h	/^	char res_buf[MAX_MSG_LEN + 1]; \/\/ the response message$/;"	m	struct:_User	access:public
+_User::res_len	server.h	/^	size_t res_len;				   \/\/ length of response buffer$/;"	m	struct:_User	access:public
+_User::res_off	server.h	/^	size_t res_off;				   \/\/ no of bytes of the response sent$/;"	m	struct:_User	access:public
+_User::username	server.h	/^	char *username;$/;"	m	struct:_User	access:public
+__anon1::ap	log/log.h	/^  va_list ap;$/;"	m	struct:__anon1	access:public
+__anon1::file	log/log.h	/^  const char *file;$/;"	m	struct:__anon1	access:public
+__anon1::fmt	log/log.h	/^  const char *fmt;$/;"	m	struct:__anon1	access:public
+__anon1::level	log/log.h	/^  int level;$/;"	m	struct:__anon1	access:public
+__anon1::line	log/log.h	/^  int line;$/;"	m	struct:__anon1	access:public
+__anon1::time	log/log.h	/^  struct tm *time;$/;"	m	struct:__anon1	typeref:struct:__anon1::tm	access:public
+__anon1::udata	log/log.h	/^  void *udata;$/;"	m	struct:__anon1	access:public
+_free_callback	client.h	/^void _free_callback(void *data);$/;"	p	signature:(void *data)
+_signal_handler	client.h	/^void _signal_handler(int sig);$/;"	p	signature:(int sig)
+addr_to_string	common.h	/^char *addr_to_string(struct sockaddr *addr, socklen_t len); \/* get ip address from sockaddr *\/$/;"	p	signature:(struct sockaddr *addr, socklen_t len)
+advanced_on_remove	collectc/cc_tsttable.h	/^    bool            advanced_on_remove;$/;"	m	struct:cc_tsttable_iter_s	access:public
+ap	log/log.h	/^  va_list ap;$/;"	m	struct:__anon1	access:public
+ar	collectc/cc_array.h	/^    CC_Array  *ar;$/;"	m	struct:cc_array_iter_s	access:public
+ar1	collectc/cc_array.h	/^    CC_Array *ar1;$/;"	m	struct:array_zip_iter_s	access:public
+ar2	collectc/cc_array.h	/^    CC_Array *ar2;$/;"	m	struct:array_zip_iter_s	access:public
+array_zip_iter_s	collectc/cc_array.h	/^typedef struct array_zip_iter_s {$/;"	s
+array_zip_iter_s::ar1	collectc/cc_array.h	/^    CC_Array *ar1;$/;"	m	struct:array_zip_iter_s	access:public
+array_zip_iter_s::ar2	collectc/cc_array.h	/^    CC_Array *ar2;$/;"	m	struct:array_zip_iter_s	access:public
+array_zip_iter_s::index	collectc/cc_array.h	/^    size_t    index;$/;"	m	struct:array_zip_iter_s	access:public
+array_zip_iter_s::last_removed	collectc/cc_array.h	/^    bool      last_removed;$/;"	m	struct:array_zip_iter_s	access:public
+body	message.h	/^	char *body;$/;"	m	struct:_Message	access:public
+bucket_index	collectc/cc_hashtable.h	/^    size_t         bucket_index;$/;"	m	struct:cc_hashtable_iter	access:public
+buffer	aaryab2/String.c	/^	char *buffer;$/;"	m	struct:_String	file:	access:public
+capacity	aaryab2/String.c	/^	size_t capacity;$/;"	m	struct:_String	file:	access:public
+capacity	collectc/cc_array.h	/^    size_t capacity;$/;"	m	struct:cc_array_conf_s	access:public
+capacity	collectc/cc_deque.h	/^    size_t capacity;$/;"	m	struct:cc_deque_conf_s	access:public
+capacity	collectc/cc_pqueue.h	/^    size_t capacity;$/;"	m	struct:cc_pqueue_conf_s	access:public
+cc_array_add	collectc/cc_array.h	/^enum cc_stat  cc_array_add             (CC_Array *ar, void *element);$/;"	p	signature:(CC_Array *ar, void *element)
+cc_array_add_at	collectc/cc_array.h	/^enum cc_stat  cc_array_add_at          (CC_Array *ar, void *element, size_t index);$/;"	p	signature:(CC_Array *ar, void *element, size_t index)
+cc_array_capacity	collectc/cc_array.h	/^size_t        cc_array_capacity        (CC_Array *ar);$/;"	p	signature:(CC_Array *ar)
+cc_array_conf_init	collectc/cc_array.h	/^void          cc_array_conf_init       (CC_ArrayConf *conf);$/;"	p	signature:(CC_ArrayConf *conf)
+cc_array_conf_s	collectc/cc_array.h	/^typedef struct cc_array_conf_s {$/;"	s
+cc_array_conf_s::capacity	collectc/cc_array.h	/^    size_t capacity;$/;"	m	struct:cc_array_conf_s	access:public
+cc_array_conf_s::exp_factor	collectc/cc_array.h	/^    float  exp_factor;$/;"	m	struct:cc_array_conf_s	access:public
+cc_array_conf_s::mem_alloc	collectc/cc_array.h	/^    void *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_array_conf_s	access:public
+cc_array_conf_s::mem_calloc	collectc/cc_array.h	/^    void *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_array_conf_s	access:public
+cc_array_conf_s::mem_free	collectc/cc_array.h	/^    void  (*mem_free)   (void *block);$/;"	m	struct:cc_array_conf_s	access:public
+cc_array_contains	collectc/cc_array.h	/^size_t        cc_array_contains        (CC_Array *ar, void *element);$/;"	p	signature:(CC_Array *ar, void *element)
+cc_array_contains_value	collectc/cc_array.h	/^size_t        cc_array_contains_value  (CC_Array *ar, void *element, int (*cmp) (const void*, const void*));$/;"	p	signature:(CC_Array *ar, void *element, int (*cmp) (const void*, const void*))
+cc_array_copy_deep	collectc/cc_array.h	/^enum cc_stat  cc_array_copy_deep       (CC_Array *ar, void *(*cp) (void*), CC_Array **out);$/;"	p	signature:(CC_Array *ar, void *(*cp) (void*), CC_Array **out)
+cc_array_copy_shallow	collectc/cc_array.h	/^enum cc_stat  cc_array_copy_shallow    (CC_Array *ar, CC_Array **out);$/;"	p	signature:(CC_Array *ar, CC_Array **out)
+cc_array_destroy	collectc/cc_array.h	/^void          cc_array_destroy         (CC_Array *ar);$/;"	p	signature:(CC_Array *ar)
+cc_array_destroy_cb	collectc/cc_array.h	/^void          cc_array_destroy_cb      (CC_Array *ar, void (*cb) (void*));$/;"	p	signature:(CC_Array *ar, void (*cb) (void*))
+cc_array_filter	collectc/cc_array.h	/^enum cc_stat  cc_array_filter          (CC_Array *ar, bool (*predicate) (const void*), CC_Array **out);$/;"	p	signature:(CC_Array *ar, bool (*predicate) (const void*), CC_Array **out)
+cc_array_filter_mut	collectc/cc_array.h	/^enum cc_stat  cc_array_filter_mut      (CC_Array *ar, bool (*predicate) (const void*));$/;"	p	signature:(CC_Array *ar, bool (*predicate) (const void*))
+cc_array_get_at	collectc/cc_array.h	/^enum cc_stat  cc_array_get_at          (CC_Array *ar, size_t index, void **out);$/;"	p	signature:(CC_Array *ar, size_t index, void **out)
+cc_array_get_buffer	collectc/cc_array.h	/^const void* const* cc_array_get_buffer(CC_Array *ar);$/;"	p	signature:(CC_Array *ar)
+cc_array_get_last	collectc/cc_array.h	/^enum cc_stat  cc_array_get_last        (CC_Array *ar, void **out);$/;"	p	signature:(CC_Array *ar, void **out)
+cc_array_index_of	collectc/cc_array.h	/^enum cc_stat  cc_array_index_of        (CC_Array *ar, void *element, size_t *index);$/;"	p	signature:(CC_Array *ar, void *element, size_t *index)
+cc_array_iter_add	collectc/cc_array.h	/^enum cc_stat  cc_array_iter_add        (CC_ArrayIter *iter, void *element);$/;"	p	signature:(CC_ArrayIter *iter, void *element)
+cc_array_iter_index	collectc/cc_array.h	/^size_t        cc_array_iter_index      (CC_ArrayIter *iter);$/;"	p	signature:(CC_ArrayIter *iter)
+cc_array_iter_init	collectc/cc_array.h	/^void          cc_array_iter_init       (CC_ArrayIter *iter, CC_Array *ar);$/;"	p	signature:(CC_ArrayIter *iter, CC_Array *ar)
+cc_array_iter_next	collectc/cc_array.h	/^enum cc_stat  cc_array_iter_next       (CC_ArrayIter *iter, void **out);$/;"	p	signature:(CC_ArrayIter *iter, void **out)
+cc_array_iter_remove	collectc/cc_array.h	/^enum cc_stat  cc_array_iter_remove     (CC_ArrayIter *iter, void **out);$/;"	p	signature:(CC_ArrayIter *iter, void **out)
+cc_array_iter_replace	collectc/cc_array.h	/^enum cc_stat  cc_array_iter_replace    (CC_ArrayIter *iter, void *element, void **out);$/;"	p	signature:(CC_ArrayIter *iter, void *element, void **out)
+cc_array_iter_s	collectc/cc_array.h	/^typedef struct cc_array_iter_s {$/;"	s
+cc_array_iter_s::ar	collectc/cc_array.h	/^    CC_Array  *ar;$/;"	m	struct:cc_array_iter_s	access:public
+cc_array_iter_s::index	collectc/cc_array.h	/^    size_t  index;$/;"	m	struct:cc_array_iter_s	access:public
+cc_array_iter_s::last_removed	collectc/cc_array.h	/^    bool last_removed;$/;"	m	struct:cc_array_iter_s	access:public
+cc_array_map	collectc/cc_array.h	/^void          cc_array_map             (CC_Array *ar, void (*fn) (void*));$/;"	p	signature:(CC_Array *ar, void (*fn) (void*))
+cc_array_new	collectc/cc_array.h	/^enum cc_stat  cc_array_new             (CC_Array **out);$/;"	p	signature:(CC_Array **out)
+cc_array_new_conf	collectc/cc_array.h	/^enum cc_stat  cc_array_new_conf        (CC_ArrayConf const * const conf, CC_Array **out);$/;"	p	signature:(CC_ArrayConf const * const conf, CC_Array **out)
+cc_array_reduce	collectc/cc_array.h	/^void          cc_array_reduce          (CC_Array *ar, void (*fn) (void*, void*, void*), void *result);$/;"	p	signature:(CC_Array *ar, void (*fn) (void*, void*, void*), void *result)
+cc_array_remove	collectc/cc_array.h	/^enum cc_stat  cc_array_remove          (CC_Array *ar, void *element, void **out);$/;"	p	signature:(CC_Array *ar, void *element, void **out)
+cc_array_remove_all	collectc/cc_array.h	/^void          cc_array_remove_all      (CC_Array *ar);$/;"	p	signature:(CC_Array *ar)
+cc_array_remove_all_free	collectc/cc_array.h	/^void          cc_array_remove_all_free (CC_Array *ar);$/;"	p	signature:(CC_Array *ar)
+cc_array_remove_at	collectc/cc_array.h	/^enum cc_stat  cc_array_remove_at       (CC_Array *ar, size_t index, void **out);$/;"	p	signature:(CC_Array *ar, size_t index, void **out)
+cc_array_remove_last	collectc/cc_array.h	/^enum cc_stat  cc_array_remove_last     (CC_Array *ar, void **out);$/;"	p	signature:(CC_Array *ar, void **out)
+cc_array_replace_at	collectc/cc_array.h	/^enum cc_stat  cc_array_replace_at      (CC_Array *ar, void *element, size_t index, void **out);$/;"	p	signature:(CC_Array *ar, void *element, size_t index, void **out)
+cc_array_reverse	collectc/cc_array.h	/^void          cc_array_reverse         (CC_Array *ar);$/;"	p	signature:(CC_Array *ar)
+cc_array_size	collectc/cc_array.h	/^size_t        cc_array_size            (CC_Array *ar);$/;"	p	signature:(CC_Array *ar)
+cc_array_sort	collectc/cc_array.h	/^void          cc_array_sort            (CC_Array *ar, int (*cmp) (const void*, const void*));$/;"	p	signature:(CC_Array *ar, int (*cmp) (const void*, const void*))
+cc_array_subarray	collectc/cc_array.h	/^enum cc_stat  cc_array_subarray        (CC_Array *ar, size_t from, size_t to, CC_Array **out);$/;"	p	signature:(CC_Array *ar, size_t from, size_t to, CC_Array **out)
+cc_array_swap_at	collectc/cc_array.h	/^enum cc_stat  cc_array_swap_at         (CC_Array *ar, size_t index1, size_t index2);$/;"	p	signature:(CC_Array *ar, size_t index1, size_t index2)
+cc_array_trim_capacity	collectc/cc_array.h	/^enum cc_stat  cc_array_trim_capacity   (CC_Array *ar);$/;"	p	signature:(CC_Array *ar)
+cc_array_zip_iter_add	collectc/cc_array.h	/^enum cc_stat  cc_array_zip_iter_add    (CC_ArrayZipIter *iter, void *e1, void *e2);$/;"	p	signature:(CC_ArrayZipIter *iter, void *e1, void *e2)
+cc_array_zip_iter_index	collectc/cc_array.h	/^size_t        cc_array_zip_iter_index  (CC_ArrayZipIter *iter);$/;"	p	signature:(CC_ArrayZipIter *iter)
+cc_array_zip_iter_init	collectc/cc_array.h	/^void          cc_array_zip_iter_init   (CC_ArrayZipIter *iter, CC_Array *a1, CC_Array *a2);$/;"	p	signature:(CC_ArrayZipIter *iter, CC_Array *a1, CC_Array *a2)
+cc_array_zip_iter_next	collectc/cc_array.h	/^enum cc_stat  cc_array_zip_iter_next   (CC_ArrayZipIter *iter, void **out1, void **out2);$/;"	p	signature:(CC_ArrayZipIter *iter, void **out1, void **out2)
+cc_array_zip_iter_remove	collectc/cc_array.h	/^enum cc_stat  cc_array_zip_iter_remove (CC_ArrayZipIter *iter, void **out1, void **out2);$/;"	p	signature:(CC_ArrayZipIter *iter, void **out1, void **out2)
+cc_array_zip_iter_replace	collectc/cc_array.h	/^enum cc_stat  cc_array_zip_iter_replace(CC_ArrayZipIter *iter, void *e1, void *e2, void **out1, void **out2);$/;"	p	signature:(CC_ArrayZipIter *iter, void *e1, void *e2, void **out1, void **out2)
+cc_common_cmp_str	collectc/cc_common.h	/^int cc_common_cmp_str(const void *key1, const void *key2);$/;"	p	signature:(const void *key1, const void *key2)
+cc_deque_add	collectc/cc_deque.h	/^enum cc_stat  cc_deque_add             (CC_Deque *deque, void *element);$/;"	p	signature:(CC_Deque *deque, void *element)
+cc_deque_add_at	collectc/cc_deque.h	/^enum cc_stat  cc_deque_add_at          (CC_Deque *deque, void *element, size_t index);$/;"	p	signature:(CC_Deque *deque, void *element, size_t index)
+cc_deque_add_first	collectc/cc_deque.h	/^enum cc_stat  cc_deque_add_first       (CC_Deque *deque, void *element);$/;"	p	signature:(CC_Deque *deque, void *element)
+cc_deque_add_last	collectc/cc_deque.h	/^enum cc_stat  cc_deque_add_last        (CC_Deque *deque, void *element);$/;"	p	signature:(CC_Deque *deque, void *element)
+cc_deque_capacity	collectc/cc_deque.h	/^size_t        cc_deque_capacity        (CC_Deque const * const deque);$/;"	p	signature:(CC_Deque const * const deque)
+cc_deque_conf_init	collectc/cc_deque.h	/^void          cc_deque_conf_init       (CC_DequeConf *conf);$/;"	p	signature:(CC_DequeConf *conf)
+cc_deque_conf_s	collectc/cc_deque.h	/^typedef struct cc_deque_conf_s {$/;"	s
+cc_deque_conf_s::capacity	collectc/cc_deque.h	/^    size_t capacity;$/;"	m	struct:cc_deque_conf_s	access:public
+cc_deque_conf_s::mem_alloc	collectc/cc_deque.h	/^    void *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_deque_conf_s	access:public
+cc_deque_conf_s::mem_calloc	collectc/cc_deque.h	/^    void *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_deque_conf_s	access:public
+cc_deque_conf_s::mem_free	collectc/cc_deque.h	/^    void  (*mem_free)   (void *block);$/;"	m	struct:cc_deque_conf_s	access:public
+cc_deque_contains	collectc/cc_deque.h	/^size_t        cc_deque_contains        (CC_Deque const * const deque, const void *element);$/;"	p	signature:(CC_Deque const * const deque, const void *element)
+cc_deque_contains_value	collectc/cc_deque.h	/^size_t        cc_deque_contains_value  (CC_Deque const * const deque, const void *element, int (*cmp)(const void*, const void*));$/;"	p	signature:(CC_Deque const * const deque, const void *element, int (*cmp)(const void*, const void*))
+cc_deque_copy_deep	collectc/cc_deque.h	/^enum cc_stat  cc_deque_copy_deep       (CC_Deque const * const deque, void *(*cp) (void*), CC_Deque **out);$/;"	p	signature:(CC_Deque const * const deque, void *(*cp) (void*), CC_Deque **out)
+cc_deque_copy_shallow	collectc/cc_deque.h	/^enum cc_stat  cc_deque_copy_shallow    (CC_Deque const * const deque, CC_Deque **out);$/;"	p	signature:(CC_Deque const * const deque, CC_Deque **out)
+cc_deque_destroy	collectc/cc_deque.h	/^void          cc_deque_destroy         (CC_Deque *deque);$/;"	p	signature:(CC_Deque *deque)
+cc_deque_destroy_cb	collectc/cc_deque.h	/^void          cc_deque_destroy_cb      (CC_Deque *deque, void (*cb) (void*));$/;"	p	signature:(CC_Deque *deque, void (*cb) (void*))
+cc_deque_filter	collectc/cc_deque.h	/^enum cc_stat  cc_deque_filter          (CC_Deque *deque, bool (*predicate) (const void*), CC_Deque **out);$/;"	p	signature:(CC_Deque *deque, bool (*predicate) (const void*), CC_Deque **out)
+cc_deque_filter_mut	collectc/cc_deque.h	/^enum cc_stat  cc_deque_filter_mut      (CC_Deque *deque, bool (*predicate) (const void*));$/;"	p	signature:(CC_Deque *deque, bool (*predicate) (const void*))
+cc_deque_foreach	collectc/cc_deque.h	/^void          cc_deque_foreach         (CC_Deque *deque, void (*fn) (void *));$/;"	p	signature:(CC_Deque *deque, void (*fn) (void *))
+cc_deque_get_at	collectc/cc_deque.h	/^enum cc_stat  cc_deque_get_at          (CC_Deque const * const deque, size_t index, void **out);$/;"	p	signature:(CC_Deque const * const deque, size_t index, void **out)
+cc_deque_get_buffer	collectc/cc_deque.h	/^const void* const* cc_deque_get_buffer (CC_Deque const * const deque);$/;"	p	signature:(CC_Deque const * const deque)
+cc_deque_get_first	collectc/cc_deque.h	/^enum cc_stat  cc_deque_get_first       (CC_Deque const * const deque, void **out);$/;"	p	signature:(CC_Deque const * const deque, void **out)
+cc_deque_get_last	collectc/cc_deque.h	/^enum cc_stat  cc_deque_get_last        (CC_Deque const * const deque, void **out);$/;"	p	signature:(CC_Deque const * const deque, void **out)
+cc_deque_index_of	collectc/cc_deque.h	/^enum cc_stat  cc_deque_index_of        (CC_Deque const * const deque, const void *element, size_t *i);$/;"	p	signature:(CC_Deque const * const deque, const void *element, size_t *i)
+cc_deque_iter_add	collectc/cc_deque.h	/^enum cc_stat  cc_deque_iter_add        (CC_DequeIter *iter, void *element);$/;"	p	signature:(CC_DequeIter *iter, void *element)
+cc_deque_iter_index	collectc/cc_deque.h	/^size_t        cc_deque_iter_index      (CC_DequeIter *iter);$/;"	p	signature:(CC_DequeIter *iter)
+cc_deque_iter_init	collectc/cc_deque.h	/^void          cc_deque_iter_init       (CC_DequeIter *iter, CC_Deque *deque);$/;"	p	signature:(CC_DequeIter *iter, CC_Deque *deque)
+cc_deque_iter_next	collectc/cc_deque.h	/^enum cc_stat  cc_deque_iter_next       (CC_DequeIter *iter, void **out);$/;"	p	signature:(CC_DequeIter *iter, void **out)
+cc_deque_iter_remove	collectc/cc_deque.h	/^enum cc_stat  cc_deque_iter_remove     (CC_DequeIter *iter, void **out);$/;"	p	signature:(CC_DequeIter *iter, void **out)
+cc_deque_iter_replace	collectc/cc_deque.h	/^enum cc_stat  cc_deque_iter_replace    (CC_DequeIter *iter, void *replacement, void **out);$/;"	p	signature:(CC_DequeIter *iter, void *replacement, void **out)
+cc_deque_iter_s	collectc/cc_deque.h	/^typedef struct cc_deque_iter_s {$/;"	s
+cc_deque_iter_s::deque	collectc/cc_deque.h	/^    CC_Deque *deque;$/;"	m	struct:cc_deque_iter_s	access:public
+cc_deque_iter_s::index	collectc/cc_deque.h	/^    size_t index;$/;"	m	struct:cc_deque_iter_s	access:public
+cc_deque_iter_s::last_removed	collectc/cc_deque.h	/^    bool last_removed;$/;"	m	struct:cc_deque_iter_s	access:public
+cc_deque_new	collectc/cc_deque.h	/^enum cc_stat  cc_deque_new             (CC_Deque **deque);$/;"	p	signature:(CC_Deque **deque)
+cc_deque_new_conf	collectc/cc_deque.h	/^enum cc_stat  cc_deque_new_conf        (CC_DequeConf const * const conf, CC_Deque **deque);$/;"	p	signature:(CC_DequeConf const * const conf, CC_Deque **deque)
+cc_deque_remove	collectc/cc_deque.h	/^enum cc_stat  cc_deque_remove          (CC_Deque *deque, void *element, void **out);$/;"	p	signature:(CC_Deque *deque, void *element, void **out)
+cc_deque_remove_all	collectc/cc_deque.h	/^void          cc_deque_remove_all      (CC_Deque *deque);$/;"	p	signature:(CC_Deque *deque)
+cc_deque_remove_all_cb	collectc/cc_deque.h	/^void          cc_deque_remove_all_cb   (CC_Deque *deque, void (*cb) (void*));$/;"	p	signature:(CC_Deque *deque, void (*cb) (void*))
+cc_deque_remove_at	collectc/cc_deque.h	/^enum cc_stat  cc_deque_remove_at       (CC_Deque *deque, size_t index, void **out);$/;"	p	signature:(CC_Deque *deque, size_t index, void **out)
+cc_deque_remove_first	collectc/cc_deque.h	/^enum cc_stat  cc_deque_remove_first    (CC_Deque *deque, void **out);$/;"	p	signature:(CC_Deque *deque, void **out)
+cc_deque_remove_last	collectc/cc_deque.h	/^enum cc_stat  cc_deque_remove_last     (CC_Deque *deque, void **out);$/;"	p	signature:(CC_Deque *deque, void **out)
+cc_deque_replace_at	collectc/cc_deque.h	/^enum cc_stat  cc_deque_replace_at      (CC_Deque *deque, void *element, size_t index, void **out);$/;"	p	signature:(CC_Deque *deque, void *element, size_t index, void **out)
+cc_deque_reverse	collectc/cc_deque.h	/^void          cc_deque_reverse         (CC_Deque *deque);$/;"	p	signature:(CC_Deque *deque)
+cc_deque_size	collectc/cc_deque.h	/^size_t        cc_deque_size            (CC_Deque const * const deque);$/;"	p	signature:(CC_Deque const * const deque)
+cc_deque_trim_capacity	collectc/cc_deque.h	/^enum cc_stat  cc_deque_trim_capacity   (CC_Deque *deque);$/;"	p	signature:(CC_Deque *deque)
+cc_deque_zip_iter_add	collectc/cc_deque.h	/^enum cc_stat  cc_deque_zip_iter_add    (CC_DequeZipIter *iter, void *e1, void *e2);$/;"	p	signature:(CC_DequeZipIter *iter, void *e1, void *e2)
+cc_deque_zip_iter_index	collectc/cc_deque.h	/^size_t        cc_deque_zip_iter_index  (CC_DequeZipIter *iter);$/;"	p	signature:(CC_DequeZipIter *iter)
+cc_deque_zip_iter_init	collectc/cc_deque.h	/^void          cc_deque_zip_iter_init   (CC_DequeZipIter *iter, CC_Deque *d1, CC_Deque *d2);$/;"	p	signature:(CC_DequeZipIter *iter, CC_Deque *d1, CC_Deque *d2)
+cc_deque_zip_iter_next	collectc/cc_deque.h	/^enum cc_stat  cc_deque_zip_iter_next   (CC_DequeZipIter *iter, void **out1, void **out2);$/;"	p	signature:(CC_DequeZipIter *iter, void **out1, void **out2)
+cc_deque_zip_iter_remove	collectc/cc_deque.h	/^enum cc_stat  cc_deque_zip_iter_remove (CC_DequeZipIter *iter, void **out1, void **out2);$/;"	p	signature:(CC_DequeZipIter *iter, void **out1, void **out2)
+cc_deque_zip_iter_replace	collectc/cc_deque.h	/^enum cc_stat  cc_deque_zip_iter_replace(CC_DequeZipIter *iter, void *e1, void *e2, void **out1, void **out2);$/;"	p	signature:(CC_DequeZipIter *iter, void *e1, void *e2, void **out1, void **out2)
+cc_deque_zip_iter_s	collectc/cc_deque.h	/^typedef struct cc_deque_zip_iter_s {$/;"	s
+cc_deque_zip_iter_s::d1	collectc/cc_deque.h	/^    CC_Deque *d1;$/;"	m	struct:cc_deque_zip_iter_s	access:public
+cc_deque_zip_iter_s::d2	collectc/cc_deque.h	/^    CC_Deque *d2;$/;"	m	struct:cc_deque_zip_iter_s	access:public
+cc_deque_zip_iter_s::index	collectc/cc_deque.h	/^    size_t index;$/;"	m	struct:cc_deque_zip_iter_s	access:public
+cc_deque_zip_iter_s::last_removed	collectc/cc_deque.h	/^    bool last_removed;$/;"	m	struct:cc_deque_zip_iter_s	access:public
+cc_hashset_add	collectc/cc_hashset.h	/^enum cc_stat  cc_hashset_add           (CC_HashSet *set, void *element);$/;"	p	signature:(CC_HashSet *set, void *element)
+cc_hashset_capacity	collectc/cc_hashset.h	/^size_t        cc_hashset_capacity      (CC_HashSet *set);$/;"	p	signature:(CC_HashSet *set)
+cc_hashset_conf_init	collectc/cc_hashset.h	/^void          cc_hashset_conf_init     (CC_HashSetConf *conf);$/;"	p	signature:(CC_HashSetConf *conf)
+cc_hashset_contains	collectc/cc_hashset.h	/^bool          cc_hashset_contains      (CC_HashSet *set, void *element);$/;"	p	signature:(CC_HashSet *set, void *element)
+cc_hashset_destroy	collectc/cc_hashset.h	/^void          cc_hashset_destroy       (CC_HashSet *set);$/;"	p	signature:(CC_HashSet *set)
+cc_hashset_foreach	collectc/cc_hashset.h	/^void          cc_hashset_foreach       (CC_HashSet *set, void (*op) (const void*));$/;"	p	signature:(CC_HashSet *set, void (*op) (const void*))
+cc_hashset_iter_init	collectc/cc_hashset.h	/^void          cc_hashset_iter_init     (CC_HashSetIter *iter, CC_HashSet *set);$/;"	p	signature:(CC_HashSetIter *iter, CC_HashSet *set)
+cc_hashset_iter_next	collectc/cc_hashset.h	/^enum cc_stat  cc_hashset_iter_next     (CC_HashSetIter *iter, void **out);$/;"	p	signature:(CC_HashSetIter *iter, void **out)
+cc_hashset_iter_remove	collectc/cc_hashset.h	/^enum cc_stat  cc_hashset_iter_remove   (CC_HashSetIter *iter, void **out);$/;"	p	signature:(CC_HashSetIter *iter, void **out)
+cc_hashset_iter_s	collectc/cc_hashset.h	/^typedef struct cc_hashset_iter_s {$/;"	s
+cc_hashset_iter_s::iter	collectc/cc_hashset.h	/^    CC_HashTableIter iter;$/;"	m	struct:cc_hashset_iter_s	access:public
+cc_hashset_new	collectc/cc_hashset.h	/^enum cc_stat  cc_hashset_new           (CC_HashSet **hs);$/;"	p	signature:(CC_HashSet **hs)
+cc_hashset_new_conf	collectc/cc_hashset.h	/^enum cc_stat  cc_hashset_new_conf      (CC_HashSetConf const * const conf, CC_HashSet **hs);$/;"	p	signature:(CC_HashSetConf const * const conf, CC_HashSet **hs)
+cc_hashset_remove	collectc/cc_hashset.h	/^enum cc_stat  cc_hashset_remove        (CC_HashSet *set, void *element, void **out);$/;"	p	signature:(CC_HashSet *set, void *element, void **out)
+cc_hashset_remove_all	collectc/cc_hashset.h	/^void          cc_hashset_remove_all    (CC_HashSet *set);$/;"	p	signature:(CC_HashSet *set)
+cc_hashset_size	collectc/cc_hashset.h	/^size_t        cc_hashset_size          (CC_HashSet *set);$/;"	p	signature:(CC_HashSet *set)
+cc_hashtable_add	collectc/cc_hashtable.h	/^enum cc_stat  cc_hashtable_add             (CC_HashTable *table, void *key, void *val);$/;"	p	signature:(CC_HashTable *table, void *key, void *val)
+cc_hashtable_capacity	collectc/cc_hashtable.h	/^size_t        cc_hashtable_capacity        (CC_HashTable *table);$/;"	p	signature:(CC_HashTable *table)
+cc_hashtable_conf_init	collectc/cc_hashtable.h	/^void          cc_hashtable_conf_init       (CC_HashTableConf *conf);$/;"	p	signature:(CC_HashTableConf *conf)
+cc_hashtable_conf_s	collectc/cc_hashtable.h	/^typedef struct cc_hashtable_conf_s {$/;"	s
+cc_hashtable_conf_s::hash	collectc/cc_hashtable.h	/^    size_t (*hash)        (const void *key, int l, uint32_t seed);$/;"	m	struct:cc_hashtable_conf_s	access:public
+cc_hashtable_conf_s::hash_seed	collectc/cc_hashtable.h	/^    uint32_t hash_seed;$/;"	m	struct:cc_hashtable_conf_s	access:public
+cc_hashtable_conf_s::initial_capacity	collectc/cc_hashtable.h	/^    size_t   initial_capacity;$/;"	m	struct:cc_hashtable_conf_s	access:public
+cc_hashtable_conf_s::key_compare	collectc/cc_hashtable.h	/^    int    (*key_compare) (const void *key1, const void *key2);$/;"	m	struct:cc_hashtable_conf_s	access:public
+cc_hashtable_conf_s::key_length	collectc/cc_hashtable.h	/^    int      key_length;$/;"	m	struct:cc_hashtable_conf_s	access:public
+cc_hashtable_conf_s::load_factor	collectc/cc_hashtable.h	/^    float    load_factor;$/;"	m	struct:cc_hashtable_conf_s	access:public
+cc_hashtable_conf_s::mem_alloc	collectc/cc_hashtable.h	/^    void  *(*mem_alloc)   (size_t size);$/;"	m	struct:cc_hashtable_conf_s	access:public
+cc_hashtable_conf_s::mem_calloc	collectc/cc_hashtable.h	/^    void  *(*mem_calloc)  (size_t blocks, size_t size);$/;"	m	struct:cc_hashtable_conf_s	access:public
+cc_hashtable_conf_s::mem_free	collectc/cc_hashtable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_hashtable_conf_s	access:public
+cc_hashtable_contains_key	collectc/cc_hashtable.h	/^bool          cc_hashtable_contains_key    (CC_HashTable *table, void *key);$/;"	p	signature:(CC_HashTable *table, void *key)
+cc_hashtable_destroy	collectc/cc_hashtable.h	/^void          cc_hashtable_destroy         (CC_HashTable *table);$/;"	p	signature:(CC_HashTable *table)
+cc_hashtable_foreach_key	collectc/cc_hashtable.h	/^void          cc_hashtable_foreach_key     (CC_HashTable *table, void (*op) (const void *));$/;"	p	signature:(CC_HashTable *table, void (*op) (const void *))
+cc_hashtable_foreach_value	collectc/cc_hashtable.h	/^void          cc_hashtable_foreach_value   (CC_HashTable *table, void (*op) (void *));$/;"	p	signature:(CC_HashTable *table, void (*op) (void *))
+cc_hashtable_get	collectc/cc_hashtable.h	/^enum cc_stat  cc_hashtable_get             (CC_HashTable *table, void *key, void **out);$/;"	p	signature:(CC_HashTable *table, void *key, void **out)
+cc_hashtable_get_keys	collectc/cc_hashtable.h	/^enum cc_stat  cc_hashtable_get_keys        (CC_HashTable *table, CC_Array **out);$/;"	p	signature:(CC_HashTable *table, CC_Array **out)
+cc_hashtable_get_values	collectc/cc_hashtable.h	/^enum cc_stat  cc_hashtable_get_values      (CC_HashTable *table, CC_Array **out);$/;"	p	signature:(CC_HashTable *table, CC_Array **out)
+cc_hashtable_hash	collectc/cc_hashtable.h	/^size_t        cc_hashtable_hash            (const void *key, int len, uint32_t seed);$/;"	p	signature:(const void *key, int len, uint32_t seed)
+cc_hashtable_hash_ptr	collectc/cc_hashtable.h	/^size_t        cc_hashtable_hash_ptr        (const void *key, int len, uint32_t seed);$/;"	p	signature:(const void *key, int len, uint32_t seed)
+cc_hashtable_hash_string	collectc/cc_hashtable.h	/^size_t        cc_hashtable_hash_string     (const void *key, int len, uint32_t seed);$/;"	p	signature:(const void *key, int len, uint32_t seed)
+cc_hashtable_iter	collectc/cc_hashtable.h	/^typedef struct cc_hashtable_iter {$/;"	s
+cc_hashtable_iter::bucket_index	collectc/cc_hashtable.h	/^    size_t         bucket_index;$/;"	m	struct:cc_hashtable_iter	access:public
+cc_hashtable_iter::next_entry	collectc/cc_hashtable.h	/^    TableEntry    *next_entry;$/;"	m	struct:cc_hashtable_iter	access:public
+cc_hashtable_iter::prev_entry	collectc/cc_hashtable.h	/^    TableEntry    *prev_entry;$/;"	m	struct:cc_hashtable_iter	access:public
+cc_hashtable_iter::table	collectc/cc_hashtable.h	/^    CC_HashTable  *table;$/;"	m	struct:cc_hashtable_iter	access:public
+cc_hashtable_iter_init	collectc/cc_hashtable.h	/^void          cc_hashtable_iter_init       (CC_HashTableIter *iter, CC_HashTable *table);$/;"	p	signature:(CC_HashTableIter *iter, CC_HashTable *table)
+cc_hashtable_iter_next	collectc/cc_hashtable.h	/^enum cc_stat  cc_hashtable_iter_next       (CC_HashTableIter *iter, TableEntry **out);$/;"	p	signature:(CC_HashTableIter *iter, TableEntry **out)
+cc_hashtable_iter_remove	collectc/cc_hashtable.h	/^enum cc_stat  cc_hashtable_iter_remove     (CC_HashTableIter *iter, void **out);$/;"	p	signature:(CC_HashTableIter *iter, void **out)
+cc_hashtable_new	collectc/cc_hashtable.h	/^enum cc_stat  cc_hashtable_new             (CC_HashTable **out);$/;"	p	signature:(CC_HashTable **out)
+cc_hashtable_new_conf	collectc/cc_hashtable.h	/^enum cc_stat  cc_hashtable_new_conf        (CC_HashTableConf const * const conf, CC_HashTable **out);$/;"	p	signature:(CC_HashTableConf const * const conf, CC_HashTable **out)
+cc_hashtable_remove	collectc/cc_hashtable.h	/^enum cc_stat  cc_hashtable_remove          (CC_HashTable *table, void *key, void **out);$/;"	p	signature:(CC_HashTable *table, void *key, void **out)
+cc_hashtable_remove_all	collectc/cc_hashtable.h	/^void          cc_hashtable_remove_all      (CC_HashTable *table);$/;"	p	signature:(CC_HashTable *table)
+cc_hashtable_size	collectc/cc_hashtable.h	/^size_t        cc_hashtable_size            (CC_HashTable *table);$/;"	p	signature:(CC_HashTable *table)
+cc_list_add	collectc/cc_list.h	/^enum cc_stat  cc_list_add             (CC_List *list, void *element);$/;"	p	signature:(CC_List *list, void *element)
+cc_list_add_all	collectc/cc_list.h	/^enum cc_stat  cc_list_add_all         (CC_List *list1, CC_List *list2);$/;"	p	signature:(CC_List *list1, CC_List *list2)
+cc_list_add_all_at	collectc/cc_list.h	/^enum cc_stat  cc_list_add_all_at      (CC_List *list, CC_List *list2, size_t index);$/;"	p	signature:(CC_List *list, CC_List *list2, size_t index)
+cc_list_add_at	collectc/cc_list.h	/^enum cc_stat  cc_list_add_at          (CC_List *list, void *element, size_t index);$/;"	p	signature:(CC_List *list, void *element, size_t index)
+cc_list_add_first	collectc/cc_list.h	/^enum cc_stat  cc_list_add_first       (CC_List *list, void *element);$/;"	p	signature:(CC_List *list, void *element)
+cc_list_add_last	collectc/cc_list.h	/^enum cc_stat  cc_list_add_last        (CC_List *list, void *element);$/;"	p	signature:(CC_List *list, void *element)
+cc_list_conf_init	collectc/cc_list.h	/^void          cc_list_conf_init       (CC_ListConf *conf);$/;"	p	signature:(CC_ListConf *conf)
+cc_list_conf_s	collectc/cc_list.h	/^typedef struct cc_list_conf_s {$/;"	s
+cc_list_conf_s::mem_alloc	collectc/cc_list.h	/^    void  *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_list_conf_s	access:public
+cc_list_conf_s::mem_calloc	collectc/cc_list.h	/^    void  *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_list_conf_s	access:public
+cc_list_conf_s::mem_free	collectc/cc_list.h	/^    void   (*mem_free)   (void *block);$/;"	m	struct:cc_list_conf_s	access:public
+cc_list_contains	collectc/cc_list.h	/^size_t        cc_list_contains        (CC_List *list, void *element);$/;"	p	signature:(CC_List *list, void *element)
+cc_list_contains_value	collectc/cc_list.h	/^size_t        cc_list_contains_value  (CC_List *list, void *element, int (*cmp) (const void*, const void*));$/;"	p	signature:(CC_List *list, void *element, int (*cmp) (const void*, const void*))
+cc_list_copy_deep	collectc/cc_list.h	/^enum cc_stat  cc_list_copy_deep       (CC_List *list, void *(*cp) (void*), CC_List **out);$/;"	p	signature:(CC_List *list, void *(*cp) (void*), CC_List **out)
+cc_list_copy_shallow	collectc/cc_list.h	/^enum cc_stat  cc_list_copy_shallow    (CC_List *list, CC_List **out);$/;"	p	signature:(CC_List *list, CC_List **out)
+cc_list_destroy	collectc/cc_list.h	/^void          cc_list_destroy         (CC_List *list);$/;"	p	signature:(CC_List *list)
+cc_list_destroy_cb	collectc/cc_list.h	/^void          cc_list_destroy_cb      (CC_List *list, void (*cb) (void*));$/;"	p	signature:(CC_List *list, void (*cb) (void*))
+cc_list_diter_add	collectc/cc_list.h	/^enum cc_stat  cc_list_diter_add       (CC_ListIter *iter, void *element);$/;"	p	signature:(CC_ListIter *iter, void *element)
+cc_list_diter_index	collectc/cc_list.h	/^size_t        cc_list_diter_index     (CC_ListIter *iter);$/;"	p	signature:(CC_ListIter *iter)
+cc_list_diter_init	collectc/cc_list.h	/^void          cc_list_diter_init      (CC_ListIter *iter, CC_List *list);$/;"	p	signature:(CC_ListIter *iter, CC_List *list)
+cc_list_diter_next	collectc/cc_list.h	/^enum cc_stat  cc_list_diter_next      (CC_ListIter *iter, void **out);$/;"	p	signature:(CC_ListIter *iter, void **out)
+cc_list_diter_remove	collectc/cc_list.h	/^enum cc_stat  cc_list_diter_remove    (CC_ListIter *iter, void **out);$/;"	p	signature:(CC_ListIter *iter, void **out)
+cc_list_diter_replace	collectc/cc_list.h	/^enum cc_stat  cc_list_diter_replace   (CC_ListIter *iter, void *element, void **out);$/;"	p	signature:(CC_ListIter *iter, void *element, void **out)
+cc_list_filter	collectc/cc_list.h	/^enum cc_stat  cc_list_filter          (CC_List *list, bool (*predicate) (const void*), CC_List **out);$/;"	p	signature:(CC_List *list, bool (*predicate) (const void*), CC_List **out)
+cc_list_filter_mut	collectc/cc_list.h	/^enum cc_stat  cc_list_filter_mut      (CC_List *list, bool (*predicate) (const void*));$/;"	p	signature:(CC_List *list, bool (*predicate) (const void*))
+cc_list_foreach	collectc/cc_list.h	/^void          cc_list_foreach         (CC_List *list, void (*op) (void *));$/;"	p	signature:(CC_List *list, void (*op) (void *))
+cc_list_get_at	collectc/cc_list.h	/^enum cc_stat  cc_list_get_at          (CC_List *list, size_t index, void **out);$/;"	p	signature:(CC_List *list, size_t index, void **out)
+cc_list_get_first	collectc/cc_list.h	/^enum cc_stat  cc_list_get_first       (CC_List *list, void **out);$/;"	p	signature:(CC_List *list, void **out)
+cc_list_get_last	collectc/cc_list.h	/^enum cc_stat  cc_list_get_last        (CC_List *list, void **out);$/;"	p	signature:(CC_List *list, void **out)
+cc_list_index_of	collectc/cc_list.h	/^enum cc_stat  cc_list_index_of        (CC_List *list, void *element, int (*cmp) (const void*, const void*), size_t *index);$/;"	p	signature:(CC_List *list, void *element, int (*cmp) (const void*, const void*), size_t *index)
+cc_list_iter_add	collectc/cc_list.h	/^enum cc_stat  cc_list_iter_add        (CC_ListIter *iter,  void *element);$/;"	p	signature:(CC_ListIter *iter, void *element)
+cc_list_iter_index	collectc/cc_list.h	/^size_t        cc_list_iter_index      (CC_ListIter *iter);$/;"	p	signature:(CC_ListIter *iter)
+cc_list_iter_init	collectc/cc_list.h	/^void          cc_list_iter_init       (CC_ListIter *iter, CC_List *list);$/;"	p	signature:(CC_ListIter *iter, CC_List *list)
+cc_list_iter_next	collectc/cc_list.h	/^enum cc_stat  cc_list_iter_next       (CC_ListIter *iter, void **out);$/;"	p	signature:(CC_ListIter *iter, void **out)
+cc_list_iter_remove	collectc/cc_list.h	/^enum cc_stat  cc_list_iter_remove     (CC_ListIter *iter, void **out);$/;"	p	signature:(CC_ListIter *iter, void **out)
+cc_list_iter_replace	collectc/cc_list.h	/^enum cc_stat  cc_list_iter_replace    (CC_ListIter *iter, void *element, void **out);$/;"	p	signature:(CC_ListIter *iter, void *element, void **out)
+cc_list_iter_s	collectc/cc_list.h	/^typedef struct cc_list_iter_s {$/;"	s
+cc_list_iter_s::index	collectc/cc_list.h	/^    size_t  index;$/;"	m	struct:cc_list_iter_s	access:public
+cc_list_iter_s::last	collectc/cc_list.h	/^    Node   *last;$/;"	m	struct:cc_list_iter_s	access:public
+cc_list_iter_s::list	collectc/cc_list.h	/^    CC_List   *list;$/;"	m	struct:cc_list_iter_s	access:public
+cc_list_iter_s::next	collectc/cc_list.h	/^    Node   *next;$/;"	m	struct:cc_list_iter_s	access:public
+cc_list_new	collectc/cc_list.h	/^enum cc_stat  cc_list_new             (CC_List **list);$/;"	p	signature:(CC_List **list)
+cc_list_new_conf	collectc/cc_list.h	/^enum cc_stat  cc_list_new_conf        (CC_ListConf const * const conf, CC_List **list);$/;"	p	signature:(CC_ListConf const * const conf, CC_List **list)
+cc_list_reduce	collectc/cc_list.h	/^enum cc_stat cc_list_reduce(CC_List *list, void (*fn)(void *, void *, void *), void *result);$/;"	p	signature:(CC_List *list, void (*fn)(void *, void *, void *), void *result)
+cc_list_remove	collectc/cc_list.h	/^enum cc_stat  cc_list_remove          (CC_List *list, void *element, void **out);$/;"	p	signature:(CC_List *list, void *element, void **out)
+cc_list_remove_all	collectc/cc_list.h	/^enum cc_stat  cc_list_remove_all      (CC_List *list);$/;"	p	signature:(CC_List *list)
+cc_list_remove_all_cb	collectc/cc_list.h	/^enum cc_stat  cc_list_remove_all_cb   (CC_List *list, void (*cb) (void*));$/;"	p	signature:(CC_List *list, void (*cb) (void*))
+cc_list_remove_at	collectc/cc_list.h	/^enum cc_stat  cc_list_remove_at       (CC_List *list, size_t index, void **out);$/;"	p	signature:(CC_List *list, size_t index, void **out)
+cc_list_remove_first	collectc/cc_list.h	/^enum cc_stat  cc_list_remove_first    (CC_List *list, void **out);$/;"	p	signature:(CC_List *list, void **out)
+cc_list_remove_last	collectc/cc_list.h	/^enum cc_stat  cc_list_remove_last     (CC_List *list, void **out);$/;"	p	signature:(CC_List *list, void **out)
+cc_list_replace_at	collectc/cc_list.h	/^enum cc_stat  cc_list_replace_at      (CC_List *list, void *element, size_t index, void **out);$/;"	p	signature:(CC_List *list, void *element, size_t index, void **out)
+cc_list_reverse	collectc/cc_list.h	/^void          cc_list_reverse         (CC_List *list);$/;"	p	signature:(CC_List *list)
+cc_list_size	collectc/cc_list.h	/^size_t        cc_list_size            (CC_List *list);$/;"	p	signature:(CC_List *list)
+cc_list_sort	collectc/cc_list.h	/^enum cc_stat  cc_list_sort            (CC_List *list, int (*cmp) (void const*, void const*));$/;"	p	signature:(CC_List *list, int (*cmp) (void const*, void const*))
+cc_list_sort_in_place	collectc/cc_list.h	/^void          cc_list_sort_in_place   (CC_List *list, int (*cmp) (void const*, void const*));$/;"	p	signature:(CC_List *list, int (*cmp) (void const*, void const*))
+cc_list_splice	collectc/cc_list.h	/^enum cc_stat  cc_list_splice          (CC_List *list1, CC_List *list2);$/;"	p	signature:(CC_List *list1, CC_List *list2)
+cc_list_splice_at	collectc/cc_list.h	/^enum cc_stat  cc_list_splice_at       (CC_List *list, CC_List *list2, size_t index);$/;"	p	signature:(CC_List *list, CC_List *list2, size_t index)
+cc_list_sublist	collectc/cc_list.h	/^enum cc_stat  cc_list_sublist         (CC_List *list, size_t from, size_t to, CC_List **out);$/;"	p	signature:(CC_List *list, size_t from, size_t to, CC_List **out)
+cc_list_to_array	collectc/cc_list.h	/^enum cc_stat  cc_list_to_array        (CC_List *list, void ***out);$/;"	p	signature:(CC_List *list, void ***out)
+cc_list_zip_iter_add	collectc/cc_list.h	/^enum cc_stat  cc_list_zip_iter_add    (CC_ListZipIter *iter, void *e1, void *e2);$/;"	p	signature:(CC_ListZipIter *iter, void *e1, void *e2)
+cc_list_zip_iter_index	collectc/cc_list.h	/^size_t        cc_list_zip_iter_index  (CC_ListZipIter *iter);$/;"	p	signature:(CC_ListZipIter *iter)
+cc_list_zip_iter_init	collectc/cc_list.h	/^void          cc_list_zip_iter_init   (CC_ListZipIter *iter, CC_List *l1, CC_List *l2);$/;"	p	signature:(CC_ListZipIter *iter, CC_List *l1, CC_List *l2)
+cc_list_zip_iter_next	collectc/cc_list.h	/^enum cc_stat  cc_list_zip_iter_next   (CC_ListZipIter *iter, void **out1, void **out2);$/;"	p	signature:(CC_ListZipIter *iter, void **out1, void **out2)
+cc_list_zip_iter_remove	collectc/cc_list.h	/^enum cc_stat  cc_list_zip_iter_remove (CC_ListZipIter *iter, void **out1, void **out2);$/;"	p	signature:(CC_ListZipIter *iter, void **out1, void **out2)
+cc_list_zip_iter_replace	collectc/cc_list.h	/^enum cc_stat  cc_list_zip_iter_replace(CC_ListZipIter *iter, void *e1, void *e2, void **out1, void **out2);$/;"	p	signature:(CC_ListZipIter *iter, void *e1, void *e2, void **out1, void **out2)
+cc_list_zip_iter_s	collectc/cc_list.h	/^typedef struct cc_list_zip_iter_s {$/;"	s
+cc_list_zip_iter_s::index	collectc/cc_list.h	/^    size_t index;$/;"	m	struct:cc_list_zip_iter_s	access:public
+cc_list_zip_iter_s::l1	collectc/cc_list.h	/^    CC_List *l1;$/;"	m	struct:cc_list_zip_iter_s	access:public
+cc_list_zip_iter_s::l1_last	collectc/cc_list.h	/^    Node *l1_last;$/;"	m	struct:cc_list_zip_iter_s	access:public
+cc_list_zip_iter_s::l1_next	collectc/cc_list.h	/^    Node *l1_next;$/;"	m	struct:cc_list_zip_iter_s	access:public
+cc_list_zip_iter_s::l2	collectc/cc_list.h	/^    CC_List *l2;$/;"	m	struct:cc_list_zip_iter_s	access:public
+cc_list_zip_iter_s::l2_last	collectc/cc_list.h	/^    Node *l2_last;$/;"	m	struct:cc_list_zip_iter_s	access:public
+cc_list_zip_iter_s::l2_next	collectc/cc_list.h	/^    Node *l2_next;$/;"	m	struct:cc_list_zip_iter_s	access:public
+cc_pqueue_conf_init	collectc/cc_pqueue.h	/^void          cc_pqueue_conf_init       (CC_PQueueConf *conf, int (*)(const void *, const void *));$/;"	p	signature:(CC_PQueueConf *conf, int (*)(const void *, const void *))
+cc_pqueue_conf_s	collectc/cc_pqueue.h	/^typedef struct cc_pqueue_conf_s {$/;"	s
+cc_pqueue_conf_s::capacity	collectc/cc_pqueue.h	/^    size_t capacity;$/;"	m	struct:cc_pqueue_conf_s	access:public
+cc_pqueue_conf_s::cmp	collectc/cc_pqueue.h	/^    int (*cmp) (const void *a, const void *b);$/;"	m	struct:cc_pqueue_conf_s	access:public
+cc_pqueue_conf_s::exp_factor	collectc/cc_pqueue.h	/^    float  exp_factor;$/;"	m	struct:cc_pqueue_conf_s	access:public
+cc_pqueue_conf_s::mem_alloc	collectc/cc_pqueue.h	/^    void *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_pqueue_conf_s	access:public
+cc_pqueue_conf_s::mem_calloc	collectc/cc_pqueue.h	/^    void *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_pqueue_conf_s	access:public
+cc_pqueue_conf_s::mem_free	collectc/cc_pqueue.h	/^    void  (*mem_free)   (void *block);$/;"	m	struct:cc_pqueue_conf_s	access:public
+cc_pqueue_destroy	collectc/cc_pqueue.h	/^void          cc_pqueue_destroy         (CC_PQueue *pqueue);$/;"	p	signature:(CC_PQueue *pqueue)
+cc_pqueue_destroy_cb	collectc/cc_pqueue.h	/^void          cc_pqueue_destroy_cb      (CC_PQueue *pqueue, void (*cb) (void*));$/;"	p	signature:(CC_PQueue *pqueue, void (*cb) (void*))
+cc_pqueue_new	collectc/cc_pqueue.h	/^enum cc_stat  cc_pqueue_new             (CC_PQueue **out, int (*)(const void *, const void *));$/;"	p	signature:(CC_PQueue **out, int (*)(const void *, const void *))
+cc_pqueue_new_conf	collectc/cc_pqueue.h	/^enum cc_stat  cc_pqueue_new_conf        (CC_PQueueConf const * const conf, CC_PQueue **out);$/;"	p	signature:(CC_PQueueConf const * const conf, CC_PQueue **out)
+cc_pqueue_pop	collectc/cc_pqueue.h	/^enum cc_stat  cc_pqueue_pop             (CC_PQueue *pqueue, void **out);$/;"	p	signature:(CC_PQueue *pqueue, void **out)
+cc_pqueue_push	collectc/cc_pqueue.h	/^enum cc_stat  cc_pqueue_push            (CC_PQueue *pqueue, void *element);$/;"	p	signature:(CC_PQueue *pqueue, void *element)
+cc_pqueue_top	collectc/cc_pqueue.h	/^enum cc_stat  cc_pqueue_top             (CC_PQueue *pqueue, void **out);$/;"	p	signature:(CC_PQueue *pqueue, void **out)
+cc_rbuf_conf_init	collectc/cc_ring_buffer.h	/^void          cc_rbuf_conf_init     (CC_RbufConf *rconf);$/;"	p	signature:(CC_RbufConf *rconf)
+cc_rbuf_conf_new	collectc/cc_ring_buffer.h	/^enum cc_stat  cc_rbuf_conf_new      (CC_RbufConf *rconf, CC_Rbuf **rbuf);$/;"	p	signature:(CC_RbufConf *rconf, CC_Rbuf **rbuf)
+cc_rbuf_dequeue	collectc/cc_ring_buffer.h	/^enum cc_stat  cc_rbuf_dequeue       (CC_Rbuf *rbuf, uint64_t *out);$/;"	p	signature:(CC_Rbuf *rbuf, uint64_t *out)
+cc_rbuf_destroy	collectc/cc_ring_buffer.h	/^void          cc_rbuf_destroy       (CC_Rbuf *rbuf);$/;"	p	signature:(CC_Rbuf *rbuf)
+cc_rbuf_enqueue	collectc/cc_ring_buffer.h	/^void          cc_rbuf_enqueue       (CC_Rbuf *rbuf, uint64_t item);$/;"	p	signature:(CC_Rbuf *rbuf, uint64_t item)
+cc_rbuf_is_empty	collectc/cc_ring_buffer.h	/^bool          cc_rbuf_is_empty      (CC_Rbuf *rbuf);$/;"	p	signature:(CC_Rbuf *rbuf)
+cc_rbuf_new	collectc/cc_ring_buffer.h	/^enum cc_stat  cc_rbuf_new           (CC_Rbuf **rbuf);$/;"	p	signature:(CC_Rbuf **rbuf)
+cc_rbuf_peek	collectc/cc_ring_buffer.h	/^uint64_t      cc_rbuf_peek          (CC_Rbuf *rbuf, int index);$/;"	p	signature:(CC_Rbuf *rbuf, int index)
+cc_rbuf_size	collectc/cc_ring_buffer.h	/^size_t        cc_rbuf_size          (CC_Rbuf *rbuf);$/;"	p	signature:(CC_Rbuf *rbuf)
+cc_slist_add	collectc/cc_slist.h	/^enum cc_stat  cc_slist_add             (CC_SList *list, void *element);$/;"	p	signature:(CC_SList *list, void *element)
+cc_slist_add_all	collectc/cc_slist.h	/^enum cc_stat  cc_slist_add_all         (CC_SList *list1, CC_SList *list2);$/;"	p	signature:(CC_SList *list1, CC_SList *list2)
+cc_slist_add_all_at	collectc/cc_slist.h	/^enum cc_stat  cc_slist_add_all_at      (CC_SList *list1, CC_SList *list2, size_t index);$/;"	p	signature:(CC_SList *list1, CC_SList *list2, size_t index)
+cc_slist_add_at	collectc/cc_slist.h	/^enum cc_stat  cc_slist_add_at          (CC_SList *list, void *element, size_t index);$/;"	p	signature:(CC_SList *list, void *element, size_t index)
+cc_slist_add_first	collectc/cc_slist.h	/^enum cc_stat  cc_slist_add_first       (CC_SList *list, void *element);$/;"	p	signature:(CC_SList *list, void *element)
+cc_slist_add_last	collectc/cc_slist.h	/^enum cc_stat  cc_slist_add_last        (CC_SList *list, void *element);$/;"	p	signature:(CC_SList *list, void *element)
+cc_slist_conf_init	collectc/cc_slist.h	/^void          cc_slist_conf_init       (CC_SListConf *conf);$/;"	p	signature:(CC_SListConf *conf)
+cc_slist_conf_s	collectc/cc_slist.h	/^typedef struct cc_slist_conf_s {$/;"	s
+cc_slist_conf_s::mem_alloc	collectc/cc_slist.h	/^    void  *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_slist_conf_s	access:public
+cc_slist_conf_s::mem_calloc	collectc/cc_slist.h	/^    void  *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_slist_conf_s	access:public
+cc_slist_conf_s::mem_free	collectc/cc_slist.h	/^    void   (*mem_free)   (void *block);$/;"	m	struct:cc_slist_conf_s	access:public
+cc_slist_contains	collectc/cc_slist.h	/^size_t        cc_slist_contains        (CC_SList *list, void *element);$/;"	p	signature:(CC_SList *list, void *element)
+cc_slist_contains_value	collectc/cc_slist.h	/^size_t        cc_slist_contains_value  (CC_SList *list, void *element, int (*cmp) (const void*, const void*));$/;"	p	signature:(CC_SList *list, void *element, int (*cmp) (const void*, const void*))
+cc_slist_copy_deep	collectc/cc_slist.h	/^enum cc_stat  cc_slist_copy_deep       (CC_SList *list, void *(*cp) (void*), CC_SList **out);$/;"	p	signature:(CC_SList *list, void *(*cp) (void*), CC_SList **out)
+cc_slist_copy_shallow	collectc/cc_slist.h	/^enum cc_stat  cc_slist_copy_shallow    (CC_SList *list, CC_SList **out);$/;"	p	signature:(CC_SList *list, CC_SList **out)
+cc_slist_destroy	collectc/cc_slist.h	/^void          cc_slist_destroy         (CC_SList *list);$/;"	p	signature:(CC_SList *list)
+cc_slist_destroy_cb	collectc/cc_slist.h	/^void          cc_slist_destroy_cb      (CC_SList *list, void (*cb) (void*));$/;"	p	signature:(CC_SList *list, void (*cb) (void*))
+cc_slist_filter	collectc/cc_slist.h	/^enum cc_stat  cc_slist_filter          (CC_SList *list, bool (*predicate) (const void*), CC_SList **out);$/;"	p	signature:(CC_SList *list, bool (*predicate) (const void*), CC_SList **out)
+cc_slist_filter_mut	collectc/cc_slist.h	/^enum cc_stat  cc_slist_filter_mut      (CC_SList *list, bool (*predicate) (const void*));$/;"	p	signature:(CC_SList *list, bool (*predicate) (const void*))
+cc_slist_foreach	collectc/cc_slist.h	/^void          cc_slist_foreach         (CC_SList *list, void (*op) (void *));$/;"	p	signature:(CC_SList *list, void (*op) (void *))
+cc_slist_get_at	collectc/cc_slist.h	/^enum cc_stat  cc_slist_get_at          (CC_SList *list, size_t index, void **out);$/;"	p	signature:(CC_SList *list, size_t index, void **out)
+cc_slist_get_first	collectc/cc_slist.h	/^enum cc_stat  cc_slist_get_first       (CC_SList *list, void **out);$/;"	p	signature:(CC_SList *list, void **out)
+cc_slist_get_last	collectc/cc_slist.h	/^enum cc_stat  cc_slist_get_last        (CC_SList *list, void **out);$/;"	p	signature:(CC_SList *list, void **out)
+cc_slist_index_of	collectc/cc_slist.h	/^enum cc_stat  cc_slist_index_of        (CC_SList *list, void *element, size_t *index);$/;"	p	signature:(CC_SList *list, void *element, size_t *index)
+cc_slist_iter_add	collectc/cc_slist.h	/^enum cc_stat  cc_slist_iter_add        (CC_SListIter *iter, void *element);$/;"	p	signature:(CC_SListIter *iter, void *element)
+cc_slist_iter_index	collectc/cc_slist.h	/^size_t        cc_slist_iter_index      (CC_SListIter *iter);$/;"	p	signature:(CC_SListIter *iter)
+cc_slist_iter_init	collectc/cc_slist.h	/^void          cc_slist_iter_init       (CC_SListIter *iter, CC_SList *list);$/;"	p	signature:(CC_SListIter *iter, CC_SList *list)
+cc_slist_iter_next	collectc/cc_slist.h	/^enum cc_stat  cc_slist_iter_next       (CC_SListIter *iter, void **out);$/;"	p	signature:(CC_SListIter *iter, void **out)
+cc_slist_iter_remove	collectc/cc_slist.h	/^enum cc_stat  cc_slist_iter_remove     (CC_SListIter *iter, void **out);$/;"	p	signature:(CC_SListIter *iter, void **out)
+cc_slist_iter_replace	collectc/cc_slist.h	/^enum cc_stat  cc_slist_iter_replace    (CC_SListIter *iter, void *element, void **out);$/;"	p	signature:(CC_SListIter *iter, void *element, void **out)
+cc_slist_iter_s	collectc/cc_slist.h	/^typedef struct cc_slist_iter_s {$/;"	s
+cc_slist_iter_s::current	collectc/cc_slist.h	/^    SNode   *current;$/;"	m	struct:cc_slist_iter_s	access:public
+cc_slist_iter_s::index	collectc/cc_slist.h	/^    size_t  index;$/;"	m	struct:cc_slist_iter_s	access:public
+cc_slist_iter_s::list	collectc/cc_slist.h	/^    CC_SList  *list;$/;"	m	struct:cc_slist_iter_s	access:public
+cc_slist_iter_s::next	collectc/cc_slist.h	/^    SNode   *next;$/;"	m	struct:cc_slist_iter_s	access:public
+cc_slist_iter_s::prev	collectc/cc_slist.h	/^    SNode   *prev;$/;"	m	struct:cc_slist_iter_s	access:public
+cc_slist_new	collectc/cc_slist.h	/^enum cc_stat  cc_slist_new             (CC_SList **list);$/;"	p	signature:(CC_SList **list)
+cc_slist_new_conf	collectc/cc_slist.h	/^enum cc_stat  cc_slist_new_conf        (CC_SListConf const * const conf, CC_SList **list);$/;"	p	signature:(CC_SListConf const * const conf, CC_SList **list)
+cc_slist_remove	collectc/cc_slist.h	/^enum cc_stat  cc_slist_remove          (CC_SList *list, void *element, void **out);$/;"	p	signature:(CC_SList *list, void *element, void **out)
+cc_slist_remove_all	collectc/cc_slist.h	/^enum cc_stat  cc_slist_remove_all      (CC_SList *list);$/;"	p	signature:(CC_SList *list)
+cc_slist_remove_all_cb	collectc/cc_slist.h	/^enum cc_stat  cc_slist_remove_all_cb   (CC_SList *list, void (*cb) (void*));$/;"	p	signature:(CC_SList *list, void (*cb) (void*))
+cc_slist_remove_at	collectc/cc_slist.h	/^enum cc_stat  cc_slist_remove_at       (CC_SList *list, size_t index, void **out);$/;"	p	signature:(CC_SList *list, size_t index, void **out)
+cc_slist_remove_first	collectc/cc_slist.h	/^enum cc_stat  cc_slist_remove_first    (CC_SList *list, void **out);$/;"	p	signature:(CC_SList *list, void **out)
+cc_slist_remove_last	collectc/cc_slist.h	/^enum cc_stat  cc_slist_remove_last     (CC_SList *list, void **out);$/;"	p	signature:(CC_SList *list, void **out)
+cc_slist_replace_at	collectc/cc_slist.h	/^enum cc_stat  cc_slist_replace_at      (CC_SList *list, void *element, size_t index, void **out);$/;"	p	signature:(CC_SList *list, void *element, size_t index, void **out)
+cc_slist_reverse	collectc/cc_slist.h	/^void          cc_slist_reverse         (CC_SList *list);$/;"	p	signature:(CC_SList *list)
+cc_slist_size	collectc/cc_slist.h	/^size_t        cc_slist_size            (CC_SList *list);$/;"	p	signature:(CC_SList *list)
+cc_slist_sort	collectc/cc_slist.h	/^enum cc_stat  cc_slist_sort            (CC_SList *list, int (*cmp) (void const*, void const*));$/;"	p	signature:(CC_SList *list, int (*cmp) (void const*, void const*))
+cc_slist_splice	collectc/cc_slist.h	/^enum cc_stat  cc_slist_splice          (CC_SList *list1, CC_SList *list2);$/;"	p	signature:(CC_SList *list1, CC_SList *list2)
+cc_slist_splice_at	collectc/cc_slist.h	/^enum cc_stat  cc_slist_splice_at       (CC_SList *list1, CC_SList *list2, size_t index);$/;"	p	signature:(CC_SList *list1, CC_SList *list2, size_t index)
+cc_slist_sublist	collectc/cc_slist.h	/^enum cc_stat  cc_slist_sublist         (CC_SList *list, size_t from, size_t to, CC_SList **out);$/;"	p	signature:(CC_SList *list, size_t from, size_t to, CC_SList **out)
+cc_slist_to_array	collectc/cc_slist.h	/^enum cc_stat  cc_slist_to_array        (CC_SList *list, void ***out);$/;"	p	signature:(CC_SList *list, void ***out)
+cc_slist_zip_iter_add	collectc/cc_slist.h	/^enum cc_stat  cc_slist_zip_iter_add    (CC_SListZipIter *iter, void *e1, void *e2);$/;"	p	signature:(CC_SListZipIter *iter, void *e1, void *e2)
+cc_slist_zip_iter_index	collectc/cc_slist.h	/^size_t        cc_slist_zip_iter_index  (CC_SListZipIter *iter);$/;"	p	signature:(CC_SListZipIter *iter)
+cc_slist_zip_iter_init	collectc/cc_slist.h	/^void          cc_slist_zip_iter_init   (CC_SListZipIter *iter, CC_SList *l1, CC_SList *l2);$/;"	p	signature:(CC_SListZipIter *iter, CC_SList *l1, CC_SList *l2)
+cc_slist_zip_iter_next	collectc/cc_slist.h	/^enum cc_stat  cc_slist_zip_iter_next   (CC_SListZipIter *iter, void **out1, void **out2);$/;"	p	signature:(CC_SListZipIter *iter, void **out1, void **out2)
+cc_slist_zip_iter_remove	collectc/cc_slist.h	/^enum cc_stat  cc_slist_zip_iter_remove (CC_SListZipIter *iter, void **out1, void **out2);$/;"	p	signature:(CC_SListZipIter *iter, void **out1, void **out2)
+cc_slist_zip_iter_replace	collectc/cc_slist.h	/^enum cc_stat  cc_slist_zip_iter_replace(CC_SListZipIter *iter, void *e1, void *e2, void **out1, void **out2);$/;"	p	signature:(CC_SListZipIter *iter, void *e1, void *e2, void **out1, void **out2)
+cc_slist_zip_iter_s	collectc/cc_slist.h	/^typedef struct cc_slist_zip_iter_s {$/;"	s
+cc_slist_zip_iter_s::index	collectc/cc_slist.h	/^    size_t index;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+cc_slist_zip_iter_s::l1	collectc/cc_slist.h	/^    CC_SList *l1;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+cc_slist_zip_iter_s::l1_current	collectc/cc_slist.h	/^    SNode *l1_current;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+cc_slist_zip_iter_s::l1_next	collectc/cc_slist.h	/^    SNode *l1_next;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+cc_slist_zip_iter_s::l1_prev	collectc/cc_slist.h	/^    SNode *l1_prev;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+cc_slist_zip_iter_s::l2	collectc/cc_slist.h	/^    CC_SList *l2;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+cc_slist_zip_iter_s::l2_current	collectc/cc_slist.h	/^    SNode *l2_current;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+cc_slist_zip_iter_s::l2_next	collectc/cc_slist.h	/^    SNode *l2_next;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+cc_slist_zip_iter_s::l2_prev	collectc/cc_slist.h	/^    SNode *l2_prev;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+cc_stat	collectc/cc_common.h	/^enum cc_stat {$/;"	g
+cc_treeset_add	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_add              (CC_TreeSet *set, void *element);$/;"	p	signature:(CC_TreeSet *set, void *element)
+cc_treeset_conf_init	collectc/cc_treeset.h	/^void          cc_treeset_conf_init        (CC_TreeSetConf *conf);$/;"	p	signature:(CC_TreeSetConf *conf)
+cc_treeset_contains	collectc/cc_treeset.h	/^bool          cc_treeset_contains         (CC_TreeSet *set, void *element);$/;"	p	signature:(CC_TreeSet *set, void *element)
+cc_treeset_destroy	collectc/cc_treeset.h	/^void          cc_treeset_destroy          (CC_TreeSet *set);$/;"	p	signature:(CC_TreeSet *set)
+cc_treeset_foreach	collectc/cc_treeset.h	/^void          cc_treeset_foreach          (CC_TreeSet *set, void (*op) (const void*));$/;"	p	signature:(CC_TreeSet *set, void (*op) (const void*))
+cc_treeset_get_first	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_get_first        (CC_TreeSet *set, void **out);$/;"	p	signature:(CC_TreeSet *set, void **out)
+cc_treeset_get_greater_than	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_get_greater_than (CC_TreeSet *set, void *element, void **out);$/;"	p	signature:(CC_TreeSet *set, void *element, void **out)
+cc_treeset_get_last	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_get_last         (CC_TreeSet *set, void **out);$/;"	p	signature:(CC_TreeSet *set, void **out)
+cc_treeset_get_lesser_than	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_get_lesser_than  (CC_TreeSet *set, void *element, void **out);$/;"	p	signature:(CC_TreeSet *set, void *element, void **out)
+cc_treeset_iter_init	collectc/cc_treeset.h	/^void          cc_treeset_iter_init        (CC_TreeSetIter *iter, CC_TreeSet *set);$/;"	p	signature:(CC_TreeSetIter *iter, CC_TreeSet *set)
+cc_treeset_iter_next	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_iter_next        (CC_TreeSetIter *iter, void **element);$/;"	p	signature:(CC_TreeSetIter *iter, void **element)
+cc_treeset_iter_remove	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_iter_remove      (CC_TreeSetIter *iter, void **out);$/;"	p	signature:(CC_TreeSetIter *iter, void **out)
+cc_treeset_iter_s	collectc/cc_treeset.h	/^typedef struct cc_treeset_iter_s {$/;"	s
+cc_treeset_iter_s::i	collectc/cc_treeset.h	/^    CC_TreeTableIter i;$/;"	m	struct:cc_treeset_iter_s	access:public
+cc_treeset_new	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_new              (int (*cmp) (const void*, const void*), CC_TreeSet **set);$/;"	p	signature:(int (*cmp) (const void*, const void*), CC_TreeSet **set)
+cc_treeset_new_conf	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_new_conf         (CC_TreeSetConf const * const conf, CC_TreeSet **set);$/;"	p	signature:(CC_TreeSetConf const * const conf, CC_TreeSet **set)
+cc_treeset_remove	collectc/cc_treeset.h	/^enum cc_stat  cc_treeset_remove           (CC_TreeSet *set, void *element, void **out);$/;"	p	signature:(CC_TreeSet *set, void *element, void **out)
+cc_treeset_remove_all	collectc/cc_treeset.h	/^void          cc_treeset_remove_all       (CC_TreeSet *set);$/;"	p	signature:(CC_TreeSet *set)
+cc_treeset_size	collectc/cc_treeset.h	/^size_t        cc_treeset_size             (CC_TreeSet *set);$/;"	p	signature:(CC_TreeSet *set)
+cc_treetable_add	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_add              (CC_TreeTable *table, void *key, void *val);$/;"	p	signature:(CC_TreeTable *table, void *key, void *val)
+cc_treetable_assert_rb_rules	collectc/cc_treetable.h	/^int cc_treetable_assert_rb_rules(CC_TreeTable *table);$/;"	p	signature:(CC_TreeTable *table)
+cc_treetable_conf_init	collectc/cc_treetable.h	/^void          cc_treetable_conf_init        (CC_TreeTableConf *conf);$/;"	p	signature:(CC_TreeTableConf *conf)
+cc_treetable_conf_s	collectc/cc_treetable.h	/^typedef struct cc_treetable_conf_s {$/;"	s
+cc_treetable_conf_s::cmp	collectc/cc_treetable.h	/^    int    (*cmp)         (const void *k1, const void *k2);$/;"	m	struct:cc_treetable_conf_s	access:public
+cc_treetable_conf_s::mem_alloc	collectc/cc_treetable.h	/^    void  *(*mem_alloc)   (size_t size);$/;"	m	struct:cc_treetable_conf_s	access:public
+cc_treetable_conf_s::mem_calloc	collectc/cc_treetable.h	/^    void  *(*mem_calloc)  (size_t blocks, size_t size);$/;"	m	struct:cc_treetable_conf_s	access:public
+cc_treetable_conf_s::mem_free	collectc/cc_treetable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_treetable_conf_s	access:public
+cc_treetable_contains_key	collectc/cc_treetable.h	/^bool          cc_treetable_contains_key     (CC_TreeTable const * const table, const void *key);$/;"	p	signature:(CC_TreeTable const * const table, const void *key)
+cc_treetable_contains_value	collectc/cc_treetable.h	/^size_t        cc_treetable_contains_value   (CC_TreeTable const * const table, const void *value);$/;"	p	signature:(CC_TreeTable const * const table, const void *value)
+cc_treetable_destroy	collectc/cc_treetable.h	/^void          cc_treetable_destroy          (CC_TreeTable *table);$/;"	p	signature:(CC_TreeTable *table)
+cc_treetable_foreach_key	collectc/cc_treetable.h	/^void          cc_treetable_foreach_key      (CC_TreeTable *table, void (*op) (const void*));$/;"	p	signature:(CC_TreeTable *table, void (*op) (const void*))
+cc_treetable_foreach_value	collectc/cc_treetable.h	/^void          cc_treetable_foreach_value    (CC_TreeTable *table, void (*op) (void*));$/;"	p	signature:(CC_TreeTable *table, void (*op) (void*))
+cc_treetable_get	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_get              (CC_TreeTable const * const table, const void *key, void **out);$/;"	p	signature:(CC_TreeTable const * const table, const void *key, void **out)
+cc_treetable_get_first_key	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_get_first_key    (CC_TreeTable const * const table, void **out);$/;"	p	signature:(CC_TreeTable const * const table, void **out)
+cc_treetable_get_first_value	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_get_first_value  (CC_TreeTable const * const table, void **out);$/;"	p	signature:(CC_TreeTable const * const table, void **out)
+cc_treetable_get_greater_than	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_get_greater_than (CC_TreeTable const * const table, const void *key, void **out);$/;"	p	signature:(CC_TreeTable const * const table, const void *key, void **out)
+cc_treetable_get_last_key	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_get_last_key     (CC_TreeTable const * const table, void **out);$/;"	p	signature:(CC_TreeTable const * const table, void **out)
+cc_treetable_get_last_value	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_get_last_value   (CC_TreeTable const * const table, void **out);$/;"	p	signature:(CC_TreeTable const * const table, void **out)
+cc_treetable_get_lesser_than	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_get_lesser_than  (CC_TreeTable const * const table, const void *key, void **out);$/;"	p	signature:(CC_TreeTable const * const table, const void *key, void **out)
+cc_treetable_iter_init	collectc/cc_treetable.h	/^void          cc_treetable_iter_init        (CC_TreeTableIter *iter, CC_TreeTable *table);$/;"	p	signature:(CC_TreeTableIter *iter, CC_TreeTable *table)
+cc_treetable_iter_next	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_iter_next        (CC_TreeTableIter *iter, CC_TreeTableEntry *entry);$/;"	p	signature:(CC_TreeTableIter *iter, CC_TreeTableEntry *entry)
+cc_treetable_iter_remove	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_iter_remove      (CC_TreeTableIter *iter, void **out);$/;"	p	signature:(CC_TreeTableIter *iter, void **out)
+cc_treetable_new	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_new              (int (*cmp) (const void*, const void*), CC_TreeTable **tt);$/;"	p	signature:(int (*cmp) (const void*, const void*), CC_TreeTable **tt)
+cc_treetable_new_conf	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_new_conf         (CC_TreeTableConf const * const conf, CC_TreeTable **tt);$/;"	p	signature:(CC_TreeTableConf const * const conf, CC_TreeTable **tt)
+cc_treetable_remove	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_remove           (CC_TreeTable *table, void *key, void **out);$/;"	p	signature:(CC_TreeTable *table, void *key, void **out)
+cc_treetable_remove_all	collectc/cc_treetable.h	/^void          cc_treetable_remove_all       (CC_TreeTable *table);$/;"	p	signature:(CC_TreeTable *table)
+cc_treetable_remove_first	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_remove_first     (CC_TreeTable *table, void **out);$/;"	p	signature:(CC_TreeTable *table, void **out)
+cc_treetable_remove_last	collectc/cc_treetable.h	/^enum cc_stat  cc_treetable_remove_last      (CC_TreeTable *table, void **out);$/;"	p	signature:(CC_TreeTable *table, void **out)
+cc_treetable_size	collectc/cc_treetable.h	/^size_t        cc_treetable_size             (CC_TreeTable const * const table);$/;"	p	signature:(CC_TreeTable const * const table)
+cc_tsttable_add	collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_add             (CC_TSTTable *table, char *key, void *val);$/;"	p	signature:(CC_TSTTable *table, char *key, void *val)
+cc_tsttable_conf_init	collectc/cc_tsttable.h	/^void          cc_tsttable_conf_init       (CC_TSTTableConf *conf);$/;"	p	signature:(CC_TSTTableConf *conf)
+cc_tsttable_conf_s	collectc/cc_tsttable.h	/^typedef struct cc_tsttable_conf_s {$/;"	s
+cc_tsttable_conf_s::char_cmp	collectc/cc_tsttable.h	/^    int    (*char_cmp)    (char c1, char c2);$/;"	m	struct:cc_tsttable_conf_s	access:public
+cc_tsttable_conf_s::mem_alloc	collectc/cc_tsttable.h	/^    void  *(*mem_alloc)   (size_t size);$/;"	m	struct:cc_tsttable_conf_s	access:public
+cc_tsttable_conf_s::mem_calloc	collectc/cc_tsttable.h	/^    void  *(*mem_calloc)  (size_t blocks, size_t size);$/;"	m	struct:cc_tsttable_conf_s	access:public
+cc_tsttable_conf_s::mem_free	collectc/cc_tsttable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_tsttable_conf_s	access:public
+cc_tsttable_contains_key	collectc/cc_tsttable.h	/^bool          cc_tsttable_contains_key    (CC_TSTTable *table, char *key);$/;"	p	signature:(CC_TSTTable *table, char *key)
+cc_tsttable_data_s	collectc/cc_tsttable.h	/^typedef struct cc_tsttable_data_s {$/;"	s
+cc_tsttable_data_s::key	collectc/cc_tsttable.h	/^    char *key;$/;"	m	struct:cc_tsttable_data_s	access:public
+cc_tsttable_data_s::value	collectc/cc_tsttable.h	/^    void *value;$/;"	m	struct:cc_tsttable_data_s	access:public
+cc_tsttable_destroy	collectc/cc_tsttable.h	/^void          cc_tsttable_destroy         (CC_TSTTable *table);$/;"	p	signature:(CC_TSTTable *table)
+cc_tsttable_foreach_key	collectc/cc_tsttable.h	/^void          cc_tsttable_foreach_key     (CC_TSTTable *table, void (*op) (const void *));$/;"	p	signature:(CC_TSTTable *table, void (*op) (const void *))
+cc_tsttable_foreach_value	collectc/cc_tsttable.h	/^void          cc_tsttable_foreach_value   (CC_TSTTable *table, void (*op) (void *));$/;"	p	signature:(CC_TSTTable *table, void (*op) (void *))
+cc_tsttable_get	collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_get             (CC_TSTTable *table, char *key, void **out);$/;"	p	signature:(CC_TSTTable *table, char *key, void **out)
+cc_tsttable_iter_init	collectc/cc_tsttable.h	/^void          cc_tsttable_iter_init       (CC_TSTTableIter *iter, CC_TSTTable *table);$/;"	p	signature:(CC_TSTTableIter *iter, CC_TSTTable *table)
+cc_tsttable_iter_next	collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_iter_next       (CC_TSTTableIter *iter, CC_TSTTableEntry **out);$/;"	p	signature:(CC_TSTTableIter *iter, CC_TSTTableEntry **out)
+cc_tsttable_iter_remove	collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_iter_remove     (CC_TSTTableIter *iter, void **out);$/;"	p	signature:(CC_TSTTableIter *iter, void **out)
+cc_tsttable_iter_s	collectc/cc_tsttable.h	/^typedef struct cc_tsttable_iter_s {$/;"	s
+cc_tsttable_iter_s::advanced_on_remove	collectc/cc_tsttable.h	/^    bool            advanced_on_remove;$/;"	m	struct:cc_tsttable_iter_s	access:public
+cc_tsttable_iter_s::current_node	collectc/cc_tsttable.h	/^    void            *current_node;$/;"	m	struct:cc_tsttable_iter_s	access:public
+cc_tsttable_iter_s::next_node	collectc/cc_tsttable.h	/^    void            *next_node;$/;"	m	struct:cc_tsttable_iter_s	access:public
+cc_tsttable_iter_s::next_stat	collectc/cc_tsttable.h	/^    enum cc_stat    next_stat;$/;"	m	struct:cc_tsttable_iter_s	typeref:enum:cc_tsttable_iter_s::cc_stat	access:public
+cc_tsttable_iter_s::previous_node	collectc/cc_tsttable.h	/^    void            *previous_node;$/;"	m	struct:cc_tsttable_iter_s	access:public
+cc_tsttable_iter_s::table	collectc/cc_tsttable.h	/^    CC_TSTTable        *table;$/;"	m	struct:cc_tsttable_iter_s	access:public
+cc_tsttable_new	collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_new             (CC_TSTTable **out);$/;"	p	signature:(CC_TSTTable **out)
+cc_tsttable_new_conf	collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_new_conf        (CC_TSTTableConf const * const conf, CC_TSTTable **out);$/;"	p	signature:(CC_TSTTableConf const * const conf, CC_TSTTable **out)
+cc_tsttable_remove	collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_remove          (CC_TSTTable *table, char *key, void **out);$/;"	p	signature:(CC_TSTTable *table, char *key, void **out)
+cc_tsttable_remove_all	collectc/cc_tsttable.h	/^void          cc_tsttable_remove_all      (CC_TSTTable *table);$/;"	p	signature:(CC_TSTTable *table)
+cc_tsttable_size	collectc/cc_tsttable.h	/^size_t        cc_tsttable_size            (CC_TSTTable *table);$/;"	p	signature:(CC_TSTTable *table)
+char_cmp	collectc/cc_tsttable.h	/^    int    (*char_cmp)    (char c1, char c2);$/;"	m	struct:cc_tsttable_conf_s	access:public
+client_inbox	client.h	/^    queue_t *client_inbox;$/;"	m	struct:Client	access:public
+client_nick	client.h	/^    char client_nick[30];$/;"	m	struct:Client	access:public
+client_outbox	client.h	/^    queue_t *client_outbox;$/;"	m	struct:Client	access:public
+client_realname	client.h	/^    char client_realname[30];$/;"	m	struct:Client	access:public
+client_sock	client.h	/^    int client_sock;$/;"	m	struct:Client	access:public
+client_username	client.h	/^    char client_username[30];$/;"	m	struct:Client	access:public
+cmp	collectc/cc_pqueue.h	/^    int (*cmp) (const void *a, const void *b);$/;"	m	struct:cc_pqueue_conf_s	access:public
+cmp	collectc/cc_treetable.h	/^    int    (*cmp)         (const void *k1, const void *k2);$/;"	m	struct:cc_treetable_conf_s	access:public
+color	collectc/cc_treetable.h	/^    char  color;$/;"	m	struct:rbnode_s	access:public
+command	message.h	/^	char *command;$/;"	m	struct:_Message	access:public
+connections	server.h	/^	CC_HashTable *connections; \/\/ Map socket fd to User data object$/;"	m	struct:_Server	access:public
+create_and_bind_socket	common.h	/^int create_and_bind_socket(char *hostname, char *port);     \/* creates tcp socket to connect to given host and port  *\/$/;"	p	signature:(char *hostname, char *port)
+created_at	server.h	/^	char created_at[64]; \/\/ server time created at as string$/;"	m	struct:_Server	access:public
+current	collectc/cc_slist.h	/^    SNode   *current;$/;"	m	struct:cc_slist_iter_s	access:public
+current	collectc/cc_treetable.h	/^    RBNode    *current;$/;"	m	struct:tree_table_iter_s	access:public
+current_node	collectc/cc_tsttable.h	/^    void            *current_node;$/;"	m	struct:cc_tsttable_iter_s	access:public
+cv	queue.h	/^    pthread_cond_t cv;$/;"	m	struct:queue_t	access:public
+d1	collectc/cc_deque.h	/^    CC_Deque *d1;$/;"	m	struct:cc_deque_zip_iter_s	access:public
+d2	collectc/cc_deque.h	/^    CC_Deque *d2;$/;"	m	struct:cc_deque_zip_iter_s	access:public
+data	collectc/cc_list.h	/^    void          *data;$/;"	m	struct:node_s	access:public
+data	collectc/cc_slist.h	/^    void           *data;$/;"	m	struct:snode_s	access:public
+deque	collectc/cc_deque.h	/^    CC_Deque *deque;$/;"	m	struct:cc_deque_iter_s	access:public
+die	common.h	47;"	d
+epollfd	server.h	/^	int epollfd; \/\/ epoll fd$/;"	m	struct:_Server	access:public
+exp_factor	collectc/cc_array.h	/^    float  exp_factor;$/;"	m	struct:cc_array_conf_s	access:public
+exp_factor	collectc/cc_pqueue.h	/^    float  exp_factor;$/;"	m	struct:cc_pqueue_conf_s	access:public
+fd	server.h	/^	int fd; \/\/ listen socket$/;"	m	struct:_Server	access:public
+fd	server.h	/^	int fd; \/\/ socket connection$/;"	m	struct:_User	access:public
+file	log/log.h	/^  const char *file;$/;"	m	struct:__anon1	access:public
+fmt	log/log.h	/^  const char *fmt;$/;"	m	struct:__anon1	access:public
+get_in_addr	common.h	/^void *get_in_addr(struct sockaddr *sa);                     \/* returns the in_addr of ivp4 and ipv6 addresses *\/$/;"	p	signature:(struct sockaddr *sa)
+get_motd	server.h	/^char *get_motd(char *fname);$/;"	p	signature:(char *fname)
+hash	collectc/cc_hashtable.h	/^    size_t    hash;$/;"	m	struct:table_entry_s	access:public
+hash	collectc/cc_hashtable.h	/^    size_t (*hash)        (const void *key, int l, uint32_t seed);$/;"	m	struct:cc_hashtable_conf_s	access:public
+hash_seed	collectc/cc_hashtable.h	/^    uint32_t hash_seed;$/;"	m	struct:cc_hashtable_conf_s	access:public
+hostname	server.h	/^	char *hostname; \/\/ server hostname$/;"	m	struct:_Server	access:public
+hostname	server.h	/^	char *hostname;$/;"	m	struct:_User	access:public
+i	collectc/cc_queue.h	/^    CC_DequeIter i;$/;"	m	struct:queue_iter_s	access:public
+i	collectc/cc_queue.h	/^    CC_DequeZipIter i;$/;"	m	struct:queue_zip_iter_s	access:public
+i	collectc/cc_stack.h	/^    CC_ArrayIter i;$/;"	m	struct:stack_iter_s	access:public
+i	collectc/cc_stack.h	/^    CC_ArrayZipIter i;$/;"	m	struct:stack_zip_iter_s	access:public
+i	collectc/cc_treeset.h	/^    CC_TreeTableIter i;$/;"	m	struct:cc_treeset_iter_s	access:public
+inbox_thread_routine	client.h	/^void *inbox_thread_routine(void *args);$/;"	p	signature:(void *args)
+index	collectc/cc_array.h	/^    size_t    index;$/;"	m	struct:array_zip_iter_s	access:public
+index	collectc/cc_array.h	/^    size_t  index;$/;"	m	struct:cc_array_iter_s	access:public
+index	collectc/cc_deque.h	/^    size_t index;$/;"	m	struct:cc_deque_iter_s	access:public
+index	collectc/cc_deque.h	/^    size_t index;$/;"	m	struct:cc_deque_zip_iter_s	access:public
+index	collectc/cc_list.h	/^    size_t  index;$/;"	m	struct:cc_list_iter_s	access:public
+index	collectc/cc_list.h	/^    size_t index;$/;"	m	struct:cc_list_zip_iter_s	access:public
+index	collectc/cc_slist.h	/^    size_t  index;$/;"	m	struct:cc_slist_iter_s	access:public
+index	collectc/cc_slist.h	/^    size_t index;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+initial_capacity	collectc/cc_hashtable.h	/^    size_t   initial_capacity;$/;"	m	struct:cc_hashtable_conf_s	access:public
+int_compare	common.h	/^int int_compare(const void *key1, const void *key2); \/* integer comparator for hashtable *\/$/;"	p	signature:(const void *key1, const void *key2)
+iter	collectc/cc_hashset.h	/^    CC_HashTableIter iter;$/;"	m	struct:cc_hashset_iter_s	access:public
+key	collectc/cc_hashtable.h	/^    void     *key;$/;"	m	struct:table_entry_s	access:public
+key	collectc/cc_treetable.h	/^    void *key;$/;"	m	struct:rbnode_s	access:public
+key	collectc/cc_treetable.h	/^    void *key;$/;"	m	struct:tree_table_entry_s	access:public
+key	collectc/cc_tsttable.h	/^    char *key;$/;"	m	struct:cc_tsttable_data_s	access:public
+key_compare	collectc/cc_hashtable.h	/^    int    (*key_compare) (const void *key1, const void *key2);$/;"	m	struct:cc_hashtable_conf_s	access:public
+key_length	collectc/cc_hashtable.h	/^    int      key_length;$/;"	m	struct:cc_hashtable_conf_s	access:public
+l	queue.h	/^    CC_List *l;$/;"	m	struct:queue_t	access:public
+l1	collectc/cc_list.h	/^    CC_List *l1;$/;"	m	struct:cc_list_zip_iter_s	access:public
+l1	collectc/cc_slist.h	/^    CC_SList *l1;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+l1_current	collectc/cc_slist.h	/^    SNode *l1_current;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+l1_last	collectc/cc_list.h	/^    Node *l1_last;$/;"	m	struct:cc_list_zip_iter_s	access:public
+l1_next	collectc/cc_list.h	/^    Node *l1_next;$/;"	m	struct:cc_list_zip_iter_s	access:public
+l1_next	collectc/cc_slist.h	/^    SNode *l1_next;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+l1_prev	collectc/cc_slist.h	/^    SNode *l1_prev;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+l2	collectc/cc_list.h	/^    CC_List *l2;$/;"	m	struct:cc_list_zip_iter_s	access:public
+l2	collectc/cc_slist.h	/^    CC_SList *l2;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+l2_current	collectc/cc_slist.h	/^    SNode *l2_current;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+l2_last	collectc/cc_list.h	/^    Node *l2_last;$/;"	m	struct:cc_list_zip_iter_s	access:public
+l2_next	collectc/cc_list.h	/^    Node *l2_next;$/;"	m	struct:cc_list_zip_iter_s	access:public
+l2_next	collectc/cc_slist.h	/^    SNode *l2_next;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+l2_prev	collectc/cc_slist.h	/^    SNode *l2_prev;$/;"	m	struct:cc_slist_zip_iter_s	access:public
+last	collectc/cc_list.h	/^    Node   *last;$/;"	m	struct:cc_list_iter_s	access:public
+last_removed	collectc/cc_array.h	/^    bool      last_removed;$/;"	m	struct:array_zip_iter_s	access:public
+last_removed	collectc/cc_array.h	/^    bool last_removed;$/;"	m	struct:cc_array_iter_s	access:public
+last_removed	collectc/cc_deque.h	/^    bool last_removed;$/;"	m	struct:cc_deque_iter_s	access:public
+last_removed	collectc/cc_deque.h	/^    bool last_removed;$/;"	m	struct:cc_deque_zip_iter_s	access:public
+left	collectc/cc_treetable.h	/^    struct rbnode_s *left;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s	access:public
+level	log/log.h	/^  int level;$/;"	m	struct:__anon1	access:public
+line	log/log.h	/^  int line;$/;"	m	struct:__anon1	access:public
+list	collectc/cc_list.h	/^    CC_List   *list;$/;"	m	struct:cc_list_iter_s	access:public
+list	collectc/cc_slist.h	/^    CC_SList  *list;$/;"	m	struct:cc_slist_iter_s	access:public
+load_factor	collectc/cc_hashtable.h	/^    float    load_factor;$/;"	m	struct:cc_hashtable_conf_s	access:public
+load_nicks	server.h	/^CC_HashTable *load_nicks(const char *filename);$/;"	p	signature:(const char *filename)
+log_Event	log/log.h	/^} log_Event;$/;"	t	typeref:struct:__anon1
+log_LockFn	log/log.h	/^typedef void (*log_LockFn)(bool lock, void *udata);$/;"	t
+log_LogFn	log/log.h	/^typedef void (*log_LogFn)(log_Event *ev);$/;"	t
+log_add_callback	log/log.h	/^int log_add_callback(log_LogFn fn, void *udata, int level);$/;"	p	signature:(log_LogFn fn, void *udata, int level)
+log_add_fp	log/log.h	/^int log_add_fp(FILE *fp, int level);$/;"	p	signature:(FILE *fp, int level)
+log_debug	log/log.h	34;"	d
+log_error	log/log.h	37;"	d
+log_fatal	log/log.h	38;"	d
+log_info	log/log.h	35;"	d
+log_level_string	log/log.h	/^const char* log_level_string(int level);$/;"	p	signature:(int level)
+log_log	log/log.h	/^void log_log(int level, const char *file, int line, const char *fmt, ...);$/;"	p	signature:(int level, const char *file, int line, const char *fmt, ...)
+log_set_level	log/log.h	/^void log_set_level(int level);$/;"	p	signature:(int level)
+log_set_lock	log/log.h	/^void log_set_lock(log_LockFn fn, void *udata);$/;"	p	signature:(log_LockFn fn, void *udata)
+log_set_quiet	log/log.h	/^void log_set_quiet(bool enable);$/;"	p	signature:(bool enable)
+log_trace	log/log.h	33;"	d
+log_warn	log/log.h	36;"	d
+m	queue.h	/^    pthread_mutex_t m;$/;"	m	struct:queue_t	access:public
+make_reply	common.h	53;"	d
+make_string	common.h	/^char *make_string(char *format, ...); \/* allocates a string from format string and args with exact size *\/$/;"	p	signature:(char *format, ...)
+mem_alloc	collectc/cc_array.h	/^    void *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_array_conf_s	access:public
+mem_alloc	collectc/cc_deque.h	/^    void *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_deque_conf_s	access:public
+mem_alloc	collectc/cc_hashtable.h	/^    void  *(*mem_alloc)   (size_t size);$/;"	m	struct:cc_hashtable_conf_s	access:public
+mem_alloc	collectc/cc_list.h	/^    void  *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_list_conf_s	access:public
+mem_alloc	collectc/cc_pqueue.h	/^    void *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_pqueue_conf_s	access:public
+mem_alloc	collectc/cc_slist.h	/^    void  *(*mem_alloc)  (size_t size);$/;"	m	struct:cc_slist_conf_s	access:public
+mem_alloc	collectc/cc_treetable.h	/^    void  *(*mem_alloc)   (size_t size);$/;"	m	struct:cc_treetable_conf_s	access:public
+mem_alloc	collectc/cc_tsttable.h	/^    void  *(*mem_alloc)   (size_t size);$/;"	m	struct:cc_tsttable_conf_s	access:public
+mem_calloc	collectc/cc_array.h	/^    void *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_array_conf_s	access:public
+mem_calloc	collectc/cc_deque.h	/^    void *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_deque_conf_s	access:public
+mem_calloc	collectc/cc_hashtable.h	/^    void  *(*mem_calloc)  (size_t blocks, size_t size);$/;"	m	struct:cc_hashtable_conf_s	access:public
+mem_calloc	collectc/cc_list.h	/^    void  *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_list_conf_s	access:public
+mem_calloc	collectc/cc_pqueue.h	/^    void *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_pqueue_conf_s	access:public
+mem_calloc	collectc/cc_slist.h	/^    void  *(*mem_calloc) (size_t blocks, size_t size);$/;"	m	struct:cc_slist_conf_s	access:public
+mem_calloc	collectc/cc_treetable.h	/^    void  *(*mem_calloc)  (size_t blocks, size_t size);$/;"	m	struct:cc_treetable_conf_s	access:public
+mem_calloc	collectc/cc_tsttable.h	/^    void  *(*mem_calloc)  (size_t blocks, size_t size);$/;"	m	struct:cc_tsttable_conf_s	access:public
+mem_free	collectc/cc_array.h	/^    void  (*mem_free)   (void *block);$/;"	m	struct:cc_array_conf_s	access:public
+mem_free	collectc/cc_deque.h	/^    void  (*mem_free)   (void *block);$/;"	m	struct:cc_deque_conf_s	access:public
+mem_free	collectc/cc_hashtable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_hashtable_conf_s	access:public
+mem_free	collectc/cc_list.h	/^    void   (*mem_free)   (void *block);$/;"	m	struct:cc_list_conf_s	access:public
+mem_free	collectc/cc_pqueue.h	/^    void  (*mem_free)   (void *block);$/;"	m	struct:cc_pqueue_conf_s	access:public
+mem_free	collectc/cc_slist.h	/^    void   (*mem_free)   (void *block);$/;"	m	struct:cc_slist_conf_s	access:public
+mem_free	collectc/cc_treetable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_treetable_conf_s	access:public
+mem_free	collectc/cc_tsttable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_tsttable_conf_s	access:public
+message_destroy	message.h	/^void message_destroy(Message *msg);$/;"	p	signature:(Message *msg)
+message_init	message.h	/^void message_init(Message *msg);$/;"	p	signature:(Message *msg)
+motd_file	server.h	/^	char *motd_file; \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
+msg_queue	server.h	/^	CC_List *msg_queue;			   \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
+n_params	message.h	/^	size_t n_params;$/;"	m	struct:_Message	access:public
+next	collectc/cc_hashtable.h	/^    struct table_entry_s *next;$/;"	m	struct:table_entry_s	typeref:struct:table_entry_s::table_entry_s	access:public
+next	collectc/cc_list.h	/^    Node   *next;$/;"	m	struct:cc_list_iter_s	access:public
+next	collectc/cc_list.h	/^    struct node_s *next;$/;"	m	struct:node_s	typeref:struct:node_s::node_s	access:public
+next	collectc/cc_slist.h	/^    SNode   *next;$/;"	m	struct:cc_slist_iter_s	access:public
+next	collectc/cc_slist.h	/^    struct snode_s *next;$/;"	m	struct:snode_s	typeref:struct:snode_s::snode_s	access:public
+next	collectc/cc_treetable.h	/^    RBNode    *next;$/;"	m	struct:tree_table_iter_s	access:public
+next_entry	collectc/cc_hashtable.h	/^    TableEntry    *next_entry;$/;"	m	struct:cc_hashtable_iter	access:public
+next_node	collectc/cc_tsttable.h	/^    void            *next_node;$/;"	m	struct:cc_tsttable_iter_s	access:public
+next_stat	collectc/cc_tsttable.h	/^    enum cc_stat    next_stat;$/;"	m	struct:cc_tsttable_iter_s	typeref:enum:cc_tsttable_iter_s::cc_stat	access:public
+nick	server.h	/^	char *nick;$/;"	m	struct:_User	access:public
+nick_changed	server.h	/^	bool nick_changed;$/;"	m	struct:_User	access:public
+node_s	collectc/cc_list.h	/^typedef struct node_s {$/;"	s
+node_s::data	collectc/cc_list.h	/^    void          *data;$/;"	m	struct:node_s	access:public
+node_s::next	collectc/cc_list.h	/^    struct node_s *next;$/;"	m	struct:node_s	typeref:struct:node_s::node_s	access:public
+node_s::prev	collectc/cc_list.h	/^    struct node_s *prev;$/;"	m	struct:node_s	typeref:struct:node_s::node_s	access:public
+origin	message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
+outbox_thread_routine	client.h	/^void *outbox_thread_routine(void *args);$/;"	p	signature:(void *args)
+params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
+parent	collectc/cc_treetable.h	/^    struct rbnode_s *parent;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s	access:public
+parse_all_messages	message.h	/^CC_Array *parse_all_messages(char *str);$/;"	p	signature:(char *str)
+parse_message	message.h	/^int parse_message(char *str, Message *msg);$/;"	p	signature:(char *str, Message *msg)
+port	server.h	/^	char *port; \/\/ server port$/;"	m	struct:_Server	access:public
+prev	collectc/cc_list.h	/^    struct node_s *prev;$/;"	m	struct:node_s	typeref:struct:node_s::node_s	access:public
+prev	collectc/cc_slist.h	/^    SNode   *prev;$/;"	m	struct:cc_slist_iter_s	access:public
+prev	timer.h	/^    time_t prev;$/;"	m	struct:Timer	access:public
+prev_entry	collectc/cc_hashtable.h	/^    TableEntry    *prev_entry;$/;"	m	struct:cc_hashtable_iter	access:public
+previous_node	collectc/cc_tsttable.h	/^    void            *previous_node;$/;"	m	struct:cc_tsttable_iter_s	access:public
+queue_conf_init	collectc/cc_queue.h	/^void         queue_conf_init       (QueueConf *conf);$/;"	p	signature:(QueueConf *conf)
+queue_dequeue	queue.h	/^void *queue_dequeue(queue_t *q);/;"	p	signature:(queue_t *q)
+queue_destroy	collectc/cc_queue.h	/^void         queue_destroy         (Queue *queue);$/;"	p	signature:(Queue *queue)
+queue_destroy	queue.h	/^void queue_destroy(queue_t *q, void (*free_callback)(void *));$/;"	p	signature:(queue_t *q, void (*free_callback)(void *))
+queue_destroy_cb	collectc/cc_queue.h	/^void         queue_destroy_cb      (Queue *queue, void (*cb) (void*));$/;"	p	signature:(Queue *queue, void (*cb) (void*))
+queue_enqueue	collectc/cc_queue.h	/^enum cc_stat queue_enqueue         (Queue *queue, void *element);$/;"	p	signature:(Queue *queue, void *element)
+queue_enqueue	queue.h	/^void queue_enqueue(queue_t *q, void *data);$/;"	p	signature:(queue_t *q, void *data)
+queue_foreach	collectc/cc_queue.h	/^void         queue_foreach         (Queue *queue, void (*op) (void*));$/;"	p	signature:(Queue *queue, void (*op) (void*))
+queue_init	queue.h	/^void queue_init(queue_t *q);$/;"	p	signature:(queue_t *q)
+queue_iter_init	collectc/cc_queue.h	/^void         queue_iter_init       (QueueIter *iter, Queue *queue);$/;"	p	signature:(QueueIter *iter, Queue *queue)
+queue_iter_next	collectc/cc_queue.h	/^enum cc_stat queue_iter_next       (QueueIter *iter, void **out);$/;"	p	signature:(QueueIter *iter, void **out)
+queue_iter_replace	collectc/cc_queue.h	/^enum cc_stat queue_iter_replace    (QueueIter *iter, void *replacement, void **out);$/;"	p	signature:(QueueIter *iter, void *replacement, void **out)
+queue_iter_s	collectc/cc_queue.h	/^typedef struct queue_iter_s {$/;"	s
+queue_iter_s::i	collectc/cc_queue.h	/^    CC_DequeIter i;$/;"	m	struct:queue_iter_s	access:public
+queue_new	collectc/cc_queue.h	/^enum cc_stat queue_new             (Queue **q);$/;"	p	signature:(Queue **q)
+queue_new_conf	collectc/cc_queue.h	/^enum cc_stat queue_new_conf        (QueueConf const * const conf, Queue **q);$/;"	p	signature:(QueueConf const * const conf, Queue **q)
+queue_peek	collectc/cc_queue.h	/^enum cc_stat queue_peek            (Queue const * const queue, void **out);$/;"	p	signature:(Queue const * const queue, void **out)
+queue_poll	collectc/cc_queue.h	/^enum cc_stat queue_poll            (Queue *queue, void **out);$/;"	p	signature:(Queue *queue, void **out)
+queue_size	collectc/cc_queue.h	/^size_t       queue_size            (Queue const * const queue);$/;"	p	signature:(Queue const * const queue)
+queue_t	queue.h	/^typedef struct queue_t$/;"	s
+queue_t	queue.h	/^} queue_t;$/;"	t	typeref:struct:queue_t
+queue_t::cv	queue.h	/^    pthread_cond_t cv;$/;"	m	struct:queue_t	access:public
+queue_t::l	queue.h	/^    CC_List *l;$/;"	m	struct:queue_t	access:public
+queue_t::m	queue.h	/^    pthread_mutex_t m;$/;"	m	struct:queue_t	access:public
+queue_zip_iter_init	collectc/cc_queue.h	/^void         queue_zip_iter_init   (QueueZipIter *iter, Queue *q1, Queue *q2);$/;"	p	signature:(QueueZipIter *iter, Queue *q1, Queue *q2)
+queue_zip_iter_next	collectc/cc_queue.h	/^enum cc_stat queue_zip_iter_next   (QueueZipIter *iter, void **out1, void **out2);$/;"	p	signature:(QueueZipIter *iter, void **out1, void **out2)
+queue_zip_iter_replace	collectc/cc_queue.h	/^enum cc_stat queue_zip_iter_replace(QueueZipIter *iter, void *e1, void *e2, void **out1, void **out2);$/;"	p	signature:(QueueZipIter *iter, void *e1, void *e2, void **out1, void **out2)
+queue_zip_iter_s	collectc/cc_queue.h	/^typedef struct queue_zip_iter_s {$/;"	s
+queue_zip_iter_s::i	collectc/cc_queue.h	/^    CC_DequeZipIter i;$/;"	m	struct:queue_zip_iter_s	access:public
+quit	server.h	/^	bool quit;$/;"	m	struct:_User	access:public
+rbnode_s	collectc/cc_treetable.h	/^typedef struct rbnode_s {$/;"	s
+rbnode_s::color	collectc/cc_treetable.h	/^    char  color;$/;"	m	struct:rbnode_s	access:public
+rbnode_s::key	collectc/cc_treetable.h	/^    void *key;$/;"	m	struct:rbnode_s	access:public
+rbnode_s::left	collectc/cc_treetable.h	/^    struct rbnode_s *left;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s	access:public
+rbnode_s::parent	collectc/cc_treetable.h	/^    struct rbnode_s *parent;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s	access:public
+rbnode_s::right	collectc/cc_treetable.h	/^    struct rbnode_s *right;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s	access:public
+rbnode_s::value	collectc/cc_treetable.h	/^    void *value;$/;"	m	struct:rbnode_s	access:public
+read_all	common.h	/^ssize_t read_all(int fd, char *buf, size_t len);  \/* read all bytes from fd to buffer *\/$/;"	p	signature:(int fd, char *buf, size_t len)
+reader_thread_routine	client.h	/^void *reader_thread_routine(void *args);$/;"	p	signature:(void *args)
+realname	server.h	/^	char *realname;$/;"	m	struct:_User	access:public
+registered	server.h	/^	bool registered;$/;"	m	struct:_User	access:public
+req_buf	server.h	/^	char req_buf[MAX_MSG_LEN + 1]; \/\/ the request message$/;"	m	struct:_User	access:public
+req_len	server.h	/^	size_t req_len;				   \/\/ length of request buffer$/;"	m	struct:_User	access:public
+res_buf	server.h	/^	char res_buf[MAX_MSG_LEN + 1]; \/\/ the response message$/;"	m	struct:_User	access:public
+res_len	server.h	/^	size_t res_len;				   \/\/ length of response buffer$/;"	m	struct:_User	access:public
+res_off	server.h	/^	size_t res_off;				   \/\/ no of bytes of the response sent$/;"	m	struct:_User	access:public
+right	collectc/cc_treetable.h	/^    struct rbnode_s *right;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s	access:public
+rstrstr	common.h	/^char *rstrstr(char *string, char *pattern); \/* reverse strstr: returns pointer to last occurrence of pattern in string *\/$/;"	p	signature:(char *string, char *pattern)
+servaddr	server.h	/^	struct sockaddr_in servaddr; \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+size	aaryab2/String.c	/^	size_t size;$/;"	m	struct:_String	file:	access:public
+snode_s	collectc/cc_slist.h	/^typedef struct snode_s {$/;"	s
+snode_s::data	collectc/cc_slist.h	/^    void           *data;$/;"	m	struct:snode_s	access:public
+snode_s::next	collectc/cc_slist.h	/^    struct snode_s *next;$/;"	m	struct:snode_s	typeref:struct:snode_s::snode_s	access:public
+stack_conf_init	collectc/cc_stack.h	/^void          stack_conf_init       (StackConf *conf);$/;"	p	signature:(StackConf *conf)
+stack_destroy	collectc/cc_stack.h	/^void          stack_destroy         (Stack *stack);$/;"	p	signature:(Stack *stack)
+stack_destroy_cb	collectc/cc_stack.h	/^void          stack_destroy_cb      (Stack *stack, void (*cb) (void*));$/;"	p	signature:(Stack *stack, void (*cb) (void*))
+stack_filter	collectc/cc_stack.h	/^enum cc_stat  stack_filter          (Stack *stack, bool (*predicate)(const void *), Stack **out);$/;"	p	signature:(Stack *stack, bool (*predicate)(const void *), Stack **out)
+stack_filter_mut	collectc/cc_stack.h	/^enum cc_stat  stack_filter_mut      (Stack *stack, bool (*predicate) (const void*));$/;"	p	signature:(Stack *stack, bool (*predicate) (const void*))
+stack_iter_init	collectc/cc_stack.h	/^void          stack_iter_init       (StackIter *iter, Stack *s);$/;"	p	signature:(StackIter *iter, Stack *s)
+stack_iter_next	collectc/cc_stack.h	/^enum cc_stat  stack_iter_next       (StackIter *iter, void **out);$/;"	p	signature:(StackIter *iter, void **out)
+stack_iter_replace	collectc/cc_stack.h	/^enum cc_stat  stack_iter_replace    (StackIter *iter, void *element, void **out);$/;"	p	signature:(StackIter *iter, void *element, void **out)
+stack_iter_s	collectc/cc_stack.h	/^typedef struct stack_iter_s {$/;"	s
+stack_iter_s::i	collectc/cc_stack.h	/^    CC_ArrayIter i;$/;"	m	struct:stack_iter_s	access:public
+stack_map	collectc/cc_stack.h	/^void          stack_map             (Stack *stack, void (*fn) (void *));$/;"	p	signature:(Stack *stack, void (*fn) (void *))
+stack_new	collectc/cc_stack.h	/^enum cc_stat  stack_new             (Stack **out);$/;"	p	signature:(Stack **out)
+stack_new_conf	collectc/cc_stack.h	/^enum cc_stat  stack_new_conf        (StackConf const * const conf, Stack **out);$/;"	p	signature:(StackConf const * const conf, Stack **out)
+stack_peek	collectc/cc_stack.h	/^enum cc_stat  stack_peek            (Stack *stack, void **out);$/;"	p	signature:(Stack *stack, void **out)
+stack_pop	collectc/cc_stack.h	/^enum cc_stat  stack_pop             (Stack *stack, void **out);$/;"	p	signature:(Stack *stack, void **out)
+stack_push	collectc/cc_stack.h	/^enum cc_stat  stack_push            (Stack *stack, void *element);$/;"	p	signature:(Stack *stack, void *element)
+stack_size	collectc/cc_stack.h	/^size_t        stack_size            (Stack *stack);$/;"	p	signature:(Stack *stack)
+stack_zip_iter_init	collectc/cc_stack.h	/^void          stack_zip_iter_init   (StackZipIter *iter, Stack *a1, Stack *a2);$/;"	p	signature:(StackZipIter *iter, Stack *a1, Stack *a2)
+stack_zip_iter_next	collectc/cc_stack.h	/^enum cc_stat  stack_zip_iter_next   (StackZipIter *iter, void **out1, void **out2);$/;"	p	signature:(StackZipIter *iter, void **out1, void **out2)
+stack_zip_iter_replace	collectc/cc_stack.h	/^enum cc_stat  stack_zip_iter_replace(StackZipIter *iter, void *e1, void *e2, void **out1, void **out2);$/;"	p	signature:(StackZipIter *iter, void *e1, void *e2, void **out1, void **out2)
+stack_zip_iter_s	collectc/cc_stack.h	/^typedef struct stack_zip_iter_s {$/;"	s
+stack_zip_iter_s::i	collectc/cc_stack.h	/^    CC_ArrayZipIter i;$/;"	m	struct:stack_zip_iter_s	access:public
+table	collectc/cc_hashtable.h	/^    CC_HashTable  *table;$/;"	m	struct:cc_hashtable_iter	access:public
+table	collectc/cc_treetable.h	/^    CC_TreeTable *table;$/;"	m	struct:tree_table_iter_s	access:public
+table	collectc/cc_tsttable.h	/^    CC_TSTTable        *table;$/;"	m	struct:cc_tsttable_iter_s	access:public
+table_entry_s	collectc/cc_hashtable.h	/^typedef struct table_entry_s {$/;"	s
+table_entry_s::hash	collectc/cc_hashtable.h	/^    size_t    hash;$/;"	m	struct:table_entry_s	access:public
+table_entry_s::key	collectc/cc_hashtable.h	/^    void     *key;$/;"	m	struct:table_entry_s	access:public
+table_entry_s::next	collectc/cc_hashtable.h	/^    struct table_entry_s *next;$/;"	m	struct:table_entry_s	typeref:struct:table_entry_s::table_entry_s	access:public
+table_entry_s::value	collectc/cc_hashtable.h	/^    void     *value;$/;"	m	struct:table_entry_s	access:public
+time	log/log.h	/^  struct tm *time;$/;"	m	struct:__anon1	typeref:struct:__anon1::tm	access:public
+timerfd	timer.h	/^    int timerfd;$/;"	m	struct:Timer	access:public
+tree_table_entry_s	collectc/cc_treetable.h	/^typedef struct tree_table_entry_s {$/;"	s
+tree_table_entry_s::key	collectc/cc_treetable.h	/^    void *key;$/;"	m	struct:tree_table_entry_s	access:public
+tree_table_entry_s::value	collectc/cc_treetable.h	/^    void *value;$/;"	m	struct:tree_table_entry_s	access:public
+tree_table_iter_s	collectc/cc_treetable.h	/^typedef struct tree_table_iter_s {$/;"	s
+tree_table_iter_s::current	collectc/cc_treetable.h	/^    RBNode    *current;$/;"	m	struct:tree_table_iter_s	access:public
+tree_table_iter_s::next	collectc/cc_treetable.h	/^    RBNode    *next;$/;"	m	struct:tree_table_iter_s	access:public
+tree_table_iter_s::table	collectc/cc_treetable.h	/^    CC_TreeTable *table;$/;"	m	struct:tree_table_iter_s	access:public
+trimwhitespace	common.h	/^char *trimwhitespace(char *str);$/;"	p	signature:(char *str)
+udata	log/log.h	/^  void *udata;$/;"	m	struct:__anon1	access:public
+user_to_nicks_map	server.h	/^	CC_HashTable *user_to_nicks_map; \/\/ Map username to array of nicks owned by user$/;"	m	struct:_Server	access:public
+username	server.h	/^	char *username;$/;"	m	struct:_User	access:public
+value	collectc/cc_hashtable.h	/^    void     *value;$/;"	m	struct:table_entry_s	access:public
+value	collectc/cc_treetable.h	/^    void *value;$/;"	m	struct:rbnode_s	access:public
+value	collectc/cc_treetable.h	/^    void *value;$/;"	m	struct:tree_table_entry_s	access:public
+value	collectc/cc_tsttable.h	/^    void *value;$/;"	m	struct:cc_tsttable_data_s	access:public
+wrap_with_quotes	aaryab2/String.c	/^String *wrap_with_quotes(char *str)$/;"	f	signature:(char *str)
+wrap_with_quotes	aaryab2/String.h	/^String *wrap_with_quotes(char *str);/;"	p	signature:(char *str)
+write_all	common.h	/^ssize_t write_all(int fd, char *buf, size_t len); \/* write all bytes from fd to buffer *\/$/;"	p	signature:(int fd, char *buf, size_t len)

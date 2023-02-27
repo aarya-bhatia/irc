@@ -70,5 +70,7 @@ void User_Destroy(User *usr);
 
 void User_add_msg(User *usr, char *msg);
 
+CC_HashTable *load_nicks(const char *filename);
+
 char *get_motd(char *fname);
 

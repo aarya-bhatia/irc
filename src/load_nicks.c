@@ -1,4 +1,5 @@
 #include "include/common.h"
+#include "include/collectc/cc_hashtable.h"
 #include "include/collectc/cc_array.h"
 
 /**
@@ -8,16 +9,24 @@
  */
 CC_HashTable *load_nicks(const char *filename)
 {
+	FILE *file = fopen(filename, "r");
+
+	if(!file)
+	{
+		perror("fopen");
+		return NULL;
+	}
+	
 	CC_HashTable *nick_map = NULL;
 
 	// Create a new HashTable with integer keys
-	if (cc_hashtable_new(&nick_map))
+	if(cc_hashtable_new(&nick_map) != CC_OK)
 	{
-		log_error("Failed to create hashtable");
-		exit(1);
+		perror("cc_hashtable_new");
+		return NULL;
 	}
 
-	FILE *file = fopen(filename, "r");
+
 
 	char *line = NULL;
 	size_t len = 0;
@@ -30,8 +39,7 @@ CC_HashTable *load_nicks(const char *filename)
 		if(nread == -1)
 		{
 			perror("getline");
-			fclose(file);
-			return;
+			break;
 		}
 
 		if(nread == 0)
@@ -74,7 +82,12 @@ CC_HashTable *load_nicks(const char *filename)
 		// Add all nicks on each line into one array
 
 		CC_Array *linked;
-		cc_array_new(&linked);
+
+		if(cc_array_new(&linked) != CC_OK)
+		{
+			perror("cc_array_new");
+			break;
+		}
 	
 		char *saveptr = NULL;
 		char *token = strtok_r(line, ",", &saveptr);

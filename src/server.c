@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 
 #define MOTD_FILENAME "motd.txt"
+#define NICKS_FILENAME "data/nicks.txt"
 
 void Server_process_request(Server *serv, User *usr)
 {
@@ -176,6 +177,9 @@ Server *Server_create(int port)
 	serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr, sizeof(serv->servaddr)));
 	serv->port = make_string("%d", port);
 	serv->motd_file = MOTD_FILENAME;
+
+	serv->user_to_nicks_map = load_nicks(NICKS_FILENAME); 
+	assert(serv->user_to_nicks_map);
 
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
