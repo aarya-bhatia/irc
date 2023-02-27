@@ -86,4 +86,15 @@ The client implements a thread-based model with four threads:
 - If the input is a special command starting with a /, the client will generate the corresponding command.
 - The irc command is added to the outbox queue to send to the server.
 
+## Command-Line Args
+
+The client can accept the following command line args in the given order:
+
+1. hostname
+2. port
+3. nick
+4. username
+5. realname
+
+*Example*: `./client localhost 5000 aaryab2 aarya.bhatia1678 "Aarya Bhatia"`.
 
