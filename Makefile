@@ -4,10 +4,14 @@ CFLAG=-std=c99 -Wall -Wextra -pedantic -gdwarf-4 -O0 -c $(INC)
 LIB=-llog -lcollectc -laaryab2
 LDFLAG=-Llib $(LIB)
 
-all: server client
+all: obj server client
 
 OBJ=obj/common.o obj/message.o obj/queue.o
-SERVER_OBJ=obj/server_main.o obj/server.o obj/user.o obj/command.o obj/load_nicks.o $(OBJ)
+
+SERVER_OBJ=obj/server_main.o obj/server.o 
+SERVER_OBJ+=obj/user.o obj/command.o obj/load_nicks.o obj/register.o
+SERVER_OBJ+=$(OBJ)
+
 CLIENT_OBJ=obj/client.o obj/client_threads.o $(OBJ)
 
 client: $(CLIENT_OBJ)
@@ -33,6 +37,9 @@ libaaryab2:
 obj/test/%.o: test/%.c
 	@mkdir -p $(dir $@);
 	$(CC) $(CFLAG) $< -o $@
+
+obj:
+	mkdir -p obj
 
 obj/%.o: src/%.c
 	@mkdir -p $(dir $@);
