@@ -11,14 +11,15 @@
 
 typedef struct _Server
 {
-	CC_HashTable *connections; // Map socket fd to User data
-	struct sockaddr_in servaddr;
-	int fd;
-	int epollfd;
-	char *hostname;
-	char *port;
-	char created_at[64];
-	char *motd_file;
+	CC_HashTable *connections; // Map socket fd to User data object
+	CC_HashTable *user_to_nicks_map; // Map username to array of nicks owned by user
+	struct sockaddr_in servaddr; // address info for server
+	int fd; // listen socket
+	int epollfd; // epoll fd
+	char *hostname; // server hostname
+	char *port; // server port
+	char created_at[64]; // server time created at as string
+	char *motd_file; // file to use for message of the day greetings
 } Server;
 
 typedef struct _User
