@@ -3,8 +3,8 @@
 #include <time.h>
 #include <sys/stat.h>
 
-#define MOTD_FILENAME "motd.txt"
-#define NICKS_FILENAME "data/nicks.txt"
+#define MOTD_FILENAME "./motd.txt"
+#define NICKS_FILENAME "./nicks.txt"
 
 void Server_process_request(Server *serv, User *usr)
 {
@@ -34,7 +34,7 @@ void Server_process_request(Server *serv, User *usr)
 
 		if (message->command)
 		{
-			if(!strcmp(message->command, "MOTD"))
+			if (!strcmp(message->command, "MOTD"))
 			{
 				Server_reply_to_MOTD(serv, usr, message);
 			}
@@ -148,9 +148,9 @@ char *get_motd(char *fname)
 		}
 	}
 
-	if(res && res[res_len-1] == '\n')
+	if (res && res[res_len - 1] == '\n')
 	{
-		res[res_len-1] = 0;
+		res[res_len - 1] = 0;
 	}
 
 	fclose(file);
@@ -170,6 +170,8 @@ Server *Server_create(int port)
 	serv->fd = socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	CHECK(serv->fd, "socket");
 
+	log_debug("listen socket fd = %d", serv->fd);
+
 	// Server Address
 	serv->servaddr.sin_family = AF_INET;
 	serv->servaddr.sin_port = htons(port);
@@ -178,8 +180,8 @@ Server *Server_create(int port)
 	serv->port = make_string("%d", port);
 	serv->motd_file = MOTD_FILENAME;
 
-	/* serv->user_to_nicks_map = load_nicks(NICKS_FILENAME);  */
-	/* assert(serv->user_to_nicks_map); */
+	serv->user_to_nicks_map = load_nicks(NICKS_FILENAME);
+	assert(serv->user_to_nicks_map);
 
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
@@ -201,6 +203,8 @@ Server *Server_create(int port)
 	// Create epoll fd for listen socket and clients
 	serv->epollfd = epoll_create(1 + MAX_EVENTS);
 	CHECK(serv->epollfd, "epoll_create");
+
+	log_debug("epoll fd = %d", serv->epollfd);
 
 	// Hashtable settings
 	CC_HashTableConf htc;
@@ -245,7 +249,6 @@ void Server_accept_all(Server *serv)
 
 			die("accept");
 		}
-
 
 		User *user = calloc(1, sizeof(User));
 

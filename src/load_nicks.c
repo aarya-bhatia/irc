@@ -11,16 +11,16 @@ CC_HashTable *load_nicks(const char *filename)
 {
 	FILE *file = fopen(filename, "r");
 
-	if(!file)
+	if (!file)
 	{
 		log_error("Failed to open nicks file");
 		return NULL;
 	}
-	
+
 	CC_HashTable *nick_map = NULL;
 
 	// Create a new HashTable with integer keys
-	if(cc_hashtable_new(&nick_map) != CC_OK)
+	if (cc_hashtable_new(&nick_map) != CC_OK)
 	{
 		log_error("Failed to create hashtable");
 		return NULL;
@@ -30,14 +30,14 @@ CC_HashTable *load_nicks(const char *filename)
 	size_t len = 0;
 	ssize_t nread = 0;
 
-	while((nread = getline(&line,&len,file)) > 0)
+	while ((nread = getline(&line, &len, file)) > 0)
 	{
-		if(line[nread-1] == '\n')
+		if (line[nread - 1] == '\n')
 		{
-			line[nread-1] = 0;
+			line[nread - 1] = 0;
 		}
 
-		if(strlen(line) == 0)
+		if (strlen(line) == 0)
 		{
 			continue;
 		}
@@ -47,7 +47,7 @@ CC_HashTable *load_nicks(const char *filename)
 
 		username = trimwhitespace(username);
 
-		if(!username || username[0] == 0)
+		if (!username || username[0] == 0)
 		{
 			log_error("invalid line: %s", line);
 			break;
@@ -58,7 +58,7 @@ CC_HashTable *load_nicks(const char *filename)
 		nicks = trimwhitespace(nicks);
 
 		// skip this user
-		if(!nicks || nicks[0] == 0)
+		if (!nicks || nicks[0] == 0)
 		{
 			log_warn("username %s has no nicks", username);
 			continue;
@@ -68,20 +68,20 @@ CC_HashTable *load_nicks(const char *filename)
 
 		CC_Array *linked;
 
-		if(cc_array_new(&linked) != CC_OK)
+		if (cc_array_new(&linked) != CC_OK)
 		{
 			log_error("Failed to create array");
 			break;
 		}
-	
+
 		char *saveptr = NULL;
 		char *token = strtok_r(line, ",", &saveptr);
 
-		while(token)
+		while (token)
 		{
 			token = trimwhitespace(token);
 
-			if(token && token[0] != 0)
+			if (token && token[0] != 0)
 			{
 				char *nick = strdup(token);
 				cc_array_add(linked, nick);
