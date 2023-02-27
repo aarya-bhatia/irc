@@ -6,13 +6,14 @@ LDFLAG=-Llib $(LIB)
 
 all: obj server client
 
-OBJ=obj/common.o obj/message.o obj/queue.o
+COMMON_OBJ=obj/common.o obj/message.o obj/queue.o
 
 SERVER_OBJ=obj/server_main.o obj/server.o 
-SERVER_OBJ+=obj/user.o obj/command.o obj/load_nicks.o obj/register.o
-SERVER_OBJ+=$(OBJ)
+SERVER_OBJ+=obj/user.o obj/load_nicks.o obj/register.o
+SERVER_OBJ+=$(COMMON_OBJ)
 
-CLIENT_OBJ=obj/client.o obj/client_threads.o $(OBJ)
+CLIENT_OBJ=obj/client.o obj/client_threads.o 
+CLIENT_OBJ+=$(COMMON_OBJ)
 
 client: $(CLIENT_OBJ)
 	$(CC) -pthread $^ $(LDFLAG) -o $@
@@ -20,7 +21,7 @@ client: $(CLIENT_OBJ)
 server: $(SERVER_OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
-test: obj/test.o $(OBJ)
+test: obj/test.o $(COMMON_OBJ)
 	$(CC) $^ $(LDFLAG) -o $@
 
 ht: obj/test/ht.o $(OBJ)
