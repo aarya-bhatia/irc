@@ -14,9 +14,9 @@ pthread_mutex_t mutex_stdout = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char *argv[])
 {
-	if (argc != 3)
+	if (argc < 3)
 	{
-		fprintf(stderr, "Usage: %s <hostname> <port>\n", *argv);
+		fprintf(stderr, "Usage: %s <hostname> <port> <nick> <userame> <realname>\n", *argv);
 		return 1;
 	}
 
@@ -36,26 +36,32 @@ int main(int argc, char *argv[])
 	// Make client socket non blocking
 	fcntl(client.client_sock, F_SETFL, fcntl(client.client_sock, F_GETFL) | O_NONBLOCK);
 
-	// Get nick, username and realname of client
-#ifdef DEBUG
-	strcpy(client.client_nick, "aaryab2");
-	strcpy(client.client_username, "aarya.bhatia1678");
-	strcpy(client.client_realname, "Aarya Bhatia");
+	if (argc >= 4)
+	{
+		strcpy(client.client_nick, argv[3]);
+	}
+	else
+	{
+		strcpy(client.client_nick, "aaryab2");
+	}
 
-#else
-	char *msg1 = "Enter your nick > ";
-	char *msg2 = "Enter your username > ";
-	char *msg3 = "Enter your realname > ";
+	if (argc >= 5)
+	{
+		strcpy(client.client_username, argv[4]);
+	}
+	else
+	{
+		strcpy(client.client_username, "aarya.bhatia1678");
+	}
 
-	write(1, msg1, strlen(msg1));
-	scanf("%s", client.client_nick);
-
-	write(1, msg2, strlen(msg2));
-	scanf("%s", client.client_username);
-
-	write(1, msg3, strlen(msg3));
-	scanf("%s", client.client_realname);
-#endif
+	if (argc >= 6)
+	{
+		strcpy(client.client_realname, argv[5]);
+	}
+	else
+	{
+		strcpy(client.client_realname, "Aarya Bhatia");
+	}
 
 	// Register signal handler to quit on CTRL-C
 	// struct sigaction sa;
@@ -67,8 +73,7 @@ int main(int argc, char *argv[])
 	// 	die("sigaction");
 
 	// Register the client in IRC network
-	// char *registration = make_string("NICK %s\r\nUSER %s * * :%s\r\n", client.client_nick, client.client_username, client.client_realname);
-	char *registration = make_string("USER %s * * :%s\r\n", client.client_username, client.client_realname);
+	char *registration = make_string("NICK %s\r\nUSER %s * * :%s\r\n", client.client_nick, client.client_username, client.client_realname);
 	queue_enqueue(client.client_outbox, registration);
 
 	pthread_create(&outbox_thread, NULL, outbox_thread_routine, &client);

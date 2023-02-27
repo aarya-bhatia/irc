@@ -56,6 +56,8 @@ bool check_registration_complete(Server *serv, User *usr)
 
         update_nick_map(serv, usr);
 
+        log_info("registration completed for user %s", usr->nick);
+
         return true;
     }
 
