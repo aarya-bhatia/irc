@@ -1,11 +1,7 @@
 #include "include/common.h"
 #include "include/server.h"
 #include "include/replies.h"
-
-bool check_nick_available(Server *serv, User *usr, char *nick);
-CC_Array *get_current_nicks(Server *serv, User *usr);
-bool update_nick_map(Server *serv, User *usr);
-bool check_registration_complete(Server *serv, User *usr);
+#include "include/register.h"
 
 void _sanity_check(Server *serv, User *usr, Message *msg)
 {

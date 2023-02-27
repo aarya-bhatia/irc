@@ -67,7 +67,8 @@ int main(int argc, char *argv[])
 	// 	die("sigaction");
 
 	// Register the client in IRC network
-	char *registration = make_string("NICK %s\r\nUSER %s * * :%s\r\n", client.client_nick, client.client_username, client.client_realname);
+	// char *registration = make_string("NICK %s\r\nUSER %s * * :%s\r\n", client.client_nick, client.client_username, client.client_realname);
+	char *registration = make_string("USER %s * * :%s\r\n", client.client_username, client.client_realname);
 	queue_enqueue(client.client_outbox, registration);
 
 	pthread_create(&outbox_thread, NULL, outbox_thread_routine, &client);

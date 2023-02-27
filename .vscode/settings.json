@@ -7,7 +7,8 @@
         "cc_array.h": "c",
         "queue.h": "c",
         "cc_list.h": "c",
-        "replies.h": "c"
+        "replies.h": "c",
+        "register.h": "c"
     },
     "cmake.configureOnOpen": true
 }

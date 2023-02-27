@@ -1,13 +1,40 @@
-#include "include/common.h"
-#include "include/server.h"
-#include "include/replies.h"
+#include "include/register.h"
 
 /**
  * Check and complete user registration
+ *
+ * To complete registration, the user must have a username, realname and a nick.
+ * If user has not set a nick, it is possible to use a previous nick if there is one and complete registration.
  */
 bool check_registration_complete(Server *serv, User *usr)
 {
-    if (!usr->registered && usr->nick_changed && usr->nick && usr->username && usr->realname)
+    if (usr->registered)
+    {
+        return true;
+    }
+
+    if (!usr->nick || !usr->username || !usr->realname)
+    {
+        return false;
+    }
+
+    if (!usr->nick_changed)
+    {
+        CC_Array *nicks = get_current_nicks(serv, usr);
+
+        if (nicks && cc_array_size(nicks) > 0)
+        {
+            char *nick = NULL;
+
+            if (cc_array_get_at(nicks, 0, (void **)&nick) == CC_OK)
+            {
+                usr->nick_changed = true;
+                usr->nick = strdup(nick);
+            }
+        }
+    }
+
+    if (usr->nick_changed)
     {
         usr->registered = true;
 
@@ -83,6 +110,8 @@ bool update_nick_map(Server *serv, User *usr)
         cc_array_add(nicks, strdup(usr->nick));
         return true;
     }
+
+    return false;
 }
 
 /**
