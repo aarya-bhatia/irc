@@ -60,6 +60,10 @@ void Server_process_request(Server *serv, User *usr)
 			{
 				Server_reply_to_PING(serv, usr, message);
 			}
+			else if(!strcmp(message->command, "PRIVMSG"))
+			{
+				Server_reply_to_PRIVMSG(serv, usr, message);
+			}
 			else if (!strcmp(message->command, "QUIT"))
 			{
 				Server_reply_to_QUIT(serv, usr, message);
@@ -463,6 +467,74 @@ void Server_reply_to_PING(Server *serv, User *usr, Message *msg)
 void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg)
 {
     _sanity_check(serv, usr, msg);
+		assert(!strcmp(msg->command, "PRIVMSG"));
+
+	if(!usr->registered)
+	{
+		User_add_msg(usr, make_reply(ERR_NOTREGISTERED_MSG, usr->nick));
+		return;
+	}
+
+	assert(usr->username);
+
+	if(msg->n_params == 0)
+	{
+		User_add_msg(usr, make_reply(ERR_NORECIPIENT_MSG, usr->nick));
+		return;
+	}
+
+	assert(msg->params[0]);
+
+	char *target_nick = msg->params[0];
+
+	if(msg->n_params > 1)
+	{
+		User_add_msg(usr, make_reply(ERR_TOOMANYTARGETS_MSG, usr->nick));
+		return;
+	}
+	
+	// Check if nick exists
+	CC_HashTableIter itr;
+	cc_hashtable_iter_init(&itr, serv->connections);
+
+	TableEntry *entry = NULL;
+	User *found_user = NULL;
+
+	while(!found_user && cc_hashtable_iter_next(&itr, &entry) != CC_ITER_END)
+	{
+		User *user_data = entry->value;
+		CC_Array *nicks = NULL;
+
+		if(user_data && 
+				user_data->registered && 
+				cc_hashtable_get(serv->user_to_nicks_map, user_data->username, (void**) &nicks) == CC_OK && 
+				nicks)
+		{
+			for(size_t i = 0; i < cc_array_size(nicks); i++)
+			{
+				char *value = NULL;
+				if(cc_array_get_at(nicks, i, (void **) &value) == CC_OK && !strcmp(value, target_nick))
+				{
+					found_user = user_data;
+					break;
+				}
+			}
+		}
+	}
+
+	if(!found_user)
+	{
+		User_add_msg(usr, make_reply(ERR_NOSUCHNICK_MSG, usr->nick, target_nick));
+		return;
+	}
+	
+	// TODO: Need to check if nick exists at all for RPL_AWAY
+	//
+	// TODO: Respond to current user for success?
+	
+	// Add message to target user's queue
+	User_add_msg(found_user, make_reply(":%s PRIVMSG %s :%s", usr->nick, target_nick, msg->body));
+	return;
 }
 
 void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg)

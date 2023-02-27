@@ -180,9 +180,9 @@ MAX_MSG_PARAM	include/common.h	32;"	d
 MAX_POW_TWO	include/collectc/cc_common.h	30;"	d
 MAX_POW_TWO	include/collectc/cc_common.h	32;"	d
 MIN	include/aaryab2/String.h	8;"	d
-MOTD_FILENAME	server.c	6;"	d	file:
+MOTD_FILENAME	server.c	8;"	d	file:
 Message	include/message.h	/^} Message;$/;"	t	typeref:struct:_Message
-NICKS_FILENAME	server.c	7;"	d	file:
+NICKS_FILENAME	server.c	9;"	d	file:
 Node	include/collectc/cc_list.h	/^} Node;$/;"	t	typeref:struct:node_s
 PING_INTERVAL_SEC	client.c	6;"	d	file:
 POINTER_HASH	include/collectc/cc_hashtable.h	164;"	d
@@ -295,34 +295,34 @@ Server_destroy	include/server.h	/^void Server_destroy(Server *serv);$/;"	p	signa
 Server_destroy	server.c	/^void Server_destroy(Server *serv)$/;"	f	signature:(Server *serv)
 Server_process_request	include/server.h	/^void Server_process_request(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
 Server_process_request	server.c	/^void Server_process_request(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
-Server_reply_to_CONNECT	command.c	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_CONNECT	include/server.h	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_JOIN	command.c	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_CONNECT	server.c	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_JOIN	include/server.h	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_LIST	command.c	/^void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_JOIN	server.c	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_LIST	include/server.h	/^void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_MOTD	command.c	/^void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_LIST	server.c	/^void Server_reply_to_LIST(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_MOTD	include/server.h	/^void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_NAMES	command.c	/^void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_MOTD	server.c	/^void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_NAMES	include/server.h	/^void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_NICK	command.c	/^void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NAMES	server.c	/^void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_NICK	include/server.h	/^void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_PASS	command.c	/^void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NICK	server.c	/^void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_PASS	include/server.h	/^void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_PING	command.c	/^void Server_reply_to_PING(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PASS	server.c	/^void Server_reply_to_PASS(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_PING	include/server.h	/^void Server_reply_to_PING(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_PRIVMSG	command.c	/^void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PING	server.c	/^void Server_reply_to_PING(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_PRIVMSG	include/server.h	/^void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_QUIT	command.c	/^void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PRIVMSG	server.c	/^void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_QUIT	include/server.h	/^void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_SERVER	command.c	/^void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_QUIT	server.c	/^void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_SERVER	include/server.h	/^void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_USER	command.c	/^void Server_reply_to_USER(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_SERVER	server.c	/^void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_USER	include/server.h	/^void Server_reply_to_USER(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_WHO	command.c	/^void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_USER	server.c	/^void Server_reply_to_USER(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_WHO	include/server.h	/^void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
-Server_reply_to_WHOIS	command.c	/^void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);$/;"	p	file:	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_WHO	server.c	/^void Server_reply_to_WHO(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_WHOIS	include/server.h	/^void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_WHOIS	server.c	/^void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Stack	include/collectc/cc_stack.h	/^typedef struct stack_s Stack;$/;"	t	typeref:struct:stack_s
 StackConf	include/collectc/cc_stack.h	/^typedef CC_ArrayConf StackConf;$/;"	t
 StackIter	include/collectc/cc_stack.h	/^} StackIter;$/;"	t	typeref:struct:stack_iter_s
@@ -384,14 +384,14 @@ _Message::n_params	include/message.h	/^	size_t n_params;$/;"	m	struct:_Message	a
 _Message::origin	include/message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
 _Message::params	include/message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
 _Server	include/server.h	/^typedef struct _Server$/;"	s
-_Server::connections	include/server.h	/^	CC_HashTable *connections; \/\/ Map socket fd to User data object$/;"	m	struct:_Server	access:public
-_Server::created_at	include/server.h	/^	char created_at[64]; \/\/ server time created at as string$/;"	m	struct:_Server	access:public
-_Server::epollfd	include/server.h	/^	int epollfd; \/\/ epoll fd$/;"	m	struct:_Server	access:public
-_Server::fd	include/server.h	/^	int fd; \/\/ listen socket$/;"	m	struct:_Server	access:public
-_Server::hostname	include/server.h	/^	char *hostname; \/\/ server hostname$/;"	m	struct:_Server	access:public
-_Server::motd_file	include/server.h	/^	char *motd_file; \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
-_Server::port	include/server.h	/^	char *port; \/\/ server port$/;"	m	struct:_Server	access:public
-_Server::servaddr	include/server.h	/^	struct sockaddr_in servaddr; \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+_Server::connections	include/server.h	/^	CC_HashTable *connections;		 \/\/ Map socket fd to User data object$/;"	m	struct:_Server	access:public
+_Server::created_at	include/server.h	/^	char created_at[64];			 \/\/ server time created at as string$/;"	m	struct:_Server	access:public
+_Server::epollfd	include/server.h	/^	int epollfd;					 \/\/ epoll fd$/;"	m	struct:_Server	access:public
+_Server::fd	include/server.h	/^	int fd;							 \/\/ listen socket$/;"	m	struct:_Server	access:public
+_Server::hostname	include/server.h	/^	char *hostname;					 \/\/ server hostname$/;"	m	struct:_Server	access:public
+_Server::motd_file	include/server.h	/^	char *motd_file;				 \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
+_Server::port	include/server.h	/^	char *port;						 \/\/ server port$/;"	m	struct:_Server	access:public
+_Server::servaddr	include/server.h	/^	struct sockaddr_in servaddr;	 \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
 _Server::user_to_nicks_map	include/server.h	/^	CC_HashTable *user_to_nicks_map; \/\/ Map username to array of nicks owned by user$/;"	m	struct:_Server	access:public
 _String	include/aaryab2/String.c	/^struct _String$/;"	s	file:
 _String::buffer	include/aaryab2/String.c	/^	char *buffer;$/;"	m	struct:_String	file:	access:public
@@ -422,7 +422,7 @@ __anon1::udata	include/log/log.h	/^  void *udata;$/;"	m	struct:__anon1	access:pu
 _free_callback	client.c	/^void _free_callback(void *data)$/;"	f	signature:(void *data)
 _free_callback	include/client.h	/^void _free_callback(void *data);$/;"	p	signature:(void *data)
 _free_callback	user.c	/^void _free_callback(void *str)$/;"	f	signature:(void *str)
-_is_nick_available	command.c	/^bool _is_nick_available(Server *serv, char *nick)$/;"	f	signature:(Server *serv, char *nick)
+_sanity_check	server.c	/^void _sanity_check(Server *serv, User *usr, Message *msg)$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 _signal_handler	client.c	/^void _signal_handler(int sig)$/;"	f	signature:(int sig)
 _signal_handler	include/client.h	/^void _signal_handler(int sig);$/;"	p	signature:(int sig)
 addr_to_string	common.c	/^char *addr_to_string(struct sockaddr *addr, socklen_t len)$/;"	f	signature:(struct sockaddr *addr, socklen_t len)
@@ -856,6 +856,10 @@ cc_tsttable_remove	include/collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_re
 cc_tsttable_remove_all	include/collectc/cc_tsttable.h	/^void          cc_tsttable_remove_all      (CC_TSTTable *table);$/;"	p	signature:(CC_TSTTable *table)
 cc_tsttable_size	include/collectc/cc_tsttable.h	/^size_t        cc_tsttable_size            (CC_TSTTable *table);$/;"	p	signature:(CC_TSTTable *table)
 char_cmp	include/collectc/cc_tsttable.h	/^    int    (*char_cmp)    (char c1, char c2);$/;"	m	struct:cc_tsttable_conf_s	access:public
+check_nick_available	include/register.h	/^bool check_nick_available(Server *serv, User *usr, char *nick);$/;"	p	signature:(Server *serv, User *usr, char *nick)
+check_nick_available	register.c	/^bool check_nick_available(Server *serv, User *usr, char *nick)$/;"	f	signature:(Server *serv, User *usr, char *nick)
+check_registration_complete	include/register.h	/^bool check_registration_complete(Server *serv, User *usr);/;"	p	signature:(Server *serv, User *usr)
+check_registration_complete	register.c	/^bool check_registration_complete(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
 client_inbox	include/client.h	/^    queue_t *client_inbox;$/;"	m	struct:Client	access:public
 client_nick	include/client.h	/^    char client_nick[30];$/;"	m	struct:Client	access:public
 client_outbox	include/client.h	/^    queue_t *client_outbox;$/;"	m	struct:Client	access:public
@@ -866,10 +870,10 @@ cmp	include/collectc/cc_pqueue.h	/^    int (*cmp) (const void *a, const void *b)
 cmp	include/collectc/cc_treetable.h	/^    int    (*cmp)         (const void *k1, const void *k2);$/;"	m	struct:cc_treetable_conf_s	access:public
 color	include/collectc/cc_treetable.h	/^    char  color;$/;"	m	struct:rbnode_s	access:public
 command	include/message.h	/^	char *command;$/;"	m	struct:_Message	access:public
-connections	include/server.h	/^	CC_HashTable *connections; \/\/ Map socket fd to User data object$/;"	m	struct:_Server	access:public
+connections	include/server.h	/^	CC_HashTable *connections;		 \/\/ Map socket fd to User data object$/;"	m	struct:_Server	access:public
 create_and_bind_socket	common.c	/^int create_and_bind_socket(char *hostname, char *port)$/;"	f	signature:(char *hostname, char *port)
 create_and_bind_socket	include/common.h	/^int create_and_bind_socket(char *hostname, char *port);     \/* creates tcp socket to connect to given host and port  *\/$/;"	p	signature:(char *hostname, char *port)
-created_at	include/server.h	/^	char created_at[64]; \/\/ server time created at as string$/;"	m	struct:_Server	access:public
+created_at	include/server.h	/^	char created_at[64];			 \/\/ server time created at as string$/;"	m	struct:_Server	access:public
 current	include/collectc/cc_slist.h	/^    SNode   *current;$/;"	m	struct:cc_slist_iter_s	access:public
 current	include/collectc/cc_treetable.h	/^    RBNode    *current;$/;"	m	struct:tree_table_iter_s	access:public
 current_node	include/collectc/cc_tsttable.h	/^    void            *current_node;$/;"	m	struct:cc_tsttable_iter_s	access:public
@@ -880,14 +884,16 @@ data	include/collectc/cc_list.h	/^    void          *data;$/;"	m	struct:node_s	a
 data	include/collectc/cc_slist.h	/^    void           *data;$/;"	m	struct:snode_s	access:public
 deque	include/collectc/cc_deque.h	/^    CC_Deque *deque;$/;"	m	struct:cc_deque_iter_s	access:public
 die	include/common.h	47;"	d
-epollfd	include/server.h	/^	int epollfd; \/\/ epoll fd$/;"	m	struct:_Server	access:public
+epollfd	include/server.h	/^	int epollfd;					 \/\/ epoll fd$/;"	m	struct:_Server	access:public
 exp_factor	include/collectc/cc_array.h	/^    float  exp_factor;$/;"	m	struct:cc_array_conf_s	access:public
 exp_factor	include/collectc/cc_pqueue.h	/^    float  exp_factor;$/;"	m	struct:cc_pqueue_conf_s	access:public
-fd	include/server.h	/^	int fd; \/\/ listen socket$/;"	m	struct:_Server	access:public
+fd	include/server.h	/^	int fd;							 \/\/ listen socket$/;"	m	struct:_Server	access:public
 fd	include/server.h	/^	int fd; \/\/ socket connection$/;"	m	struct:_User	access:public
 file	include/log/log.h	/^  const char *file;$/;"	m	struct:__anon1	access:public
 fmt	include/log/log.h	/^  const char *fmt;$/;"	m	struct:__anon1	access:public
 g_alive	server_main.c	/^static volatile bool g_alive = true;$/;"	v	file:
+get_current_nicks	include/register.h	/^CC_Array *get_current_nicks(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+get_current_nicks	register.c	/^CC_Array *get_current_nicks(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
 get_in_addr	common.c	/^void *get_in_addr(struct sockaddr *sa)$/;"	f	signature:(struct sockaddr *sa)
 get_in_addr	include/common.h	/^void *get_in_addr(struct sockaddr *sa);                     \/* returns the in_addr of ivp4 and ipv6 addresses *\/$/;"	p	signature:(struct sockaddr *sa)
 get_motd	include/server.h	/^char *get_motd(char *fname);$/;"	p	signature:(char *fname)
@@ -895,7 +901,7 @@ get_motd	server.c	/^char *get_motd(char *fname)$/;"	f	signature:(char *fname)
 hash	include/collectc/cc_hashtable.h	/^    size_t    hash;$/;"	m	struct:table_entry_s	access:public
 hash	include/collectc/cc_hashtable.h	/^    size_t (*hash)        (const void *key, int l, uint32_t seed);$/;"	m	struct:cc_hashtable_conf_s	access:public
 hash_seed	include/collectc/cc_hashtable.h	/^    uint32_t hash_seed;$/;"	m	struct:cc_hashtable_conf_s	access:public
-hostname	include/server.h	/^	char *hostname; \/\/ server hostname$/;"	m	struct:_Server	access:public
+hostname	include/server.h	/^	char *hostname;					 \/\/ server hostname$/;"	m	struct:_Server	access:public
 hostname	include/server.h	/^	char *hostname;$/;"	m	struct:_User	access:public
 i	include/collectc/cc_queue.h	/^    CC_DequeIter i;$/;"	m	struct:queue_iter_s	access:public
 i	include/collectc/cc_queue.h	/^    CC_DequeZipIter i;$/;"	m	struct:queue_zip_iter_s	access:public
@@ -950,7 +956,6 @@ list	include/collectc/cc_slist.h	/^    CC_SList  *list;$/;"	m	struct:cc_slist_it
 load_factor	include/collectc/cc_hashtable.h	/^    float    load_factor;$/;"	m	struct:cc_hashtable_conf_s	access:public
 load_nicks	include/server.h	/^CC_HashTable *load_nicks(const char *filename);$/;"	p	signature:(const char *filename)
 load_nicks	load_nicks.c	/^CC_HashTable *load_nicks(const char *filename)$/;"	f	signature:(const char *filename)
-load_nicks	load_nicks.c	/^CC_HashTable *load_nicks(const char *filename);$/;"	p	file:	signature:(const char *filename)
 log_Event	include/log/log.h	/^} log_Event;$/;"	t	typeref:struct:__anon1
 log_LockFn	include/log/log.h	/^typedef void (*log_LockFn)(bool lock, void *udata);$/;"	t
 log_LogFn	include/log/log.h	/^typedef void (*log_LogFn)(log_Event *ev);$/;"	t
@@ -1001,7 +1006,7 @@ message_destroy	include/message.h	/^void message_destroy(Message *msg);$/;"	p	si
 message_destroy	message.c	/^void message_destroy(Message *msg)$/;"	f	signature:(Message *msg)
 message_init	include/message.h	/^void message_init(Message *msg);$/;"	p	signature:(Message *msg)
 message_init	message.c	/^void message_init(Message *msg)$/;"	f	signature:(Message *msg)
-motd_file	include/server.h	/^	char *motd_file; \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
+motd_file	include/server.h	/^	char *motd_file;				 \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
 msg_queue	include/server.h	/^	CC_List *msg_queue;			   \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
 mutex	client.c	/^pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 mutex_stdout	client.c	/^pthread_mutex_t mutex_stdout = PTHREAD_MUTEX_INITIALIZER;$/;"	v
@@ -1030,7 +1035,7 @@ parse_all_messages	include/message.h	/^CC_Array *parse_all_messages(char *str);$
 parse_all_messages	message.c	/^CC_Array *parse_all_messages(char *str)$/;"	f	signature:(char *str)
 parse_message	include/message.h	/^int parse_message(char *str, Message *msg);$/;"	p	signature:(char *str, Message *msg)
 parse_message	message.c	/^int parse_message(char *str, Message *msg)$/;"	f	signature:(char *str, Message *msg)
-port	include/server.h	/^	char *port; \/\/ server port$/;"	m	struct:_Server	access:public
+port	include/server.h	/^	char *port;						 \/\/ server port$/;"	m	struct:_Server	access:public
 prev	include/collectc/cc_list.h	/^    struct node_s *prev;$/;"	m	struct:node_s	typeref:struct:node_s::node_s	access:public
 prev	include/collectc/cc_slist.h	/^    SNode   *prev;$/;"	m	struct:cc_slist_iter_s	access:public
 prev	include/timer.h	/^    time_t prev;$/;"	m	struct:Timer	access:public
@@ -1091,7 +1096,8 @@ res_off	include/server.h	/^	size_t res_off;				   \/\/ no of bytes of the respon
 right	include/collectc/cc_treetable.h	/^    struct rbnode_s *right;$/;"	m	struct:rbnode_s	typeref:struct:rbnode_s::rbnode_s	access:public
 rstrstr	common.c	/^char *rstrstr(char *string, char *pattern)$/;"	f	signature:(char *string, char *pattern)
 rstrstr	include/common.h	/^char *rstrstr(char *string, char *pattern); \/* reverse strstr: returns pointer to last occurrence of pattern in string *\/$/;"	p	signature:(char *string, char *pattern)
-servaddr	include/server.h	/^	struct sockaddr_in servaddr; \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+save_and_destroy_nicks	server.c	/^void save_and_destroy_nicks(Server *serv, char *filename)$/;"	f	signature:(Server *serv, char *filename)
+servaddr	include/server.h	/^	struct sockaddr_in servaddr;	 \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
 sighandler	server_main.c	/^void sighandler(int sig)$/;"	f	signature:(int sig)
 sighandler	server_main.c	/^void sighandler(int sig);$/;"	p	file:	signature:(int sig)
 size	include/aaryab2/String.c	/^	size_t size;$/;"	m	struct:_String	file:	access:public
@@ -1140,6 +1146,8 @@ tree_table_iter_s::table	include/collectc/cc_treetable.h	/^    CC_TreeTable *tab
 trimwhitespace	common.c	/^char *trimwhitespace(char *str)$/;"	f	signature:(char *str)
 trimwhitespace	include/common.h	/^char *trimwhitespace(char *str);$/;"	p	signature:(char *str)
 udata	include/log/log.h	/^  void *udata;$/;"	m	struct:__anon1	access:public
+update_nick_map	include/register.h	/^bool update_nick_map(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+update_nick_map	register.c	/^bool update_nick_map(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
 user_to_nicks_map	include/server.h	/^	CC_HashTable *user_to_nicks_map; \/\/ Map username to array of nicks owned by user$/;"	m	struct:_Server	access:public
 username	include/server.h	/^	char *username;$/;"	m	struct:_User	access:public
 value	include/collectc/cc_hashtable.h	/^    void     *value;$/;"	m	struct:table_entry_s	access:public

@@ -96,7 +96,7 @@
 #define ERR_TOOMANYTARGETS_MSG "407 %s :Too many recipients"
 #define ERR_NOORIGIN_MSG "409 %s :No origin specified"
 #define ERR_INVALIDCAP_MSG "410 %s %s :Invalid CAP subcommand"
-#define ERR_NORECIPIENT_MSG "411 %s :No recipient given (%s)"
+#define ERR_NORECIPIENT_MSG "411 %s :No recipient given"
 #define ERR_NOTEXTTOSEND_MSG "412 %s :No text to send"
 #define ERR_WILDTOPLEVEL_MSG "414 %s :Wildcard in toplevel domain"
 #define ERR_UNKNOWNCOMMAND_MSG "421 %s %s :Unknown command"
