@@ -178,8 +178,8 @@ Server *Server_create(int port)
 	serv->port = make_string("%d", port);
 	serv->motd_file = MOTD_FILENAME;
 
-	serv->user_to_nicks_map = load_nicks(NICKS_FILENAME); 
-	assert(serv->user_to_nicks_map);
+	/* serv->user_to_nicks_map = load_nicks(NICKS_FILENAME);  */
+	/* assert(serv->user_to_nicks_map); */
 
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);

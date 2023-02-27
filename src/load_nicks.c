@@ -13,7 +13,7 @@ CC_HashTable *load_nicks(const char *filename)
 
 	if(!file)
 	{
-		perror("fopen");
+		log_error("Failed to open nicks file");
 		return NULL;
 	}
 	
@@ -22,31 +22,16 @@ CC_HashTable *load_nicks(const char *filename)
 	// Create a new HashTable with integer keys
 	if(cc_hashtable_new(&nick_map) != CC_OK)
 	{
-		perror("cc_hashtable_new");
+		log_error("Failed to create hashtable");
 		return NULL;
 	}
 
-
-
 	char *line = NULL;
 	size_t len = 0;
-	ssize_t nread;
+	ssize_t nread = 0;
 
-	while(1)
+	while((nread = getline(&line,&len,file)) > 0)
 	{
-		nread = getline(&line, &len, file);
-
-		if(nread == -1)
-		{
-			perror("getline");
-			break;
-		}
-
-		if(nread == 0)
-		{
-			break;
-		}
-
 		if(line[nread-1] == '\n')
 		{
 			line[nread-1] = 0;
@@ -85,7 +70,7 @@ CC_HashTable *load_nicks(const char *filename)
 
 		if(cc_array_new(&linked) != CC_OK)
 		{
-			perror("cc_array_new");
+			log_error("Failed to create array");
 			break;
 		}
 	
