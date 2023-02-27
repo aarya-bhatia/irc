@@ -3,6 +3,8 @@
 #include <time.h>
 #include <sys/stat.h>
 
+#define MOTD_FILENAME "motd.txt"
+
 void Server_process_request(Server *serv, User *usr)
 {
 	assert(serv);
@@ -91,7 +93,6 @@ void Server_destroy(Server *serv)
 
 	cc_hashtable_destroy(serv->connections);
 
-	free(serv->motd);
 	close(serv->fd);
 	close(serv->epollfd);
 	free(serv->hostname);
@@ -102,22 +103,23 @@ void Server_destroy(Server *serv)
 	exit(0);
 }
 
-char *_get_motd(char *fname)
+char *get_motd(char *fname)
 {
-	FILE *motd_file = fopen(fname, "r");
+	FILE *file = fopen(fname, "r");
 	char *res = NULL;
 	size_t res_len = 0;
 
-	if (!motd_file)
+	if (!file)
 	{
 		log_warn("failed to open %s", fname);
+		return NULL;
 	}
 	else
 	{
 		size_t num_lines = 1;
 
 		// count number of lines
-		for (int c = fgetc(motd_file); c != EOF; c = fgetc(motd_file))
+		for (int c = fgetc(file); c != EOF; c = fgetc(file))
 		{
 			if (c == '\n')
 			{
@@ -125,7 +127,7 @@ char *_get_motd(char *fname)
 			}
 		}
 
-		fseek(motd_file, 0, SEEK_SET); // go to beginning
+		fseek(file, 0, SEEK_SET); // go to beginning
 
 		time_t t = time(NULL);
 		struct tm tm = *localtime(&t);
@@ -137,7 +139,7 @@ char *_get_motd(char *fname)
 
 		for (size_t i = 0; i < line_no + 1; i++)
 		{
-			if (getline(&res, &res_len, motd_file) == -1)
+			if (getline(&res, &res_len, file) == -1)
 			{
 				perror("getline");
 				break;
@@ -150,7 +152,7 @@ char *_get_motd(char *fname)
 		res[res_len-1] = 0;
 	}
 
-	fclose(motd_file);
+	fclose(file);
 
 	return res;
 }
@@ -173,11 +175,7 @@ Server *Server_create(int port)
 	serv->servaddr.sin_addr.s_addr = INADDR_ANY;
 	serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr, sizeof(serv->servaddr)));
 	serv->port = make_string("%d", port);
-	serv->motd = _get_motd("motd.txt");
-
-	if(serv->motd){
-		log_info("MOTD: %s", serv->motd);
-	}
+	serv->motd_file = MOTD_FILENAME;
 
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);

@@ -26,14 +26,16 @@ void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg)
     assert(msg);
     assert(!strcmp(msg->command,"MOTD"));
 
-    if(serv->motd)
+		char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
+
+    if(motd)
     {
-        User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, serv->motd));
+        User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
     }
-    else {
+    else 
+		{
         User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
     }
-
 }
 
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
@@ -73,7 +75,17 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
         User_add_msg(usr, make_reply(RPL_YOURHOST_MSG, usr->nick, usr->hostname));
         User_add_msg(usr, make_reply(RPL_CREATED_MSG, usr->nick, serv->created_at));
         User_add_msg(usr, make_reply(RPL_MYINFO_MSG, usr->nick, serv->hostname, "*", "*", "*"));
-        User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, serv->motd));
+				
+				char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
+
+				if(motd)
+				{
+						User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
+				}
+				else 
+				{
+						User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
+				}
     }
 }
 
@@ -113,7 +125,17 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
         User_add_msg(usr, make_reply(RPL_YOURHOST_MSG, usr->nick, usr->hostname));
         User_add_msg(usr, make_reply(RPL_CREATED_MSG, usr->nick, serv->created_at));
         User_add_msg(usr, make_reply(RPL_MYINFO_MSG, usr->nick, serv->hostname, "*", "*", "*"));
-        User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, serv->motd));
+
+				char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
+
+				if(motd)
+				{
+						User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
+				}
+				else 
+				{
+						User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
+				}
     }
 }
 

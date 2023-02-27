@@ -3,7 +3,7 @@
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
-!_TAG_PROGRAM_VERSION	5.8	//
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 CC_ARRAY_FOREACH	include/collectc/cc_array.h	149;"	d
 CC_ARRAY_FOREACH_ZIP	include/collectc/cc_array.h	159;"	d
 CC_Array	include/collectc/cc_array.h	/^typedef struct cc_array_s CC_Array;$/;"	t	typeref:struct:cc_array_s
@@ -371,7 +371,6 @@ User_Write_Event	include/server.h	/^ssize_t User_Write_Event(Server *serv, User 
 User_Write_Event	user.c	/^ssize_t User_Write_Event(Server *serv, User *usr)$/;"	f	signature:(Server *serv, User *usr)
 User_add_msg	include/server.h	/^void User_add_msg(User *usr, char *msg);$/;"	p	signature:(User *usr, char *msg)
 User_add_msg	user.c	/^void User_add_msg(User *usr, char *msg)$/;"	f	signature:(User *usr, char *msg)
-User_load_nicks	user.c	/^void User_load_nicks(User *usr)$/;"	f	signature:(User *usr)
 _CHECK	include/common.h	35;"	d
 _GNU_SOURCE	include/common.h	3;"	d
 _GetCapacity	include/aaryab2/String.c	/^size_t _GetCapacity(size_t n)$/;"	f	signature:(size_t n)
@@ -388,7 +387,7 @@ _Server::created_at	include/server.h	/^	char created_at[64];$/;"	m	struct:_Serve
 _Server::epollfd	include/server.h	/^	int epollfd;$/;"	m	struct:_Server	access:public
 _Server::fd	include/server.h	/^	int fd;$/;"	m	struct:_Server	access:public
 _Server::hostname	include/server.h	/^	char *hostname;$/;"	m	struct:_Server	access:public
-_Server::motd	include/server.h	/^	char *motd; \/\/ message of the day$/;"	m	struct:_Server	access:public
+_Server::motd_file	include/server.h	/^	char *motd_file;$/;"	m	struct:_Server	access:public
 _Server::port	include/server.h	/^	char *port;$/;"	m	struct:_Server	access:public
 _Server::servaddr	include/server.h	/^	struct sockaddr_in servaddr;$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
 _String	include/aaryab2/String.c	/^struct _String$/;"	s	file:
@@ -401,7 +400,6 @@ _User::hostname	include/server.h	/^	char *hostname;$/;"	m	struct:_User	access:pu
 _User::msg_queue	include/server.h	/^	CC_List *msg_queue;			   \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
 _User::nick	include/server.h	/^	char *nick;$/;"	m	struct:_User	access:public
 _User::nick_changed	include/server.h	/^	bool nick_changed;$/;"	m	struct:_User	access:public
-_User::nick_history	include/server.h	/^	CC_List *nick_history;		   \/\/ all nicks owned by user$/;"	m	struct:_User	access:public
 _User::quit	include/server.h	/^	bool quit;$/;"	m	struct:_User	access:public
 _User::realname	include/server.h	/^	char *realname;$/;"	m	struct:_User	access:public
 _User::registered	include/server.h	/^	bool registered;$/;"	m	struct:_User	access:public
@@ -421,7 +419,6 @@ __anon1::udata	include/log/log.h	/^  void *udata;$/;"	m	struct:__anon1	access:pu
 _free_callback	client.c	/^void _free_callback(void *data)$/;"	f	signature:(void *data)
 _free_callback	include/client.h	/^void _free_callback(void *data);$/;"	p	signature:(void *data)
 _free_callback	user.c	/^void _free_callback(void *str)$/;"	f	signature:(void *str)
-_get_motd	server.c	/^char *_get_motd(char *fname)$/;"	f	signature:(char *fname)
 _is_nick_available	command.c	/^bool _is_nick_available(Server *serv, char *nick)$/;"	f	signature:(Server *serv, char *nick)
 _signal_handler	client.c	/^void _signal_handler(int sig)$/;"	f	signature:(int sig)
 _signal_handler	include/client.h	/^void _signal_handler(int sig);$/;"	p	signature:(int sig)
@@ -890,6 +887,8 @@ fmt	include/log/log.h	/^  const char *fmt;$/;"	m	struct:__anon1	access:public
 g_alive	server_main.c	/^static volatile bool g_alive = true;$/;"	v	file:
 get_in_addr	common.c	/^void *get_in_addr(struct sockaddr *sa)$/;"	f	signature:(struct sockaddr *sa)
 get_in_addr	include/common.h	/^void *get_in_addr(struct sockaddr *sa);                     \/* returns the in_addr of ivp4 and ipv6 addresses *\/$/;"	p	signature:(struct sockaddr *sa)
+get_motd	include/server.h	/^char *get_motd(char *fname);$/;"	p	signature:(char *fname)
+get_motd	server.c	/^char *get_motd(char *fname)$/;"	f	signature:(char *fname)
 hash	include/collectc/cc_hashtable.h	/^    size_t    hash;$/;"	m	struct:table_entry_s	access:public
 hash	include/collectc/cc_hashtable.h	/^    size_t (*hash)        (const void *key, int l, uint32_t seed);$/;"	m	struct:cc_hashtable_conf_s	access:public
 hash_seed	include/collectc/cc_hashtable.h	/^    uint32_t hash_seed;$/;"	m	struct:cc_hashtable_conf_s	access:public
@@ -946,6 +945,7 @@ line	include/log/log.h	/^  int line;$/;"	m	struct:__anon1	access:public
 list	include/collectc/cc_list.h	/^    CC_List   *list;$/;"	m	struct:cc_list_iter_s	access:public
 list	include/collectc/cc_slist.h	/^    CC_SList  *list;$/;"	m	struct:cc_slist_iter_s	access:public
 load_factor	include/collectc/cc_hashtable.h	/^    float    load_factor;$/;"	m	struct:cc_hashtable_conf_s	access:public
+load_nicks	load_nicks.c	/^CC_HashTable *load_nicks(const char *filename)$/;"	f	signature:(const char *filename)
 log_Event	include/log/log.h	/^} log_Event;$/;"	t	typeref:struct:__anon1
 log_LockFn	include/log/log.h	/^typedef void (*log_LockFn)(bool lock, void *udata);$/;"	t
 log_LogFn	include/log/log.h	/^typedef void (*log_LogFn)(log_Event *ev);$/;"	t
@@ -996,7 +996,7 @@ message_destroy	include/message.h	/^void message_destroy(Message *msg);$/;"	p	si
 message_destroy	message.c	/^void message_destroy(Message *msg)$/;"	f	signature:(Message *msg)
 message_init	include/message.h	/^void message_init(Message *msg);$/;"	p	signature:(Message *msg)
 message_init	message.c	/^void message_init(Message *msg)$/;"	f	signature:(Message *msg)
-motd	include/server.h	/^	char *motd; \/\/ message of the day$/;"	m	struct:_Server	access:public
+motd_file	include/server.h	/^	char *motd_file;$/;"	m	struct:_Server	access:public
 msg_queue	include/server.h	/^	CC_List *msg_queue;			   \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
 mutex	client.c	/^pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 mutex_stdout	client.c	/^pthread_mutex_t mutex_stdout = PTHREAD_MUTEX_INITIALIZER;$/;"	v
@@ -1012,7 +1012,6 @@ next_node	include/collectc/cc_tsttable.h	/^    void            *next_node;$/;"	m
 next_stat	include/collectc/cc_tsttable.h	/^    enum cc_stat    next_stat;$/;"	m	struct:cc_tsttable_iter_s	typeref:enum:cc_tsttable_iter_s::cc_stat	access:public
 nick	include/server.h	/^	char *nick;$/;"	m	struct:_User	access:public
 nick_changed	include/server.h	/^	bool nick_changed;$/;"	m	struct:_User	access:public
-nick_history	include/server.h	/^	CC_List *nick_history;		   \/\/ all nicks owned by user$/;"	m	struct:_User	access:public
 node_s	include/collectc/cc_list.h	/^typedef struct node_s {$/;"	s
 node_s::data	include/collectc/cc_list.h	/^    void          *data;$/;"	m	struct:node_s	access:public
 node_s::next	include/collectc/cc_list.h	/^    struct node_s *next;$/;"	m	struct:node_s	typeref:struct:node_s::node_s	access:public
