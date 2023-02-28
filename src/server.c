@@ -605,7 +605,8 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg)
 		assert(target_data);
 
 		// Add message to target user's queue
-		User_add_msg(target_data, make_reply(":%s@%s PRIVMSG %s :%s", usr->nick,
+		User_add_msg(target_data, make_reply(":%s!%s@%s PRIVMSG %s :%s", usr->nick,
+											 usr->username,
 											 usr->hostname,
 											 target_nick, msg->body));
 		return;
