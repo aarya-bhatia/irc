@@ -87,9 +87,9 @@ void Server_process_request(Server *serv, User *usr)
 }
 
 /**
- * Copy nicks to file and free the memory associated with nick_map
+ * Copy nicks to file
  */
-void save_and_destroy_nicks(Server *serv, char *filename)
+void write_nicks_to_file(Server *serv, char *filename)
 {
 	FILE *nick_file = fopen(filename, "w");
 
@@ -111,31 +111,25 @@ void save_and_destroy_nicks(Server *serv, char *filename)
 
 		CC_Array *nicks = elem->value;
 
-		if (nicks)
+		assert(nicks);
+
+		char *nick = NULL;
+
+		for (size_t i = 0; i < cc_array_size(nicks); i++)
 		{
-			char *nick = NULL;
-
-			for (size_t i = 0; i < cc_array_size(nicks); i++)
+			if (cc_array_get_at(nicks, i, (void **)&nick) == CC_OK)
 			{
-				if (cc_array_get_at(nicks, i, (void **)&nick) == CC_OK)
-				{
-					fwrite(nick, 1, strlen(nick), nick_file);
-				}
+				fwrite(nick, 1, strlen(nick), nick_file);
+			}
 
-				if (i + 1 < cc_array_size(nicks))
-				{
-					fputc(',', nick_file);
-				}
+			if (i + 1 < cc_array_size(nicks))
+			{
+				fputc(',', nick_file);
 			}
 		}
 
 		fputc('\n', nick_file);
-
-		// cc_hashtable_iter_remove(&itr, (void **) &nicks);
-		// cc_array_destroy_cb(nicks, free);
 	}
-
-	cc_hashtable_destroy(serv->user_to_nicks_map);
 
 	fclose(nick_file);
 
@@ -145,32 +139,64 @@ void save_and_destroy_nicks(Server *serv, char *filename)
 void Server_destroy(Server *serv)
 {
 	assert(serv);
-
-	save_and_destroy_nicks(serv, NICKS_FILENAME);
-
-	// TODO: destroy values
-	cc_hashtable_destroy(serv->user_to_sock_map);
+	write_nicks_to_file(serv, NICKS_FILENAME);
 
 	CC_HashTableIter itr;
-	TableEntry *elem;
+	TableEntry *elem = NULL;
 
+	/* Destroy server user_to_nicks_map */
+	cc_hashtable_iter_init(&itr, serv->user_to_nicks_map);
+
+	while (cc_hashtable_iter_next(&itr, &elem) != CC_ITER_END)
+	{
+		free(elem->key);
+		elem->key = NULL;
+
+		CC_Array *nicks = elem->value;
+		cc_array_destroy_cb(nicks, free);
+		elem->value = NULL;
+	}
+
+	cc_hashtable_destroy(serv->user_to_nicks_map);
+
+	/* Destroy server user_to_sock_map */
+	cc_hashtable_iter_init(&itr, serv->user_to_sock_map);
+
+	while (cc_hashtable_iter_next(&itr, &elem) != CC_ITER_END)
+	{
+		// Do not destroy the username key as it is owned by user
+
+		int *fd = elem->value;
+		free(fd);
+		elem->value = NULL;
+	}
+
+	cc_hashtable_destroy(serv->user_to_sock_map);
+
+	/* Destroy server connections ma */
 	cc_hashtable_iter_init(&itr, serv->connections);
 
 	while (cc_hashtable_iter_next(&itr, &elem) != CC_ITER_END)
 	{
 		int *key = elem->key;
-		User *usr = (User *)elem->value;
-
-		cc_hashtable_iter_remove(&itr, (void **)&usr);
+		User *usr = elem->value;
 
 		free(key);
+
+		/* close connection and free user memory */
+		close(usr->fd);
 		User_Destroy(usr);
+
+		elem->key = elem->value = NULL;
 	}
 
 	cc_hashtable_destroy(serv->connections);
 
+	/* close fds */
 	close(serv->fd);
 	close(serv->epollfd);
+
+	/* free server memory */
 	free(serv->hostname);
 	free(serv->port);
 	free(serv);

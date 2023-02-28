@@ -15,7 +15,7 @@ List of commands to implement:
 
 The USER and NICK command should be the first messages sent by a new client to complete registration.
 
-Syntax: `NICK <nickname> [<hopcount>]`
+Syntax: `NICK <nickname>`
 Example: `NICK aarya\r\n`
 
 Replies:
@@ -64,7 +64,7 @@ The QUIT command should be the final message sent by client to close the connect
 - Syntax: `QUIT :<message>`
 - Example: `QUIT :Gone to have lunch.`
 
-Replies: 
+Replies:
 
 - ERROR
 
