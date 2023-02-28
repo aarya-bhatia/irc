@@ -10,11 +10,10 @@
 
 void _sanity_check(Server *serv, User *usr, Message *msg)
 {
-    assert(serv);
-    assert(usr);
-    assert(msg);
+	assert(serv);
+	assert(usr);
+	assert(msg);
 }
-
 
 void Server_process_request(Server *serv, User *usr)
 {
@@ -60,7 +59,7 @@ void Server_process_request(Server *serv, User *usr)
 			{
 				Server_reply_to_PING(serv, usr, message);
 			}
-			else if(!strcmp(message->command, "PRIVMSG"))
+			else if (!strcmp(message->command, "PRIVMSG"))
 			{
 				Server_reply_to_PRIVMSG(serv, usr, message);
 			}
@@ -148,6 +147,9 @@ void Server_destroy(Server *serv)
 	assert(serv);
 
 	save_and_destroy_nicks(serv, NICKS_FILENAME);
+
+	// TODO: destroy values
+	cc_hashtable_destroy(serv->user_to_sock_map);
 
 	CC_HashTableIter itr;
 	TableEntry *elem;
@@ -275,6 +277,12 @@ Server *Server_create(int port)
 	serv->epollfd = epoll_create(1 + MAX_EVENTS);
 	CHECK(serv->epollfd, "epoll_create");
 
+	if (cc_hashtable_new(&serv->user_to_sock_map) != CC_OK)
+	{
+		log_error("Failed to create hashtable");
+		exit(1);
+	}
+
 	// Hashtable settings
 	CC_HashTableConf htc;
 
@@ -373,103 +381,144 @@ void Server_accept_all(Server *serv)
 	}
 }
 
+/**
+ * The USER and NICK command should be the first messages sent by a new client to complete registration.
+ *
+ * Syntax: `NICK <nickname> [<hopcount>]`
+ * Example: `NICK aarya\r\n`
+ *
+ * Replies:
+ *
+ * - RPL_WELCOME
+ * - ERR_NONICKNAMEGIVEN
+ * - ERR_NICKNAMEINUSE
+ */
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
 
-    assert(!strcmp(msg->command, "NICK"));
+	assert(!strcmp(msg->command, "NICK"));
 
-    if (msg->n_params != 1)
-    {
-        User_add_msg(usr, make_reply(ERR_NEEDMOREPARAMS_MSG, usr->nick, msg->command));
-        return;
-    }
+	if (msg->n_params != 1)
+	{
+		User_add_msg(usr, make_reply(ERR_NEEDMOREPARAMS_MSG, usr->nick, msg->command));
+		return;
+	}
 
-    assert(msg->params[0]);
+	assert(msg->params[0]);
 
-    char *new_nick = msg->params[0];
+	char *new_nick = msg->params[0];
 
-    if (!check_nick_available(serv, usr, new_nick))
-    {
-        User_add_msg(usr, make_reply(ERR_NICKNAMEINUSE_MSG, msg->params[0]));
-        return;
-    }
+	if (!check_nick_available(serv, usr, new_nick))
+	{
+		User_add_msg(usr, make_reply(ERR_NICKNAMEINUSE_MSG, msg->params[0]));
+		return;
+	}
 
-    free(usr->nick);
+	free(usr->nick);
 
-    usr->nick = strdup(new_nick);
-    usr->nick_changed = true;
+	usr->nick = strdup(new_nick);
+	usr->nick_changed = true;
 
-    log_info("user %s updated nick", usr->nick);
+	log_info("user %s updated nick", usr->nick);
 
-    check_registration_complete(serv, usr);
-    update_nick_map(serv, usr);
+	check_registration_complete(serv, usr);
+	update_nick_map(serv, usr);
 }
 
+/**
+ * The USER and NICK command should be the first messages sent by a new client to complete registration.
+ * - Syntax: `USER <username> * * :<realname>`
+ *
+ * - Description: USER message is used at the beginning to specify the username and realname of new user.
+ * - It is used in communication between servers to indicate new user
+ * - A client will become registered after both USER and NICK have been received.
+ * - Realname can contain spaces.
+ */
 void Server_reply_to_USER(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
+	assert(!strcmp(msg->command, "USER"));
 
-    assert(!strcmp(msg->command, "USER"));
+	if (msg->n_params != 3 || !msg->body)
+	{
+		User_add_msg(usr, make_reply(ERR_NEEDMOREPARAMS_MSG, usr->nick, msg->command));
+		return;
+	}
 
-    if (msg->n_params != 3 || !msg->body)
-    {
-        User_add_msg(usr, make_reply(ERR_NEEDMOREPARAMS_MSG, usr->nick, msg->command));
-        return;
-    }
+	// User cannot set username/realname twice
+	if (usr->username && usr->realname)
+	{
+		User_add_msg(usr, make_reply(ERR_ALREADYREGISTRED_MSG, usr->nick));
+		return;
+	}
 
-    if (usr->registered)
-    {
-        User_add_msg(usr, make_reply(ERR_ALREADYREGISTRED_MSG, usr->nick));
-        return;
-    }
+	assert(msg->params[0]);
+	assert(msg->body);
 
-    assert(msg->params[0]);
+	char *username = msg->params[0];
+	char *realname = msg->body;
 
-    char *username = msg->params[0];
-    char *realname = msg->body;
+	// Set the username and realname
+	usr->username = strdup(username);
+	usr->realname = strdup(realname);
 
-    free(usr->username);
-    free(usr->realname);
+	log_debug("user %s set username to %s and realname to %s", usr->nick, username, realname);
 
-    usr->username = strdup(username);
-    usr->realname = strdup(realname);
+	// To store the value of socket in hashmap
+	int *userfd = malloc(sizeof *userfd);
+	*userfd = usr->fd;
 
-    log_debug("user %s set username to %s and realname to %s", usr->nick, username, realname);
+	// Register user's username to their socket in map
+	cc_hashtable_add(serv->user_to_sock_map, usr->username, userfd);
 
-    check_registration_complete(serv, usr);
+	// Complete registration and prepare greeting messages
+	check_registration_complete(serv, usr);
 }
 
 void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
-    assert(!strcmp(msg->command, "MOTD"));
+	_sanity_check(serv, usr, msg);
+	assert(!strcmp(msg->command, "MOTD"));
 
-    char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
+	char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
-    if (motd)
-    {
-        User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
-    }
-    else
-    {
-        User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
-    }
+	if (motd)
+	{
+		User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
+	}
+	else
+	{
+		User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
+	}
 }
 
 void Server_reply_to_PING(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
-    assert(!strcmp(msg->command, "PING"));
-    User_add_msg(usr, make_reply("PONG %s", serv->hostname));
+	_sanity_check(serv, usr, msg);
+	assert(!strcmp(msg->command, "PING"));
+	User_add_msg(usr, make_reply("PONG %s", serv->hostname));
 }
 
+/**
+ * The PRIVMSG command is used to deliver a message to from one client to another within an IRC network.
+ *
+ * - Sytnax: `[:prefix] PRIVMSG <receiver> :<text>`
+ * - Example: `PRIVMSG Aarya :hello, how are you?`
+ *
+ * Replies
+ *
+ * - RPL_AWAY
+ * - ERR_NORECIPEINT
+ * - ERR_NOSUCHNICK
+ * - ERR_TOOMANYTARGETS
+ */
 void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
-		assert(!strcmp(msg->command, "PRIVMSG"));
+	_sanity_check(serv, usr, msg);
+	assert(!strcmp(msg->command, "PRIVMSG"));
 
-	if(!usr->registered)
+	if (!usr->registered)
 	{
 		User_add_msg(usr, make_reply(ERR_NOTREGISTERED_MSG, usr->nick));
 		return;
@@ -477,7 +526,7 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg)
 
 	assert(usr->username);
 
-	if(msg->n_params == 0)
+	if (msg->n_params == 0)
 	{
 		User_add_msg(usr, make_reply(ERR_NORECIPIENT_MSG, usr->nick));
 		return;
@@ -485,104 +534,144 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg)
 
 	assert(msg->params[0]);
 
-	char *target_nick = msg->params[0];
-
-	if(msg->n_params > 1)
+	if (msg->n_params > 1)
 	{
 		User_add_msg(usr, make_reply(ERR_TOOMANYTARGETS_MSG, usr->nick));
 		return;
 	}
-	
-	// Check if nick exists
-	CC_HashTableIter itr;
-	cc_hashtable_iter_init(&itr, serv->connections);
 
+	// The nick to send message to
+	const char *target_nick = msg->params[0];
+	char *target_username = NULL;
+
+	CC_HashTableIter itr; // iterate
 	TableEntry *entry = NULL;
-	User *found_user = NULL;
+	cc_hashtable_iter_init(&itr, serv->user_to_nicks_map);
 
-	while(!found_user && cc_hashtable_iter_next(&itr, &entry) != CC_ITER_END)
+	// For each registered user, check if one of their nicks match the given nick
+	while (!target_username && cc_hashtable_iter_next(&itr, &entry) != CC_ITER_END)
 	{
-		User *user_data = entry->value;
-		CC_Array *nicks = NULL;
+		char *cur_username = entry->key;
+		CC_Array *cur_nicks = entry->value;
 
-		if(user_data && 
-				user_data->registered && 
-				cc_hashtable_get(serv->user_to_nicks_map, user_data->username, (void**) &nicks) == CC_OK && 
-				nicks)
+		assert(cur_username);
+		assert(cur_nicks);
+
+		// Iterate the nicks array
+		CC_ArrayIter nick_itr;
+		cc_array_iter_init(&nick_itr, cur_nicks);
+		char *cur_nick = NULL;
+
+		while (cc_array_iter_next(&nick_itr, (void **)&cur_nick) != CC_ITER_END)
 		{
-			for(size_t i = 0; i < cc_array_size(nicks); i++)
+			assert(cur_nick);
+
+			// match found
+			if (!strcmp(cur_nick, target_nick))
 			{
-				char *value = NULL;
-				if(cc_array_get_at(nicks, i, (void **) &value) == CC_OK && !strcmp(value, target_nick))
-				{
-					found_user = user_data;
-					break;
-				}
+				target_username = cur_username;
+				break;
 			}
 		}
 	}
 
-	if(!found_user)
+	// no user found with a matching nick
+	if (!target_username)
 	{
 		User_add_msg(usr, make_reply(ERR_NOSUCHNICK_MSG, usr->nick, target_nick));
 		return;
 	}
-	
-	// TODO: Need to check if nick exists at all for RPL_AWAY
-	//
-	// TODO: Respond to current user for success?
-	
-	// Add message to target user's queue
-	User_add_msg(found_user, make_reply(":%s PRIVMSG %s :%s", usr->nick, target_nick, msg->body));
-	return;
+
+	// Look up the socket for target user through their username
+	int *target_sock = NULL;
+
+	cc_hashtable_get(serv->user_to_sock_map, target_username, (void **)&target_sock);
+
+	// user is offline
+	if (!target_sock)
+	{
+		User_add_msg(usr, make_reply(RPL_AWAY_MSG, usr->nick, target_nick));
+		return;
+	}
+
+	assert(target_sock);
+
+	// Look up the user data for the target user through their socket
+
+	User *target_data = NULL;
+
+	if (cc_hashtable_get(serv->connections, (void *)target_sock, (void **)&target_data) == CC_OK)
+	{
+		assert(target_data);
+
+		// Add message to target user's queue
+		User_add_msg(target_data, make_reply(":%s@%s PRIVMSG %s :%s", usr->nick,
+											 usr->hostname,
+											 target_nick, msg->body));
+		return;
+	}
+
+	log_info("PRIVMSG sent from user %s to user %s", usr->nick, target_nick);
+
+	// TODO: Respond to current user for success
 }
 
+/**
+ * The QUIT command should be the final message sent by client to close the connection.
+ *
+ * - Syntax: `QUIT :<message>`
+ * - Example: `QUIT :Gone to have lunch.`
+ *
+ * Replies:
+ *
+ * - ERROR
+ */
 void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
-    assert(!strcmp(msg->command, "QUIT"));
+	_sanity_check(serv, usr, msg);
+	assert(!strcmp(msg->command, "QUIT"));
 
-    char *reason = (msg->body ? msg->body : "Client Quit");
+	char *reason = (msg->body ? msg->body : "Client Quit");
 
-    User_add_msg(usr, make_reply("ERROR :Closing Link: %s (%s)", usr->hostname, reason));
+	User_add_msg(usr, make_reply("ERROR :Closing Link: %s (%s)", usr->hostname, reason));
 }
 
 void Server_reply_to_WHO(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_LIST(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_PASS(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg)
 {
-    _sanity_check(serv, usr, msg);
+	_sanity_check(serv, usr, msg);
 }

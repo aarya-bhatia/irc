@@ -13,6 +13,7 @@ typedef struct _Server
 {
 	CC_HashTable *connections;		 // Map socket fd to User data object
 	CC_HashTable *user_to_nicks_map; // Map username to array of nicks owned by user
+	CC_HashTable *user_to_sock_map;	  // Map username to client socket
 	struct sockaddr_in servaddr;	 // address info for server
 	int fd;							 // listen socket
 	int epollfd;					 // epoll fd

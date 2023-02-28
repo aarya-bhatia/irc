@@ -115,6 +115,13 @@ void User_Disconnect(Server *serv, User *usr)
 	log_info("Closing connection with user (%d): %s", usr->fd, usr->nick);
 	epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, usr->fd, NULL);
 	cc_hashtable_remove(serv->connections, (void *)&usr->fd, NULL);
+
+	int *fd = NULL;
+	cc_hashtable_remove(serv->user_to_sock_map, (void *)usr->username, (void **) &fd);
+	assert(fd);
+	assert(*fd == usr->fd);
+	free(fd);
+
 	User_Destroy(usr);
 }
 

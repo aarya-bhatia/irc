@@ -6,6 +6,8 @@
 
 - Check if target user exists in nick db for RPL_AWAY
 
+- Check nick_map to find user and look up user data through user_to_sock map.
+
 ## Log Files
 
 ### Session log

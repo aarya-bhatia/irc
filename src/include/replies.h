@@ -35,7 +35,7 @@
 #define RPL_WHOISSSL_MSG "275 %s %s :is connected via SSL (secure link)"
 #define RPL_WHOISCERTFP_MSG "276 %s %s :has client certificate fingerprint %s"
 
-#define RPL_AWAY_MSG "301 %s %s :%s"
+#define RPL_AWAY_MSG "301 %s %s"
 #define RPL_USERHOST_MSG "302 %s :"
 #define RPL_ISON_MSG "303 %s :"
 #define RPL_UNAWAY_MSG "305 %s :You are no longer marked as being away"

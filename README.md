@@ -53,11 +53,9 @@ The PRIVMSG command is used to deliver a message to from one client to another w
 Replies
 
 - RPL_AWAY
-
 - ERR_NORECIPEINT
 - ERR_NOSUCHNICK
 - ERR_TOOMANYTARGETS
-- ERROR
 
 4. QUIT
 
@@ -66,7 +64,9 @@ The QUIT command should be the final message sent by client to close the connect
 - Syntax: `QUIT :<message>`
 - Example: `QUIT :Gone to have lunch.`
 
-Replies: None
+Replies: 
+
+- ERROR
 
 5. PING/PONG
 
