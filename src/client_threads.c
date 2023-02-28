@@ -25,10 +25,22 @@ void *inbox_thread_routine(void *args)
         }
         else
         {
-            // process message
-            SAFE(mutex_stdout, {
-                printf("Server: %s\n", message);
-            });
+            // Display message to stdout
+
+            if (!strcmp(msg_info.command, "PRIVMSG"))
+            {
+                assert(msg_info.n_params == 1);
+
+                SAFE(mutex_stdout, {
+                    printf("%s: %s\n", msg_info.origin, msg_info.body);
+                });
+            }
+            else
+            {
+                SAFE(mutex_stdout, {
+                    printf("Server: %s\n", message);
+                });
+            }
         }
 
         free(msgcopy);
