@@ -34,7 +34,7 @@ This command sends a Message of the Day to the requesting user.
 It looks up the current day's message from a file (motd.txt) that contains a list of quotes.
 This file was downloaded using the `zenquotes.io` API using the script in `download_quotes.py`.
 This list can be updated by repeating this script.
-The server simply gets the line that is at position `current_day % total_lines`.
+The server simply gets the line that is at position `day_of_year % total_lines`, where `total_lines < 365`.
 The filename can be changed at any time as the server has a string to store the filename.
 
 ## NICK/USER: User Registration

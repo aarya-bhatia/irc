@@ -208,44 +208,38 @@ void Server_destroy(Server *serv)
 char *get_motd(char *fname)
 {
 	FILE *file = fopen(fname, "r");
-	char *res = NULL;
-	size_t res_len = 0;
 
 	if (!file)
 	{
 		log_warn("failed to open %s", fname);
 		return NULL;
 	}
-	else
+
+	char *res = NULL;
+	size_t res_len = 0;
+	size_t num_lines = 1;
+
+	// count number of lines
+	for (int c = fgetc(file); c != EOF; c = fgetc(file))
 	{
-		size_t num_lines = 1;
-
-		// count number of lines
-		for (int c = fgetc(file); c != EOF; c = fgetc(file))
+		if (c == '\n')
 		{
-			if (c == '\n')
-			{
-				num_lines = num_lines + 1;
-			}
+			num_lines = num_lines + 1;
 		}
+	}
 
-		fseek(file, 0, SEEK_SET); // go to beginning
+	fseek(file, 0, SEEK_SET); // go to beginning
 
-		time_t t = time(NULL);
-		struct tm tm = *localtime(&t);
-		char *mday = make_string("%d", tm.tm_mday); // day of month
-		int mday_int = atoi(mday);
-		free(mday);
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+	size_t line_no = tm.tm_yday % num_lines; // select a line from file to use
 
-		size_t line_no = mday_int % num_lines; // select a line from file to use
-
-		for (size_t i = 0; i < line_no + 1; i++)
+	for (size_t i = 0; i < line_no + 1; i++)
+	{
+		if (getline(&res, &res_len, file) == -1)
 		{
-			if (getline(&res, &res_len, file) == -1)
-			{
-				perror("getline");
-				break;
-			}
+			perror("getline");
+			break;
 		}
 	}
 
