@@ -10,6 +10,7 @@ COMMON_OBJ=obj/common.o obj/message.o obj/queue.o
 
 SERVER_OBJ=obj/server_main.o obj/server.o 
 SERVER_OBJ+=obj/user.o obj/load_nicks.o obj/register.o
+SERVER_OBJ+=obj/channel.o
 SERVER_OBJ+=$(COMMON_OBJ)
 
 CLIENT_OBJ=obj/client.o obj/client_threads.o 

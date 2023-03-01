@@ -77,9 +77,17 @@ ssize_t User_Read_Event(Server *serv, User *usr);
 ssize_t User_Write_Event(Server *serv, User *usr);
 void User_Disconnect(Server *serv, User *usr);
 void User_Destroy(User *usr);
-
 void User_add_msg(User *usr, char *msg);
 
 CC_HashTable *load_nicks(const char *filename);
-
 char *get_motd(char *fname);
+
+Channel *Server_get_channel(Server *serv, const char *name);
+Channel *Server_add_channel(Server *serv, const char *name);
+bool Server_remove_channel(Server *serv, const char *name);
+
+void Channel_save_to_file(Channel *this, const char *filename);
+Channel *Channel_load_from_file(const char *filename);
+bool Channel_add_member(Channel *this, const char *username);
+bool Channel_remove_member(Channel *this, const char *username);
+

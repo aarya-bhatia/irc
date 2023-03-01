@@ -43,6 +43,8 @@ CC_Array *parse_all_messages(char *str)
 
 		message_init(msg);
 
+		log_debug("Message: %s", tok);
+
 		if ((ret = parse_message(tok, msg)) == -1)
 		{
 			log_warn("Invalid message");

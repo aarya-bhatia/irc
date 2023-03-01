@@ -81,6 +81,11 @@ COLLECTIONS_C_COMMON_H	collectc/cc_common.h	22;"	d
 COLLECTIONS_C_QUEUE_H	collectc/cc_queue.h	22;"	d
 COLLECTIONS_C_STACK_H	collectc/cc_stack.h	22;"	d
 CRLF	common.h	33;"	d
+Channel	server.h	/^} Channel;$/;"	t	typeref:struct:_Channel
+Channel_add_member	server.h	/^void Channel_add_member(Channel *this, const char *username);$/;"	p	signature:(Channel *this, const char *username)
+Channel_load_from_file	server.h	/^Channel *Channel_load_from_file(const char *filename);$/;"	p	signature:(const char *filename)
+Channel_remove_member	server.h	/^void Channel_remove_member(Channel *this, const char *username);$/;"	p	signature:(Channel *this, const char *username)
+Channel_save_to_file	server.h	/^void Channel_save_to_file(Channel *this, const char *filename);$/;"	p	signature:(Channel *this, const char *filename)
 Client	client.h	/^typedef struct Client$/;"	s
 Client	client.h	/^} Client;$/;"	t	typeref:struct:Client
 Client::client_inbox	client.h	/^    queue_t *client_inbox;$/;"	m	struct:Client	access:public
@@ -279,9 +284,12 @@ STACK_FOREACH_ZIP	collectc/cc_stack.h	94;"	d
 STRING_HASH	collectc/cc_hashtable.h	163;"	d
 Server	server.h	/^} Server;$/;"	t	typeref:struct:_Server
 Server_accept_all	server.h	/^void Server_accept_all(Server *serv);$/;"	p	signature:(Server *serv)
+Server_add_channel	server.h	/^Channel *Server_add_channel(Server *serv, const char *name);$/;"	p	signature:(Server *serv, const char *name)
 Server_create	server.h	/^Server *Server_create(int port);$/;"	p	signature:(int port)
 Server_destroy	server.h	/^void Server_destroy(Server *serv);$/;"	p	signature:(Server *serv)
+Server_get_channel	server.h	/^Channel *Server_get_channel(Server *serv, const char *name);$/;"	p	signature:(Server *serv, const char *name)
 Server_process_request	server.h	/^void Server_process_request(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+Server_remove_channel	server.h	/^void Server_remove_channel(Server *serv, const char *name);$/;"	p	signature:(Server *serv, const char *name)
 Server_reply_to_CONNECT	server.h	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_JOIN	server.h	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_LIST	server.h	/^void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
@@ -342,6 +350,10 @@ User_Read_Event	server.h	/^ssize_t User_Read_Event(Server *serv, User *usr);$/;"
 User_Write_Event	server.h	/^ssize_t User_Write_Event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
 User_add_msg	server.h	/^void User_add_msg(User *usr, char *msg);$/;"	p	signature:(User *usr, char *msg)
 _CHECK	common.h	35;"	d
+_Channel	server.h	/^typedef struct _Channel$/;"	s
+_Channel::members	server.h	/^	CC_Array *members;	 \/\/ usernames of members in the channel$/;"	m	struct:_Channel	access:public
+_Channel::name	server.h	/^	char *name;			 \/\/ name of channel$/;"	m	struct:_Channel	access:public
+_Channel::time_created	server.h	/^	time_t time_created; \/\/ time channel was created$/;"	m	struct:_Channel	access:public
 _GNU_SOURCE	common.h	3;"	d
 _GetCapacity	aaryab2/String.c	/^size_t _GetCapacity(size_t n)$/;"	f	signature:(size_t n)
 _GetCapacity	aaryab2/String.h	/^size_t _GetCapacity(size_t n);$/;"	p	signature:(size_t n)
@@ -352,6 +364,7 @@ _Message::n_params	message.h	/^	size_t n_params;$/;"	m	struct:_Message	access:pu
 _Message::origin	message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
 _Message::params	message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
 _Server	server.h	/^typedef struct _Server$/;"	s
+_Server::channels	server.h	/^	CC_Array *channels;				 \/\/ List of channels$/;"	m	struct:_Server	access:public
 _Server::connections	server.h	/^	CC_HashTable *connections;		 \/\/ Map socket fd to User data object$/;"	m	struct:_Server	access:public
 _Server::created_at	server.h	/^	char created_at[64];			 \/\/ server time created at as string$/;"	m	struct:_Server	access:public
 _Server::epollfd	server.h	/^	int epollfd;					 \/\/ epoll fd$/;"	m	struct:_Server	access:public
@@ -361,7 +374,7 @@ _Server::motd_file	server.h	/^	char *motd_file;				 \/\/ file to use for message
 _Server::port	server.h	/^	char *port;						 \/\/ server port$/;"	m	struct:_Server	access:public
 _Server::servaddr	server.h	/^	struct sockaddr_in servaddr;	 \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
 _Server::user_to_nicks_map	server.h	/^	CC_HashTable *user_to_nicks_map; \/\/ Map username to array of nicks owned by user$/;"	m	struct:_Server	access:public
-_Server::user_to_sock_map	server.h	/^	CC_HashTable *user_to_sock_map;	  \/\/ Map username to client socket$/;"	m	struct:_Server	access:public
+_Server::user_to_sock_map	server.h	/^	CC_HashTable *user_to_sock_map;	 \/\/ Map username to client socket$/;"	m	struct:_Server	access:public
 _String	aaryab2/String.c	/^struct _String$/;"	s	file:
 _String::buffer	aaryab2/String.c	/^	char *buffer;$/;"	m	struct:_String	file:	access:public
 _String::capacity	aaryab2/String.c	/^	size_t capacity;$/;"	m	struct:_String	file:	access:public
@@ -818,6 +831,7 @@ cc_tsttable_new_conf	collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_new_conf
 cc_tsttable_remove	collectc/cc_tsttable.h	/^enum cc_stat  cc_tsttable_remove          (CC_TSTTable *table, char *key, void **out);$/;"	p	signature:(CC_TSTTable *table, char *key, void **out)
 cc_tsttable_remove_all	collectc/cc_tsttable.h	/^void          cc_tsttable_remove_all      (CC_TSTTable *table);$/;"	p	signature:(CC_TSTTable *table)
 cc_tsttable_size	collectc/cc_tsttable.h	/^size_t        cc_tsttable_size            (CC_TSTTable *table);$/;"	p	signature:(CC_TSTTable *table)
+channels	server.h	/^	CC_Array *channels;				 \/\/ List of channels$/;"	m	struct:_Server	access:public
 char_cmp	collectc/cc_tsttable.h	/^    int    (*char_cmp)    (char c1, char c2);$/;"	m	struct:cc_tsttable_conf_s	access:public
 check_nick_available	register.h	/^bool check_nick_available(Server *serv, User *usr, char *nick);$/;"	p	signature:(Server *serv, User *usr, char *nick)
 check_registration_complete	register.h	/^bool check_registration_complete(Server *serv, User *usr);/;"	p	signature:(Server *serv, User *usr)
@@ -952,11 +966,13 @@ mem_free	collectc/cc_pqueue.h	/^    void  (*mem_free)   (void *block);$/;"	m	str
 mem_free	collectc/cc_slist.h	/^    void   (*mem_free)   (void *block);$/;"	m	struct:cc_slist_conf_s	access:public
 mem_free	collectc/cc_treetable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_treetable_conf_s	access:public
 mem_free	collectc/cc_tsttable.h	/^    void   (*mem_free)    (void *block);$/;"	m	struct:cc_tsttable_conf_s	access:public
+members	server.h	/^	CC_Array *members;	 \/\/ usernames of members in the channel$/;"	m	struct:_Channel	access:public
 message_destroy	message.h	/^void message_destroy(Message *msg);$/;"	p	signature:(Message *msg)
 message_init	message.h	/^void message_init(Message *msg);$/;"	p	signature:(Message *msg)
 motd_file	server.h	/^	char *motd_file;				 \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
 msg_queue	server.h	/^	CC_List *msg_queue;			   \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
 n_params	message.h	/^	size_t n_params;$/;"	m	struct:_Message	access:public
+name	server.h	/^	char *name;			 \/\/ name of channel$/;"	m	struct:_Channel	access:public
 next	collectc/cc_hashtable.h	/^    struct table_entry_s *next;$/;"	m	struct:table_entry_s	typeref:struct:table_entry_s::table_entry_s	access:public
 next	collectc/cc_list.h	/^    Node   *next;$/;"	m	struct:cc_list_iter_s	access:public
 next	collectc/cc_list.h	/^    struct node_s *next;$/;"	m	struct:node_s	typeref:struct:node_s::node_s	access:public
@@ -1068,6 +1084,7 @@ table_entry_s::key	collectc/cc_hashtable.h	/^    void     *key;$/;"	m	struct:tab
 table_entry_s::next	collectc/cc_hashtable.h	/^    struct table_entry_s *next;$/;"	m	struct:table_entry_s	typeref:struct:table_entry_s::table_entry_s	access:public
 table_entry_s::value	collectc/cc_hashtable.h	/^    void     *value;$/;"	m	struct:table_entry_s	access:public
 time	log/log.h	/^  struct tm *time;$/;"	m	struct:__anon1	typeref:struct:__anon1::tm	access:public
+time_created	server.h	/^	time_t time_created; \/\/ time channel was created$/;"	m	struct:_Channel	access:public
 timerfd	timer.h	/^    int timerfd;$/;"	m	struct:Timer	access:public
 tree_table_entry_s	collectc/cc_treetable.h	/^typedef struct tree_table_entry_s {$/;"	s
 tree_table_entry_s::key	collectc/cc_treetable.h	/^    void *key;$/;"	m	struct:tree_table_entry_s	access:public
@@ -1080,7 +1097,7 @@ trimwhitespace	common.h	/^char *trimwhitespace(char *str);$/;"	p	signature:(char
 udata	log/log.h	/^  void *udata;$/;"	m	struct:__anon1	access:public
 update_nick_map	register.h	/^bool update_nick_map(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
 user_to_nicks_map	server.h	/^	CC_HashTable *user_to_nicks_map; \/\/ Map username to array of nicks owned by user$/;"	m	struct:_Server	access:public
-user_to_sock_map	server.h	/^	CC_HashTable *user_to_sock_map;	  \/\/ Map username to client socket$/;"	m	struct:_Server	access:public
+user_to_sock_map	server.h	/^	CC_HashTable *user_to_sock_map;	 \/\/ Map username to client socket$/;"	m	struct:_Server	access:public
 username	server.h	/^	char *username;$/;"	m	struct:_User	access:public
 value	collectc/cc_hashtable.h	/^    void     *value;$/;"	m	struct:table_entry_s	access:public
 value	collectc/cc_treetable.h	/^    void *value;$/;"	m	struct:rbnode_s	access:public
