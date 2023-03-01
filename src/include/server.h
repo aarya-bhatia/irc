@@ -13,7 +13,8 @@ typedef struct _Server
 {
 	CC_HashTable *connections;		 // Map socket fd to User data object
 	CC_HashTable *user_to_nicks_map; // Map username to array of nicks owned by user
-	CC_HashTable *user_to_sock_map;	  // Map username to client socket
+	CC_HashTable *user_to_sock_map;	 // Map username to client socket
+	CC_Array *channels;				 // List of channels
 	struct sockaddr_in servaddr;	 // address info for server
 	int fd;							 // listen socket
 	int epollfd;					 // epoll fd
@@ -40,6 +41,14 @@ typedef struct _User
 	bool nick_changed;
 	bool quit;
 } User;
+
+typedef struct _Channel
+{
+	char *name;			 // name of channel
+	time_t time_created; // time channel was created
+	CC_Array *members;	 // usernames of members in the channel
+	int private;		 // by default channels are public
+} Channel;
 
 Server *Server_create(int port);
 void Server_destroy(Server *serv);
