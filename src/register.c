@@ -38,20 +38,20 @@ bool check_registration_complete(Server *serv, User *usr)
     {
         usr->registered = true;
 
-        User_add_msg(usr, make_reply(RPL_WELCOME_MSG, usr->nick, usr->nick));
-        User_add_msg(usr, make_reply(RPL_YOURHOST_MSG, usr->nick, usr->hostname));
-        User_add_msg(usr, make_reply(RPL_CREATED_MSG, usr->nick, serv->created_at));
-        User_add_msg(usr, make_reply(RPL_MYINFO_MSG, usr->nick, serv->hostname, "*", "*", "*"));
+        User_add_msg(usr, make_reply(":%s " RPL_WELCOME_MSG, serv->hostname, usr->nick, usr->nick));
+        User_add_msg(usr, make_reply(":%s " RPL_YOURHOST_MSG, serv->hostname, usr->nick, usr->hostname));
+        User_add_msg(usr, make_reply(":%s " RPL_CREATED_MSG, serv->hostname, usr->nick, serv->created_at));
+        User_add_msg(usr, make_reply(":%s " RPL_MYINFO_MSG, serv->hostname, usr->nick, serv->hostname, "*", "*", "*"));
 
         char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
         if (motd)
         {
-            User_add_msg(usr, make_reply(RPL_MOTD_MSG, usr->nick, motd));
+            User_add_msg(usr, make_reply(":%s " RPL_MOTD_MSG, serv->hostname, usr->nick, motd));
         }
         else
         {
-            User_add_msg(usr, make_reply(ERR_NOMOTD_MSG, usr->nick));
+            User_add_msg(usr, make_reply(":%s " ERR_NOMOTD_MSG, serv->hostname, usr->nick));
         }
 
         update_nick_map(serv, usr);
