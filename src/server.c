@@ -4,9 +4,14 @@
 #include "include/register.h"
 #include <time.h>
 #include <sys/stat.h>
+#include <sys/dir.h>
+#include <dirent.h>
 
-#define MOTD_FILENAME "./motd.txt"
-#define NICKS_FILENAME "./nicks.txt"
+#define MOTD_FILENAME "./data/motd.txt"
+#define NICKS_FILENAME "./data/nicks.txt"
+#define CHANNELS_DIRNAME "./data/channels"
+
+typedef void (*free_like)(void *);
 
 void _sanity_check(Server *serv, User *usr, Message *msg)
 {
@@ -62,6 +67,10 @@ void Server_process_request(Server *serv, User *usr)
 			else if (!strcmp(message->command, "PRIVMSG"))
 			{
 				Server_reply_to_PRIVMSG(serv, usr, message);
+			}
+			else if (!strcmp(message->command, "JOIN"))
+			{
+				Server_reply_to_JOIN(serv, usr, message);
 			}
 			else if (!strcmp(message->command, "QUIT"))
 			{
@@ -192,6 +201,25 @@ void Server_destroy(Server *serv)
 
 	cc_hashtable_destroy(serv->connections);
 
+	/* Destroy channels and save data to file */
+	for (size_t i = 0; i < cc_array_size(serv->channels); i++)
+	{
+		Channel *channel = NULL;
+		if (cc_array_get_at(serv->channels, i, (void **)&channel) == CC_OK)
+		{
+			assert(channel);
+			assert(channel->name);
+
+			char *filename = NULL;
+			asprintf(&filename, "channels/%s", channel->name);
+			Channel_save_to_file(channel, filename);
+
+			free(filename);
+		}
+	}
+
+	cc_array_destroy_cb(serv->channels, (free_like)Channel_destroy);
+
 	/* close fds */
 	close(serv->fd);
 	close(serv->epollfd);
@@ -253,6 +281,45 @@ char *get_motd(char *fname)
 	return res;
 }
 
+void load_channels(CC_Array *channels, char *dirname)
+{
+	DIR *dir = opendir(dirname);
+
+	if (!dir)
+	{
+		perror("opendir");
+		log_error("Failed to load channels from dir %s", dirname);
+		return;
+	}
+
+	struct dirent *d = NULL;
+
+	while ((d = readdir(dir)) != NULL)
+	{
+		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+		{
+			continue;
+		}
+
+		if (d->d_type == DT_REG)
+		{
+			Channel *channel = Channel_load_from_file(d->d_name);
+
+			if (channel)
+			{
+				if (cc_array_add(channels, channel) != CC_OK)
+				{
+					log_error("cc_array_add");
+				}
+			}
+		}
+	}
+
+	closedir(dir);
+
+	log_info("Loaded all channels from dir %s", dirname);
+}
+
 /**
  * Create and initialise the server. Bind socket to given port.
  */
@@ -260,48 +327,6 @@ Server *Server_create(int port)
 {
 	Server *serv = calloc(1, sizeof *serv);
 	assert(serv);
-
-	// TCP Socket non-blocking
-	serv->fd = socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-	CHECK(serv->fd, "socket");
-
-	// Server Address
-	serv->servaddr.sin_family = AF_INET;
-	serv->servaddr.sin_port = htons(port);
-	serv->servaddr.sin_addr.s_addr = INADDR_ANY;
-	serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr, sizeof(serv->servaddr)));
-	serv->port = make_string("%d", port);
-	serv->motd_file = MOTD_FILENAME;
-
-	serv->user_to_nicks_map = load_nicks(NICKS_FILENAME);
-	assert(serv->user_to_nicks_map);
-
-	time_t t = time(NULL);
-	struct tm *tm = localtime(&t);
-
-	size_t n = strftime(serv->created_at, sizeof(serv->created_at), "%c", tm);
-	assert(n > 0);
-
-	int yes = 1;
-
-	// Set socket options
-	CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
-
-	// Bind
-	CHECK(bind(serv->fd, (struct sockaddr *)&serv->servaddr, sizeof(struct sockaddr_in)), "bind");
-
-	// Listen
-	CHECK(listen(serv->fd, MAX_EVENTS), "listen");
-
-	// Create epoll fd for listen socket and clients
-	serv->epollfd = epoll_create(1 + MAX_EVENTS);
-	CHECK(serv->epollfd, "epoll_create");
-
-	if (cc_hashtable_new(&serv->user_to_sock_map) != CC_OK)
-	{
-		log_error("Failed to create hashtable");
-		exit(1);
-	}
 
 	// Hashtable settings
 	CC_HashTableConf htc;
@@ -320,6 +345,59 @@ Server *Server_create(int port)
 	}
 
 	log_info("Hashtable initialized with capacity %zu", cc_hashtable_capacity(serv->connections));
+
+	serv->motd_file = MOTD_FILENAME;
+
+	serv->user_to_nicks_map = load_nicks(NICKS_FILENAME);
+	assert(serv->user_to_nicks_map);
+
+	if (cc_hashtable_new(&serv->user_to_sock_map) != CC_OK)
+	{
+		log_error("Failed to create hashtable");
+		exit(1);
+	}
+
+	if (cc_array_new(&serv->channels) != CC_OK)
+	{
+		log_error("Failed to create array");
+		exit(1);
+	}
+
+	// Load channels from file
+	load_channels(serv->channels, CHANNELS_DIRNAME);
+
+	time_t t = time(NULL);
+	struct tm *tm = localtime(&t);
+
+	size_t n = strftime(serv->created_at, sizeof(serv->created_at), "%c", tm);
+	assert(n > 0);
+
+	// Create epoll fd for listen socket and clients
+	serv->epollfd = epoll_create(1 + MAX_EVENTS);
+	CHECK(serv->epollfd, "epoll_create");
+
+	// TCP Socket non-blocking
+	serv->fd = socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+	CHECK(serv->fd, "socket");
+
+	// Server Address
+	serv->servaddr.sin_family = AF_INET;
+	serv->servaddr.sin_port = htons(port);
+	serv->servaddr.sin_addr.s_addr = INADDR_ANY;
+	serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr, sizeof(serv->servaddr)));
+	serv->port = make_string("%d", port);
+
+	int yes = 1;
+
+	// Set socket options
+	CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
+
+	// Bind
+	CHECK(bind(serv->fd, (struct sockaddr *)&serv->servaddr, sizeof(struct sockaddr_in)), "bind");
+
+	// Listen
+	CHECK(listen(serv->fd, MAX_EVENTS), "listen");
+
 	log_info("server running on port %d", port);
 
 	return serv;
@@ -358,7 +436,14 @@ void Server_accept_all(Server *serv)
 
 		if (cc_list_new(&user->msg_queue) != CC_OK)
 		{
-			perror("CC_LIST");
+			perror("cc_list_new");
+			User_Destroy(user);
+			continue;
+		}
+
+		if (cc_array_new(&user->memberships) != CC_OK)
+		{
+			perror("cc_array_new");
 			User_Destroy(user);
 			continue;
 		}
@@ -517,7 +602,9 @@ void Server_reply_to_PING(Server *serv, User *usr, Message *msg)
 {
 	_sanity_check(serv, usr, msg);
 	assert(!strcmp(msg->command, "PING"));
-	User_add_msg(usr, make_reply(":%s " "PONG %s", serv->hostname, serv->hostname));
+	User_add_msg(usr, make_reply(":%s "
+								 "PONG %s",
+								 serv->hostname, serv->hostname));
 }
 
 /**
@@ -654,7 +741,9 @@ void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg)
 
 	char *reason = (msg->body ? msg->body : "Client Quit");
 
-	User_add_msg(usr, make_reply(":%s " "ERROR :Closing Link: %s (%s)", serv->hostname, usr->hostname, reason));
+	User_add_msg(usr, make_reply(":%s "
+								 "ERROR :Closing Link: %s (%s)",
+								 serv->hostname, usr->hostname, reason));
 }
 
 void Server_reply_to_WHO(Server *serv, User *usr, Message *msg)
@@ -667,9 +756,132 @@ void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg)
 	_sanity_check(serv, usr, msg);
 }
 
+/**
+ * Join a channel
+ */
 void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg)
 {
 	_sanity_check(serv, usr, msg);
+	assert(!strcmp(msg->command, "JOIN"));
+
+	if (!usr->registered)
+	{
+		User_add_msg(usr, make_reply(":%s " ERR_NOTREGISTERED_MSG, serv->hostname, usr->nick));
+		return;
+	}
+
+	assert(usr->username);
+
+	if (msg->n_params == 0)
+	{
+		User_add_msg(usr, make_reply(":%s " ERR_NEEDMOREPARAMS_MSG, serv->hostname, usr->nick, msg->command));
+		return;
+	}
+
+	assert(msg->params[0]);
+
+	if (msg->params[0][0] != '#')
+	{
+		User_add_msg(usr, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, msg->params[0]));
+		return;
+	}
+
+	char *channel_name = msg->params[0] + 1; // skip #
+
+	Channel *channel = Server_get_channel(serv, channel_name);
+
+	if (!channel)
+	{
+		User_add_msg(usr, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, channel_name));
+		return;
+	}
+
+	if (cc_array_size(usr->memberships) > MAX_CHANNEL_COUNT)
+	{
+		User_add_msg(usr, make_reply(":%s " ERR_TOOMANYCHANNELS_MSG, serv->hostname, usr->nick, channel_name));
+		return;
+	}
+
+	// Check if membership exists
+
+	bool found = false;
+	for (size_t i = 0; i < cc_array_size(usr->memberships); i++)
+	{
+		Membership *tmp = NULL;
+		if (cc_array_get_at(usr->memberships, i, (void **)&tmp) == CC_OK)
+		{
+			assert(tmp);
+			if (!strcmp(tmp->channel_name, channel_name))
+			{
+				found = true;
+				break;
+			}
+		}
+	}
+
+	if (!found)
+	{
+		Membership *membership = calloc(1, sizeof *membership);
+		membership->channel_name = channel_name;
+		membership->channel_mode = 0;
+		membership->date_joined = time(NULL);
+
+		if (cc_array_add(usr->memberships, membership) != CC_OK)
+		{
+			log_error("cc_array_add");
+			return;
+		}
+
+		if (!Channel_add_member(channel, usr->username))
+		{
+			log_error("Channel_add_member");
+			return;
+		}
+	}
+
+	if (channel->topic)
+	{
+		User_add_msg(usr, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel_name, channel->topic));
+	}
+
+	// Compose names list as multipart message
+
+	char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=", channel_name);
+	char message[MAX_MSG_LEN + 1] = {0};
+	strcat(message, subject);
+
+	// Get channel members
+	for (size_t i = 0; i < cc_array_size(channel->members); i++)
+	{
+		char *username = NULL;
+
+		if (cc_array_get_at(channel->members, i, (void **)&username) == CC_OK)
+		{
+			assert(username);
+
+			size_t len = strlen(username) + 1; // Length for name and space
+
+			if (strlen(message) + len > MAX_MSG_LEN)
+			{
+				// End current message
+				User_add_msg(usr, make_reply("%s", message));
+
+				// Start new message with subject
+				message[0] = 0;
+				strcat(message, subject);
+			}
+
+			// Append username and space to message
+			strcat(message, username);
+			strcat(message, " ");
+		}
+	}
+
+	User_add_msg(usr, make_reply("%s", message));
+
+	free(subject);
+
+	User_add_msg(usr, make_reply(":%s " RPL_ENDOFNAMES_MSG, serv->hostname, usr->nick, channel_name));
 }
 
 void Server_reply_to_LIST(Server *serv, User *usr, Message *msg)

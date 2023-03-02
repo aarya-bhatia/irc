@@ -1,3 +1,4 @@
+#include "include/common.h"
 #include "include/server.h"
 
 /**
@@ -137,9 +138,42 @@ void User_add_msg(User *usr, char *msg)
 	cc_list_add_last(usr->msg_queue, msg);
 }
 
-void _free_callback(void *str)
+void User_save_to_file(User *usr, const char *filename)
 {
-	free(str);
+	assert(usr);
+	assert(filename);
+
+	log_debug("Saving user %s to file %s", usr->nick, filename);
+
+	FILE *file = fopen(filename, "w");
+
+	if (!file)
+	{
+		log_error("Failed to open file %s", filename);
+		return;
+	}
+
+	// Save user information to file
+	fprintf(file, "username: %s\n", usr->username);
+	fprintf(file, "realname: %s\n", usr->realname);
+	fprintf(file, "nick: %s\n", usr->nick);
+	fprintf(file, "hostname: %s\n", usr->hostname);
+	fprintf(file, "time: %ld\n", time(NULL));
+
+	for (size_t i = 0; i < cc_array_size(usr->memberships); i++)
+	{
+		Membership *membership = NULL;
+
+		if (cc_array_get_at(usr->memberships, i, (void **)&membership) == CC_OK)
+		{
+			assert(membership);
+
+			fprintf(file, "channel_name: %s, channel_mode: %d, date_joined: %ld\n",
+					membership->channel_name, membership->channel_mode, membership->date_joined);
+		}
+	}
+
+	fclose(file);
 }
 
 /**
@@ -152,11 +186,23 @@ void User_Destroy(User *usr)
 		return;
 	}
 
+	// TODO: Save user info to file
+
+	char *filename = NULL;
+	asprintf(&filename, "data/users/%s", usr->username);
+
+	User_save_to_file(usr, filename);
+
+	free(filename);
+
 	free(usr->nick);
 	free(usr->username);
 	free(usr->realname);
 	free(usr->hostname);
-	cc_list_destroy_cb(usr->msg_queue, _free_callback);
+
+	cc_list_destroy_cb(usr->msg_queue, free);
+	cc_array_destroy_cb(usr->memberships, free);
+
 	shutdown(usr->fd, SHUT_RDWR);
 	close(usr->fd);
 }
