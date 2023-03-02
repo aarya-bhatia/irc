@@ -1,12 +1,19 @@
 # Todo
 
-- delete nick map
+Next Features
 
-## PRIVMSG
-
-- Check if target user exists in nick db for RPL_AWAY
-
-- Check nick_map to find user and look up user data through user_to_sock map.
+- more commands: WHO
+- channels
+    - commands: JOIN, PART, PRIVMSG 
+- multiserver
+    - no cycles to handle duplicates
+    - authentication
+    - how to check for cycles
+    - TTL to avoid infinite loops
+    - server list
+    - broadcast message to each server
+- ping timeouts
+- For final report, connect to server from real irc client (LimeChat)
 
 ## Log Files
 
