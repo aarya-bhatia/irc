@@ -10,8 +10,9 @@ ssize_t User_Read_Event(Server * serv, User * usr)
 	assert(serv);
 
 	// Read at most MAX_MSG_LEN bytes into the buffer
-	ssize_t nread = read_all(usr->fd, usr->req_buf + usr->req_len,
-				 MAX_MSG_LEN - usr->req_len);
+	ssize_t nread =
+	    read_all(usr->fd, usr->req_buf + usr->req_len,
+		     MAX_MSG_LEN - usr->req_len);
 
 	// If no bytes read and no messages sent
 	if (nread <= 0 && !strstr(usr->req_buf, "\r\n")) {
@@ -64,8 +65,9 @@ ssize_t User_Write_Event(Server * serv, User * usr)
 	// A message is still being sent
 	if (usr->res_len && usr->res_off < usr->res_len) {
 		// Send remaining message to user
-		ssize_t nsent = write_all(usr->fd, usr->res_buf + usr->res_off,
-					  usr->res_len - usr->res_off);
+		ssize_t nsent =
+		    write_all(usr->fd, usr->res_buf + usr->res_off,
+			      usr->res_len - usr->res_off);
 
 		log_debug("Sent %zd bytes to user %s", nsent, usr->nick);
 
