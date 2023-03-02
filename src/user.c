@@ -198,3 +198,11 @@ void User_Destroy(User * usr)
 	shutdown(usr->fd, SHUT_RDWR);
 	close(usr->fd);
 }
+
+void User_leave_channel(User *usr, Channel *channel)
+{
+}
+
+void User_join_channel(User *usr, Channel *channel)
+{
+}

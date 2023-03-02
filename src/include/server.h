@@ -10,6 +10,7 @@
 #include <sys/epoll.h>
 
 #define MAX_CHANNEL_COUNT 10
+#define MAX_CHANNEL_USERS 5
 
 typedef struct _Server
 {
@@ -54,20 +55,19 @@ enum MODES
 
 typedef struct _Membership
 {
-	char *channel_name;
-	int channel_mode;
-	time_t date_joined;
+	char *username;
+	char *channel;
+	int mode;
 } Membership;
 
 typedef struct _Channel
 {
 	char *name; // name of channel
 	char *topic;
+	int mode;
+	int user_limit;
 	time_t time_created; // time channel was created
-	int private;		 // by default channels are public
 	CC_Array *members;	 // usernames of members in the channel
-	int mode;			 // unused
-	int user_limit;		 // unused
 } Channel;
 
 // Implemented in server.c
@@ -106,11 +106,14 @@ void User_add_msg(User *usr, char *msg);
 void User_save_to_file(User *usr, const char *filename);
 User *User_load_from_file(const char *filename);
 
+void User_leave_channel(User *usr, Channel *channel);
+void User_join_channel(User *usr, Channel *channel);
+
 // Implemented in channel.c
 void Channel_destroy(Channel *this);
 
+Channel *Channel_create(const char *name);
 Channel *Server_get_channel(Server *serv, const char *name);
-Channel *Server_add_channel(Server *serv, const char *name);
 bool Server_remove_channel(Server *serv, const char *name);
 bool Channel_has_member(Channel *this, const char *username);
 

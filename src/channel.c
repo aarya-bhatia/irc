@@ -2,45 +2,20 @@
 #include "include/server.h"
 #include <time.h>
 
-/**
- * Find channel by name if exists and return it. Returns NULL if not found
- */
-Channel *Server_get_channel(Server * serv, const char *name)
-{
-	assert(serv);
-	assert(name);
-	assert(serv->channels);
 
-	for (size_t i = 0; i < cc_array_size(serv->channels); i++) {
-		Channel *channel = NULL;
-
-		if (cc_array_get_at(serv->channels, i, (void **)&channel) ==
-		    CC_OK) {
-			assert(channel);
-
-			if (!strcmp(channel->name, name)) {
-				return channel;
-			}
-		}
-	}
-
-	return NULL;
-}
 
 /**
- * Create new channel if does not exist and return it.
+ * Create and initialise new channel with given name and return it.
  */
-Channel *Server_add_channel(Server * serv, const char *name)
+Channel *Channel_create(const char *name)
 {
-	Channel *channel = NULL;
+	assert(!Server_get_channel(name));
 
-	if ((channel = Server_get_channel(serv, name)) == NULL) {
-		channel = calloc(1, sizeof *channel);
-		channel->name = strdup(name);
-		channel->time_created = time(NULL);
-		channel->private = false;
-		cc_array_new(&channel->members);
-	}
+	Channel *channel = calloc(1, sizeof *channel);
+	channel->name = strdup(name);
+	channel->time_created = time(NULL);
+	channel->user_limit = MAX_CHANEL_USERS;
+	cc_array_new(&channel->members);
 
 	return channel;
 }
@@ -50,15 +25,58 @@ Channel *Server_add_channel(Server * serv, const char *name)
  */
 void Channel_destroy(Channel * this)
 {
-	cc_array_destroy_cb(this->members, free);
+	// Destroy membership array
+	for(size_t i = 0; i < cc_array_size(this->members); i++) {
+		Membership *member = NULL;
+		cc_array_get_at(this->members, i, (void**)&member);
+		free(member->username);
+		free(member->channel);
+		free(member);
+	}
+
+	cc_array_destroy(this->members);
+
 	free(this->topic);
 	free(this->name);
 	free(this);
 }
 
 /**
- * Removes channel and free its memory if it exists.
- * The channel is saved to file before removal.
+ * Find channel by name if loaded and return it. 
+ * Loads channel from file into memory if exists.
+ * Returns NULL if not found.
+ */
+Channel *Server_get_channel(Server * serv, const char *name)
+{
+	// Check if channel exists in memory
+	for (size_t i = 0; i < cc_array_size(serv->channels); i++) {
+		Channel *channel = NULL;
+		cc_array_get_at(serv->channels, i, (void **)&channel);
+		if (!strcmp(channel->name, name)) {
+			return channel;
+		}
+	}
+
+	// Check if channel exists in file
+	char filename[100];
+	sprintf(filename, "./data/channels/%s", name);
+
+	if (access(filename, F_OK) == 0) {
+		Channel *channel = Channel_load_from_file(filename);
+
+		if (channel) {
+			cc_array_add(serv->channel, channel);
+			return channel;
+		}
+	}
+
+	// Channel does not exist or file is corrupted
+	return NULL;
+}
+
+
+/**
+ * Removes channel from server array and destroys it.
  * Returns true on success and false on failure.
  */
 bool Server_remove_channel(Server * serv, const char *name)
@@ -69,24 +87,15 @@ bool Server_remove_channel(Server * serv, const char *name)
 		return false;
 	}
 
-	char *filename = NULL;
-	asprintf(&filename, "data/channels/%s", channel->name);
-	Channel_save_to_file(channel, filename);
-	free(filename);
-
 	// Remove channel from channel list
 	for (size_t i = 0; i < cc_array_size(serv->channels); i++) {
 		Channel *current = NULL;
 
-		if (cc_array_get_at(serv->channels, i, (void **)&current) ==
-		    CC_OK) {
-			assert(current);
-			assert(current->name);
+		cc_array_get_at(serv->channels, i, (void **)&current);
 
-			if (!strcmp(current->name, name)) {
-				cc_array_remove_at(serv->channels, i, NULL);
-				break;
-			}
+		if (!strcmp(current->name, name)) {
+			cc_array_remove_at(serv->channels, i, NULL);
+			break;
 		}
 	}
 
@@ -96,12 +105,79 @@ bool Server_remove_channel(Server * serv, const char *name)
 }
 
 /**
+ * Check if given user is part of channel.
+ */
+bool Channel_has_member(Channel * this, const char *username)
+{
+	assert(this);
+	assert(username);
+
+	for (size_t i = 0; i < cc_array_size(this->members); i++) {
+		Membership *m = NULL;
+		cc_array_get_at(this->members, i, (void **)&m);
+
+		if (!strcmp(m->username, username)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Create membership for given user and add them to channel.
+ */
+void Channel_add_member(Channel * this, const char *username)
+{
+	assert(this);
+	assert(username);
+
+	if (Channel_has_member(this, username)) { return; }
+
+	Membership *membership = calloc(1, sizeof *membership);
+	membership->username = strdup(username);
+	membership->channel = strdup(this->name);
+
+	cc_array_add(this->members, membership);
+
+	log_info("User %s added to channel %s", username, this->name);
+}
+
+/**
+ * Removes member from channel if they exist.
+ * Returns true on success, false if they did not exist.
+ */
+bool Channel_remove_member(Channel * this, const char *username)
+{
+	assert(this);
+	assert(username);
+
+	for (size_t i = 0; i < cc_array_size(this->members); i++) {
+		Memerbship *m = NULL;
+		cc_array_get_at(this->members, i, (void **)&m);
+
+		assert(!strcmp(m->channel, this->name));
+
+		if (!strcmp(m->username, username)) {
+			cc_array_remove_at(this->members, i, NULL);
+			free(m->username);
+			free(m->channel);
+			free(m);
+			return true;
+		}
+	}
+
+	log_error("User %s not found in channel %s", username, this->name);
+	return false;
+}
+
+/**
  * Save the channel information to given file.
  * Note: The given file will be overwritten.
  *
- * File format
- * Line 1: name,time_created,private\n
- * Line 2-n: username\n
+ * Line 1: name, time_created, mode, user_limit
+ * Line 2: topic
+ * Line 3-n: member name, member mode
  *
  */
 void Channel_save_to_file(Channel * this, const char *filename)
@@ -116,28 +192,30 @@ void Channel_save_to_file(Channel * this, const char *filename)
 		log_error("Failed to open file %s", filename);
 	}
 
-	fprintf(file, "%s,%ld,%d\n", this->name,
-		(unsigned long)this->time_created, this->private);
+	fprintf(file, "%s,%ld,%d,%d\n", this->name,
+		(unsigned long)this->time_created, this->mode, this->user_limit);
+
 	fprintf(file, "%s\n", this->topic);
 
 	for (size_t i = 0; i < cc_array_size(this->members); i++) {
-		char *username = NULL;
-
-		if (cc_array_get_at(this->members, i, (void **)&username) ==
-		    CC_OK) {
-			assert(username);
-
-			fprintf(file, "%s\n", username);
-		}
+		Membership *member = NULL;
+		cc_array_get_at(this->members, i, (void **)&member);
+		fprintf(file, "%s,%d\n", member->username, member->mode);
 	}
 
 	fclose(file);
+
+	log_info("Saved channel %s to file %s", this->name, filename);
 }
 
 /**
- * Load channel information into struct from given file.
+ * Allocate a channel struct and loads its data from given file.
  * Returns NULL if file not found or file has invalid format.
- * On success, it will allocate a new channel struct and return it.
+ * On success, it will return the new struct.
+ *
+ * Line 1: name, time_created, mode, user_limit
+ * Line 2: topic
+ * Line 3-n: member name, member mode
  */
 Channel *Channel_load_from_file(const char *filename)
 {
@@ -154,9 +232,8 @@ Channel *Channel_load_from_file(const char *filename)
 	Channel *this = calloc(1, sizeof *this);
 
 	// First line
-	if (fscanf
-	    (file, "%s,%ld,%d", this->name, &this->time_created,
-	     &this->private) != 3) {
+	if (fscanf(file, "%s,%ld,%d,%d", this->name, &this->time_created,
+	     &this->mode, &this->user_limit) != 4) {
 		perror("fscanf");
 		log_error("Invalid file format");
 		free(this);
@@ -164,13 +241,7 @@ Channel *Channel_load_from_file(const char *filename)
 		return NULL;
 	}
 
-	if (cc_array_new(&this->members) != CC_OK) {
-		perror("cc_array_new");
-		log_error("Failed to create array");
-		free(this);
-		fclose(file);
-		return NULL;
-	}
+	cc_array_new(&this->members);
 
 	char *line = NULL;
 	size_t len = 0;
@@ -180,7 +251,8 @@ Channel *Channel_load_from_file(const char *filename)
 	if ((nread = getline(&line, &len, file)) > 0) {
 		this->topic = strdup(line);
 	}
-	// Following lines contain the usernames of the members
+
+	// Following lines contain the members
 	while (nread > 0 && (nread = getline(&line, &len, file)) > 0) {
 		if (line[len - 1] == '\n') {
 			line[len - 1] = 0;
@@ -192,94 +264,39 @@ Channel *Channel_load_from_file(const char *filename)
 			continue;
 		}
 
-		char *username = strdup(line);
+		char *save = NULL;
 
-		if (cc_array_add(this->members, username) != CC_OK) {
-			perror("cc_array_add");
-			log_error("Failed to insert into array");
+		char *username = strtok_r(line, ",", &save);
+
+		if(!username) { 
+			log_error("invalid file format");
 			break;
 		}
-	}
 
-	if (nread == -1) {
-		perror("getline");
+		char *mode = strtok_r(NULL, ",", &save);
+
+		if(!mode) {
+			log_error("invalid file format");
+			break;
+		}
+
+		username = trimwhitespace(username);
+		mode = trimwhitespace(mode);
+
+		Membership *member = calloc(1, sizeof *member);
+		member->channel = strdup(this->name);
+		membership->username = strdup(username);
+		membership->mode = atoi(mode);
+
+		cc_array_add(this->members, member);
 	}
 
 	free(line);
 	fclose(file);
 
+	log_info("Loaded channel %s from file %s", this->name, filename);
+
 	return this;
 }
 
-bool Channel_has_member(Channel * this, const char *username)
-{
-	assert(this);
-	assert(username);
 
-	for (size_t i = 0; i < cc_array_size(this->members); i++) {
-		char *current = NULL;
-
-		if (cc_array_get_at(this->members, i, (void **)&current) ==
-		    CC_OK) {
-			assert(current);
-
-			if (!strcmp(current, username)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-bool Channel_add_member(Channel * this, const char *username)
-{
-	assert(this);
-	assert(username);
-
-	if (Channel_has_member(this, username)) {
-		return true;
-	}
-
-	if (cc_array_add(this->members, strdup(username)) != CC_OK) {
-		perror("cc_array_add");
-		return false;
-	}
-
-	log_info("User %s added to channel %s", username, this->name);
-
-	return true;
-}
-
-bool Channel_remove_member(Channel * this, const char *username)
-{
-	assert(this);
-	assert(username);
-
-	for (size_t i = 0; i < cc_array_size(this->members); i++) {
-		char *current = NULL;
-
-		if (cc_array_get_at(this->members, i, (void **)&current) ==
-		    CC_OK) {
-			assert(current);
-
-			// Found user
-			if (!strcmp(current, username)) {
-				if (cc_array_remove_at(this->members, i, NULL)
-				    == CC_OK) {
-					free(current);
-					return true;
-				} else {
-					perror("cc_array_remove_at");
-					return false;
-				}
-			}
-		} else {
-			perror("cc_array_get_at");
-			return false;
-		}
-	}
-
-	log_error("User %s not found in channel %s", username, this->name);
-	return false;
-}
