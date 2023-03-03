@@ -68,6 +68,8 @@ bool check_registration_complete(Server * serv, User * usr)
 
 		log_info("registration completed for user %s", usr->nick);
 
+		// TODO: Load user information from file if found
+
 		return true;
 	}
 

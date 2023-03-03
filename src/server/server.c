@@ -368,13 +368,6 @@ void Server_accept_all(Server *serv)
 			continue;
 		}
 
-		if (cc_array_new(&user->memberships) != CC_OK)
-		{
-			perror("cc_array_new");
-			User_Destroy(user);
-			continue;
-		}
-
 		if (fcntl(conn_sock, F_SETFL,
 				  fcntl(conn_sock, F_GETFL) | O_NONBLOCK) != 0)
 		{
@@ -722,6 +715,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg)
 	_sanity_check(serv, usr, msg);
 	assert(!strcmp(msg->command, "JOIN"));
 
+	// JOIN is only for registered users
 	if (!usr->registered)
 	{
 		User_add_msg(usr,
@@ -732,6 +726,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg)
 
 	assert(usr->username);
 
+	// Param for channel name required
 	if (msg->n_params == 0)
 	{
 		User_add_msg(usr,
@@ -743,6 +738,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg)
 
 	assert(msg->params[0]);
 
+	// Channel should begin with #
 	if (msg->params[0][0] != '#')
 	{
 		User_add_msg(usr,
@@ -765,7 +761,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg)
 		return;
 	}
 
-	if (cc_array_size(usr->memberships) > MAX_CHANNEL_COUNT)
+	if (usr->n_memberships > MAX_CHANNEL_COUNT)
 	{
 		User_add_msg(usr,
 					 make_reply(":%s " ERR_TOOMANYCHANNELS_MSG,
@@ -773,27 +769,11 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg)
 								channel_name));
 		return;
 	}
-	// Check if membership exists
 
-	bool found = false;
-	for (size_t i = 0; i < cc_array_size(usr->memberships); i++)
-	{
-		Membership *tmp = NULL;
-		if (cc_array_get_at(usr->memberships, i, (void **)&tmp) ==
-			CC_OK)
-		{
-			assert(tmp);
-			if (!strcmp(tmp->channel, channel_name))
-			{
-				found = true;
-				break;
-			}
-		}
-	}
-
-	// TODO
 	Channel_add_member(channel, usr->username);
+	usr->n_memberships++;
 
+	// Send channel topic
 	if (channel->topic)
 	{
 		User_add_msg(usr,
@@ -801,39 +781,41 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg)
 								usr->nick, channel_name,
 								channel->topic));
 	}
-	// Compose names list as multipart message
+
+	// NAMES reply
+	// Compose names as multipart message
 
 	char *subject =
 		make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=",
 					channel_name);
-	char message[MAX_MSG_LEN + 1] = {0};
+
+	char message[MAX_MSG_LEN + 1];
+	memset(message, 0, sizeof message);
+
 	strcat(message, subject);
 
 	// Get channel members
 	for (size_t i = 0; i < cc_array_size(channel->members); i++)
 	{
 		char *username = NULL;
+		cc_array_get_at(channel->members, i, (void **)&username);
+		assert(username);
 
-		if (cc_array_get_at(channel->members, i, (void **)&username) ==
-			CC_OK)
+		size_t len = strlen(username) + 1; // Length for name and space
+
+		if (strlen(message) + len > MAX_MSG_LEN)
 		{
-			assert(username);
+			// End current message
+			User_add_msg(usr, make_reply("%s", message));
 
-			size_t len = strlen(username) + 1; // Length for name and space
-
-			if (strlen(message) + len > MAX_MSG_LEN)
-			{
-				// End current message
-				User_add_msg(usr, make_reply("%s", message));
-
-				// Start new message with subject
-				message[0] = 0;
-				strcat(message, subject);
-			}
-			// Append username and space to message
-			strcat(message, username);
-			strcat(message, " ");
+			// Start new message with subject
+			memset(message, 0, sizeof message);
+			strcat(message, subject);
 		}
+
+		// Append username and space to message
+		strcat(message, username);
+		strcat(message, " ");
 	}
 
 	User_add_msg(usr, make_reply("%s", message));

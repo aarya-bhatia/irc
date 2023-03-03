@@ -112,11 +112,14 @@ void User_Disconnect(Server * serv, User * usr)
 
 	log_info("Closing connection with user (%d): %s", usr->fd, usr->nick);
 	epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, usr->fd, NULL);
+
+	// Remove user socket -> user data entry from hashmap
 	cc_hashtable_remove(serv->connections, (void *)&usr->fd, NULL);
 
 	int *fd = NULL;
-	cc_hashtable_remove(serv->user_to_sock_map, usr->username,
-			    (void **)&fd);
+
+	// Remove username -> socket entry from hashmap
+	cc_hashtable_remove(serv->user_to_sock_map, usr->username, (void **)&fd);
 	assert(fd);
 	assert(*fd == usr->fd);
 	free(fd);
@@ -155,8 +158,8 @@ void User_save_to_file(User * usr, const char *filename)
 	fprintf(file, "realname: %s\n", usr->realname);
 	fprintf(file, "nick: %s\n", usr->nick);
 	fprintf(file, "hostname: %s\n", usr->hostname);
+	fprintf(file, "n_memberships: %d\n", usr->n_memberships);
 	fprintf(file, "time: %ld\n", time(NULL));
-
 	fclose(file);
 }
 
@@ -168,23 +171,22 @@ void User_Destroy(User * usr)
 	if (!usr) {
 		return;
 	}
-	// TODO: Save user info to file
 
+	// Save user info to file
 	char *filename = NULL;
-	asprintf(&filename, "data/users/%s", usr->username);
-
+	asprintf(&filename, USERS_DIRNAME "/%s", usr->username);
 	User_save_to_file(usr, filename);
-
 	free(filename);
 
+	// Free user data
 	free(usr->nick);
 	free(usr->username);
 	free(usr->realname);
 	free(usr->hostname);
 
 	cc_list_destroy_cb(usr->msg_queue, free);
-	cc_array_destroy_cb(usr->memberships, free);
 
+	// Close socket
 	shutdown(usr->fd, SHUT_RDWR);
 	close(usr->fd);
 }
