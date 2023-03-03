@@ -2,7 +2,7 @@
 #include "include/server.h"
 #include <time.h>
 
-
+#define CHANNELS_DIRNAME "./data/channels"
 
 /**
  * Create and initialise new channel with given name and return it.
@@ -59,7 +59,7 @@ Channel *Server_get_channel(Server * serv, const char *name)
 
 	// Check if channel exists in file
 	char filename[100];
-	sprintf(filename, "./data/channels/%s", name);
+	sprintf(filename, CHANNELS_DIRNAME "/%s", name);
 
 	if (access(filename, F_OK) == 0) {
 		Channel *channel = Channel_load_from_file(filename);
@@ -81,11 +81,12 @@ Channel *Server_get_channel(Server * serv, const char *name)
  */
 bool Server_remove_channel(Server * serv, const char *name)
 {
+	assert(serv);
+	assert(name);
+
 	Channel *channel = Server_get_channel(serv, name);
 
-	if (!channel) {
-		return false;
-	}
+	if (!channel) { return false; }
 
 	// Remove channel from channel list
 	for (size_t i = 0; i < cc_array_size(serv->channels); i++) {
@@ -115,7 +116,6 @@ bool Channel_has_member(Channel * this, const char *username)
 	for (size_t i = 0; i < cc_array_size(this->members); i++) {
 		Membership *m = NULL;
 		cc_array_get_at(this->members, i, (void **)&m);
-
 		if (!strcmp(m->username, username)) {
 			return true;
 		}

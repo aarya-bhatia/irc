@@ -7,10 +7,6 @@
 #include <sys/dir.h>
 #include <dirent.h>
 
-#define MOTD_FILENAME "./data/motd.txt"
-#define NICKS_FILENAME "./data/nicks.txt"
-#define CHANNELS_DIRNAME "./data/channels"
-
 typedef void (*free_like)(void *);
 
 void _sanity_check(Server * serv, User * usr, Message * msg)

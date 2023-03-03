@@ -199,6 +199,10 @@ void User_Destroy(User * usr)
 	close(usr->fd);
 }
 
+bool User_is_member(User *usr, const char *channel)
+{
+}
+
 void User_leave_channel(User *usr, Channel *channel)
 {
 }

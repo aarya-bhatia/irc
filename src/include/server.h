@@ -12,6 +12,10 @@
 #define MAX_CHANNEL_COUNT 10
 #define MAX_CHANNEL_USERS 5
 
+#define MOTD_FILENAME "./data/motd.txt"
+#define NICKS_FILENAME "./data/nicks.txt"
+#define CHANNELS_DIRNAME "./data/channels"
+
 typedef struct _Server
 {
 	CC_HashTable *connections;		 // Map socket fd to User data object
@@ -27,50 +31,9 @@ typedef struct _Server
 	char *motd_file;				 // file to use for message of the day greetings
 } Server;
 
-typedef struct _User
-{
-	int fd;						   // socket connection
-	char *nick;					   // display name
-	char *username;				   // unique identifier
-	char *realname;				   // full name
-	char *hostname;				   // client ip
-	CC_List *msg_queue;			   // messages to be delivered to user
-	CC_Array *memberships;		   // info about channels joined
-	size_t req_len;				   // length of request buffer
-	size_t res_len;				   // length of response buffer
-	size_t res_off;				   // no of bytes of the response sent
-	char req_buf[MAX_MSG_LEN + 1]; // the request message
-	char res_buf[MAX_MSG_LEN + 1]; // the response message
-	bool registered;			   // flag to indicate user has registered with username, realname and nick
-	bool nick_changed;			   // flag to indicate user has set a nick
-	bool quit;					   // flag to indicate user is leaving server
-} User;
+CC_HashTable *load_nicks(const char *filename);
+char *get_motd(char *fname);
 
-enum MODES
-{
-	MODE_NORMAL,
-	MODE_AWAY,
-	MODE_OPERATOR
-};
-
-typedef struct _Membership
-{
-	char *username;
-	char *channel;
-	int mode;
-} Membership;
-
-typedef struct _Channel
-{
-	char *name; // name of channel
-	char *topic;
-	int mode;
-	int user_limit;
-	time_t time_created; // time channel was created
-	CC_Array *members;	 // usernames of members in the channel
-} Channel;
-
-// Implemented in server.c
 Server *Server_create(int port);
 void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
@@ -94,36 +57,3 @@ void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);
 
-CC_HashTable *load_nicks(const char *filename);
-char *get_motd(char *fname);
-
-// Implemented in user.c
-ssize_t User_Read_Event(Server *serv, User *usr);
-ssize_t User_Write_Event(Server *serv, User *usr);
-void User_Disconnect(Server *serv, User *usr);
-void User_Destroy(User *usr);
-void User_add_msg(User *usr, char *msg);
-void User_save_to_file(User *usr, const char *filename);
-User *User_load_from_file(const char *filename);
-
-void User_leave_channel(User *usr, Channel *channel);
-void User_join_channel(User *usr, Channel *channel);
-
-// Implemented in channel.c
-void Channel_destroy(Channel *this);
-
-Channel *Channel_create(const char *name);
-Channel *Server_get_channel(Server *serv, const char *name);
-bool Server_remove_channel(Server *serv, const char *name);
-bool Channel_has_member(Channel *this, const char *username);
-
-void Channel_save_to_file(Channel *this, const char *filename);
-Channel *Channel_load_from_file(const char *filename);
-bool Channel_add_member(Channel *this, const char *username);
-bool Channel_remove_member(Channel *this, const char *username);
-
-// Implemented in register.c
-bool check_registration_complete(Server *serv, User *usr);
-CC_Array *get_current_nicks(Server *serv, User *usr);
-bool update_nick_map(Server *serv, User *usr);
-bool check_nick_available(Server *serv, User *usr, char *nick);
