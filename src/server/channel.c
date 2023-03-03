@@ -1,19 +1,17 @@
-#include "include/common.h"
-#include "./include/server.h"
+#include "include/K.h"
+#include "include/types.h"
+#include "include/channel.h"
 #include <time.h>
-
 
 /**
  * Create and initialise new channel with given name and return it.
  */
 Channel *Channel_create(const char *name)
 {
-	assert(!Server_get_channel(name));
-
 	Channel *channel = calloc(1, sizeof *channel);
 	channel->name = strdup(name);
 	channel->time_created = time(NULL);
-	channel->user_limit = MAX_CHANEL_USERS;
+	channel->user_limit = MAX_CHANNEL_USERS;
 	cc_array_new(&channel->members);
 
 	return channel;
@@ -64,7 +62,7 @@ Channel *Server_get_channel(Server * serv, const char *name)
 		Channel *channel = Channel_load_from_file(filename);
 
 		if (channel) {
-			cc_array_add(serv->channel, channel);
+			cc_array_add(serv->channels, channel);
 			return channel;
 		}
 	}
@@ -152,7 +150,7 @@ bool Channel_remove_member(Channel * this, const char *username)
 	assert(username);
 
 	for (size_t i = 0; i < cc_array_size(this->members); i++) {
-		Memerbship *m = NULL;
+		Membership *m = NULL;
 		cc_array_get_at(this->members, i, (void **)&m);
 
 		assert(!strcmp(m->channel, this->name));
@@ -284,8 +282,8 @@ Channel *Channel_load_from_file(const char *filename)
 
 		Membership *member = calloc(1, sizeof *member);
 		member->channel = strdup(this->name);
-		membership->username = strdup(username);
-		membership->mode = atoi(mode);
+		member->username = strdup(username);
+		member->mode = atoi(mode);
 
 		cc_array_add(this->members, member);
 	}

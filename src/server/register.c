@@ -1,4 +1,9 @@
+#include "include/types.h"
 #include "include/register.h"
+#include "include/user.h"
+#include "include/server.h"
+#include "include/replies.h"
+#include "include/K.h"
 
 /**
  * Check and complete user registration
@@ -147,7 +152,7 @@ CC_Array *get_current_nicks(Server * serv, User * usr)
  * A user can use a nick if no other user is using it now or has used it before,
  * or if the user has used same nick before.
  */
-bool check_nick_available(Server * serv, User * usr, char *nick)
+bool check_nick_available(Server * serv, User * usr, const char *nick)
 {
 	if (usr->nick && !strcmp(usr->nick, nick)) {
 		// nick did not change

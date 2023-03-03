@@ -1,6 +1,4 @@
-#include "include/common.h"
-#include "include/collectc/cc_hashtable.h"
-#include "include/collectc/cc_array.h"
+#include "include/types.h"
 
 /**
  * Load all nicks from file into a hashmap with the key being the username and value begin an array of every associated nick.

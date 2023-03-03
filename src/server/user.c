@@ -1,5 +1,9 @@
-#include "include/common.h"
+#include "include/types.h"
+#include "include/K.h"
+#include "include/user.h"
 #include "include/server.h"
+#include "include/channel.h"
+#include <sys/epoll.h>
 
 /**
  * User is available to send data to server
@@ -145,27 +149,13 @@ void User_save_to_file(User * usr, const char *filename)
 		log_error("Failed to open file %s", filename);
 		return;
 	}
+
 	// Save user information to file
 	fprintf(file, "username: %s\n", usr->username);
 	fprintf(file, "realname: %s\n", usr->realname);
 	fprintf(file, "nick: %s\n", usr->nick);
 	fprintf(file, "hostname: %s\n", usr->hostname);
 	fprintf(file, "time: %ld\n", time(NULL));
-
-	for (size_t i = 0; i < cc_array_size(usr->memberships); i++) {
-		Membership *membership = NULL;
-
-		if (cc_array_get_at(usr->memberships, i, (void **)&membership)
-		    == CC_OK) {
-			assert(membership);
-
-			fprintf(file,
-				"channel_name: %s, channel_mode: %d, date_joined: %ld\n",
-				membership->channel_name,
-				membership->channel_mode,
-				membership->date_joined);
-		}
-	}
 
 	fclose(file);
 }
@@ -197,16 +187,4 @@ void User_Destroy(User * usr)
 
 	shutdown(usr->fd, SHUT_RDWR);
 	close(usr->fd);
-}
-
-bool User_is_member(User *usr, const char *channel)
-{
-}
-
-void User_leave_channel(User *usr, Channel *channel)
-{
-}
-
-void User_join_channel(User *usr, Channel *channel)
-{
 }

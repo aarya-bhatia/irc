@@ -1,4 +1,7 @@
+#include "include/types.h"
 #include "include/server.h"
+#include "include/user.h"
+#include <sys/epoll.h>
 
 static volatile bool g_alive = true;
 

@@ -9,7 +9,10 @@
         "cc_list.h": "c",
         "replies.h": "c",
         "register.h": "c",
-        "epoll.h": "c"
+        "epoll.h": "c",
+        "time.h": "c",
+        "channel.h": "c",
+        "types.h": "c"
     },
     "cmake.configureOnOpen": true
 }
