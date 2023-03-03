@@ -3,6 +3,3 @@
 *.out
 *.dSYM/
 .DS_STORE
-client
-server
-ht
