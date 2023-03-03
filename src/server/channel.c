@@ -1,8 +1,7 @@
 #include "include/common.h"
-#include "include/server.h"
+#include "./include/server.h"
 #include <time.h>
 
-#define CHANNELS_DIRNAME "./data/channels"
 
 /**
  * Create and initialise new channel with given name and return it.

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/collectc/cc_list.h"
+#include "collectc/cc_list.h"
 #include <pthread.h>
 
 typedef struct queue_t

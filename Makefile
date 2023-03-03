@@ -1,54 +1,45 @@
-CC=cc
-INC=-Isrc -Isrc/include
-CFLAG=-std=c99 -Wall -Wextra -pedantic -gdwarf-4 -O0 -c $(INC)
-LIB=-llog -lcollectc -laaryab2
-LDFLAG=-Llib $(LIB)
+LDFLAGS=-Llib -llog -lcollectc -laaryab2
 
-all: obj server client
+CLIENT_DIR=src/client
+SERVER_DIR=src/server
+COMMON_DIR=src/common
 
-COMMON_OBJ=obj/common.o obj/message.o obj/queue.o
+INCLUDE_DIRS=$(CLIENT_DIR) $(SERVER_DIR) $(COMMON_DIR)
+INCLUDES=$(addprefix -I, $(INCLUDE_DIRS))
 
-SERVER_OBJ=obj/server_main.o obj/server.o 
-SERVER_OBJ+=obj/user.o obj/load_nicks.o obj/register.o
-SERVER_OBJ+=obj/channel.o
-SERVER_OBJ+=$(COMMON_OBJ)
+CFLAGS=-std=c99 -Wall -Wextra -pedantic -gdwarf-4 -MMD -MP -O0 -c $(INCLUDES)
 
-CLIENT_OBJ=obj/client.o obj/client_threads.o 
-CLIENT_OBJ+=$(COMMON_OBJ)
+COMMON_FILES=$(shell find $(COMMON_DIR) -type f -name "*.c")
+SERVER_FILES=$(shell find $(SERVER_DIR) -type f -name "*.c")
+CLIENT_FILES=$(shell find $(CLIENT_DIR) -type f -name "*.c")
 
-client: $(CLIENT_OBJ)
-	$(CC) -pthread $^ $(LDFLAG) -o $@
+COMMON_OBJ=$(COMMON_FILES:src/%.c=obj/%.o)
+SERVER_OBJ=$(SERVER_FILES:src/%.c=obj/%.o) $(COMMON_OBJ)
+CLIENT_OBJ=$(CLIENT_FILES:src/%.c=obj/%.o) $(COMMON_OBJ)
 
-server: $(SERVER_OBJ)
-	$(CC) $^ $(LDFLAG) -o $@
+SERVER_EXE=build/server
+CLIENT_EXE=build/client
 
-test: obj/test.o $(COMMON_OBJ)
-	$(CC) $^ $(LDFLAG) -o $@
+all: $(SERVER_EXE) $(CLIENT_EXE)
 
-ht: obj/test/ht.o $(OBJ)
-	$(CC) $^ $(LDFLAG) -o $@
-	
-libaaryab2:
-	mkdir -p obj/lib/aaryab2;
-	mkdir -p lib;
-	cc $(CFLAG) src/include/aaryab2/String.c -o obj/lib/aaryab2/String.o;
-	rm -rf lib/libaaryab2.a;
-	ar rs lib/libaaryab2.a obj/lib/aaryab2/String.o;
-	ar t lib/libaaryab2.a;
-
-obj/test/%.o: test/%.c
+$(CLIENT_EXE): $(CLIENT_OBJ)
 	@mkdir -p $(dir $@);
-	$(CC) $(CFLAG) $< -o $@
+	$(CC) -pthread $^ $(LDFLAGS) -o $@
 
-obj:
-	mkdir -p obj
+$(SERVER_EXE): $(SERVER_OBJ)
+	@mkdir -p $(dir $@);
+	$(CC) $^ $(LDFLAGS) -o $@
 
 obj/%.o: src/%.c
 	@mkdir -p $(dir $@);
-	$(CC) $(CFLAG) $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 
 tags:
 	cd src && ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .
 
 clean:
-	rm -rf obj server client *.out
+	rm -rf obj build
+
+.PHONY: clean tags
+
+-include $(OBJS_DIR)/*.d

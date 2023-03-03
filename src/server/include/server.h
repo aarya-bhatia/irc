@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
-#include "message.h"
+#include "include/common.h"
+#include "include/message.h"
 
 #include "collectc/cc_array.h"
 #include "collectc/cc_hashtable.h"

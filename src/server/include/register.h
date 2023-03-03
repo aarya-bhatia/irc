@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common.h"
-#include "server.h"
+#include "include/common.h"
+#include "include/server.h"
 
 typedef struct _Server Server;
 typedef struct _User User;
