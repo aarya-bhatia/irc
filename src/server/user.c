@@ -190,3 +190,8 @@ void User_Destroy(User * usr)
 	shutdown(usr->fd, SHUT_RDWR);
 	close(usr->fd);
 }
+
+
+void test(User *usr)
+{
+}

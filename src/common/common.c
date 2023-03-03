@@ -45,7 +45,7 @@ char *trimwhitespace(char *str)
 	while (isspace((unsigned char)*str))
 		str++;
 
-	if (*str == 0)		// All spaces?
+	if (*str == 0) // All spaces?
 		return str;
 
 	// Trim trailing space
@@ -68,10 +68,12 @@ char *rstrstr(char *string, char *pattern)
 	char *next = strstr(string, pattern);
 	char *prev = next;
 
-	while (next) {
+	while (next)
+	{
 		next = strstr(prev + strlen(pattern), pattern);
 
-		if (next) {
+		if (next)
+		{
 			prev = next;
 		}
 	}
@@ -98,8 +100,8 @@ int create_and_bind_socket(char *hostname, char *port)
 		die("getaddrinfo");
 
 	int sock = socket(servinfo->ai_family,
-			  servinfo->ai_socktype,
-			  servinfo->ai_protocol);
+					  servinfo->ai_socktype,
+					  servinfo->ai_protocol);
 
 	if (sock < 0)
 		die("socket");
@@ -129,7 +131,8 @@ int int_compare(const void *key1, const void *key2)
  */
 void *get_in_addr(struct sockaddr *sa)
 {
-	if (sa->sa_family == AF_INET) {
+	if (sa->sa_family == AF_INET)
+	{
 		return &(((struct sockaddr_in *)sa)->sin_addr);
 	}
 
@@ -154,30 +157,38 @@ ssize_t read_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_read = 0;
 
-	while (bytes_read < len) {
+	while (bytes_read < len)
+	{
 		errno = 0;
 		ssize_t ret = read(fd, buf + bytes_read, len - bytes_read);
 
-		if (ret == 0) {
+		if (ret == 0)
+		{
 			break;
-		} else if (ret == -1) {
+		}
+		else if (ret == -1)
+		{
 			// if (errno == EINTR)
 			// {
 			//      continue;
 			// }
 
-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
 				return bytes_read;
 			}
 
 			perror("read");
 			break;
-		} else {
+		}
+		else
+		{
 			bytes_read += ret;
 			buf[bytes_read] = 0;
 		}
 
-		if (strstr(buf, "\r\n")) {
+		if (strstr(buf, "\r\n"))
+		{
 			return bytes_read;
 		}
 	}
@@ -192,28 +203,58 @@ ssize_t write_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_written = 0;
 
-	while (bytes_written < len) {
+	while (bytes_written < len)
+	{
 		errno = 0;
 		ssize_t ret =
-		    write(fd, buf + bytes_written, len - bytes_written);
+			write(fd, buf + bytes_written, len - bytes_written);
 
-		if (ret == 0) {
+		if (ret == 0)
+		{
 			break;
-		} else if (ret == -1) {
-			if (errno == EINTR) {
+		}
+		else if (ret == -1)
+		{
+			if (errno == EINTR)
+			{
 				continue;
 			}
 
-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
 				return bytes_written;
 			}
 
 			perror("write");
 			break;
-		} else {
+		}
+		else
+		{
 			bytes_written += ret;
 		}
 	}
 
 	return bytes_written;
+}
+
+void *cc_array_find_element(CC_Array *this, bool (*cb)(void *, void *), void *args)
+{
+	if (!this)
+	{
+		return NULL;
+	}
+
+	for (size_t i = 0; i < cc_array_size(this); i++)
+	{
+		void *elem = NULL;
+
+		cc_array_get_at(this, i, (void **)&elem);
+
+		if (cb(elem, args))
+		{
+			return elem;
+		}
+	}
+
+	return NULL;
 }

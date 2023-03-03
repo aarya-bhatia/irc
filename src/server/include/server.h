@@ -11,6 +11,9 @@ void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
 void Server_process_request(Server *serv, User *usr);
 
+Channel *Server_get_channel(Server *serv, const char *name);
+bool Server_remove_channel(Server *serv, const char *name);
+
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);
 void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);

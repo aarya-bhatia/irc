@@ -851,3 +851,75 @@ void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg)
 {
 	_sanity_check(serv, usr, msg);
 }
+
+/**
+ * Find channel by name if loaded and return it.
+ * Loads channel from file into memory if exists.
+ * Returns NULL if not found.
+ */
+Channel *Server_get_channel(Server *serv, const char *name)
+{
+	// Check if channel exists in memory
+	for (size_t i = 0; i < cc_array_size(serv->channels); i++)
+	{
+		Channel *channel = NULL;
+		cc_array_get_at(serv->channels, i, (void **)&channel);
+		if (!strcmp(channel->name, name))
+		{
+			return channel;
+		}
+	}
+
+	// Check if channel exists in file
+	char filename[100];
+	sprintf(filename, CHANNELS_DIRNAME "/%s", name);
+
+	if (access(filename, F_OK) == 0)
+	{
+		Channel *channel = Channel_load_from_file(filename);
+
+		if (channel)
+		{
+			cc_array_add(serv->channels, channel);
+			return channel;
+		}
+	}
+
+	// Channel does not exist or file is corrupted
+	return NULL;
+}
+
+/**
+ * Removes channel from server array and destroys it.
+ * Returns true on success and false on failure.
+ */
+bool Server_remove_channel(Server *serv, const char *name)
+{
+	assert(serv);
+	assert(name);
+
+	Channel *channel = Server_get_channel(serv, name);
+
+	if (!channel)
+	{
+		return false;
+	}
+
+	// Remove channel from channel list
+	for (size_t i = 0; i < cc_array_size(serv->channels); i++)
+	{
+		Channel *current = NULL;
+
+		cc_array_get_at(serv->channels, i, (void **)&current);
+
+		if (!strcmp(current->name, name))
+		{
+			cc_array_remove_at(serv->channels, i, NULL);
+			break;
+		}
+	}
+
+	Channel_destroy(channel);
+
+	return true;
+}

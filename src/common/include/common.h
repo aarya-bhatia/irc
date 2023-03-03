@@ -75,3 +75,5 @@ char *addr_to_string(struct sockaddr *addr, socklen_t len); /* get ip address fr
 // Note: For non blocking sockets, these fuctions may read/write fewer bytes than requested.
 ssize_t read_all(int fd, char *buf, size_t len);  /* read all bytes from fd to buffer */
 ssize_t write_all(int fd, char *buf, size_t len); /* write all bytes from fd to buffer */
+
+void *cc_array_find_element(CC_Array *this, bool (*cb)(void *elem, void *args), void *args); /* Find an element from CC_Array using callback */

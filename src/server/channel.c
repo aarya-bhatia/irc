@@ -1,6 +1,7 @@
 #include "include/K.h"
 #include "include/types.h"
 #include "include/channel.h"
+#include "include/membership.h"
 #include <time.h>
 
 /**
@@ -20,116 +21,42 @@ Channel *Channel_create(const char *name)
 /**
  * Destroy all memory associated with channel
  */
-void Channel_destroy(Channel * this)
+void Channel_destroy(Channel *this)
 {
-	// Destroy membership array
-	for(size_t i = 0; i < cc_array_size(this->members); i++) {
-		Membership *member = NULL;
-		cc_array_get_at(this->members, i, (void**)&member);
-		free(member->username);
-		free(member->channel);
-		free(member);
-	}
-
-	cc_array_destroy(this->members);
-
+	cc_array_destroy_cb(this->members, Membership_destroy);
 	free(this->topic);
 	free(this->name);
 	free(this);
 }
 
-/**
- * Find channel by name if loaded and return it. 
- * Loads channel from file into memory if exists.
- * Returns NULL if not found.
- */
-Channel *Server_get_channel(Server * serv, const char *name)
+bool _find_member(Membership *m, char *username)
 {
-	// Check if channel exists in memory
-	for (size_t i = 0; i < cc_array_size(serv->channels); i++) {
-		Channel *channel = NULL;
-		cc_array_get_at(serv->channels, i, (void **)&channel);
-		if (!strcmp(channel->name, name)) {
-			return channel;
-		}
-	}
-
-	// Check if channel exists in file
-	char filename[100];
-	sprintf(filename, CHANNELS_DIRNAME "/%s", name);
-
-	if (access(filename, F_OK) == 0) {
-		Channel *channel = Channel_load_from_file(filename);
-
-		if (channel) {
-			cc_array_add(serv->channels, channel);
-			return channel;
-		}
-	}
-
-	// Channel does not exist or file is corrupted
-	return NULL;
-}
-
-
-/**
- * Removes channel from server array and destroys it.
- * Returns true on success and false on failure.
- */
-bool Server_remove_channel(Server * serv, const char *name)
-{
-	assert(serv);
-	assert(name);
-
-	Channel *channel = Server_get_channel(serv, name);
-
-	if (!channel) { return false; }
-
-	// Remove channel from channel list
-	for (size_t i = 0; i < cc_array_size(serv->channels); i++) {
-		Channel *current = NULL;
-
-		cc_array_get_at(serv->channels, i, (void **)&current);
-
-		if (!strcmp(current->name, name)) {
-			cc_array_remove_at(serv->channels, i, NULL);
-			break;
-		}
-	}
-
-	Channel_destroy(channel);
-
-	return true;
+	return m && m->username && strcmp(m->username, username) == 0;
 }
 
 /**
  * Check if given user is part of channel.
  */
-bool Channel_has_member(Channel * this, const char *username)
+bool Channel_has_member(Channel *this, const char *username)
 {
 	assert(this);
 	assert(username);
 
-	for (size_t i = 0; i < cc_array_size(this->members); i++) {
-		Membership *m = NULL;
-		cc_array_get_at(this->members, i, (void **)&m);
-		if (!strcmp(m->username, username)) {
-			return true;
-		}
-	}
-
-	return false;
+	return cc_array_find_element(this->members, _find_member, username) != NULL;
 }
 
 /**
  * Create membership for given user and add them to channel.
  */
-void Channel_add_member(Channel * this, const char *username)
+void Channel_add_member(Channel *this, const char *username)
 {
 	assert(this);
 	assert(username);
 
-	if (Channel_has_member(this, username)) { return; }
+	if (Channel_has_member(this, username))
+	{
+		return;
+	}
 
 	Membership *membership = calloc(1, sizeof *membership);
 	membership->username = strdup(username);
@@ -144,18 +71,20 @@ void Channel_add_member(Channel * this, const char *username)
  * Removes member from channel if they exist.
  * Returns true on success, false if they did not exist.
  */
-bool Channel_remove_member(Channel * this, const char *username)
+bool Channel_remove_member(Channel *this, const char *username)
 {
 	assert(this);
 	assert(username);
 
-	for (size_t i = 0; i < cc_array_size(this->members); i++) {
+	for (size_t i = 0; i < cc_array_size(this->members); i++)
+	{
 		Membership *m = NULL;
 		cc_array_get_at(this->members, i, (void **)&m);
 
 		assert(!strcmp(m->channel, this->name));
 
-		if (!strcmp(m->username, username)) {
+		if (!strcmp(m->username, username))
+		{
 			cc_array_remove_at(this->members, i, NULL);
 			free(m->username);
 			free(m->channel);
@@ -177,24 +106,26 @@ bool Channel_remove_member(Channel * this, const char *username)
  * Line 3-n: member name, member mode
  *
  */
-void Channel_save_to_file(Channel * this, const char *filename)
+void Channel_save_to_file(Channel *this, const char *filename)
 {
 	assert(this);
 	assert(filename);
 
 	FILE *file = fopen(filename, "w");
 
-	if (!file) {
+	if (!file)
+	{
 		perror("fopen");
 		log_error("Failed to open file %s", filename);
 	}
 
 	fprintf(file, "%s,%ld,%d,%d\n", this->name,
-		(unsigned long)this->time_created, this->mode, this->user_limit);
+			(unsigned long)this->time_created, this->mode, this->user_limit);
 
 	fprintf(file, "%s\n", this->topic);
 
-	for (size_t i = 0; i < cc_array_size(this->members); i++) {
+	for (size_t i = 0; i < cc_array_size(this->members); i++)
+	{
 		Membership *member = NULL;
 		cc_array_get_at(this->members, i, (void **)&member);
 		fprintf(file, "%s,%d\n", member->username, member->mode);
@@ -220,7 +151,8 @@ Channel *Channel_load_from_file(const char *filename)
 
 	FILE *file = fopen(filename, "r");
 
-	if (!file) {
+	if (!file)
+	{
 		perror("fopen");
 		log_error("Failed to open file %s", filename);
 		return NULL;
@@ -230,7 +162,8 @@ Channel *Channel_load_from_file(const char *filename)
 
 	// First line
 	if (fscanf(file, "%s,%ld,%d,%d", this->name, &this->time_created,
-	     &this->mode, &this->user_limit) != 4) {
+			   &this->mode, &this->user_limit) != 4)
+	{
 		perror("fscanf");
 		log_error("Invalid file format");
 		free(this);
@@ -245,19 +178,25 @@ Channel *Channel_load_from_file(const char *filename)
 	ssize_t nread;
 
 	// Second line contains channel topic
-	if ((nread = getline(&line, &len, file)) > 0) {
+	if ((nread = getline(&line, &len, file)) > 0)
+	{
 		this->topic = strdup(line);
 	}
 
 	// Following lines contain the members
-	while (nread > 0 && (nread = getline(&line, &len, file)) > 0) {
-		if (line[len - 1] == '\n') {
+	while (nread > 0 && (nread = getline(&line, &len, file)) > 0)
+	{
+		if (line[len - 1] == '\n')
+		{
 			line[len - 1] = 0;
-		} else {
+		}
+		else
+		{
 			line[len] = 0;
 		}
 
-		if (strlen(line) == 0) {
+		if (strlen(line) == 0)
+		{
 			continue;
 		}
 
@@ -265,14 +204,16 @@ Channel *Channel_load_from_file(const char *filename)
 
 		char *username = strtok_r(line, ",", &save);
 
-		if(!username) { 
+		if (!username)
+		{
 			log_error("invalid file format");
 			break;
 		}
 
 		char *mode = strtok_r(NULL, ",", &save);
 
-		if(!mode) {
+		if (!mode)
+		{
 			log_error("invalid file format");
 			break;
 		}
@@ -295,5 +236,3 @@ Channel *Channel_load_from_file(const char *filename)
 
 	return this;
 }
-
-

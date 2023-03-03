@@ -4,14 +4,14 @@ Next Features
 
 - more commands: WHO
 - channels
-    - commands: JOIN, PART, PRIVMSG 
+  - commands: JOIN, PART, PRIVMSG
 - multiserver
-    - no cycles to handle duplicates
-    - authentication
-    - how to check for cycles
-    - TTL to avoid infinite loops
-    - server list
-    - broadcast message to each server
+  - no cycles to handle duplicates
+  - authentication
+  - how to check for cycles
+  - TTL to avoid infinite loops
+  - server list
+  - broadcast message to each server
 - ping timeouts
 - For final report, connect to server from real irc client (LimeChat)
 
