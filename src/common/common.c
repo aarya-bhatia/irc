@@ -258,3 +258,9 @@ void *cc_array_find_element(CC_Array *this, bool (*cb)(void *, void *), void *ar
 
 	return NULL;
 }
+
+void *cc_hashtable_remove_and_free(CC_Array *this, void *key)
+{
+	assert(this);
+	assert(key);
+}

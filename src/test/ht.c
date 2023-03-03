@@ -1,58 +1,30 @@
-#include "common.h"
-#include "message.h"
-#include <collectc/cc_hashtable.h>
-#include <collectc/cc_array.h>
-
-CC_HashTable *table;
-
-int *x,*y;
-
-void run()
-{
-	x = malloc(sizeof *x);
-	y = malloc(sizeof *y);
-	*x = 3;
-	*y = 4;
-	cc_hashtable_add(table, x, x);
-	cc_hashtable_add(table, y, y);
-}
+#include "include/common.h"
+#include "include/message.h"
+#include "include/hashtable.h"
 
 int main()
 {
-	CC_HashTableConf htc;
+	HashTable *ht = calloc(1, sizeof *ht);
 
-	// Initialize all fields to default values
-	cc_hashtable_conf_init(&htc);
-	htc.hash = GENERAL_HASH;
-	htc.key_length = sizeof(int);
-	htc.key_compare = int_compare;
+	ht_setup(ht, sizeof(int), sizeof(int), 16);
 
-	// Create a new HashTable with integer keys
-	if (cc_hashtable_new_conf(&htc, &table) != CC_OK)
 	{
-		log_error("Failed to create hashtable");
-		exit(1);
+		ht_insert(ht, &(int){1}, &(int){0});
+		ht_insert(ht, &(int){2}, &(int){0});
 	}
 
-	log_info("Hashtable initialized with capacity %zu", cc_hashtable_capacity(table));
+	int key = 1;
+	assert(*(int *)ht_lookup(ht, &key) == 0);
 
-	run();
+	key = 2;
+	assert(*(int *)ht_lookup(ht, &key) == 0);
 
-	int x1 = 4, y1 = 3;
-	int *out, *out2;
-	cc_hashtable_get(table, &x1, &out);
-	cc_hashtable_get(table, &y1, &out2);
-	printf("%d %d\n", *out, *out2);
+	ht_erase(ht, &(int){1});
+	ht_erase(ht, &(int){2});
 
-	cc_hashtable_remove(table, &x1, &out);
-	cc_hashtable_remove(table, &y1, &out);
+	ht_destroy(ht);
 
-	free(x);
-	free(y);
-
-	cc_hashtable_destroy(table);
-
-	char *ptr = malloc(1);
+	free(ht);
 
 	return 0;
 }

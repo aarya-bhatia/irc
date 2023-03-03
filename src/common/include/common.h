@@ -26,6 +26,7 @@
 #include "log/log.h"
 #include "collectc/cc_common.h"
 #include "collectc/cc_array.h"
+#include "collectc/cc_hashtable.h"
 
 #define MAX_EVENTS 10
 #define MAX_MSG_LEN 512
@@ -52,7 +53,6 @@
 
 #define make_reply(format, ...) make_string(format "\r\n", __VA_ARGS__) /* suffix each string with delimiter <cr><lf> */
 
-
 char *trimwhitespace(char *str);
 
 char *make_string(char *format, ...); /* allocates a string from format string and args with exact size */
@@ -77,3 +77,5 @@ ssize_t read_all(int fd, char *buf, size_t len);  /* read all bytes from fd to b
 ssize_t write_all(int fd, char *buf, size_t len); /* write all bytes from fd to buffer */
 
 void *cc_array_find_element(CC_Array *this, bool (*cb)(void *elem, void *args), void *args); /* Find an element from CC_Array using callback */
+
+void *cc_hashtable_remove_and_free(CC_Array *this, void *key); /* Remove and free key and value from hashtable */

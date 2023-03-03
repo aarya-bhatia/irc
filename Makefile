@@ -1,4 +1,4 @@
-LDFLAGS=-Llib -llog -lcollectc -laaryab2
+LDFLAGS=-Llib -llog -lcollectc -laaryab2 -lhashtable
 
 CLIENT_DIR=src/client
 SERVER_DIR=src/server
@@ -27,6 +27,10 @@ $(CLIENT_EXE): $(CLIENT_OBJ)
 	$(CC) -pthread $^ $(LDFLAGS) -o $@
 
 $(SERVER_EXE): $(SERVER_OBJ)
+	@mkdir -p $(dir $@);
+	$(CC) $^ $(LDFLAGS) -o $@
+
+build/ht: obj/test/ht.o
 	@mkdir -p $(dir $@);
 	$(CC) $^ $(LDFLAGS) -o $@
 

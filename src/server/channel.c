@@ -29,8 +29,11 @@ void Channel_destroy(Channel *this)
 	free(this);
 }
 
-bool _find_member(Membership *m, char *username)
+bool _find_member(void *elem, void *arg)
 {
+	Membership *m = elem;
+	const char *username = arg;
+
 	return m && m->username && strcmp(m->username, username) == 0;
 }
 
@@ -53,18 +56,11 @@ void Channel_add_member(Channel *this, const char *username)
 	assert(this);
 	assert(username);
 
-	if (Channel_has_member(this, username))
+	if (!Channel_has_member(this, username))
 	{
-		return;
+		cc_array_add(this->members, Membership_create(this->name, username, 0));
+		log_info("User %s added to channel %s", username, this->name);
 	}
-
-	Membership *membership = calloc(1, sizeof *membership);
-	membership->username = strdup(username);
-	membership->channel = strdup(this->name);
-
-	cc_array_add(this->members, membership);
-
-	log_info("User %s added to channel %s", username, this->name);
 }
 
 /**
@@ -80,15 +76,12 @@ bool Channel_remove_member(Channel *this, const char *username)
 	{
 		Membership *m = NULL;
 		cc_array_get_at(this->members, i, (void **)&m);
-
 		assert(!strcmp(m->channel, this->name));
 
 		if (!strcmp(m->username, username))
 		{
 			cc_array_remove_at(this->members, i, NULL);
-			free(m->username);
-			free(m->channel);
-			free(m);
+			Membership_destroy(m);
 			return true;
 		}
 	}
@@ -221,11 +214,7 @@ Channel *Channel_load_from_file(const char *filename)
 		username = trimwhitespace(username);
 		mode = trimwhitespace(mode);
 
-		Membership *member = calloc(1, sizeof *member);
-		member->channel = strdup(this->name);
-		member->username = strdup(username);
-		member->mode = atoi(mode);
-
+		Membership *member = Membership_create(this->name, username, atoi(mode));
 		cc_array_add(this->members, member);
 	}
 
