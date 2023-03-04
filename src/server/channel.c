@@ -14,10 +14,7 @@ Channel *Channel_alloc(const char *name) {
     channel->name = strdup(name);
     channel->time_created = time(NULL);
     channel->user_limit = MAX_CHANNEL_USERS;
-
-    channel->members = calloc(1, sizeof *channel->members);
-    Vector_init(channel->members, 10, NULL, (elem_free_type) Membership_free);
-
+    channel->members = Vector_alloc(10, NULL, (elem_free_type) Membership_free);
     return channel;
 }
 
@@ -25,7 +22,7 @@ Channel *Channel_alloc(const char *name) {
  * Destroy all memory associated with channel
  */
 void Channel_free(Channel *this) {
-    Vector_destroy(this->members);
+    Vector_free(this->members);
     free(this->topic);
     free(this->name);
     free(this);
@@ -148,8 +145,7 @@ Channel *Channel_load_from_file(const char *filename) {
         return NULL;
     }
 
-    this->members = calloc(1, sizeof *this->members);
-    Vector_init(this->members, 10, NULL, (elem_free_type) Membership_free);
+    this->members = Vector_alloc(10, NULL, (elem_free_type) Membership_free);
 
     char *line = NULL;
     size_t len = 0;

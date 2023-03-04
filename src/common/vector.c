@@ -2,15 +2,17 @@
 
 #include "include/vector.h"
 
-void Vector_init(Vector *this, size_t capacity, void *(*elem_copy)(void *), void (*elem_free)(void *)) {
+Vector *Vector_alloc(size_t capacity, void *(*elem_copy)(void *), void (*elem_free)(void *)) {
+    Vector *this = calloc(1, sizeof *this);
     this->elems = calloc(capacity, sizeof *this->elems);
     this->size = 0;
     this->capacity = capacity;
     this->elem_copy = elem_copy;
     this->elem_free = elem_free;
+    return this;
 }
 
-void Vector_destroy(Vector *this) {
+void Vector_free(Vector *this) {
     for (size_t i = 0; i < this->size; i++) {
         if (this->elem_free) {
             this->elem_free(this->elems[i]);
@@ -19,6 +21,7 @@ void Vector_destroy(Vector *this) {
     }
 
     free(this->elems);
+    free(this);
 }
 
 size_t Vector_size(Vector *this) {

@@ -90,8 +90,7 @@ bool update_nick_map(Server *serv, User *usr) {
 
     if (!nicks) {
         log_info("Adding user %s to nick_map", usr->nick);
-        nicks = calloc(1, sizeof *nicks);
-        Vector_init(nicks, 4, (elem_copy_type) strdup, free);
+        nicks = Vector_alloc(4, (elem_copy_type) strdup, free);
         ht_set(serv->user_to_nicks_map, usr->username, nicks);
     } else {
         log_info("Adding user %s to nick_map", usr->nick);

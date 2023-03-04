@@ -67,7 +67,7 @@ void Server_process_request(Server *serv, User *usr) {
         }
     }
 
-    Vector_destroy(messages);  // Should destroy the struct with all its elements
+    Vector_free(messages);
 }
 
 /**
@@ -123,14 +123,17 @@ void Server_destroy(Server *serv) {
 
     ht_foreach(serv->connections, _close_connection);
     ht_destroy(serv->connections);
+    free(serv->connections);
 
     write_nicks_to_file(serv, NICKS_FILENAME);
     ht_destroy(serv->user_to_nicks_map);
+    free(serv->user_to_nicks_map);
 
     ht_destroy(serv->user_to_sock_map);
+    free(serv->user_to_sock_map);
 
-    Vector_foreach(serv->channels, (void (*)(void *)) Channel_save_to_file);
-    Vector_destroy(serv->channels);
+    Vector_foreach(serv->channels, (void (*)(void *))Channel_save_to_file);
+    free(serv->channels);
 
     close(serv->fd);
     close(serv->epollfd);
@@ -159,7 +162,7 @@ Server *Server_create(int port) {
     ht_init(serv->user_to_nicks_map);
 
     serv->connections->key_len = sizeof(int);
-    serv->connections->key_compare = (compare_type) int_compare;
+    serv->connections->key_compare = (compare_type)int_compare;
     serv->connections->key_copy = (elem_copy_type)int_copy;
     serv->connections->key_free = free;
     serv->connections->value_copy = NULL;
@@ -177,13 +180,11 @@ Server *Server_create(int port) {
     serv->user_to_nicks_map->key_copy = (elem_copy_type)strdup;
     serv->user_to_nicks_map->key_free = (elem_free_type)free;
     serv->user_to_nicks_map->value_copy = NULL;
-    serv->user_to_nicks_map->value_free = (elem_free_type)Vector_destroy;
+    serv->user_to_nicks_map->value_free = (elem_free_type)Vector_free;
 
     load_nicks(serv->user_to_nicks_map, NICKS_FILENAME);
 
-    serv->channels = calloc(1, sizeof *serv->channels);
-
-    Vector_init(serv->channels, 16, NULL, (elem_free_type)Channel_free);
+    serv->channels = Vector_alloc(16, NULL, (elem_free_type)Channel_free);
 
     serv->motd_file = MOTD_FILENAME;
 

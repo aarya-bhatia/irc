@@ -55,8 +55,7 @@ void load_nicks(Hashtable *nick_map, const char *filename)
 
 		// Add all nicks on each line into one array
 
-		Vector *linked = calloc(1, sizeof *linked);
-		Vector_init(linked, 16, (elem_copy_type) strdup, free);
+		Vector *linked = Vector_alloc(16, (elem_copy_type) strdup, free);
 
 		char *saveptr = NULL;
 		char *token = strtok_r(nicks, ",", &saveptr);

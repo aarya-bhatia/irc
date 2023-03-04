@@ -16,11 +16,13 @@ CLIENT_FILES=$(shell find $(CLIENT_DIR) -type f -name "*.c")
 COMMON_OBJ=$(COMMON_FILES:src/%.c=obj/%.o)
 SERVER_OBJ=$(SERVER_FILES:src/%.c=obj/%.o) $(COMMON_OBJ)
 CLIENT_OBJ=$(CLIENT_FILES:src/%.c=obj/%.o) $(COMMON_OBJ)
+TEST_OBJ=obj/test/test.o $(COMMON_OBJ)
 
 SERVER_EXE=build/server
 CLIENT_EXE=build/client
+TEST_EXE=build/test
 
-all: $(SERVER_EXE) $(CLIENT_EXE)
+all: $(SERVER_EXE) $(CLIENT_EXE) $(TEST_EXE)
 
 $(CLIENT_EXE): $(CLIENT_OBJ)
 	@mkdir -p $(dir $@);
@@ -30,7 +32,7 @@ $(SERVER_EXE): $(SERVER_OBJ)
 	@mkdir -p $(dir $@);
 	$(CC) $^ $(LDFLAGS) -o $@
 
-build/ht: obj/test/ht.o
+$(TEST_EXE): $(TEST_OBJ)
 	@mkdir -p $(dir $@);
 	$(CC) $^ $(LDFLAGS) -o $@
 

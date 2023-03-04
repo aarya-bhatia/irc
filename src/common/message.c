@@ -34,8 +34,7 @@ Vector *parse_all_messages(char *str) {
 
     int ret;
 
-    Vector *array = calloc(1, sizeof *array);
-    Vector_init(array, 4, NULL, message_free_callback);  // initialise a message vector with shallow copy and destructor
+    Vector *array = Vector_alloc(4, NULL, message_free_callback);  // initialise a message vector with shallow copy and destructor
 
     while (tok) {
         Message *msg = calloc(1, sizeof *msg);
