@@ -1,6 +1,6 @@
 #include "include/membership.h"
 
-Membership *Membership_create(char *channel, char *username, int mode)
+Membership *Membership_alloc(char *channel, char *username, int mode)
 {
 	Membership *m = calloc(1, sizeof *m);
 	m->channel = strdup(channel);
@@ -10,7 +10,7 @@ Membership *Membership_create(char *channel, char *username, int mode)
 	return m;
 }
 
-void Membership_destroy(Membership *membership)
+void Membership_free(Membership *membership)
 {
 	if(!membership)
 	{

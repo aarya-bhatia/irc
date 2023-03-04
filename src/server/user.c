@@ -189,15 +189,6 @@ void Server_remove_user(Server *serv, User *usr) {
     User_free(usr);
 }
 
-void User_add_msg(User *usr, char *msg) {
-    assert(usr);
-    assert(msg);
-    assert(usr->msg_queue);
-    assert(strlen(msg) <= MAX_MSG_LEN);
-
-    cc_list_add_last(usr->msg_queue, msg);
-}
-
 void User_save_to_file(User *usr, const char *filename) {
     assert(usr);
     assert(filename);
