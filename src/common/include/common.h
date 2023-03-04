@@ -22,10 +22,7 @@
 #include <errno.h>
 #include <signal.h>
 
-// External Libraries
-#include "log/log.h"
-#include "collectc/cc_common.h"
-#include "collectc/cc_array.h"
+#include "log.h"
 #include "hashtable.h"
 
 #define MAX_EVENTS 10
@@ -65,7 +62,8 @@ char *rstrstr(char *string, char *pattern); /* reverse strstr: returns pointer t
     callback;                   \
     pthread_mutex_unlock(&mutex);
 
-int int_compare(const void *key1, const void *key2); /* integer comparator for hashtable */
+int int_compare(const void *key1, const void *key2); /* integer comparator */
+void *int_copy(void *other_int); /* integer copy constructor */
 
 // Networking helper functions
 int create_and_bind_socket(char *hostname, char *port);     /* creates tcp socket to connect to given host and port  */
@@ -75,7 +73,3 @@ char *addr_to_string(struct sockaddr *addr, socklen_t len); /* get ip address fr
 // Note: For non blocking sockets, these fuctions may read/write fewer bytes than requested.
 ssize_t read_all(int fd, char *buf, size_t len);  /* read all bytes from fd to buffer */
 ssize_t write_all(int fd, char *buf, size_t len); /* write all bytes from fd to buffer */
-
-void *cc_array_find_element(CC_Array *this, bool (*cb)(void *elem, void *args), void *args); /* Find an element from CC_Array using callback */
-
-void ht_foreach(HashTable *this, void (*callback)(void *key, void *value)); /* perform action on each key,value pair in hashtable */

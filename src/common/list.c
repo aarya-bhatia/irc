@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "list.h"
+#include "include/list.h"
 
 void List_init(List *this, void *(*elem_copy)(void *), void (*elem_free)(void *))
 {
@@ -32,6 +32,11 @@ void List_destroy(List *this)
 	}
 
 	memset(this, 0, sizeof *this);
+}
+
+size_t List_size(List *this)
+{
+	return this->size;
 }
 
 void List_push_front(List *this, void *elem)

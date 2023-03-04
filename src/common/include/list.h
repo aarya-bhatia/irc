@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sys/types.h>
+
 typedef struct ListNode
 {
 	void *elem;
@@ -22,4 +24,6 @@ void List_push_front(List *this, void *elem);
 void List_push_back(List *this, void *elem);
 void List_pop_front(List *this);
 void List_pop_back(List *this);
-
+void *List_peek_front(List *this);
+void *List_peek_back(List *this);
+size_t List_size(List *this);

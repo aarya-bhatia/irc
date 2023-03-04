@@ -5,17 +5,21 @@
  *
  * Each line of file should start with "username:" followed by a comma separated list of nicks for that username.
  */
-HashTable *load_nicks(const char *filename)
+void load_nicks(Hashtable *nick_map, const char *filename)
 {
-	HashTable *nick_map = calloc(1, sizeof *nick_map);
-	ht_setup(nick_map, sizeof(char *), sizeof(CC_Array *), 11);
+	if (access(filename, F_OK) != 0) 
+	{
+		fclose(fopen(filename, "w"));
+		log_error("Created nicks file: %s", filename);
+		return;
+	}
 
 	FILE *file = fopen(filename, "r");
 
-	if (!file) {
-		fclose(fopen(filename, "w"));
-		log_error("Created nicks file: %s", filename);
-		return nick_map;
+	if(!file)
+	{
+		perror("fopen");
+		return;
 	}
 
 	char *line = NULL;
@@ -51,12 +55,8 @@ HashTable *load_nicks(const char *filename)
 
 		// Add all nicks on each line into one array
 
-		CC_Array *linked = NULL;
-
-		if (cc_array_new(&linked) != CC_OK) {
-			log_error("Failed to create array");
-			break;
-		}
+		Vector *linked = calloc(1, sizeof *linked);
+		Vector_init(linked, 16, strdup, free);
 
 		char *saveptr = NULL;
 		char *token = strtok_r(nicks, ",", &saveptr);
@@ -66,18 +66,16 @@ HashTable *load_nicks(const char *filename)
 
 			if (token && token[0] != 0) {
 				char *nick = strdup(token);
-				cc_array_add(linked, nick);
+				Vector_push(linked, nick);
 			}
 
 			token = strtok_r(NULL, ",", &saveptr);
 		}
 
-		log_debug("Added %d nicks for username %s", cc_array_size(linked), username);
-		ht_insert(nick_map, strdup(username), linked);
+		log_debug("Added %d nicks for username %s", Vector_size(linked), username);
+		ht_insert(nick_map, username, linked);
 	}
 
 	free(line);
 	fclose(file);
-
-	return nick_map;
 }

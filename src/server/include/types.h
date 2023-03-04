@@ -1,8 +1,9 @@
 #pragma once
 
 #include "include/common.h"
-#include "collectc/cc_array.h"
-#include "collectc/cc_list.h"
+#include "include/list.h"
+#include "include/hashtable.h"
+#include "include/vector.h"
 
 enum MODES
 {
@@ -13,17 +14,17 @@ enum MODES
 
 typedef struct _Server
 {
-	HashTable *connections;		 // Map socket fd to User data object
-	HashTable *user_to_nicks_map; // Map username to array of nicks owned by user
-	HashTable *user_to_sock_map;	 // Map username to client socket
-	CC_Array *channels;				 // List of channels
-	struct sockaddr_in servaddr;	 // address info for server
-	int fd;							 // listen socket
-	int epollfd;					 // epoll fd
-	char *hostname;					 // server hostname
-	char *port;						 // server port
-	char created_at[64];			 // server time created at as string
-	char *motd_file;				 // file to use for message of the day greetings
+	Hashtable *connections;		  // Map socket fd to User data object
+	Hashtable *user_to_nicks_map; // Map username to array of nicks owned by user
+	Hashtable *user_to_sock_map;  // Map username to client socket
+	Vector *channels;			  // List of channels
+	struct sockaddr_in servaddr;  // address info for server
+	int fd;						  // listen socket
+	int epollfd;				  // epoll fd
+	char *hostname;				  // server hostname
+	char *port;					  // server port
+	char created_at[64];		  // server time created at as string
+	char *motd_file;			  // file to use for message of the day greetings
 } Server;
 
 typedef struct _User
@@ -33,8 +34,8 @@ typedef struct _User
 	char *username;				   // unique identifier
 	char *realname;				   // full name
 	char *hostname;				   // client ip
-	CC_List *msg_queue;			   // messages to be delivered to user
-	int n_memberships;		   	   // num of channels joined
+	List *msg_queue;			   // messages to be delivered to user
+	int n_memberships;			   // num of channels joined
 	size_t req_len;				   // length of request buffer
 	size_t res_len;				   // length of response buffer
 	size_t res_off;				   // no of bytes of the response sent
@@ -47,18 +48,17 @@ typedef struct _User
 
 typedef struct _Membership
 {
-	char *username;
-	char *channel;
-	int mode;
+	char *username; // username of member
+	char *channel;	// channel name
+	int mode;		// member mode
 } Membership;
 
 typedef struct _Channel
 {
-	char *name; // name of channel
-	char *topic;
-	int mode;
-	int user_limit;
+	char *name;			 // name of channel
+	char *topic;		 // channel topic
+	int mode;			 // channel mode
+	int user_limit;		 // max user count
 	time_t time_created; // time channel was created
-	CC_Array *members;	 // usernames of members in the channel
+	Vector *members;	 // usernames of members in the channel
 } Channel;
-

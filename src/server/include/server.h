@@ -3,16 +3,13 @@
 #include "include/message.h"
 #include "types.h"
 
-CC_HashTable *load_nicks(const char *filename);
+void load_nicks(Hashtable *, const char *filename);
 char *get_motd(char *fname);
 
 Server *Server_create(int port);
 void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
 void Server_process_request(Server *serv, User *usr);
-
-Channel *Server_get_channel(Server *serv, const char *name);
-bool Server_remove_channel(Server *serv, const char *name);
 
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);
 void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
@@ -31,3 +28,11 @@ void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);
 void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);
+
+// implemented in user.c
+bool Server_add_user(Server *, User *);
+void Server_remove_user(Server *, User *);
+
+// implemented in channel.c
+Channel *Server_get_channel(Server *serv, const char *name);
+bool Server_remove_channel(Server *serv, const char *name);

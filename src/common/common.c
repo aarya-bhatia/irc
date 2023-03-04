@@ -127,6 +127,16 @@ int int_compare(const void *key1, const void *key2)
 }
 
 /**
+ * integer copy constructor
+*/
+void *int_copy(void *other_int)
+{
+	int *this = calloc(1, sizeof *this);
+	*this = *(int *) other_int;
+	return this;
+}
+
+/**
  * Returns the in_addr part of a sockaddr struct of either ipv4 or ipv6 type.
  */
 void *get_in_addr(struct sockaddr *sa)
@@ -235,45 +245,4 @@ ssize_t write_all(int fd, char *buf, size_t len)
 	}
 
 	return bytes_written;
-}
-
-void *cc_array_find_element(CC_Array *this, bool (*cb)(void *, void *), void *args)
-{
-	if (!this)
-	{
-		return NULL;
-	}
-
-	for (size_t i = 0; i < cc_array_size(this); i++)
-	{
-		void *elem = NULL;
-
-		cc_array_get_at(this, i, (void **)&elem);
-
-		if (cb(elem, args))
-		{
-			return elem;
-		}
-	}
-
-	return NULL;
-}
-
-void ht_foreach(HashTable *this, void (*callback)(void *key, void *value))
-{
-	assert(this);
-
-	for (size_t i = 0; i < this->capacity; i++)
-	{
-		if (this->nodes[i])
-		{
-			HTNode *itr = this->nodes[i];
-
-			while (itr)
-			{
-				callback(itr->key, itr->value);
-				itr = itr->next;
-			}
-		}
-	}
 }

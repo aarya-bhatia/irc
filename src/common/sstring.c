@@ -1,5 +1,5 @@
 #include "include/common.h"
-#include "sstring.h"
+#include "include/sstring.h"
 
 size_t _align_capacity(size_t n)
 {

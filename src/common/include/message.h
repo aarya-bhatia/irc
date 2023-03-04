@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.h"
-#include "collectc/cc_array.h"
+#include "vector.h"
 
 typedef struct _Message
 {
@@ -15,5 +15,5 @@ typedef struct _Message
 void message_init(Message *msg);
 void message_destroy(Message *msg);
 int parse_message(char *str, Message *msg);
-CC_Array *parse_all_messages(char *str);
+Vector *parse_all_messages(char *str);
 
