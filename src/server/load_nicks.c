@@ -5,15 +5,10 @@
  *
  * Each line of file should start with "username:" followed by a comma separated list of nicks for that username.
  */
-CC_HashTable *load_nicks(const char *filename)
+HashTable *load_nicks(const char *filename)
 {
-	CC_HashTable *nick_map = NULL;
-
-	// Create a new HashTable with integer keys
-	if (cc_hashtable_new(&nick_map) != CC_OK) {
-		log_error("Failed to create hashtable");
-		return NULL;
-	}
+	HashTable *nick_map = calloc(1, sizeof *nick_map);
+	ht_setup(nick_map, sizeof(char *), sizeof(CC_Array *), 11);
 
 	FILE *file = fopen(filename, "r");
 
@@ -53,9 +48,10 @@ CC_HashTable *load_nicks(const char *filename)
 			log_warn("username %s has no nicks", username);
 			continue;
 		}
+
 		// Add all nicks on each line into one array
 
-		CC_Array *linked;
+		CC_Array *linked = NULL;
 
 		if (cc_array_new(&linked) != CC_OK) {
 			log_error("Failed to create array");
@@ -76,9 +72,8 @@ CC_HashTable *load_nicks(const char *filename)
 			token = strtok_r(NULL, ",", &saveptr);
 		}
 
-		log_debug("Added %d nicks for username %s",
-			  cc_array_size(linked), username);
-		cc_hashtable_add(nick_map, strdup(username), linked);
+		log_debug("Added %d nicks for username %s", cc_array_size(linked), username);
+		ht_insert(nick_map, strdup(username), linked);
 	}
 
 	free(line);

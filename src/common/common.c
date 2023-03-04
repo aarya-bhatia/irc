@@ -259,8 +259,21 @@ void *cc_array_find_element(CC_Array *this, bool (*cb)(void *, void *), void *ar
 	return NULL;
 }
 
-void *cc_hashtable_remove_and_free(CC_Array *this, void *key)
+void ht_foreach(HashTable *this, void (*callback)(void *key, void *value))
 {
 	assert(this);
-	assert(key);
+
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		if (this->nodes[i])
+		{
+			HTNode *itr = this->nodes[i];
+
+			while (itr)
+			{
+				callback(itr->key, itr->value);
+				itr = itr->next;
+			}
+		}
+	}
 }

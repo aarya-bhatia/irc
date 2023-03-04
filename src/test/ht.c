@@ -2,6 +2,25 @@
 #include "include/message.h"
 #include "include/hashtable.h"
 
+void ht_foreach(HashTable *this, void (*callback)(void *key, void *value))
+{
+	assert(this);
+
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		if (this->nodes[i])
+		{
+			HTNode *itr = this->nodes[i];
+
+			while (itr)
+			{
+				callback(itr->key, itr->value);
+				itr = itr->next;
+			}
+		}
+	}
+}
+
 int main()
 {
 	HashTable *ht = calloc(1, sizeof *ht);

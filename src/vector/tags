@@ -1,0 +1,27 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+Vector	vector.c	/^typedef struct Vector$/;"	s	file:
+Vector	vector.c	/^} Vector;$/;"	t	typeref:struct:Vector	file:
+Vector::capacity	vector.c	/^	size_t capacity;$/;"	m	struct:Vector	file:	access:public
+Vector::elem_copy	vector.c	/^	void *(*elem_copy)(void *);$/;"	m	struct:Vector	file:	access:public
+Vector::elem_free	vector.c	/^	void (*elem_free)(void *);$/;"	m	struct:Vector	file:	access:public
+Vector::elems	vector.c	/^	void **elems;$/;"	m	struct:Vector	file:	access:public
+Vector::size	vector.c	/^	size_t size;$/;"	m	struct:Vector	file:	access:public
+Vector_destroy	vector.c	/^void Vector_destroy(Vector *this)$/;"	f	signature:(Vector *this)
+Vector_find	vector.c	/^void *Vector_find(Vector *this, bool (*cb)(void *, void *), void *args)$/;"	f	signature:(Vector *this, bool (*cb)(void *, void *), void *args)
+Vector_foreach	vector.c	/^void Vector_foreach(Vector *this, void (*cb)(void *))$/;"	f	signature:(Vector *this, void (*cb)(void *))
+Vector_init	vector.c	/^void Vector_init(Vector *this, size_t capacity, void *(*elem_copy)(void *), void (*elem_free)(void *))$/;"	f	signature:(Vector *this, size_t capacity, void *(*elem_copy)(void *), void (*elem_free)(void *))
+Vector_push	vector.c	/^void Vector_push(Vector *this, void *elem)$/;"	f	signature:(Vector *this, void *elem)
+Vector_remove	vector.c	/^void Vector_remove(Vector *this, size_t index)$/;"	f	signature:(Vector *this, size_t index)
+Vector_reserve	vector.c	/^void Vector_reserve(Vector *this, size_t capacity)$/;"	f	signature:(Vector *this, size_t capacity)
+capacity	vector.c	/^	size_t capacity;$/;"	m	struct:Vector	file:	access:public
+compare_type	vector.c	/^typedef int (* compare_type)(void *,void *);$/;"	t	file:
+elem_copy	vector.c	/^	void *(*elem_copy)(void *);$/;"	m	struct:Vector	file:	access:public
+elem_free	vector.c	/^	void (*elem_free)(void *);$/;"	m	struct:Vector	file:	access:public
+elems	vector.c	/^	void **elems;$/;"	m	struct:Vector	file:	access:public
+main	vector.c	/^int main()$/;"	f
+size	vector.c	/^	size_t size;$/;"	m	struct:Vector	file:	access:public

@@ -2,7 +2,6 @@
 
 #include "include/common.h"
 #include "collectc/cc_array.h"
-#include "collectc/cc_hashtable.h"
 #include "collectc/cc_list.h"
 
 enum MODES
@@ -14,9 +13,9 @@ enum MODES
 
 typedef struct _Server
 {
-	CC_HashTable *connections;		 // Map socket fd to User data object
-	CC_HashTable *user_to_nicks_map; // Map username to array of nicks owned by user
-	CC_HashTable *user_to_sock_map;	 // Map username to client socket
+	HashTable *connections;		 // Map socket fd to User data object
+	HashTable *user_to_nicks_map; // Map username to array of nicks owned by user
+	HashTable *user_to_sock_map;	 // Map username to client socket
 	CC_Array *channels;				 // List of channels
 	struct sockaddr_in servaddr;	 // address info for server
 	int fd;							 // listen socket

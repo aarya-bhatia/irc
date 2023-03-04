@@ -26,7 +26,7 @@
 #include "log/log.h"
 #include "collectc/cc_common.h"
 #include "collectc/cc_array.h"
-#include "collectc/cc_hashtable.h"
+#include "hashtable.h"
 
 #define MAX_EVENTS 10
 #define MAX_MSG_LEN 512
@@ -78,4 +78,4 @@ ssize_t write_all(int fd, char *buf, size_t len); /* write all bytes from fd to 
 
 void *cc_array_find_element(CC_Array *this, bool (*cb)(void *elem, void *args), void *args); /* Find an element from CC_Array using callback */
 
-void *cc_hashtable_remove_and_free(CC_Array *this, void *key); /* Remove and free key and value from hashtable */
+void ht_foreach(HashTable *this, void (*callback)(void *key, void *value)); /* perform action on each key,value pair in hashtable */
