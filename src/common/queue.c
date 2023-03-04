@@ -19,6 +19,7 @@ void queue_destroy(queue_t *q, void (*free_callback)(void *)) {
     }
 
     List_destroy(q->l);
+    free(q->l);
 
     pthread_mutex_destroy(&q->m);
     pthread_cond_destroy(&q->cv);

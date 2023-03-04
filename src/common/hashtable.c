@@ -171,13 +171,13 @@ bool ht_remove(Hashtable *this, void *key, void **key_out, void **value_out) {
 
                     if (this->key_free) {
                         this->key_free(curr->key);
-                    } else {
+                    } else if (key_out) {
                         *key_out = curr->key;
                     }
 
                     if (this->value_free) {
                         this->value_free(curr->value);
-                    } else {
+                    } else if (value_out) {
                         *value_out = curr->value;
                     }
 
