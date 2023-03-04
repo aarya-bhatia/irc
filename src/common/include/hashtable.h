@@ -21,7 +21,7 @@ typedef struct Hashtable
 	size_t capacity;
 	int seed;
 	int key_len;
-	int (*key_compare)(void *, void *);
+	int (*key_compare)(const void *, const void *);
 	void *(*key_copy)(void *);
 	void (*key_free)(void *);
 	void *(*value_copy)(void *);

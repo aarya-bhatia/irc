@@ -121,8 +121,3 @@ void *List_peek_back(List *this)
 {
 	return this->size ? this->tail->elem : NULL;
 }
-
-int main()
-{
-}
-

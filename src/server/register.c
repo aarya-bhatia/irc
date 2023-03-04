@@ -91,7 +91,7 @@ bool update_nick_map(Server *serv, User *usr) {
     if (!nicks) {
         log_info("Adding user %s to nick_map", usr->nick);
         nicks = calloc(1, sizeof *nicks);
-        Vector_init(nicks, 4, strdup, free);
+        Vector_init(nicks, 4, (elem_copy_type) strdup, free);
         ht_set(serv->user_to_nicks_map, usr->username, nicks);
     } else {
         log_info("Adding user %s to nick_map", usr->nick);
@@ -118,7 +118,7 @@ bool check_nick_available(Server *serv, User *usr, const char *nick) {
     char *username = NULL;
     Vector *nicks = NULL;
 
-    while (ht_iter_next(&itr, &username, &nicks)) {
+    while (ht_iter_next(&itr, (void **) &username, (void **) &nicks)) {
         assert(username);
         assert(nicks);
         for (size_t i = 0; i < Vector_size(nicks); i++) {

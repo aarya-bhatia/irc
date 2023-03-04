@@ -13,12 +13,6 @@
 
 static FILE *nick_file = NULL;
 
-void _sanity_check(Server *serv, User *usr, Message *msg) {
-    assert(serv);
-    assert(usr);
-    assert(msg);
-}
-
 void Server_process_request(Server *serv, User *usr) {
     assert(serv);
     assert(usr);
@@ -28,8 +22,7 @@ void Server_process_request(Server *serv, User *usr) {
     Vector *messages = parse_all_messages(usr->req_buf);
     assert(messages);
 
-    log_debug("Processing %zu messages from user %s",
-              cc_array_size(messages), usr->nick);
+    log_debug("Processing %zu messages from user %s", Vector_size(messages), usr->nick);
 
     usr->req_buf[0] = 0;
     usr->req_len = 0;
@@ -58,7 +51,7 @@ void Server_process_request(Server *serv, User *usr) {
             Server_reply_to_JOIN(serv, usr, message);
         } else if (!strcmp(message->command, "QUIT")) {
             Server_reply_to_QUIT(serv, usr, message);
-            assert(cc_list_size(usr->msg_queue) > 0);
+            assert(List_size(usr->msg_queue) > 0);
             usr->quit = true;
         } else if (!usr->registered) {
             char *reply = make_reply(":%s " ERR_NOTREGISTERED_MSG,
@@ -121,6 +114,7 @@ void write_nicks_to_file(Server *serv, char *filename) {
 }
 
 void _close_connection(void *fd, void *usr) {
+    (void)fd;
     User_free((User *)usr);
 }
 
@@ -135,7 +129,7 @@ void Server_destroy(Server *serv) {
 
     ht_destroy(serv->user_to_sock_map);
 
-    Vector_foreach(serv->channels, Channel_save_to_file);
+    Vector_foreach(serv->channels, (void (*)(void *)) Channel_save_to_file);
     Vector_destroy(serv->channels);
 
     close(serv->fd);
@@ -165,31 +159,31 @@ Server *Server_create(int port) {
     ht_init(serv->user_to_nicks_map);
 
     serv->connections->key_len = sizeof(int);
-    serv->connections->key_compare = int_compare;
-    serv->connections->key_copy = int_copy;
+    serv->connections->key_compare = (compare_type) int_compare;
+    serv->connections->key_copy = (elem_copy_type)int_copy;
     serv->connections->key_free = free;
     serv->connections->value_copy = NULL;
     serv->connections->value_free = NULL;
 
     serv->user_to_sock_map->key_len = sizeof(char *);
-    serv->user_to_sock_map->key_compare = strcmp;
-    serv->user_to_sock_map->key_copy = strdup;
+    serv->user_to_sock_map->key_compare = (compare_type)strcmp;
+    serv->user_to_sock_map->key_copy = (elem_copy_type)strdup;
     serv->user_to_sock_map->key_free = free;
-    serv->user_to_sock_map->value_copy = int_copy;
+    serv->user_to_sock_map->value_copy = (elem_copy_type)int_copy;
     serv->user_to_sock_map->value_free = free;
 
     serv->user_to_nicks_map->key_len = sizeof(char *);
-    serv->user_to_nicks_map->key_compare = strcmp;
-    serv->user_to_nicks_map->key_copy = strdup;
-    serv->user_to_nicks_map->key_free = free;
+    serv->user_to_nicks_map->key_compare = (compare_type)strcmp;
+    serv->user_to_nicks_map->key_copy = (elem_copy_type)strdup;
+    serv->user_to_nicks_map->key_free = (elem_free_type)free;
     serv->user_to_nicks_map->value_copy = NULL;
-    serv->user_to_nicks_map->value_free = Vector_destroy;
+    serv->user_to_nicks_map->value_free = (elem_free_type)Vector_destroy;
 
     load_nicks(serv->user_to_nicks_map, NICKS_FILENAME);
 
     serv->channels = calloc(1, sizeof *serv->channels);
 
-    Vector_init(serv->channels, 16, NULL, Channel_free);
+    Vector_init(serv->channels, 16, NULL, (elem_free_type)Channel_free);
 
     serv->motd_file = MOTD_FILENAME;
 

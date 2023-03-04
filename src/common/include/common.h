@@ -3,36 +3,42 @@
 #define _GNU_SOURCE
 
 // Standard Libraries
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
 #include <assert.h>
-#include <stdio.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 // Networking
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <netinet/in.h>
 #include <errno.h>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <signal.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
-#include "log.h"
 #include "hashtable.h"
+#include "log.h"
 
 #define MAX_EVENTS 10
 #define MAX_MSG_LEN 512
 #define MAX_MSG_PARAM 15
 #define CRLF "\r\n"
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+typedef int (*compare_type)(const void *, const void *);
+typedef void *(*elem_copy_type)(void *elem);
+typedef void (*elem_free_type)(void *elem);
+
 #define _CHECK(status, msg)                         \
-    if (status < 0)                                 \
-    {                                               \
+    if (status < 0) {                               \
         log_error("Failed with status %d", status); \
         perror(msg);                                \
         exit(1);                                    \
@@ -63,7 +69,7 @@ char *rstrstr(char *string, char *pattern); /* reverse strstr: returns pointer t
     pthread_mutex_unlock(&mutex);
 
 int int_compare(const void *key1, const void *key2); /* integer comparator */
-void *int_copy(void *other_int); /* integer copy constructor */
+void *int_copy(void *other_int);                     /* integer copy constructor */
 
 // Networking helper functions
 int create_and_bind_socket(char *hostname, char *port);     /* creates tcp socket to connect to given host and port  */

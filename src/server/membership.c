@@ -1,6 +1,6 @@
 #include "include/membership.h"
 
-Membership *Membership_alloc(char *channel, char *username, int mode)
+Membership *Membership_alloc(const char *channel, const char *username, int mode)
 {
 	Membership *m = calloc(1, sizeof *m);
 	m->channel = strdup(channel);

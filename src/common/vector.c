@@ -38,7 +38,7 @@ void Vector_reserve(Vector *this, size_t capacity) {
     memset(this->elems + this->size, 0, (capacity - this->size) * sizeof *this->elems);
 }
 
-void *Vector_find(Vector *this, bool (*cb)(void *, void *), void *args) {
+void *Vector_find(Vector *this, bool (*cb)(void *, const void *), const void *args) {
     for (size_t i = 0; i < this->size; i++) {
         if (cb(this->elems[i], args)) {
             return this->elems[i];
@@ -78,38 +78,4 @@ void Vector_foreach(Vector *this, void (*cb)(void *)) {
     for (size_t i = 0; i < this->size; i++) {
         cb(this->elems[i]);
     }
-}
-
-bool cb(void *elem, void *arg) {
-    return strcmp(elem, arg) == 0;
-}
-
-int main() {
-    Vector this;
-
-    Vector_init(&this, 10, strdup, free);
-
-    Vector_push(&this, "hello");
-    Vector_push(&this, "world");
-
-    assert(this.size == 2);
-
-    Vector_foreach(&this, puts);
-
-    puts(Vector_find(&this, cb, "hello"));
-
-    Vector_remove(&this, 1, NULL);
-    Vector_remove(&this, 0, NULL);
-
-    assert(this.size == 0);
-
-    Vector_push(&this, "a");
-    Vector_push(&this, "b");
-    Vector_push(&this, "c");
-
-    Vector_remove(&this, 1, NULL);
-
-    assert(this.size == 2);
-
-    return 0;
 }

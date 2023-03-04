@@ -1,11 +1,11 @@
 #pragma once
 
-#include "collectc/cc_list.h"
 #include <pthread.h>
 
-typedef struct queue_t
-{
-    CC_List *l;
+#include "list.h"
+
+typedef struct queue_t {
+    List *l;
     pthread_mutex_t m;
     pthread_cond_t cv;
 } queue_t;

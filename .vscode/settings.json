@@ -1,12 +1,8 @@
 {
     "files.associations": {
-        "cc_common.h": "c",
         "server.h": "c",
         "common.h": "c",
-        "cc_hashtable.h": "c",
-        "cc_array.h": "c",
         "queue.h": "c",
-        "cc_list.h": "c",
         "replies.h": "c",
         "register.h": "c",
         "epoll.h": "c",
@@ -15,7 +11,10 @@
         "types.h": "c",
         "user.h": "c",
         "stat.h": "c",
-        "membership.h": "c"
+        "membership.h": "c",
+        "signal.h": "c",
+        "vector.h": "c",
+        "k.h": "c"
     },
     "cmake.configureOnOpen": true
 }

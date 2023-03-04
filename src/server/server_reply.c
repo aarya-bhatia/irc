@@ -6,6 +6,12 @@
 #include "include/types.h"
 #include "include/user.h"
 
+void _sanity_check(Server *serv, User *usr, Message *msg) {
+    assert(serv);
+    assert(usr);
+    assert(msg);
+}
+
 /**
  * The USER and NICK command should be the first messages sent by a new client to complete registration.
  *
@@ -94,12 +100,8 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {
     log_debug("user %s set username to %s and realname to %s", usr->nick,
               username, realname);
 
-    // To store the value of socket in hashmap
-    int *userfd = malloc(sizeof *userfd);
-    *userfd = usr->fd;
-
     // Register user's username to their socket in map
-    cc_hashtable_add(serv->user_to_sock_map, usr->username, userfd);
+    ht_set(serv->user_to_sock_map, usr->username, &usr->fd);
 
     // Complete registration and prepare greeting messages
     check_registration_complete(serv, usr);
@@ -175,30 +177,25 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
     const char *target_nick = msg->params[0];
     char *target_username = NULL;
 
-    CC_HashTableIter itr;  // iterate
-    TableEntry *entry = NULL;
-    cc_hashtable_iter_init(&itr, serv->user_to_nicks_map);
+    HashtableIter itr;
+    char *username = NULL;
+    Vector *nicks = NULL;
+
+    ht_iter_init(&itr, serv->user_to_nicks_map);
 
     // For each registered user, check if one of their nicks match the given nick
-    while (!target_username && cc_hashtable_iter_next(&itr, &entry) != CC_ITER_END) {
-        char *cur_username = entry->key;
-        CC_Array *cur_nicks = entry->value;
-
-        assert(cur_username);
-        assert(cur_nicks);
+    while (!target_username && ht_iter_next(&itr, (void **) &username, (void **) &nicks)) {
+        assert(username);
+        assert(nicks);
 
         // Iterate the nicks array
-        CC_ArrayIter nick_itr;
-        cc_array_iter_init(&nick_itr, cur_nicks);
-        char *cur_nick = NULL;
-
-        while (cc_array_iter_next(&nick_itr, (void **)&cur_nick) !=
-               CC_ITER_END) {
-            assert(cur_nick);
+        for (size_t i = 0; i < Vector_size(nicks); i++) {
+            char *nick = Vector_get_at(nicks, i);
+            assert(nick);
 
             // match found
-            if (!strcmp(cur_nick, target_nick)) {
-                target_username = cur_username;
+            if (!strcmp(nick, target_nick)) {
+                target_username = username;
                 break;
             }
         }
@@ -212,11 +209,9 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
                                   target_nick));
         return;
     }
-    // Look up the socket for target user through their username
-    int *target_sock = NULL;
 
-    cc_hashtable_get(serv->user_to_sock_map, target_username,
-                     (void **)&target_sock);
+    // Look up the socket for target user through their username
+    int *target_sock = ht_get(serv->user_to_sock_map, target_username);
 
     // user is offline
     if (!target_sock) {
@@ -230,19 +225,14 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
 
     // Look up the user data for the target user through their socket
 
-    User *target_data = NULL;
+    User *target_data = ht_get(serv->connections, target_sock);
+    assert(target_data);
 
-    if (cc_hashtable_get(serv->connections, (void *)target_sock,
-                         (void **)&target_data) == CC_OK) {
-        assert(target_data);
-
-        // Add message to target user's queue
-        List_push_back(target_data->msg_queue,
-                       make_reply(":%s!%s@%s PRIVMSG %s :%s", usr->nick,
-                                  usr->username, usr->hostname,
-                                  target_nick, msg->body));
-        return;
-    }
+    // Add message to target user's queue
+    List_push_back(target_data->msg_queue,
+                   make_reply(":%s!%s@%s PRIVMSG %s :%s", usr->nick,
+                              usr->username, usr->hostname,
+                              target_nick, msg->body));
 
     log_info("PRIVMSG sent from user %s to user %s", usr->nick,
              target_nick);
@@ -288,9 +278,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 
     // JOIN is only for registered users
     if (!usr->registered) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NOTREGISTERED_MSG,
-                                  serv->hostname, usr->nick));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOTREGISTERED_MSG, serv->hostname, usr->nick));
         return;
     }
 
@@ -298,10 +286,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 
     // Param for channel name required
     if (msg->n_params == 0) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NEEDMOREPARAMS_MSG,
-                                  serv->hostname, usr->nick,
-                                  msg->command));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NEEDMOREPARAMS_MSG, serv->hostname, usr->nick, msg->command));
         return;
     }
 
@@ -309,10 +294,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 
     // Channel should begin with #
     if (msg->params[0][0] != '#') {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NOSUCHCHANNEL_MSG,
-                                  serv->hostname, usr->nick,
-                                  msg->params[0]));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, msg->params[0]));
         return;
     }
 
@@ -321,18 +303,12 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
     Channel *channel = Server_get_channel(serv, channel_name);
 
     if (!channel) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NOSUCHCHANNEL_MSG,
-                                  serv->hostname, usr->nick,
-                                  channel_name));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, channel_name));
         return;
     }
 
     if (usr->n_memberships > MAX_CHANNEL_COUNT) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_TOOMANYCHANNELS_MSG,
-                                  serv->hostname, usr->nick,
-                                  channel_name));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_TOOMANYCHANNELS_MSG, serv->hostname, usr->nick, channel_name));
         return;
     }
 
@@ -341,18 +317,14 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 
     // Send channel topic
     if (channel->topic) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " RPL_TOPIC_MSG, serv->hostname,
-                                  usr->nick, channel_name,
-                                  channel->topic));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel_name, channel->topic));
     }
 
     // NAMES reply
     // Compose names as multipart message
 
-    char *subject =
-        make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=",
-                    channel_name);
+    char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=",
+                                channel_name);
 
     char message[MAX_MSG_LEN + 1];
     memset(message, 0, sizeof message);
@@ -360,9 +332,8 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
     strcat(message, subject);
 
     // Get channel members
-    for (size_t i = 0; i < cc_array_size(channel->members); i++) {
-        char *username = NULL;
-        cc_array_get_at(channel->members, i, (void **)&username);
+    for (size_t i = 0; i < Vector_size(channel->members); i++) {
+        char *username = Vector_get_at(channel->members, i);
         assert(username);
 
         size_t len = strlen(username) + 1;  // Length for name and space

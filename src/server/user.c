@@ -65,7 +65,7 @@ ssize_t User_Read_Event(Server *serv, User *usr) {
 
     // If no bytes read and no messages sent
     if (nread <= 0 && !strstr(usr->req_buf, "\r\n")) {
-        User_Disconnect(serv, usr);
+        Server_remove_user(serv, usr);
         return -1;
     }
 
@@ -119,7 +119,7 @@ ssize_t User_Write_Event(Server *serv, User *usr) {
         log_debug("Sent %zd bytes to user %s", nsent, usr->nick);
 
         if (nsent <= 0) {
-            User_Disconnect(serv, usr);
+            Server_remove_user(serv, usr);
             return -1;
         }
 
@@ -149,7 +149,6 @@ ssize_t User_Write_Event(Server *serv, User *usr) {
 }
 
 bool Server_add_user(Server *serv, User *usr) {
-
     // Make user socket non-blocking
     if (fcntl(usr->fd, F_SETFL, fcntl(usr->fd, F_GETFL) | O_NONBLOCK) != 0) {
         perror("fcntl");
@@ -168,7 +167,7 @@ bool Server_add_user(Server *serv, User *usr) {
 
     // Add user socket to connections hashmap
     ht_set(serv->connections, &usr->fd, usr);
-    
+
     log_info("Got connection %d from %s", usr->fd, usr->hostname);
 
     return true;

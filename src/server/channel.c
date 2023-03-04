@@ -16,7 +16,7 @@ Channel *Channel_alloc(const char *name) {
     channel->user_limit = MAX_CHANNEL_USERS;
 
     channel->members = calloc(1, sizeof *channel->members);
-    Vector_init(channel->members, 10, NULL, Membership_free);
+    Vector_init(channel->members, 10, NULL, (elem_free_type) Membership_free);
 
     return channel;
 }
@@ -31,7 +31,7 @@ void Channel_free(Channel *this) {
     free(this);
 }
 
-bool _find_member(void *elem, void *arg) {
+bool _find_member(void *elem, const void *arg) {
     Membership *m = elem;
     const char *username = arg;
     return m && m->username && strcmp(m->username, username) == 0;
@@ -68,7 +68,7 @@ bool Channel_remove_member(Channel *this, const char *username) {
     assert(this);
     assert(username);
 
-    for (size_t i = 0; i < cc_array_size(this->members); i++) {
+    for (size_t i = 0; i < Vector_size(this->members); i++) {
         Membership *m = Vector_get_at(this->members, i);
         assert(!strcmp(m->channel, this->name));
         if (!strcmp(m->username, username)) {
@@ -149,7 +149,7 @@ Channel *Channel_load_from_file(const char *filename) {
     }
 
     this->members = calloc(1, sizeof *this->members);
-    Vector_init(this->members, 10, NULL, Membership_free);
+    Vector_init(this->members, 10, NULL, (elem_free_type) Membership_free);
 
     char *line = NULL;
     size_t len = 0;
@@ -210,7 +210,7 @@ Channel *Channel_load_from_file(const char *filename) {
 Channel *Server_get_channel(Server *serv, const char *name) {
     // Check if channel exists in memory
     for (size_t i = 0; i < Vector_size(serv->channels); i++) {
-        Channel *channel = Vector_get(serv->channels, i);
+        Channel *channel = Vector_get_at(serv->channels, i);
         if (!strcmp(channel->name, name)) {
             return channel;
         }

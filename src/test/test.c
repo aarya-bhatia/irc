@@ -1,64 +1,126 @@
-#include "common.h"
-#include "message.h"
+#include "include/common.h"
+#include "include/hashtable.h"
+#include "include/list.h"
+#include "include/message.h"
+#include "include/vector.h"
 
-#include <collectc/cc_hashtable.h>
-#include <collectc/cc_array.h>
+struct s {
+    int x;
+};
 
-int int_cmp(const void *i, const void *j){
-	return *(int *) i - *(int *)j;
+struct s *struct_copy(struct s *other) {
+    struct s *this = calloc(1, sizeof *this);
+    memcpy(this, other, sizeof *this);
+    return this;
 }
 
-int main()
-{
-	char s1[] = "NICK aarya\r\n";
-	char s2[] = "USER aarya * * :Aarya Bhatia\r\n";
-	char s3[] = "NICK aarya\r\nUSER aarya * * :Aarya Bhatia\r\n";
+void struct_free(struct s *other) {
+    free(other);
+}
 
-	CC_Array *arr = parse_all_messages(s1);
-	CC_Array *arr2 = parse_all_messages(s2);
-	CC_Array *arr3 = parse_all_messages(s3);
+void print(char *key, struct s *value) {
+    printf("%s -> %d\n", key, value->x);
+}
 
-	cc_array_destroy(arr);
-	cc_array_destroy(arr2);
-	cc_array_destroy(arr3);
+static int hashtable_test() {
+    Hashtable this;
+    ht_init(&this);
 
-	log_trace("Hello %s", "world");
-	log_debug("Hello %s", "world");
-	log_info("Hello %s", "world");
-	log_warn("Hello %s", "world");
-	log_error("Hello %s", "world");
-	log_fatal("Hello %s", "world");
+    this.value_copy = struct_copy;
+    this.value_free = struct_free;
 
-	CC_HashTable *ht;
-	cc_hashtable_new(&ht);
+    {
+        struct s s1;
 
-	int k = 1;
-	int l = 2;
+        s1.x = 1;
+        ht_set(&this, "hello", &s1);
 
-	cc_hashtable_add(ht, &k, "k");
-	cc_hashtable_add(ht, &l, "l");
+        s1.x = 2;
+        ht_set(&this, "world", &s1);
+    }
 
-	char *kval, *lval;
+    ht_foreach(&this, print);
 
-	cc_hashtable_get(ht, &k, (void **) &kval);
-	cc_hashtable_get(ht, &l, (void **) &lval);	
+    ht_remove(&this, "hello", NULL, NULL);
 
-	assert(!strcmp(kval, "k"));
-	assert(!strcmp(lval, "l"));
+    assert(this.size == 1);
 
-	assert(cc_hashtable_size(ht) == 2);
+    struct s s1;
 
-	CC_HashTableIter itr;
-	cc_hashtable_iter_init(&itr, ht);
+    s1.x = 1;
+    ht_set(&this, "hello", &s1);
 
-	TableEntry *entry;
+    assert(this.size == 2);
 
-	while (cc_hashtable_iter_next(&itr, &entry) != CC_ITER_END) 
-	{
-		printf("Key:%d value:%s hash:%zu\n", *(int*)entry->key, (char *) entry->value, entry->hash);
-	}
-	
-	cc_hashtable_destroy(ht);
-	
-	return 0;
+    struct s *s2 = ht_get(&this, "hello");
+    assert(s2->x == s1.x);
+
+    struct s s3;
+    s3.x = -1;
+    ht_set(&this, "hello", &s3);
+
+    s2 = ht_get(&this, "hello");
+    assert(s2->x == s3.x);
+
+    s2 = ht_get(&this, "world");
+    assert(s2->x == 2);
+
+    ht_destroy(&this);
+}
+
+bool cb(void *elem, void *arg) {
+    return strcmp(elem, arg) == 0;
+}
+
+static int vector_test() {
+    Vector this;
+
+    Vector_init(&this, 10, strdup, free);
+
+    Vector_push(&this, "hello");
+    Vector_push(&this, "world");
+
+    assert(this.size == 2);
+
+    Vector_foreach(&this, puts);
+
+    puts(Vector_find(&this, cb, "hello"));
+
+    Vector_remove(&this, 1, NULL);
+    Vector_remove(&this, 0, NULL);
+
+    assert(this.size == 0);
+
+    Vector_push(&this, "a");
+    Vector_push(&this, "b");
+    Vector_push(&this, "c");
+
+    Vector_remove(&this, 1, NULL);
+
+    assert(this.size == 2);
+
+    return 0;
+}
+
+int main() {
+    char s1[] = "NICK aarya\r\n";
+    char s2[] = "USER aarya * * :Aarya Bhatia\r\n";
+    char s3[] = "NICK aarya\r\nUSER aarya * * :Aarya Bhatia\r\n";
+
+    Vector *arr = parse_all_messages(s1);
+    Vector *arr2 = parse_all_messages(s2);
+    Vector *arr3 = parse_all_messages(s3);
+
+    Vector_destroy(arr);
+    Vector_destroy(arr2);
+    Vector_destroy(arr3);
+
+    log_trace("Hello %s", "world");
+    log_debug("Hello %s", "world");
+    log_info("Hello %s", "world");
+    log_warn("Hello %s", "world");
+    log_error("Hello %s", "world");
+    log_fatal("Hello %s", "world");
+
+    return 0;
 }
