@@ -315,6 +315,21 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
     Channel_add_member(channel, usr->username);
     usr->n_memberships++;
 
+    // Broadcast JOIN to every client including current user
+    HashtableIter itr;
+    ht_iter_init(&itr, serv->connections);
+    int user_sock;
+    User *user_data = NULL;
+    char *join_message = make_reply("%s!%s@%s JOIN #%s", usr->nick, usr->username, usr->hostname, channel_name);
+    while (ht_iter_next(&itr, (void **)&user_sock, (void **)&user_data)) {
+        assert(user_data);
+        if (user_data->registered) {
+            List_push_back(user_data->msg_queue, strdup(join_message));
+        }
+    }
+
+    free(join_message);
+
     // Send channel topic
     if (channel->topic) {
         List_push_back(usr->msg_queue, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel_name, channel->topic));
