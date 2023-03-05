@@ -82,16 +82,16 @@ bool Channel_remove_member(Channel *this, const char *username) {
  * Loads channels from file into hashtable which maps channel name as string to Channel*.
  */
 Hashtable *load_channels(const char *filename) {
+    Hashtable *hashtable = ht_alloc();
+    hashtable->value_copy = NULL;
+    hashtable->value_free = (elem_free_type)Channel_free;
+
     FILE *file = fopen(filename, "r");
 
     if (!file) {
         log_error("Failed to open file %s", filename);
-        return;
+        return hashtable;
     }
-
-    Hashtable *hashtable = ht_alloc();
-    hashtable->value_copy = NULL;
-    hashtable->value_free = (elem_free_type)Channel_free;
 
     char *line = NULL;
     size_t len = 0;
@@ -102,20 +102,16 @@ Hashtable *load_channels(const char *filename) {
             line[nread - 1] = 0;
         }
 
-        char *tok = strtok(line, ":");
+        char *saveptr = NULL;
+        char *saveptr1 = NULL;
 
-        if (!tok) {
-            log_error("invalid line: %s", line);
-            continue;
-        }
+        char *info = strtok_r(line, ":", &saveptr);
+        char *topic = strtok_r(NULL, ":", &saveptr);
 
-        char *topic = strtok(NULL, ":");
-
-        char name[64];
-        time_t time_created;
-        int mode;
-        int user_limit;
-        fscanf(tok, "%s %ld %d %d", name, (long *)&time_created, &mode, &user_limit);
+        char *name = strtok_r(info, " ", &saveptr1);
+        time_t time_created = atol(strtok_r(NULL, " ", &saveptr1));
+        int mode = atoi(strtok_r(NULL, " ", &saveptr1));
+        int user_limit = atoi(strtok_r(NULL, " ", &saveptr1));
 
         Channel *this = Channel_alloc(name);
         this->mode = mode;
@@ -123,12 +119,14 @@ Hashtable *load_channels(const char *filename) {
         this->topic = strdup(topic);
         this->user_limit = user_limit;
 
+        log_info("Added channel %s with topic %s", this->name, this->topic);
         ht_set(hashtable, name, this);
     }
 
     free(line);
     fclose(file);
 
+    log_info("Loaded %zu channels from file %s", ht_size(hashtable), filename);
     return hashtable;
 }
 

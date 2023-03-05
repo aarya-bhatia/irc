@@ -1,3 +1,3 @@
-aarya.bhatia1678:aaryab2,aarya,aaryab2,aaryab2,aaryab2,aaryab2,aaryab2,aaryab2,aaryab2,aaryab2,aaryab2,aaryab2,aaryab2
-alice:alice,alice1,alice,alice
+aarya.bhatia1678:aaryab2,aarya
+alice:alice
 ananyaa:atanwar2
