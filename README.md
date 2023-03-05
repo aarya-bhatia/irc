@@ -1,131 +1,106 @@
-# IRC Project
+# Features
 
-## Timeline
+## Server
 
-### Checkpoint #1
+- The core of the server is single-thread and uses epoll API and nonblocking IO.
+- The server has a map of each open socket to some user data.
+- The server also has a map of username to nicks which is loaded and saved to a file.
+- The server uses buffers in the user data struct to receive/send messages.
+- The user data uses a message queue that allows the server to prepare multiple messages to send to one client.
+- The message queue is also useful for message chat as messages for a target user can be pushed to their respective queues.
 
-- Implement a single IRC server that communicates asynchronously with clients using the epoll api
-- Implement the data structures to associate the connections with user data in the server
-- Implement simple CLI client that can communicate messages from user to server
-- Start the server with a configuration file that specifies the hostname and ports to be used
+## Logic
 
-List of commands to implement:
+The main logic is that the epoll listens for Read/Write events on all the available client connections as well as the server listening socket. If the event is on the listening socket, that implies the server can connect to new clients and initialise their user data. This is done through the `Server_process_request()` function.
+In the case the event is on a client socket, I handle three cases: read, write and error. On error, I disconnect the client. On write, we send any pending messages from that user's message queue. Lastly, on read, we receive any data and parse the message if it is complete. Otherwise, we store the bytes in the user's buffer for later.
 
-1. NICK
+There are various functions to handle the commands in the form of `Server_reply_to_XXXX()`.
+These functions use the predefined message reply strings in `reply.h` and substitute the reply parameters such as user's nick.
+The message parser in `message.h` is used to parse message details safely.
 
-The USER and NICK command should be the first messages sent by a new client to complete registration.
+The server currently supports the following commands from the client: MOTD, NICK, USER, PING, QUIT.
 
-Syntax: `NICK <nickname>`
-Example: `NICK aarya\r\n`
+## QUIT
 
-Replies:
+The QUIT command is used by a client to indicate their wish to leave the server.
+All data associated with this user is freed and socket is closed.
+An ERROR reply is sent before closing the socket to allow the reader thread at the client to quit gracefully.
+This is done through a 'quit' flag in the user data that is set to true when the QUIT request comes.
+When the final message to the client is sent and if a quit flag is seen, the server knows to close that connection at that point.
 
-- RPL_WELCOME
-- ERR_NONICKNAMEGIVEN
-- ERR_NICKNAMEINUSE
+## MOTD
 
-2. USER
+This command sends a Message of the Day to the requesting user.
+It looks up the current day's message from a file (motd.txt) that contains a list of quotes.
+This file was downloaded using the `zenquotes.io` API using the script in `download_quotes.py`.
+This list can be updated by repeating this script.
+The server simply gets the line that is at position `day_of_year % total_lines`, where `total_lines < 365`.
+The filename can be changed at any time as the server has a string to store the filename.
 
-The USER and NICK command should be the first messages sent by a new client to complete registration.
+## NICK/USER: User Registration
 
-- Syntax: `USER <username> * * :<realname>`
+- User can register with NICK and USER commands
+- NICK can be used to update nick at any time
+- Server keeps track of all the nicks that have been used by users
+- User may skip NICK to reuse previous NICK if there is one
+- USER can only be used once at the start to set username and realname.
+- username is private to the user, it is the main identification source
+- Users can use NICKs to send messages to another user
+- User can use any NICK that is owned by a user
 
-- Description: USER message is used at the beginning to specify the username and realname of new user.
-- It is used in communication between servers to indicate new user
-- A client will become registered after both USER and NICK have been received.
-- Realname can contain spaces.
+The code for registering is found in `register.c`.
 
-Example: `USER aaryab2 * * :Aarya Bhatia`
+## PRIVMSG
 
-Replies:
+- This command is only enabled after registration for both sender and receiver.
+- User can send message to another user using their nick.
+- Server can accept any nick that user has owned as a valid target.
+- Server searches the userame to nicks map to find the username of the target user.
+- The server can look up the user's data through their username and check if they are online or not.
+- The server will not send the message to a user that is offline.
 
-- RPL_WELCOME
-- ERR_NEEDMOREPARAMS
-- ERR_ALLREADYREGISTERED
+## Client
 
-3. PRIVMSG
+The client implements a thread-based model with four threads:
 
-The PRIVMSG command is used to deliver a message to from one client to another within an IRC network.
+### Client Outbox thread
 
-- Sytnax: `[:prefix] PRIVMSG <receiver> :<text>`
-- Example: `PRIVMSG Aarya :hello, how are you?`
+- The outbox thread blocks if the outbox queue is empty.
+- This thread pulls messages from the queue and sends them to the server over existing tcp connection.
+- If a 'QUIT' message is discovered this thread will quit immediately after sending it to the server.
 
-Replies
+### Client Inbox thread
 
-- RPL_AWAY
-- ERR_NORECIPEINT
-- ERR_NOSUCHNICK
-- ERR_TOOMANYTARGETS
+- The inbox thread will block if the inbox queue is empty.
+- The inbox thread pulls messages from the inbox queue and handles them.
+- Most commonly the messages are printed to stdout for the user to see.
+- On an ERROR message the inbox thread will quit immediately. The ERROR message is also a reply to a QUIT message.
 
-4. QUIT
+### Client Reader thread
 
-The QUIT command should be the final message sent by client to close the connection.
+- The reader thread will asynchronously read() from the server using the epoll API.
+- This thread will use a buffer to store incomplete messages.
+<!-- - It will use the Message parser to parse the messages received from the server. -->
+- It will handle the case if there are multiple messages sent at once.
+- It will add each message to the inbox queue for the inbox thread to handle.
+- It will never block on an enqueue as the queue has no maximum size.
 
-- Syntax: `QUIT :<message>`
-- Example: `QUIT :Gone to have lunch.`
+### Client Main thread
 
-Replies:
+- It is the duty of the main thread to read user input from stdin.
+- This thread blocks on the getline() instruction.
+- If the input is a valid IRC command, the string will be terminated by CRLF appropriately.
+- If the input is a special command starting with a /, the client will generate the corresponding command.
+- The irc command is added to the outbox queue to send to the server.
 
-- ERROR
+## Command-Line Args
 
-5. PING/PONG
+The client can accept the following command line args in the given order:
 
-The PING message can be used to test the presence of active server or client.
+1. hostname
+2. port
+3. nick
+4. username
+5. realname
 
-Syntax: `PING <server>`
-Example: `PING example.com`
-
-The PONG message is used to reply to a PING message.
-
-Example: `PONG`
-
-6. WHO
-
-The WHO command is used to receive a list of clients that are connected to the IRC network at present.
-
-Replies:
-
-- RPL_WHOREPLY
-- RPL_ENDOFWHO
-
-7. WHOIS
-
-Example:
-
-- `WHOIS example.org`: ask server for information about example.org
-- `WHOIS aarya`: ask server for information about nick aarya
-
-Replies:
-
-- RPL_WHOISSERVER
-- RPL_WHOISUSER
-- RPL_ENDOFWHOIS
-- ERR_NOSUCHSERVER
-- ERR_NONICKNAMEGIVEN
-- ERR_NOSUCHNICK
-
-Notes:
-
-- If any message other than NICK or USER is recieved before user is registed, server should send ERR_NOTREGISTERED reply.
-- NICK can be used after registration to change nickname.
-- Server will attach its hostname as prefix for all replies.
-
-### Checkpoint #2
-
-- Allow multiple IRC servers to communicate with each other and the clients
-- Server password authentication
-- List of commands to implement: (TODO)
-
-### Checkpoint #3
-
-- Implement IRC chat channels to allow user to send message to multiple clients
-- List of commands to implement: (TODO)
-
-### Extra
-
-- Server uses a routing algorithm to deliver client messages on different servers
-- Ping server periodically to know if they are still running and track the network congestion
-
-#### Connection Timeout
-
-PING: A ping message will be sent at regular intervals from server to client if no other activity detected. If connection fails to responed to PING within some time, that connection is closed.
+*Example*: `./client localhost 5000 aaryab2 aarya.bhatia1678 "Aarya Bhatia"`.
