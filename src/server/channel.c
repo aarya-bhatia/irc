@@ -142,12 +142,21 @@ Channel *Channel_load_from_file(const char *filename) {
     Channel *this = calloc(1, sizeof *this);
 
     char *line = Vector_get_at(lines, 0);
-    sscanf(line, "%s %ld %d %d", this->name, (long *)&this->time_created, (int *)&this->mode, (int *)&this->user_limit);
+    char *ptr = strstr(line, " ");
+    this->name = calloc(ptr - line, 1);
+
+    if (sscanf(line, "%s %ld %d %d", this->name, (long *)&this->time_created, (int *)&this->mode, (int *)&this->user_limit) != 4) {
+        log_error("invalid line: %s", line);
+        Vector_free(lines);
+        free(this);
+        return NULL;
+    }
 
     this->topic = strdup(Vector_get_at(lines, 1));
     this->members = Vector_alloc(10, NULL, (elem_free_type)Membership_free);
 
     for (size_t i = 2; i < Vector_size(lines); i++) {
+        char *line = Vector_get_at(lines, i);
         char *save = NULL;
         char *username = strtok_r(line, " ", &save);
 
@@ -163,10 +172,7 @@ Channel *Channel_load_from_file(const char *filename) {
             break;
         }
 
-        username = trimwhitespace(username);
-        mode = trimwhitespace(mode);
-
-        log_debug("Adding member %s (mode %s) to channel %s", username, mode);
+        log_debug("Adding member %s (mode %s) to channel %s", username, mode, this->name);
         Vector_push(this->members, Membership_alloc(this->name, username, atoi(mode)));
     }
 

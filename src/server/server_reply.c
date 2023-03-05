@@ -184,7 +184,7 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
     ht_iter_init(&itr, serv->user_to_nicks_map);
 
     // For each registered user, check if one of their nicks match the given nick
-    while (!target_username && ht_iter_next(&itr, (void **) &username, (void **) &nicks)) {
+    while (!target_username && ht_iter_next(&itr, (void **)&username, (void **)&nicks)) {
         assert(username);
         assert(nicks);
 
@@ -333,9 +333,10 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 
     // Get channel members
     for (size_t i = 0; i < Vector_size(channel->members); i++) {
-        char *username = Vector_get_at(channel->members, i);
-        assert(username);
+        Membership *member = Vector_get_at(channel->members, i);
+        assert(member);
 
+        const char *username = member->username;
         size_t len = strlen(username) + 1;  // Length for name and space
 
         if (strlen(message) + len > MAX_MSG_LEN) {
