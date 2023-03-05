@@ -14,7 +14,9 @@
         "membership.h": "c",
         "signal.h": "c",
         "vector.h": "c",
-        "k.h": "c"
+        "k.h": "c",
+        "hashtable.h": "c",
+        "message.h": "c"
     },
     "cmake.configureOnOpen": true
 }

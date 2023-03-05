@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+
 
 #include <sys/epoll.h>
 #include <signal.h>

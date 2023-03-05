@@ -7,7 +7,7 @@ INCLUDES=$(addprefix -I, $(INCLUDE_DIRS))
 
 LDFLAGS=-Llib -llog
 
-CFLAGS=-std=c99 -Wall -Wextra -pedantic -gdwarf-4 -MMD -MP -O0 -c $(INCLUDES)
+CFLAGS=-std=c99 -Wall -Wextra -pedantic -gdwarf-4 -MMD -MP -O0 -D_GNU_SOURCE -c $(INCLUDES)
 
 COMMON_FILES=$(shell find $(COMMON_DIR) -type f -name "*.c")
 SERVER_FILES=$(shell find $(SERVER_DIR) -type f -name "*.c")

@@ -1,10 +1,49 @@
+#include <pthread.h>
+
 #include "include/common.h"
 #include "include/hashtable.h"
 #include "include/list.h"
 #include "include/message.h"
+#include "include/queue.h"
 #include "include/vector.h"
 
 typedef void (*foreach_callback_type)(void *);
+
+void queue_test() {
+    queue_t *queue = calloc(1, sizeof *queue);
+    queue_init(queue);
+    int data[1024];
+    for (int i = 0; i < 1024; i++) {
+        data[i] = i;
+        if (i % 4 == 0) {
+            queue_enqueue(queue, data + i);
+        }
+    }
+
+    queue_enqueue(queue, NULL);
+
+    while (1) {
+        void *elem = queue_dequeue(queue);
+
+        if (!elem) {
+            break;
+        }
+
+        int i = *(int *)elem;
+        data[i] = 0;
+    }
+
+    queue_destroy(queue, NULL);
+
+    for (int i = 0; i < 10; i++) {
+        if (i % 4 == 0) {
+            assert(data[i] == 0);
+        } else {
+            assert(data[i] == i);
+        }
+    }
+    log_info("success");
+}
 
 struct s {
     int x;
@@ -186,6 +225,7 @@ void log_test() {
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
+        fprintf(stderr, "Usage: %s test_case\n", *argv);
         return 1;
     }
 
@@ -203,6 +243,12 @@ int main(int argc, char *argv[]) {
             break;
         case 4:
             hashtable_iter_test();
+            break;
+        case 5:
+            queue_test();
+            break;
+        default:
+            log_error("No such test case");
             break;
     }
     return 0;
