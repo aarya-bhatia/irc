@@ -32,6 +32,7 @@ typedef struct _User {
     char *realname;                 // full name
     char *hostname;                 // client ip
     List *msg_queue;                // messages to be delivered to user
+    Vector *channels;               // list of channels joined by user
     int n_memberships;              // num of channels joined
     size_t req_len;                 // length of request buffer
     size_t res_len;                 // length of response buffer

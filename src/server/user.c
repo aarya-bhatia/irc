@@ -20,6 +20,8 @@ User *User_alloc(int fd, struct sockaddr *addr, socklen_t addrlen) {
     this->msg_queue = calloc(1, sizeof *this->msg_queue);
     List_init(this->msg_queue, NULL, free);
 
+    this->channels = Vector_alloc(4, (elem_copy_type)strdup, free);
+
     return this;
 }
 
@@ -43,12 +45,12 @@ void User_free(User *usr) {
     free(usr->realname);
     free(usr->hostname);
 
+    Vector_free(usr->channels);
     List_destroy(usr->msg_queue);
 
     // Close socket
     shutdown(usr->fd, SHUT_RDWR);
     close(usr->fd);
-
     free(usr);
 }
 
@@ -184,6 +186,15 @@ void Server_remove_user(Server *serv, User *usr) {
     ht_remove(serv->user_to_sock_map, usr->username, NULL, NULL);
 
     // Keep the entry in user_to_nicks map so server knows client exists
+
+    // Remove user from channels
+    for (size_t i = 0; i < Vector_size(usr->channels); i++) {
+        char *name = Vector_get_at(usr->channels, i);
+        Channel *channel = ht_get(serv->channels_map, name);
+        if (channel) {
+            Channel_remove_member(channel, usr->username);
+        }
+    }
 
     User_free(usr);
 }

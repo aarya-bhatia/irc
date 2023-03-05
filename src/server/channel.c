@@ -70,6 +70,7 @@ bool Channel_remove_member(Channel *this, const char *username) {
         assert(!strcmp(m->channel, this->name));
         if (!strcmp(m->username, username)) {
             Vector_remove(this->members, i, NULL);
+            log_info("Removed user %s from channel %s", username, this->name);
             return true;
         }
     }
@@ -77,6 +78,8 @@ bool Channel_remove_member(Channel *this, const char *username) {
     log_error("User %s not found in channel %s", username, this->name);
     return false;
 }
+
+
 
 /**
  * Loads channels from file into hashtable which maps channel name as string to Channel*.

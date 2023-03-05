@@ -313,7 +313,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
     }
 
     Channel_add_member(channel, usr->username);
-    usr->n_memberships++;
+    Vector_push(usr->channels, channel);
 
     // Broadcast JOIN to every client including current user
     HashtableIter itr;
