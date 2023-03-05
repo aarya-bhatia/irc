@@ -3,9 +3,10 @@
  *
  * File format: Each line of file should start with "username:" followed by a comma separated list of nicks for that username.
  */
+#include "include/nicks.h"
+
 #include "include/common.h"
 #include "include/types.h"
-#include "include/nicks.h"
 
 /**
  * Load all nicks from file into a hashmap with the key being the username and value begin a vector of nicks.
@@ -61,8 +62,21 @@ Hashtable *load_nicks(const char *filename) {
             token = trimwhitespace(token);
 
             if (token && token[0] != 0) {
-                char *nick = strdup(token);
-                Vector_push(linked, nick);
+                // Check for duplicates
+                bool found = false;
+
+                for (size_t i = 0; i < Vector_size(linked); i++) {
+                    char *nick = Vector_get_at(linked, i);
+                    if (!strcmp(nick, token)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    char *nick = strdup(token);
+                    Vector_push(linked, nick);
+                }
             }
 
             token = strtok_r(NULL, ",", &saveptr);
