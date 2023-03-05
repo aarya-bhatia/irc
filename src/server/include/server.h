@@ -7,6 +7,7 @@
 
 // server.c
 char *get_motd(char *fname);
+
 Server *Server_create(int port);
 void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
@@ -14,6 +15,8 @@ void Server_process_request(Server *serv, User *usr);
 void Server_broadcast_message(Server *serv, const char *message);
 
 // server_reply.c
+bool check_registration_complete(Server *serv, User *usr);
+
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);
 void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);

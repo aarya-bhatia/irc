@@ -1,5 +1,4 @@
 #include "include/channel.h"
-#include "include/register.h"
 #include "include/replies.h"
 #include "include/server.h"
 #include "include/types.h"
@@ -265,7 +264,9 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    if (!ht_contains(serv->online_users, target_nick)) {
+    char *target_username = ht_get(serv->online_users, target_nick);
+
+    if (!target_username) {
         List_push_back(usr->msg_queue,
                        make_reply(":%s " ERR_NOSUCHNICK_MSG,
                                   serv->hostname, usr->nick,
@@ -273,7 +274,8 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    User *target_data = ht_get(serv->online_users, target_nick);
+    User *target_data = ht_get(serv->users, target_username);
+    assert(target_data);
 
     // Add message to target user's queue
     List_push_back(target_data->msg_queue,
