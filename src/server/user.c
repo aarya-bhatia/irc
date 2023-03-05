@@ -2,26 +2,20 @@
 
 #include <sys/epoll.h>
 
-#include "include/K.h"
 #include "include/channel.h"
 #include "include/server.h"
 #include "include/types.h"
 
 User *User_alloc(int fd, struct sockaddr *addr, socklen_t addrlen) {
     User *this = calloc(1, sizeof *this);
-
-    this->fd = fd;
-    this->hostname = strdup(addr_to_string(addr, addrlen));
-    this->nick = make_string("user%05d", (rand() % (int)1e5));
+    this->fd = fd;                                              // client socket
+    this->hostname = strdup(addr_to_string(addr, addrlen));     // client address
+    this->nick = make_string("user%05d", (rand() % (int)1e5));  // temporary nick
     this->registered = false;
     this->nick_changed = false;
     this->quit = false;
-
-    this->msg_queue = calloc(1, sizeof *this->msg_queue);
-    List_init(this->msg_queue, NULL, free);
-
+    this->msg_queue = List_alloc(NULL, free);
     this->channels = Vector_alloc(4, (elem_copy_type)strdup, free);
-
     return this;
 }
 
@@ -33,20 +27,13 @@ void User_free(User *usr) {
         return;
     }
 
-    // Save user info to file
-    char *filename = NULL;
-    asprintf(&filename, USERS_DIRNAME "/%s", usr->username);
-    User_save_to_file(usr, filename);
-    free(filename);
-
-    // Free user data
     free(usr->nick);
     free(usr->username);
     free(usr->realname);
     free(usr->hostname);
 
     Vector_free(usr->channels);
-    List_destroy(usr->msg_queue);
+    List_free(usr->msg_queue);
 
     // Close socket
     shutdown(usr->fd, SHUT_RDWR);
@@ -182,10 +169,11 @@ void Server_remove_user(Server *serv, User *usr) {
     log_info("Closing connection with user (%d): %s", usr->fd, usr->nick);
 
     epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, usr->fd, NULL);
-    ht_remove(serv->connections, &usr->fd, NULL, NULL);
-    ht_remove(serv->user_to_sock_map, usr->username, NULL, NULL);
 
-    // Keep the entry in user_to_nicks map so server knows client exists
+    ht_remove(serv->connections, &usr->fd, NULL, NULL);
+    ht_remove(serv->online_users, usr->nick, NULL, NULL);
+    ht_remove(serv->offline_users, usr->nick, NULL, NULL);
+    ht_remove(serv->users, usr->username, NULL, NULL);
 
     // Remove user from channels
     for (size_t i = 0; i < Vector_size(usr->channels); i++) {
@@ -197,27 +185,4 @@ void Server_remove_user(Server *serv, User *usr) {
     }
 
     User_free(usr);
-}
-
-void User_save_to_file(User *usr, const char *filename) {
-    assert(usr);
-    assert(filename);
-
-    log_debug("Saving user %s to file %s", usr->nick, filename);
-
-    FILE *file = fopen(filename, "w");
-
-    if (!file) {
-        log_error("Failed to open file %s", filename);
-        return;
-    }
-
-    // Save user information to file
-    fprintf(file, "username: %s\n", usr->username);
-    fprintf(file, "realname: %s\n", usr->realname);
-    fprintf(file, "nick: %s\n", usr->nick);
-    fprintf(file, "hostname: %s\n", usr->hostname);
-    fprintf(file, "n_memberships: %d\n", usr->n_memberships);
-    fprintf(file, "time: %ld\n", time(NULL));
-    fclose(file);
 }

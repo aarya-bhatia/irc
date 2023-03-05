@@ -18,6 +18,9 @@ typedef struct List
 	void (*elem_free)(void *);
 } List;
 
+List *List_alloc(void *(*elem_copy)(void *), void (*elem_free)(void *));
+void List_free(List *this);
+
 void List_init(List *this, void *(*elem_copy)(void *), void (*elem_free)(void *));
 void List_destroy(List *this);
 void List_push_front(List *this, void *elem);

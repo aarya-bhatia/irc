@@ -2,7 +2,6 @@
 
 #include <time.h>
 
-#include "include/K.h"
 #include "include/membership.h"
 #include "include/types.h"
 

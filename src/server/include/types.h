@@ -12,17 +12,18 @@ enum MODES {
 };
 
 typedef struct _Server {
-    Hashtable *connections;        // Map socket fd to User struct pointer
-    Hashtable *user_to_nicks_map;  // Map username to array of nicks owned by user
-    Hashtable *user_to_sock_map;   // Map username to client socket
-    Hashtable *channels_map;        // Map channel name to channel struct pointer
-    struct sockaddr_in servaddr;   // address info for server
-    int fd;                        // listen socket
-    int epollfd;                   // epoll fd
-    char *hostname;                // server hostname
-    char *port;                    // server port
-    char created_at[64];           // server time created at as string
-    char *motd_file;               // file to use for message of the day greetings
+    Hashtable *connections;       // Maps socket to user struct
+    Hashtable *users;             // Map username to user struct for registered users
+    Hashtable *online_users;      // Map nick to username of online user
+    Hashtable *offline_users;     // Map nick to username of offline user
+    Hashtable *channels_map;      // Map channel name to channel struct pointer
+    struct sockaddr_in servaddr;  // address info for server
+    int fd;                       // listen socket
+    int epollfd;                  // epoll fd
+    char *hostname;               // server hostname
+    char *port;                   // server port
+    char created_at[64];          // server time created at as string
+    char *motd_file;              // file to use for message of the day greetings
 } Server;
 
 typedef struct _User {
@@ -33,7 +34,6 @@ typedef struct _User {
     char *hostname;                 // client ip
     List *msg_queue;                // messages to be delivered to user
     Vector *channels;               // list of channels joined by user
-    int n_memberships;              // num of channels joined
     size_t req_len;                 // length of request buffer
     size_t res_len;                 // length of response buffer
     size_t res_off;                 // no of bytes of the response sent

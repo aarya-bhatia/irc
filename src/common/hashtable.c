@@ -59,6 +59,9 @@ void ht_print(Hashtable *this, char *(*key_to_string)(void *), char *(*value_to_
     }
 }
 
+/**
+ * By default hashtable uses string keys and shallow copy and free for values
+*/
 void ht_init(Hashtable *this) {
     memset(this, 0, sizeof *this);
 

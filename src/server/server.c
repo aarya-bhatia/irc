@@ -4,9 +4,7 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "include/K.h"
 #include "include/channel.h"
-#include "include/nicks.h"
 #include "include/register.h"
 #include "include/replies.h"
 #include "include/types.h"
@@ -19,14 +17,13 @@ void _close_connection(void *fd, void *usr) {
 
 void Server_destroy(Server *serv) {
     assert(serv);
-
     ht_foreach(serv->connections, _close_connection);
-    save_nicks(serv->user_to_nicks_map, NICKS_FILENAME);
     save_channels(serv->channels_map, CHANNELS_FILENAME);
 
     ht_free(serv->connections);
-    ht_free(serv->user_to_sock_map);
-    ht_free(serv->user_to_nicks_map);
+    ht_free(serv->users);
+    ht_free(serv->online_users);
+    ht_free(serv->offline_users);
     ht_free(serv->channels_map);
 
     close(serv->fd);
@@ -46,24 +43,20 @@ Server *Server_create(int port) {
     Server *serv = calloc(1, sizeof *serv);
     assert(serv);
 
-    serv->connections = ht_alloc();      /* Map<int, User *> */
-    serv->user_to_sock_map = ht_alloc(); /* Map<char *, int> */
+    serv->connections = ht_alloc();   /* Map<int, User *> */
+    serv->users = ht_alloc();         /* Map<string, User*> */
+    serv->online_users = ht_alloc();  /* Map<string, string>*/
+    serv->offline_users = ht_alloc(); /* Map<string, string>*/
 
     serv->connections->key_len = sizeof(int);
     serv->connections->key_compare = (compare_type)int_compare;
     serv->connections->key_copy = (elem_copy_type)int_copy;
     serv->connections->key_free = free;
-    serv->connections->value_copy = NULL;
-    serv->connections->value_free = NULL;
+    serv->online_users->value_copy = (elem_copy_type)strdup;
+    serv->offline_users->value_copy = (elem_copy_type)strdup;
+    serv->online_users->value_free = free;
+    serv->offline_users->value_free = free;
 
-    serv->user_to_sock_map->key_len = sizeof(char *);
-    serv->user_to_sock_map->key_compare = (compare_type)strcmp;
-    serv->user_to_sock_map->key_copy = (elem_copy_type)strdup;
-    serv->user_to_sock_map->key_free = free;
-    serv->user_to_sock_map->value_copy = (elem_copy_type)int_copy;
-    serv->user_to_sock_map->value_free = free;
-
-    serv->user_to_nicks_map = load_nicks(NICKS_FILENAME);
     serv->channels_map = load_channels(CHANNELS_FILENAME);
 
     serv->motd_file = MOTD_FILENAME;
@@ -192,4 +185,62 @@ void Server_process_request(Server *serv, User *usr) {
     }
 
     Vector_free(messages);
+}
+
+void Server_broadcast_message(Server *serv, const char *message) {
+    HashtableIter itr;
+    ht_iter_init(&itr, serv->connections);
+    int user_sock;
+    User *user_data = NULL;
+
+    while (ht_iter_next(&itr, (void **)&user_sock, (void **)&user_data)) {
+        assert(user_data);
+        if (user_data->registered) {
+            List_push_back(user_data->msg_queue, strdup(message));
+        }
+    }
+}
+
+char *get_motd(char *fname) {
+    FILE *file = fopen(fname, "r");
+
+    if (!file) {
+        log_warn("failed to open %s", fname);
+        return NULL;
+    }
+
+    char *res = NULL;
+    size_t res_len = 0;
+    size_t num_lines = 1;
+
+    // count number of lines
+    for (int c = fgetc(file); c != EOF; c = fgetc(file)) {
+        if (c == '\n') {
+            num_lines = num_lines + 1;
+        }
+    }
+
+    fseek(file, 0, SEEK_SET);  // go to beginning
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    size_t line_no = tm.tm_yday % num_lines;  // select a line from file to use
+
+    for (size_t i = 0; i < line_no + 1; i++) {
+        if (getline(&res, &res_len, file) == -1) {
+            perror("getline");
+            break;
+        }
+    }
+
+    if (res) {
+        size_t len = strlen(res);
+        if (res[len - 1] == '\n') {
+            res[res_len - 1] = 0;
+        }
+    }
+
+    fclose(file);
+
+    return res;
 }

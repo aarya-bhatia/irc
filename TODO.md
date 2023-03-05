@@ -1,5 +1,9 @@
 # Todo
 
+- Remove load nick feature
+- Only save username and recent nicks
+- Fix registration issue
+
 Next Features
 
 - more commands: WHO

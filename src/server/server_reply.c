@@ -1,4 +1,3 @@
-#include "include/K.h"
 #include "include/channel.h"
 #include "include/register.h"
 #include "include/replies.h"
@@ -10,6 +9,92 @@ void _sanity_check(Server *serv, User *usr, Message *msg) {
     assert(serv);
     assert(usr);
     assert(msg);
+}
+
+/**
+ * To complete registration, the user must have a username, realname and a nick.
+ */
+bool check_registration_complete(Server *serv, User *usr) {
+    if (!usr->registered && usr->nick_changed && usr->username && usr->realname) {
+        usr->registered = true;
+
+        ht_set(serv->users, usr->username, usr);
+        ht_set(serv->online_users, usr->nick, usr->username);
+
+        // Send welcome messages
+
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_WELCOME_MSG, serv->hostname,
+                                                  usr->nick, usr->nick));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_YOURHOST_MSG, serv->hostname,
+                                                  usr->nick, usr->hostname));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_CREATED_MSG, serv->hostname,
+                                                  usr->nick, serv->created_at));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_MYINFO_MSG, serv->hostname,
+                                                  usr->nick, serv->hostname, "*", "*",
+                                                  "*"));
+
+        char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
+
+        if (motd) {
+            List_push_back(usr->msg_queue, make_reply(":%s " RPL_MOTD_MSG,
+                                                      serv->hostname, usr->nick,
+                                                      motd));
+        } else {
+            List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOMOTD_MSG,
+                                                      serv->hostname, usr->nick));
+        }
+
+        log_info("registration completed for user %s", usr->nick);
+
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * RPL_NAMES as multipart message
+ */
+void RPL_NAMEREPLY(Server *serv, User *usr, Channel *channel) {
+    assert(serv);
+    assert(usr);
+
+    char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=",
+                                channel->name);
+
+    char message[MAX_MSG_LEN + 1];
+    memset(message, 0, sizeof message);
+
+    strcat(message, subject);
+
+    // Get channel members
+    for (size_t i = 0; i < Vector_size(channel->members); i++) {
+        Membership *member = Vector_get_at(channel->members, i);
+        assert(member);
+
+        const char *username = member->username;
+        size_t len = strlen(username) + 1;  // Length for name and space
+
+        if (strlen(message) + len > MAX_MSG_LEN) {
+            // End current message
+            List_push_back(usr->msg_queue, make_reply("%s", message));
+
+            // Start new message with subject
+            memset(message, 0, sizeof message);
+            strcat(message, subject);
+        }
+
+        // Append username and space to message
+        strcat(message, username);
+        strcat(message, " ");
+    }
+
+    List_push_back(usr->msg_queue, make_reply("%s", message));
+
+    free(subject);
+
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_ENDOFNAMES_MSG, serv->hostname,
+                                              usr->nick, channel->name));
 }
 
 /**
@@ -26,10 +111,9 @@ void _sanity_check(Server *serv, User *usr, Message *msg) {
  */
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
     _sanity_check(serv, usr, msg);
-
     assert(!strcmp(msg->command, "NICK"));
 
-    if (msg->n_params != 1) {
+    if (msg->n_params < 1) {
         List_push_back(usr->msg_queue,
                        make_reply(":%s " ERR_NEEDMOREPARAMS_MSG,
                                   serv->hostname, usr->nick,
@@ -38,14 +122,18 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
     }
 
     assert(msg->params[0]);
-
     char *new_nick = msg->params[0];
 
-    if (!check_nick_available(serv, usr, new_nick)) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NICKNAMEINUSE_MSG,
-                                  serv->hostname, msg->params[0]));
+    if (ht_contains(serv->online_users, new_nick) ||
+        ht_contains(serv->offline_users, new_nick)) {
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NICKNAMEINUSE_MSG,
+                                                  serv->hostname, msg->params[0]));
         return;
+    }
+
+    if (usr->registered) {
+        ht_remove(serv->online_users, usr->nick, NULL, NULL);
+        ht_set(serv->online_users, new_nick, usr);
     }
 
     free(usr->nick);
@@ -55,8 +143,9 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
 
     log_info("user %s updated nick", usr->nick);
 
-    check_registration_complete(serv, usr);
-    update_nick_map(serv, usr);
+    if (!usr->registered) {
+        check_registration_complete(serv, usr);
+    }
 }
 
 /**
@@ -72,18 +161,17 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {
     _sanity_check(serv, usr, msg);
     assert(!strcmp(msg->command, "USER"));
 
-    if (msg->n_params != 3 || !msg->body) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NEEDMOREPARAMS_MSG,
-                                  serv->hostname, usr->nick,
-                                  msg->command));
+    if (msg->n_params < 3 || !msg->body) {
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NEEDMOREPARAMS_MSG,
+                                                  serv->hostname, usr->nick,
+                                                  msg->command));
         return;
     }
-    // User cannot set username/realname twice
-    if (usr->username && usr->realname) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_ALREADYREGISTRED_MSG,
-                                  serv->hostname, usr->nick));
+
+    // User cannot change username after registration
+    if (usr->registered) {
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_ALREADYREGISTRED_MSG,
+                                                  serv->hostname, usr->nick));
         return;
     }
 
@@ -97,13 +185,9 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {
     usr->username = strdup(username);
     usr->realname = strdup(realname);
 
-    log_debug("user %s set username to %s and realname to %s", usr->nick,
-              username, realname);
+    log_debug("user %s set username to %s and realname to %s", usr->nick, username, realname);
 
-    // Register user's username to their socket in map
-    ht_set(serv->user_to_sock_map, usr->username, &usr->fd);
-
-    // Complete registration and prepare greeting messages
+    // Complete registration
     check_registration_complete(serv, usr);
 }
 
@@ -114,13 +198,11 @@ void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {
     char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
     if (motd) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " RPL_MOTD_MSG, serv->hostname,
-                                  usr->nick, motd));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_MOTD_MSG, serv->hostname,
+                                                  usr->nick, motd));
     } else {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NOMOTD_MSG, serv->hostname,
-                                  usr->nick));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOMOTD_MSG, serv->hostname,
+                                                  usr->nick));
     }
 }
 
@@ -175,34 +257,15 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
     }
     // The nick to send message to
     const char *target_nick = msg->params[0];
-    char *target_username = NULL;
 
-    HashtableIter itr;
-    char *username = NULL;
-    Vector *nicks = NULL;
-
-    ht_iter_init(&itr, serv->user_to_nicks_map);
-
-    // For each registered user, check if one of their nicks match the given nick
-    while (!target_username && ht_iter_next(&itr, (void **)&username, (void **)&nicks)) {
-        assert(username);
-        assert(nicks);
-
-        // Iterate the nicks array
-        for (size_t i = 0; i < Vector_size(nicks); i++) {
-            char *nick = Vector_get_at(nicks, i);
-            assert(nick);
-
-            // match found
-            if (!strcmp(nick, target_nick)) {
-                target_username = username;
-                break;
-            }
-        }
+    if (ht_contains(serv->offline_users, target_nick)) {
+        List_push_back(usr->msg_queue,
+                       make_reply(":%s " RPL_AWAY_MSG, serv->hostname,
+                                  usr->nick, target_nick));
+        return;
     }
 
-    // no user found with a matching nick
-    if (!target_username) {
+    if (!ht_contains(serv->online_users, target_nick)) {
         List_push_back(usr->msg_queue,
                        make_reply(":%s " ERR_NOSUCHNICK_MSG,
                                   serv->hostname, usr->nick,
@@ -210,23 +273,7 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    // Look up the socket for target user through their username
-    int *target_sock = ht_get(serv->user_to_sock_map, target_username);
-
-    // user is offline
-    if (!target_sock) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " RPL_AWAY_MSG, serv->hostname,
-                                  usr->nick, target_nick));
-        return;
-    }
-
-    assert(target_sock);
-
-    // Look up the user data for the target user through their socket
-
-    User *target_data = ht_get(serv->connections, target_sock);
-    assert(target_data);
+    User *target_data = ht_get(serv->online_users, target_nick);
 
     // Add message to target user's queue
     List_push_back(target_data->msg_queue,
@@ -236,8 +283,6 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
 
     log_info("PRIVMSG sent from user %s to user %s", usr->nick,
              target_nick);
-
-    // TODO: Respond to current user for success
 }
 
 /**
@@ -307,27 +352,18 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    if (usr->n_memberships > MAX_CHANNEL_COUNT) {
+    if (Vector_size(usr->channels) > MAX_CHANNEL_COUNT) {
         List_push_back(usr->msg_queue, make_reply(":%s " ERR_TOOMANYCHANNELS_MSG, serv->hostname, usr->nick, channel_name));
         return;
     }
 
+    // Add user to channel
     Channel_add_member(channel, usr->username);
     Vector_push(usr->channels, channel);
 
     // Broadcast JOIN to every client including current user
-    HashtableIter itr;
-    ht_iter_init(&itr, serv->connections);
-    int user_sock;
-    User *user_data = NULL;
     char *join_message = make_reply("%s!%s@%s JOIN #%s", usr->nick, usr->username, usr->hostname, channel_name);
-    while (ht_iter_next(&itr, (void **)&user_sock, (void **)&user_data)) {
-        assert(user_data);
-        if (user_data->registered) {
-            List_push_back(user_data->msg_queue, strdup(join_message));
-        }
-    }
-
+    Server_broadcast_message(serv, join_message);
     free(join_message);
 
     // Send channel topic
@@ -336,45 +372,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
     }
 
     // NAMES reply
-    // Compose names as multipart message
-
-    char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=",
-                                channel_name);
-
-    char message[MAX_MSG_LEN + 1];
-    memset(message, 0, sizeof message);
-
-    strcat(message, subject);
-
-    // Get channel members
-    for (size_t i = 0; i < Vector_size(channel->members); i++) {
-        Membership *member = Vector_get_at(channel->members, i);
-        assert(member);
-
-        const char *username = member->username;
-        size_t len = strlen(username) + 1;  // Length for name and space
-
-        if (strlen(message) + len > MAX_MSG_LEN) {
-            // End current message
-            List_push_back(usr->msg_queue, make_reply("%s", message));
-
-            // Start new message with subject
-            memset(message, 0, sizeof message);
-            strcat(message, subject);
-        }
-
-        // Append username and space to message
-        strcat(message, username);
-        strcat(message, " ");
-    }
-
-    List_push_back(usr->msg_queue, make_reply("%s", message));
-
-    free(subject);
-
-    List_push_back(usr->msg_queue,
-                   make_reply(":%s " RPL_ENDOFNAMES_MSG, serv->hostname,
-                              usr->nick, channel_name));
+    RPL_NAMEREPLY(serv, usr, channel);
 }
 
 void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {

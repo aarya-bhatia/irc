@@ -129,3 +129,63 @@ Notes:
 #### Connection Timeout
 
 PING: A ping message will be sent at regular intervals from server to client if no other activity detected. If connection fails to responed to PING within some time, that connection is closed.
+
+## Design
+
+Server data structues
+
+- connections: `Map<int,User*>` maps socket to user struct
+- users: `Map<char*,User*>` maps username to user struct
+- online_users: `Map<char*,char*>` maps nick to username of online user
+- offline_users: `Map<char*,char*>` maps nick to username of offline user
+- channels: `Map<char*,Channel*>` maps channel name to channel struct
+
+## Server start event
+
+- initialise empty `online_map` and `offline_map` which maps nick to username.
+- load channels from file `data/channels.txt` into map from channel name to struct.
+
+## User connect event
+
+- inialize user struct
+- add socket -> user struct entry in `connections` map
+
+## NICK
+
+- set nick
+- if registered update/add entry in `online_map`
+
+## USER
+
+- set username, realname
+- if registered update/add entry in `online_map`
+
+## AWAY
+
+- move nick to `offline_map`
+- todo
+
+## QUIT
+
+- remove entry from maps
+- their nick is free to use
+- remove user from all channels
+
+## JOIN
+
+- add username to channel list
+
+## PART
+
+- remove username from channel list
+
+## PRIVMSG
+
+- if user in offline map-> send AWAY to user
+- if user in online map-> send message to target user
+- If user not found -> send error to user
+- If target is channel -> send to all online users in channel
+
+## Server stop event
+
+- save channels only
