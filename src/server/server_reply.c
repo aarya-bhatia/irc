@@ -300,7 +300,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 
     char *channel_name = msg->params[0] + 1;  // skip #
 
-    Channel *channel = Server_get_channel(serv, channel_name);
+    Channel *channel = ht_get(serv->channels_map, channel_name);
 
     if (!channel) {
         List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, channel_name));

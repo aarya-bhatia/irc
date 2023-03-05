@@ -80,4 +80,4 @@ char *addr_to_string(struct sockaddr *addr, socklen_t len); /* get ip address fr
 ssize_t read_all(int fd, char *buf, size_t len);  /* read all bytes from fd to buffer */
 ssize_t write_all(int fd, char *buf, size_t len); /* write all bytes from fd to buffer */
 
-Vector *readlines(const char *filename); /* Returns a vector of lines in given file */
+// Vector *readlines(const char *filename); /* Returns a vector of lines in given file */

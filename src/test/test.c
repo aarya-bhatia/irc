@@ -118,8 +118,7 @@ void hashtable_iter_test() {
     assert(sum == n * (n - 1) / 2);
 
     ht_print(this, (char *(*)(void *))int_to_string, (char *(*)(void *))string_to_string);
-    ht_destroy(this);
-    free(this);
+    ht_free(this);
 }
 
 void hashtable_test() {

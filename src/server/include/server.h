@@ -3,7 +3,6 @@
 #include "include/message.h"
 #include "types.h"
 
-void load_nicks(Hashtable *, const char *filename);
 char *get_motd(char *fname);
 
 Server *Server_create(int port);
@@ -32,7 +31,3 @@ void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);
 // implemented in user.c
 bool Server_add_user(Server *, User *);
 void Server_remove_user(Server *, User *);
-
-// implemented in channel.c
-Channel *Server_get_channel(Server *serv, const char *name);
-bool Server_remove_channel(Server *serv, const char *name);

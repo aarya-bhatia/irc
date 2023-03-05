@@ -9,7 +9,7 @@
 
 #define MOTD_FILENAME "./data/motd.txt"
 #define NICKS_FILENAME "./data/nicks.txt"
-#define CHANNELS_DIRNAME "./data/channels"
+#define CHANNELS_FILENAME "./data/channels.txt"
 #define USERS_DIRNAME "./data/users"
 
 

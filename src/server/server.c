@@ -6,112 +6,11 @@
 
 #include "include/K.h"
 #include "include/channel.h"
+#include "include/nicks.h"
 #include "include/register.h"
 #include "include/replies.h"
 #include "include/types.h"
 #include "include/user.h"
-
-static FILE *nick_file = NULL;
-
-void Server_process_request(Server *serv, User *usr) {
-    assert(serv);
-    assert(usr);
-    assert(strstr(usr->req_buf, "\r\n"));
-
-    // Get array of parsed messages
-    Vector *messages = parse_all_messages(usr->req_buf);
-    assert(messages);
-
-    log_debug("Processing %zu messages from user %s", Vector_size(messages), usr->nick);
-
-    usr->req_buf[0] = 0;
-    usr->req_len = 0;
-
-    // Iterate over the request messages and add response message(s) to user's message queue in the same order.
-    for (size_t i = 0; i < Vector_size(messages); i++) {
-        Message *message = Vector_get_at(messages, i);
-
-        assert(message);
-
-        if (!message->command) {
-            continue;
-        }
-
-        if (!strcmp(message->command, "MOTD")) {
-            Server_reply_to_MOTD(serv, usr, message);
-        } else if (!strcmp(message->command, "NICK")) {
-            Server_reply_to_NICK(serv, usr, message);
-        } else if (!strcmp(message->command, "USER")) {
-            Server_reply_to_USER(serv, usr, message);
-        } else if (!strcmp(message->command, "PING")) {
-            Server_reply_to_PING(serv, usr, message);
-        } else if (!strcmp(message->command, "PRIVMSG")) {
-            Server_reply_to_PRIVMSG(serv, usr, message);
-        } else if (!strcmp(message->command, "JOIN")) {
-            Server_reply_to_JOIN(serv, usr, message);
-        } else if (!strcmp(message->command, "QUIT")) {
-            Server_reply_to_QUIT(serv, usr, message);
-            assert(List_size(usr->msg_queue) > 0);
-            usr->quit = true;
-        } else if (!usr->registered) {
-            char *reply = make_reply(":%s " ERR_NOTREGISTERED_MSG,
-                                     serv->hostname,
-                                     usr->nick);
-            List_push_back(usr->msg_queue, reply);
-        } else {
-            char *reply = make_reply(":%s " ERR_UNKNOWNCOMMAND_MSG,
-                                     serv->hostname,
-                                     usr->nick,
-                                     message->command);
-            List_push_back(usr->msg_queue, reply);
-        }
-    }
-
-    Vector_free(messages);
-}
-
-/**
- * Callback function to append next entry from hashmap to the open nick file
- */
-void _write_nick_to_file(void *v_username, void *v_nicks) {
-    assert(nick_file);
-
-    fprintf(nick_file, "%s:", (char *)v_username);
-
-    Vector *nicks = v_nicks;
-    assert(nicks);
-
-    for (size_t i = 0; i < Vector_size(nicks); i++) {
-        fprintf(nick_file, "%s", (char *)Vector_get_at(nicks, i));
-
-        if (i + 1 < Vector_size(nicks)) {
-            fputc(',', nick_file);
-        }
-    }
-
-    fprintf(nick_file, "\n");
-}
-
-/**
- * Copy nicks to file
- */
-void write_nicks_to_file(Server *serv, char *filename) {
-    if (!nick_file) {
-        nick_file = fopen(filename, "w");
-    }
-
-    if (!nick_file) {
-        log_error("Failed to open nick file: %s", filename);
-        return;
-    }
-
-    ht_foreach(serv->user_to_nicks_map, _write_nick_to_file);
-
-    fclose(nick_file);
-    nick_file = NULL;
-
-    log_info("Wrote nicks to file: %s", NICKS_FILENAME);
-}
 
 void _close_connection(void *fd, void *usr) {
     (void)fd;
@@ -122,22 +21,16 @@ void Server_destroy(Server *serv) {
     assert(serv);
 
     ht_foreach(serv->connections, _close_connection);
-    ht_destroy(serv->connections);
-    free(serv->connections);
+    save_nicks(serv->user_to_nicks_map, NICKS_FILENAME);
+    save_channels(serv->channels_map, CHANNELS_FILENAME);
 
-    write_nicks_to_file(serv, NICKS_FILENAME);
-    ht_destroy(serv->user_to_nicks_map);
-    free(serv->user_to_nicks_map);
-
-    ht_destroy(serv->user_to_sock_map);
-    free(serv->user_to_sock_map);
-
-    Vector_foreach(serv->channels, (void (*)(void *))Channel_save_to_file);
-    free(serv->channels);
+    ht_free(serv->connections);
+    ht_free(serv->user_to_sock_map);
+    ht_free(serv->user_to_nicks_map);
+    ht_free(serv->channels_map);
 
     close(serv->fd);
     close(serv->epollfd);
-
     free(serv->hostname);
     free(serv->port);
     free(serv);
@@ -153,13 +46,8 @@ Server *Server_create(int port) {
     Server *serv = calloc(1, sizeof *serv);
     assert(serv);
 
-    serv->connections = calloc(1, sizeof *serv->connections);             /* Map<int, User *> */
-    serv->user_to_sock_map = calloc(1, sizeof *serv->user_to_sock_map);   /* Map<char *, int> */
-    serv->user_to_nicks_map = calloc(1, sizeof *serv->user_to_nicks_map); /* Map<chat *, Vector<char *>> */
-
-    ht_init(serv->connections);
-    ht_init(serv->user_to_sock_map);
-    ht_init(serv->user_to_nicks_map);
+    serv->connections = ht_alloc();      /* Map<int, User *> */
+    serv->user_to_sock_map = ht_alloc(); /* Map<char *, int> */
 
     serv->connections->key_len = sizeof(int);
     serv->connections->key_compare = (compare_type)int_compare;
@@ -175,16 +63,8 @@ Server *Server_create(int port) {
     serv->user_to_sock_map->value_copy = (elem_copy_type)int_copy;
     serv->user_to_sock_map->value_free = free;
 
-    serv->user_to_nicks_map->key_len = sizeof(char *);
-    serv->user_to_nicks_map->key_compare = (compare_type)strcmp;
-    serv->user_to_nicks_map->key_copy = (elem_copy_type)strdup;
-    serv->user_to_nicks_map->key_free = (elem_free_type)free;
-    serv->user_to_nicks_map->value_copy = NULL;
-    serv->user_to_nicks_map->value_free = (elem_free_type)Vector_free;
-
-    load_nicks(serv->user_to_nicks_map, NICKS_FILENAME);
-
-    serv->channels = Vector_alloc(16, NULL, (elem_free_type)Channel_free);
+    serv->user_to_nicks_map = load_nicks(NICKS_FILENAME);
+    serv->channels_map = load_channels(CHANNELS_FILENAME);
 
     serv->motd_file = MOTD_FILENAME;
 
@@ -254,4 +134,62 @@ void Server_accept_all(Server *serv) {
             Server_remove_user(serv, usr);
         }
     }
+}
+
+void Server_process_request(Server *serv, User *usr) {
+    assert(serv);
+    assert(usr);
+    assert(strstr(usr->req_buf, "\r\n"));
+
+    // Get array of parsed messages
+    Vector *messages = parse_all_messages(usr->req_buf);
+    assert(messages);
+
+    log_debug("Processing %zu messages from user %s", Vector_size(messages), usr->nick);
+
+    usr->req_buf[0] = 0;
+    usr->req_len = 0;
+
+    // Iterate over the request messages and add response message(s) to user's message queue in the same order.
+    for (size_t i = 0; i < Vector_size(messages); i++) {
+        Message *message = Vector_get_at(messages, i);
+
+        assert(message);
+
+        if (!message->command) {
+            log_error("invalid message");
+            continue;
+        }
+
+        if (!strcmp(message->command, "MOTD")) {
+            Server_reply_to_MOTD(serv, usr, message);
+        } else if (!strcmp(message->command, "NICK")) {
+            Server_reply_to_NICK(serv, usr, message);
+        } else if (!strcmp(message->command, "USER")) {
+            Server_reply_to_USER(serv, usr, message);
+        } else if (!strcmp(message->command, "PING")) {
+            Server_reply_to_PING(serv, usr, message);
+        } else if (!strcmp(message->command, "PRIVMSG")) {
+            Server_reply_to_PRIVMSG(serv, usr, message);
+        } else if (!strcmp(message->command, "JOIN")) {
+            Server_reply_to_JOIN(serv, usr, message);
+        } else if (!strcmp(message->command, "QUIT")) {
+            Server_reply_to_QUIT(serv, usr, message);
+            assert(List_size(usr->msg_queue) > 0);
+            usr->quit = true;
+        } else if (!usr->registered) {
+            char *reply = make_reply(":%s " ERR_NOTREGISTERED_MSG,
+                                     serv->hostname,
+                                     usr->nick);
+            List_push_back(usr->msg_queue, reply);
+        } else {
+            char *reply = make_reply(":%s " ERR_UNKNOWNCOMMAND_MSG,
+                                     serv->hostname,
+                                     usr->nick,
+                                     message->command);
+            List_push_back(usr->msg_queue, reply);
+        }
+    }
+
+    Vector_free(messages);
 }

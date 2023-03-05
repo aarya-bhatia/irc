@@ -37,6 +37,12 @@ typedef struct HashtableIter
 
 void ht_print(Hashtable *this, char *(*key_to_string)(void *), char *(*value_to_string)(void *));
 
+Hashtable *ht_alloc();
+void ht_free(Hashtable *this);
+
+size_t ht_size(Hashtable *this);
+size_t ht_capacity(Hashtable *this);
+
 void ht_init(Hashtable *this);
 void ht_destroy(Hashtable *this);
 void *ht_get(Hashtable *this, void *key);

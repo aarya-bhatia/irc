@@ -11,6 +11,27 @@
 
 size_t djb2hash(const void *key, int len, uint32_t seed);
 
+size_t ht_size(Hashtable *this) {
+    return this->size;
+}
+
+size_t ht_capacity(Hashtable *this) {
+    return this->capacity;
+}
+
+Hashtable *ht_alloc()
+{
+    Hashtable *this = calloc(1, sizeof *this);
+    ht_init(this);
+    return this;
+}
+
+void ht_free(Hashtable *this)
+{
+    ht_destroy(this);
+    free(this);
+}
+
 char *ptr_to_string(void *ptr) {
     static char s[24];
     sprintf(s, "0x%p", ptr);

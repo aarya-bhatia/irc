@@ -7,7 +7,7 @@
 #include "include/types.h"
 
 /**
- * Create and initialise new channel with given name and return it.
+ * Create and initialise new channel with given values and returns it.
  */
 Channel *Channel_alloc(const char *name) {
     Channel *channel = calloc(1, sizeof *channel);
@@ -79,168 +79,78 @@ bool Channel_remove_member(Channel *this, const char *username) {
 }
 
 /**
- * Save the channel information to given file.
- * Note: The given file will be overwritten.
- *
- * Line 1: name, time_created, mode, user_limit
- * Line 2: topic
- * Line 3-n: member name, member mode
- *
+ * Loads channels from file into hashtable which maps channel name as string to Channel*.
  */
-void Channel_save_to_file(Channel *this) {
-    assert(this);
-
-    char filename[100];
-    sprintf(filename, CHANNELS_DIRNAME "/%s", this->name);
-
-    FILE *file = fopen(filename, "w");
+Hashtable *load_channels(const char *filename) {
+    FILE *file = fopen(filename, "r");
 
     if (!file) {
-        perror("fopen");
         log_error("Failed to open file %s", filename);
+        return;
     }
 
-    fprintf(file, "%s %ld %d %d\n", this->name,
-            (unsigned long)this->time_created, this->mode, this->user_limit);
+    Hashtable *hashtable = ht_alloc();
+    hashtable->value_copy = NULL;
+    hashtable->value_free = (elem_free_type)Channel_free;
 
-    fprintf(file, "%s\n", this->topic);
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t nread = 0;
 
-    for (size_t i = 0; i < Vector_size(this->members); i++) {
-        Membership *member = Vector_get_at(this->members, i);
-        fprintf(file, "%s %d\n", member->username, member->mode);
+    while ((nread = getline(&line, &len, file)) > 0) {
+        if (line[nread - 1] == '\n') {
+            line[nread - 1] = 0;
+        }
+
+        char *tok = strtok(line, ":");
+
+        if (!tok) {
+            log_error("invalid line: %s", line);
+            continue;
+        }
+
+        char *topic = strtok(NULL, ":");
+
+        char name[64];
+        time_t time_created;
+        int mode;
+        int user_limit;
+        fscanf(tok, "%s %ld %d %d", name, (long *)&time_created, &mode, &user_limit);
+
+        Channel *this = Channel_alloc(name);
+        this->mode = mode;
+        this->time_created = time_created;
+        this->topic = strdup(topic);
+        this->user_limit = user_limit;
+
+        ht_set(hashtable, name, this);
+    }
+
+    free(line);
+    fclose(file);
+
+    return hashtable;
+}
+
+/**
+ * Write channels to give file with each line containing the (name, time_created, mode, user_limit, topic) of the channel.
+ */
+void save_channels(Hashtable *hashtable, const char *filename) {
+    FILE *file = fopen(filename, "w");
+    if (!file) {
+        log_error("Failed to open file %s", filename);
+        return;
+    }
+
+    HashtableIter itr;
+    ht_iter_init(&itr, hashtable);
+
+    Channel *channel = NULL;
+
+    while (ht_iter_next(&itr, NULL, (void **)&channel)) {
+        fprintf(file, "%s %ld %d %d :%s\n", channel->name, (long)channel->time_created, channel->mode, channel->user_limit, channel->topic);
     }
 
     fclose(file);
-
-    log_info("Saved channel %s to file %s", this->name, filename);
-}
-
-/**
- * Allocate a channel struct and loads its data from given file.
- * Returns NULL if file not found or file has invalid format.
- * On success, it will return the new struct.
- *
- * Line 1: name, time_created, mode, user_limit
- * Line 2: topic
- * Line 3-n: member name, member mode
- */
-Channel *Channel_load_from_file(const char *filename) {
-    Vector *lines = readlines(filename);
-
-    if (!lines) {
-        return NULL;
-    }
-
-    if (Vector_size(lines) < 2) {
-        Vector_free(lines);
-        log_error("invalid file format");
-        return NULL;
-    }
-
-    log_debug("Read %zu lines from file %s", Vector_size(lines), filename);
-
-    Channel *this = calloc(1, sizeof *this);
-
-    char *line = Vector_get_at(lines, 0);
-    char *ptr = strstr(line, " ");
-    this->name = calloc(ptr - line, 1);
-
-    if (sscanf(line, "%s %ld %d %d", this->name, (long *)&this->time_created, (int *)&this->mode, (int *)&this->user_limit) != 4) {
-        log_error("invalid line: %s", line);
-        Vector_free(lines);
-        free(this);
-        return NULL;
-    }
-
-    this->topic = strdup(Vector_get_at(lines, 1));
-    this->members = Vector_alloc(10, NULL, (elem_free_type)Membership_free);
-
-    for (size_t i = 2; i < Vector_size(lines); i++) {
-        char *line = Vector_get_at(lines, i);
-        char *save = NULL;
-        char *username = strtok_r(line, " ", &save);
-
-        if (!username) {
-            log_error("invalid file format");
-            break;
-        }
-
-        char *mode = strtok_r(NULL, " ", &save);
-
-        if (!mode) {
-            log_error("invalid file format");
-            break;
-        }
-
-        log_debug("Adding member %s (mode %s) to channel %s", username, mode, this->name);
-        Vector_push(this->members, Membership_alloc(this->name, username, atoi(mode)));
-    }
-
-    log_info("Loaded channel %s from file %s", this->name, filename);
-
-    Vector_free(lines);
-    return this;
-}
-
-/**
- * Find channel by name if loaded and return it.
- * Loads channel from file into memory if exists.
- * Returns NULL if not found.
- */
-Channel *Server_get_channel(Server *serv, const char *name) {
-    // Check if channel exists in memory
-    for (size_t i = 0; i < Vector_size(serv->channels); i++) {
-        Channel *channel = Vector_get_at(serv->channels, i);
-        if (!strcmp(channel->name, name)) {
-            return channel;
-        }
-    }
-
-    // Check if channel exists in file
-    char filename[100];
-    sprintf(filename, CHANNELS_DIRNAME "/%s", name);
-
-    if (access(filename, F_OK) == 0) {
-        Channel *channel = Channel_load_from_file(filename);
-
-        if (channel) {
-            log_info("members: %d, topic: %s, mode: %d", Vector_size(channel->members), channel->topic, channel->mode);
-            Vector_push(serv->channels, channel);
-            return channel;
-        }
-    }
-
-    log_warn("Channel %s not found", name);
-
-    // Channel does not exist or file is corrupted
-    return NULL;
-}
-
-/**
- * Removes channel from server array and destroys it.
- * Returns true on success and false on failure.
- */
-bool Server_remove_channel(Server *serv, const char *name) {
-    assert(serv);
-    assert(name);
-
-    Channel *channel = Server_get_channel(serv, name);
-
-    if (!channel) {
-        return false;
-    }
-
-    // Remove channel from channel list
-    for (size_t i = 0; i < Vector_size(serv->channels); i++) {
-        Channel *current = Vector_get_at(serv->channels, i);
-        log_info("Channel %s was removed from server", name);
-        if (!strcmp(current->name, name)) {
-            Vector_remove(serv->channels, i, NULL);
-            return true;
-        }
-    }
-
-    log_warn("Channel %s not found", name);
-
-    return false;
+    log_info("Saved %zu channels to file %s", ht_size(hashtable), filename);
 }
