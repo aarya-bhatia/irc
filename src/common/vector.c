@@ -58,14 +58,14 @@ void Vector_remove(Vector *this, size_t index, void **elem_out) {
 
     if (this->elem_free) {
         this->elem_free(this->elems[index]);
-    } else {
+    } else if (elem_out) {
         *elem_out = this->elems[index];
     }
 
     this->elems[index] = NULL;
 
     if (index < this->size - 1) {
-        memmove(this->elems, this->elems + 1, (this->size - index - 1) * sizeof *this->elems);
+        memmove(this->elems + index, this->elems + index + 1, (this->size - index - 1) * sizeof *this->elems);
     }
 
     this->size--;

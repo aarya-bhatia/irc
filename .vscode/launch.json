@@ -1,15 +1,31 @@
 {
   "configurations": [
     {
+      "name": "(gdb) Test",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/test",
+      "args": ["${input:lldbArgs}"],
+      "cwd": "${workspaceFolder}",
+    },
+    {
       "name": "(gdb) Launch Server",
       "type": "lldb",
       "request": "launch",
-      "program": "${workspaceFolder}/server",
+      "program": "${workspaceFolder}/build/server",
       "args": [
         "5000"
       ],
       "cwd": "${workspaceFolder}",
     }
+  ],
+  "inputs": [
+    {
+      "id": "lldbArgs",
+      "type":"promptString",
+      "description": "args for lldb",
+      "default": ""
+    },
   ],
   "version": "2.0.0"
 }
