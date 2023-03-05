@@ -35,6 +35,8 @@ typedef struct HashtableIter
 	HTNode *node;
 } HashtableIter;
 
+void ht_print(Hashtable *this, char *(*key_to_string)(void *), char *(*value_to_string)(void *));
+
 void ht_init(Hashtable *this);
 void ht_destroy(Hashtable *this);
 void *ht_get(Hashtable *this, void *key);

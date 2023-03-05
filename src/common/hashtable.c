@@ -11,6 +11,33 @@
 
 size_t djb2hash(const void *key, int len, uint32_t seed);
 
+char *ptr_to_string(void *ptr) {
+    static char s[24];
+    sprintf(s, "0x%p", ptr);
+    return s;
+}
+
+void ht_print(Hashtable *this, char *(*key_to_string)(void *), char *(*value_to_string)(void *)) {
+    if (!key_to_string) {
+        key_to_string = ptr_to_string;
+    }
+    if (!value_to_string) {
+        value_to_string = ptr_to_string;
+    }
+
+    HTNode *itr = NULL;
+    for (size_t i = 0; i < this->capacity; i++) {
+        if (!this->table[i]) {
+            continue;
+        }
+        itr = this->table[i];
+        while (itr) {
+            log_info("bucket: %d, key: %s, value: %s", i, key_to_string(itr->key), value_to_string(itr->value));
+            itr = itr->next;
+        }
+    }
+}
+
 void ht_init(Hashtable *this) {
     memset(this, 0, sizeof *this);
 
@@ -71,7 +98,7 @@ void ht_set(Hashtable *this, void *key, void *value) {
         this->size++;
     }
 
-    log_debug("size=%zu, capacity=%zu", this->size, this->capacity);
+    // log_debug("size=%zu, capacity=%zu", this->size, this->capacity);
 
     /* Rehashing */
     if (this->size / this->capacity > HT_DENSITY) {
@@ -201,21 +228,41 @@ bool ht_remove(Hashtable *this, void *key, void **key_out, void **value_out) {
 void ht_iter_init(HashtableIter *itr, Hashtable *ht) {
     itr->hashtable = ht;
     itr->node = NULL;
-    itr->index = ht->capacity;
-
-    for (size_t i = 0; i < ht->capacity; i++) {
-        if (ht->table[i] != NULL) {
-            itr->index = i;
-            itr->node = ht->table[i];
-            break;
-        }
-    }
+    itr->index = 0;
 }
 
 bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out) {
-    if (!itr->node || itr->index >= itr->hashtable->capacity) {
+    // log_debug("index = %d, size = %d, capacity = %d, node = %p", itr->index, itr->hashtable->size, itr->hashtable->capacity, itr->node);
+
+    // End of table
+    if (itr->index >= itr->hashtable->capacity) {
         return false;
     }
+
+    // Get next node in bucket
+    if (itr->node) {
+        itr->node = itr->node->next;
+    }
+
+    // No more nodes in bucket
+    if (!itr->node) {
+        // Find next available bucket
+        for (itr->index = itr->index + 1; itr->index < itr->hashtable->capacity; itr->index++) {
+            if (itr->hashtable->table[itr->index]) {
+                itr->node = itr->hashtable->table[itr->index];
+                break;
+            }
+        }
+
+        // End of table
+        if (!itr->node || itr->index >= itr->hashtable->capacity) {
+            return false;
+        }
+    }
+
+    assert(itr->node);
+
+    // Save key and value pointer in given pointers
 
     if (key_out) {
         *key_out = itr->node->key;
@@ -223,20 +270,6 @@ bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out) {
 
     if (value_out) {
         *value_out = itr->node->value;
-    }
-
-    if (itr->node->next) {
-        itr->node = itr->node->next;
-    } else {
-        while (itr->index < itr->hashtable->capacity && itr->hashtable->table[itr->index] == NULL) {
-            itr->index++;
-        }
-
-        if (itr->index < itr->hashtable->capacity) {
-            itr->node = itr->hashtable->table[itr->index];
-        } else {
-            itr->node = NULL;
-        }
     }
 
     return true;

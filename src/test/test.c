@@ -4,6 +4,8 @@
 #include "include/message.h"
 #include "include/vector.h"
 
+typedef void (*foreach_callback_type)(void *);
+
 struct s {
     int x;
 };
@@ -22,15 +24,71 @@ void print(char *key, struct s *value) {
     printf("%s -> %d\n", key, value->x);
 }
 
+char *int_to_string(void *integer) {
+    if (!integer) {
+        return 0;
+    }
+    static char s[16];
+    sprintf(s, "%d", *(int *)integer);
+    return s;
+}
+
+char *string_to_string(char *string) {
+    return string;
+}
+
 void hashtable_iter_test() {
+    Hashtable *this = calloc(1, sizeof *this);
+    ht_init(this);
+    this->key_compare = (compare_type)int_compare;
+    this->key_len = sizeof(int);
+    this->key_copy = (elem_copy_type)int_copy;
+    this->key_free = free;
+    this->value_copy = (elem_copy_type)strdup;
+    this->value_free = free;
+
+    int n = 100;
+    for (int i = 0; i < n; i++) {
+        char some_string[16];
+        for (int i = 0; i < 15; i++) {
+            some_string[i] = 'a' + rand() % 26;
+        }
+        some_string[15] = 0;
+        ht_set(this, (void *)&i, (void *)some_string);
+    }
+
+    HashtableIter itr;
+    ht_iter_init(&itr, this);
+
+    int count = 0;
+    while (ht_iter_next(&itr, NULL, NULL) == true) {
+        count++;
+    }
+
+    assert(count == n);
+
+    int *i = NULL;
+    int sum = 0;
+
+    ht_iter_init(&itr, this);
+
+    while (ht_iter_next(&itr, (void **)&i, NULL) == true) {
+        sum += *i;
+    }
+
+    assert(sum == n * (n - 1) / 2);
+
+    ht_print(this, int_to_string, string_to_string);
+    ht_destroy(this);
+    free(this);
 }
 
 void hashtable_test() {
     Hashtable this;
     ht_init(&this);
 
-    this.value_copy = struct_copy;
-    this.value_free = struct_free;
+    this.value_copy = (elem_copy_type)struct_copy;
+    this.value_free = (elem_free_type)struct_free;
 
     {
         struct s s1;
@@ -71,7 +129,7 @@ void hashtable_test() {
     ht_destroy(&this);
 }
 
-bool cb(void *elem, void *arg) {
+bool cb(void *elem, const void *arg) {
     return strcmp(elem, arg) == 0;
 }
 
@@ -83,7 +141,7 @@ void vector_test() {
 
     assert(this->size == 2);
 
-    Vector_foreach(this, puts);
+    Vector_foreach(this, (foreach_callback_type)puts);
 
     puts(Vector_find(this, cb, "hello"));
 
@@ -128,7 +186,7 @@ void log_test() {
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        return;
+        return 1;
     }
 
     int test_num = atoi(argv[1]);
