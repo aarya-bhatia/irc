@@ -21,7 +21,9 @@
 #include <sys/types.h>
 
 #include "hashtable.h"
+#include "list.h"
 #include "log.h"
+#include "vector.h"
 
 #define MAX_EVENTS 10
 #define MAX_MSG_LEN 512
@@ -77,3 +79,5 @@ char *addr_to_string(struct sockaddr *addr, socklen_t len); /* get ip address fr
 // Note: For non blocking sockets, these fuctions may read/write fewer bytes than requested.
 ssize_t read_all(int fd, char *buf, size_t len);  /* read all bytes from fd to buffer */
 ssize_t write_all(int fd, char *buf, size_t len); /* write all bytes from fd to buffer */
+
+Vector *readlines(const char *filename); /* Returns a vector of lines in given file */

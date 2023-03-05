@@ -117,7 +117,7 @@ void hashtable_iter_test() {
 
     assert(sum == n * (n - 1) / 2);
 
-    ht_print(this, int_to_string, string_to_string);
+    ht_print(this, (char *(*)(void *))int_to_string, (char *(*)(void *))string_to_string);
     ht_destroy(this);
     free(this);
 }
@@ -139,7 +139,7 @@ void hashtable_test() {
         ht_set(&this, "world", &s1);
     }
 
-    ht_foreach(&this, print);
+    ht_foreach(&this, (void (*)(void *, void *))print);
 
     ht_remove(&this, "hello", NULL, NULL);
 
@@ -223,8 +223,48 @@ void log_test() {
     log_fatal("Hello %s", "world");
 }
 
+void read_test(const char *filename) {
+    FILE *file = fopen(filename, "r");
+
+    if (!file) {
+        perror("fopen");
+        log_error("Failed to open file %s", filename);
+        return NULL;
+    }
+
+    Vector *lines = Vector_alloc(10, (elem_copy_type)strdup, free);
+
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t nread;
+
+    // Second line contains channel topic
+    while ((nread = getline(&line, &len, file)) > 0) {
+        assert(line);
+        assert(len > 0);
+
+        size_t n = strlen(line);
+        line[n-1] = 0;
+
+        if (strlen(line) == 0) {
+            continue;
+        }
+
+        Vector_push(lines, line);
+    }
+
+    free(line);
+    fclose(file);
+
+    for (size_t i = 0; i < Vector_size(lines); i++) {
+        puts(Vector_get_at(lines, i));
+    }
+
+    Vector_free(lines);
+}
+
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
+    if (argc < 2) {
         fprintf(stderr, "Usage: %s test_case\n", *argv);
         return 1;
     }
@@ -246,6 +286,13 @@ int main(int argc, char *argv[]) {
             break;
         case 5:
             queue_test();
+            break;
+        case 6:
+            char *filename = argv[2];
+            if (!filename) {
+                return 1;
+            }
+            read_test(filename);
             break;
         default:
             log_error("No such test case");

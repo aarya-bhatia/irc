@@ -14,7 +14,7 @@ Channel *Channel_alloc(const char *name) {
     channel->name = strdup(name);
     channel->time_created = time(NULL);
     channel->user_limit = MAX_CHANNEL_USERS;
-    channel->members = Vector_alloc(10, NULL, (elem_free_type) Membership_free);
+    channel->members = Vector_alloc(10, NULL, (elem_free_type)Membership_free);
     return channel;
 }
 
@@ -100,14 +100,14 @@ void Channel_save_to_file(Channel *this) {
         log_error("Failed to open file %s", filename);
     }
 
-    fprintf(file, "%s,%ld,%d,%d\n", this->name,
+    fprintf(file, "%s %ld %d %d\n", this->name,
             (unsigned long)this->time_created, this->mode, this->user_limit);
 
     fprintf(file, "%s\n", this->topic);
 
     for (size_t i = 0; i < Vector_size(this->members); i++) {
         Membership *member = Vector_get_at(this->members, i);
-        fprintf(file, "%s,%d\n", member->username, member->mode);
+        fprintf(file, "%s %d\n", member->username, member->mode);
     }
 
     fclose(file);
@@ -125,59 +125,38 @@ void Channel_save_to_file(Channel *this) {
  * Line 3-n: member name, member mode
  */
 Channel *Channel_load_from_file(const char *filename) {
-    FILE *file = fopen(filename, "r");
+    Vector *lines = readlines(filename);
 
-    if (!file) {
-        perror("fopen");
-        log_error("Failed to open file %s", filename);
+    if (!lines) {
         return NULL;
     }
+
+    if (Vector_size(lines) < 2) {
+        Vector_free(lines);
+        log_error("invalid file format");
+        return NULL;
+    }
+
+    log_debug("Read %zu lines from file %s", Vector_size(lines), filename);
 
     Channel *this = calloc(1, sizeof *this);
 
-    // First line
-    if (fscanf(file, "%s,%ld,%d,%d", this->name, &this->time_created,
-               &this->mode, &this->user_limit) != 4) {
-        perror("fscanf");
-        log_error("Invalid file format");
-        free(this);
-        fclose(file);
-        return NULL;
-    }
+    char *line = Vector_get_at(lines, 0);
+    sscanf(line, "%s %ld %d %d", this->name, (long *)&this->time_created, (int *)&this->mode, (int *)&this->user_limit);
 
-    this->members = Vector_alloc(10, NULL, (elem_free_type) Membership_free);
+    this->topic = strdup(Vector_get_at(lines, 1));
+    this->members = Vector_alloc(10, NULL, (elem_free_type)Membership_free);
 
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t nread;
-
-    // Second line contains channel topic
-    if ((nread = getline(&line, &len, file)) > 0) {
-        this->topic = strdup(line);
-    }
-
-    // Following lines contain the members
-    while (nread > 0 && (nread = getline(&line, &len, file)) > 0) {
-        if (line[len - 1] == '\n') {
-            line[len - 1] = 0;
-        } else {
-            line[len] = 0;
-        }
-
-        if (strlen(line) == 0) {
-            continue;
-        }
-
+    for (size_t i = 2; i < Vector_size(lines); i++) {
         char *save = NULL;
-
-        char *username = strtok_r(line, ",", &save);
+        char *username = strtok_r(line, " ", &save);
 
         if (!username) {
             log_error("invalid file format");
             break;
         }
 
-        char *mode = strtok_r(NULL, ",", &save);
+        char *mode = strtok_r(NULL, " ", &save);
 
         if (!mode) {
             log_error("invalid file format");
@@ -187,14 +166,13 @@ Channel *Channel_load_from_file(const char *filename) {
         username = trimwhitespace(username);
         mode = trimwhitespace(mode);
 
+        log_debug("Adding member %s (mode %s) to channel %s", username, mode);
         Vector_push(this->members, Membership_alloc(this->name, username, atoi(mode)));
     }
 
-    free(line);
-    fclose(file);
-
     log_info("Loaded channel %s from file %s", this->name, filename);
 
+    Vector_free(lines);
     return this;
 }
 
@@ -220,10 +198,13 @@ Channel *Server_get_channel(Server *serv, const char *name) {
         Channel *channel = Channel_load_from_file(filename);
 
         if (channel) {
+            log_info("members: %d, topic: %s, mode: %d", Vector_size(channel->members), channel->topic, channel->mode);
             Vector_push(serv->channels, channel);
             return channel;
         }
     }
+
+    log_warn("Channel %s not found", name);
 
     // Channel does not exist or file is corrupted
     return NULL;
@@ -246,11 +227,14 @@ bool Server_remove_channel(Server *serv, const char *name) {
     // Remove channel from channel list
     for (size_t i = 0; i < Vector_size(serv->channels); i++) {
         Channel *current = Vector_get_at(serv->channels, i);
+        log_info("Channel %s was removed from server", name);
         if (!strcmp(current->name, name)) {
             Vector_remove(serv->channels, i, NULL);
             return true;
         }
     }
+
+    log_warn("Channel %s not found", name);
 
     return false;
 }
