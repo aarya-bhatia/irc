@@ -154,8 +154,8 @@ bool Server_add_user(Server *serv, User *usr) {
         return false;
     }
 
-    // Add user socket to connections hashmap
-    ht_set(serv->connections, &usr->fd, usr);
+    // Add user socket to sock_to_user_map hashmap
+    ht_set(serv->sock_to_user_map, &usr->fd, usr);
 
     log_info("Got connection %d from %s", usr->fd, usr->hostname);
 
@@ -170,10 +170,10 @@ void Server_remove_user(Server *serv, User *usr) {
 
     epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, usr->fd, NULL);
 
-    ht_remove(serv->connections, &usr->fd, NULL, NULL);
-    ht_remove(serv->online_users, usr->nick, NULL, NULL);
-    ht_remove(serv->offline_users, usr->nick, NULL, NULL);
-    ht_remove(serv->users, usr->username, NULL, NULL);
+    ht_remove(serv->sock_to_user_map, &usr->fd, NULL, NULL);
+    ht_remove(serv->online_nick_to_username_map, usr->nick, NULL, NULL);
+    ht_remove(serv->offline_nick_to_username_map, usr->nick, NULL, NULL);
+    ht_remove(serv->username_to_user_map, usr->username, NULL, NULL);
 
     // Remove user from channels
     for (size_t i = 0; i < Vector_size(usr->channels); i++) {

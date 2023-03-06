@@ -17,8 +17,8 @@ bool check_registration_complete(Server *serv, User *usr) {
     if (!usr->registered && usr->nick_changed && usr->username && usr->realname) {
         usr->registered = true;
 
-        ht_set(serv->users, usr->username, usr);
-        ht_set(serv->online_users, usr->nick, usr->username);
+        ht_set(serv->username_to_user_map, usr->username, usr);
+        ht_set(serv->online_nick_to_username_map, usr->nick, usr->username);
 
         // Send welcome messages
 
@@ -123,19 +123,19 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
     assert(msg->params[0]);
     char *new_nick = msg->params[0];
 
-    if (ht_contains(serv->online_users, new_nick) ||
-        ht_contains(serv->offline_users, new_nick)) {
+    if (ht_contains(serv->online_nick_to_username_map, new_nick) ||
+        ht_contains(serv->offline_nick_to_username_map, new_nick)) {
         List_push_back(usr->msg_queue, make_reply(":%s " ERR_NICKNAMEINUSE_MSG,
                                                   serv->hostname, msg->params[0]));
         return;
     }
 
     if (usr->registered) {
-        if (!ht_remove(serv->online_users, usr->nick, NULL, NULL)) {
-            log_error("Failed to removed old nick %s from online_users", usr->nick);
+        if (!ht_remove(serv->online_nick_to_username_map, usr->nick, NULL, NULL)) {
+            log_error("Failed to removed old nick %s from online_nick_to_username_map", usr->nick);
         }
 
-        ht_set(serv->online_users, new_nick, usr->username);
+        ht_set(serv->online_nick_to_username_map, new_nick, usr->username);
     }
 
     free(usr->nick);
@@ -260,14 +260,14 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
     // The nick to send message to
     const char *target_nick = msg->params[0];
 
-    if (ht_contains(serv->offline_users, target_nick)) {
+    if (ht_contains(serv->offline_nick_to_username_map, target_nick)) {
         List_push_back(usr->msg_queue,
                        make_reply(":%s " RPL_AWAY_MSG, serv->hostname,
                                   usr->nick, target_nick));
         return;
     }
 
-    char *target_username = ht_get(serv->online_users, target_nick);
+    char *target_username = ht_get(serv->online_nick_to_username_map, target_nick);
 
     if (!target_username) {
         List_push_back(usr->msg_queue,
@@ -277,7 +277,7 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    User *target_data = ht_get(serv->users, target_username);
+    User *target_data = ht_get(serv->username_to_user_map, target_username);
 
     if (!target_data) {
         List_push_back(usr->msg_queue,
@@ -333,7 +333,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
     _sanity_check(serv, usr, msg);
     assert(!strcmp(msg->command, "JOIN"));
 
-    // JOIN is only for registered users
+    // JOIN is only for registered username_to_user_map
     if (!usr->registered) {
         List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOTREGISTERED_MSG, serv->hostname, usr->nick));
         return;

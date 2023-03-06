@@ -5,7 +5,7 @@
 ### Checkpoint #1
 
 - Implement a single IRC server that communicates asynchronously with clients using the epoll api
-- Implement the data structures to associate the connections with user data in the server
+- Implement the data structures to associate the sock_to_user_map with user data in the server
 - Implement simple CLI client that can communicate messages from user to server
 - Start the server with a configuration file that specifies the hostname and ports to be used
 
@@ -134,10 +134,10 @@ PING: A ping message will be sent at regular intervals from server to client if 
 
 Server data structues
 
-- connections: `Map<int,User*>` maps socket to user struct
-- users: `Map<char*,User*>` maps username to user struct
-- online_users: `Map<char*,char*>` maps nick to username of online user
-- offline_users: `Map<char*,char*>` maps nick to username of offline user
+- sock_to_user_map: `Map<int,User*>` maps socket to user struct
+- username_to_user_map: `Map<char*,User*>` maps username to user struct
+- online_nick_to_username_map: `Map<char*,char*>` maps nick to username of online user
+- offline_nick_to_username_map: `Map<char*,char*>` maps nick to username of offline user
 - channels: `Map<char*,Channel*>` maps channel name to channel struct
 
 ## Server start event
@@ -148,7 +148,7 @@ Server data structues
 ## User connect event
 
 - inialize user struct
-- add socket -> user struct entry in `connections` map
+- add socket -> user struct entry in `sock_to_user_map` map
 
 ## NICK
 
@@ -184,7 +184,7 @@ Server data structues
 - if user in offline map-> send AWAY to user
 - if user in online map-> send message to target user
 - If user not found -> send error to user
-- If target is channel -> send to all online users in channel
+- If target is channel -> send to all online username_to_user_map in channel
 
 ## Server stop event
 

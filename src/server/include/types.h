@@ -12,18 +12,18 @@ enum MODES {
 };
 
 typedef struct _Server {
-    Hashtable *connections;       // Maps socket to user struct
-    Hashtable *users;             // Map username to user struct for registered users
-    Hashtable *online_users;      // Map nick to username of online user
-    Hashtable *offline_users;     // Map nick to username of offline user
-    Hashtable *channels_map;      // Map channel name to channel struct pointer
-    struct sockaddr_in servaddr;  // address info for server
-    int fd;                       // listen socket
-    int epollfd;                  // epoll fd
-    char *hostname;               // server hostname
-    char *port;                   // server port
-    char created_at[64];          // server time created at as string
-    char *motd_file;              // file to use for message of the day greetings
+    Hashtable *sock_to_user_map;              // Maps socket to user struct for every connected user
+    Hashtable *username_to_user_map;          // Map username to user struct for registered users
+    Hashtable *online_nick_to_username_map;   // Map nick to username of online user
+    Hashtable *offline_nick_to_username_map;  // Map nick to username of offline user
+    Hashtable *channels_map;                  // Map channel name to channel struct pointer
+    struct sockaddr_in servaddr;              // address info for server
+    int fd;                                   // listen socket
+    int epollfd;                              // epoll fd
+    char *hostname;                           // server hostname
+    char *port;                               // server port
+    char created_at[64];                      // server time created at as string
+    char *motd_file;                          // file to use for message of the day greetings
 } Server;
 
 typedef struct _User {

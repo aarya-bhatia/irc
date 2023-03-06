@@ -56,13 +56,13 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < num; i++) {
             // Event on listening socket
             if (events[i].data.fd == serv->fd) {
-                // Accept all new connections
+                // Accept all new users
                 Server_accept_all(serv);
             } else {
                 int e = events[i].events;
                 int fd = events[i].data.fd;
 
-                User *usr = ht_get(serv->connections, &fd);
+                User *usr = ht_get(serv->sock_to_user_map, &fd);
 
                 if (!usr) {
                     epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, fd, NULL);

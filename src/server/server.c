@@ -16,13 +16,13 @@ void _close_connection(void *fd, void *usr) {
 
 void Server_destroy(Server *serv) {
     assert(serv);
-    ht_foreach(serv->connections, _close_connection);
+    ht_foreach(serv->sock_to_user_map, _close_connection);
     save_channels(serv->channels_map, CHANNELS_FILENAME);
 
-    ht_free(serv->connections);
-    ht_free(serv->users);
-    ht_free(serv->online_users);
-    ht_free(serv->offline_users);
+    ht_free(serv->sock_to_user_map);
+    ht_free(serv->username_to_user_map);
+    ht_free(serv->online_nick_to_username_map);
+    ht_free(serv->offline_nick_to_username_map);
     ht_free(serv->channels_map);
 
     close(serv->fd);
@@ -42,19 +42,19 @@ Server *Server_create(int port) {
     Server *serv = calloc(1, sizeof *serv);
     assert(serv);
 
-    serv->connections = ht_alloc();   /* Map<int, User *> */
-    serv->users = ht_alloc();         /* Map<string, User*> */
-    serv->online_users = ht_alloc();  /* Map<string, string>*/
-    serv->offline_users = ht_alloc(); /* Map<string, string>*/
+    serv->sock_to_user_map = ht_alloc();   /* Map<int, User *> */
+    serv->username_to_user_map = ht_alloc();         /* Map<string, User*> */
+    serv->online_nick_to_username_map = ht_alloc();  /* Map<string, string>*/
+    serv->offline_nick_to_username_map = ht_alloc(); /* Map<string, string>*/
 
-    serv->connections->key_len = sizeof(int);
-    serv->connections->key_compare = (compare_type)int_compare;
-    serv->connections->key_copy = (elem_copy_type)int_copy;
-    serv->connections->key_free = free;
-    serv->online_users->value_copy = (elem_copy_type)strdup;
-    serv->offline_users->value_copy = (elem_copy_type)strdup;
-    serv->online_users->value_free = free;
-    serv->offline_users->value_free = free;
+    serv->sock_to_user_map->key_len = sizeof(int);
+    serv->sock_to_user_map->key_compare = (compare_type)int_compare;
+    serv->sock_to_user_map->key_copy = (elem_copy_type)int_copy;
+    serv->sock_to_user_map->key_free = free;
+    serv->online_nick_to_username_map->value_copy = (elem_copy_type)strdup;
+    serv->offline_nick_to_username_map->value_copy = (elem_copy_type)strdup;
+    serv->online_nick_to_username_map->value_free = free;
+    serv->offline_nick_to_username_map->value_free = free;
 
     serv->channels_map = load_channels(CHANNELS_FILENAME);
 
@@ -102,7 +102,7 @@ Server *Server_create(int port) {
 }
 
 /**
- * There are new connections available
+ * There are new sock_to_user_map available
  */
 void Server_accept_all(Server *serv) {
     struct sockaddr_storage client_addr;
@@ -188,7 +188,7 @@ void Server_process_request(Server *serv, User *usr) {
 
 void Server_broadcast_message(Server *serv, const char *message) {
     HashtableIter itr;
-    ht_iter_init(&itr, serv->connections);
+    ht_iter_init(&itr, serv->sock_to_user_map);
     int user_sock;
     User *user_data = NULL;
 

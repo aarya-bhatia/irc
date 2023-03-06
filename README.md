@@ -4,10 +4,10 @@
 
 ### Data structures
 
-- A hashtable `connections` to map sockets to user data struct for each client.
-- A hashtable `users` to map usernames to user data struct for each registered user.
-- A hashtable `online_users` to map nick to username for each online user.
-- A hashtable `offline_users` to map nick to username for each offline user.
+- A hashtable `sock_to_user_map` to map sockets to user data struct for each client.
+- A hashtable `username_to_user_map` to map usernames to user data struct for each registered user.
+- A hashtable `online_nick_to_username_map` to map nick to username for each online user.
+- A hashtable `offline_nick_to_username_map` to map nick to username for each offline user.
 - A hashtable `channels_map` to map each channel name to a channel struct.
 
 ### Summary
@@ -19,7 +19,7 @@
 
 ## Logic
 
-The main logic is that the epoll listens for Read/Write events on all the available client connections as well as the server listening socket. If the event is on the listening socket, that implies the server can connect to new clients and initialise their user data. This is done through the `Server_process_request()` function.
+The main logic is that the epoll listens for Read/Write events on all the available client sock_to_user_map as well as the server listening socket. If the event is on the listening socket, that implies the server can connect to new clients and initialise their user data. This is done through the `Server_process_request()` function.
 In the case the event is on a client socket, I handle three cases: read, write and error. On error, I disconnect the client. On write, we send any pending messages from that user's message queue. Lastly, on read, we receive any data and parse the message if it is complete. Otherwise, we store the bytes in the user's buffer for later.
 
 There are various functions to handle the commands in the form of `Server_reply_to_XXXX()`.
@@ -49,7 +49,7 @@ The filename can be changed at any time as the server has a string to store the 
 
 - User can register with NICK and USER commands
 - NICK can be used to update nick at any time
-- Server keeps track of all the nicks that have been used by users
+- Server keeps track of all the nicks that have been used by username_to_user_map
 - User may skip NICK to reuse previous NICK if there is one
 - USER can only be used once at the start to set username and realname.
 - username is private to the user, it is the main identification source
