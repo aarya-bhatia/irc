@@ -5,7 +5,6 @@
 #include <time.h>
 
 #include "include/channel.h"
-#include "include/register.h"
 #include "include/replies.h"
 #include "include/types.h"
 #include "include/user.h"

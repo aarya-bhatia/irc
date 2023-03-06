@@ -6,9 +6,12 @@
 
 typedef struct Client
 {
-    char client_nick[30];
-    char client_username[30];
-    char client_realname[30];
+    char *serv_hostname;
+    char *serv_port;
+
+    char *client_nick;
+    char *client_username;
+    char *client_realname;
 
     int client_sock;
 

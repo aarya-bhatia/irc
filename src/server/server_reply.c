@@ -131,8 +131,11 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
     }
 
     if (usr->registered) {
-        ht_remove(serv->online_users, usr->nick, NULL, NULL);
-        ht_set(serv->online_users, new_nick, usr);
+        if (!ht_remove(serv->online_users, usr->nick, NULL, NULL)) {
+            log_error("Failed to removed old nick %s from online_users", usr->nick);
+        }
+
+        ht_set(serv->online_users, new_nick, usr->username);
     }
 
     free(usr->nick);
@@ -275,7 +278,14 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
     }
 
     User *target_data = ht_get(serv->users, target_username);
-    assert(target_data);
+
+    if (!target_data) {
+        List_push_back(usr->msg_queue,
+                       make_reply(":%s " ERR_NOSUCHNICK_MSG,
+                                  serv->hostname, usr->nick,
+                                  target_nick));
+        return;
+    }
 
     // Add message to target user's queue
     List_push_back(target_data->msg_queue,

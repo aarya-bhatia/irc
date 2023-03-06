@@ -2,9 +2,17 @@
 
 ## Server
 
+### Data structures
+
+- A hashtable `connections` to map sockets to user data struct for each client.
+- A hashtable `users` to map usernames to user data struct for each registered user.
+- A hashtable `online_users` to map nick to username for each online user.
+- A hashtable `offline_users` to map nick to username for each offline user.
+- A hashtable `channels_map` to map each channel name to a channel struct.
+
+### Summary
+
 - The core of the server is single-thread and uses epoll API and nonblocking IO.
-- The server has a map of each open socket to some user data.
-- The server also has a map of username to nicks which is loaded and saved to a file.
 - The server uses buffers in the user data struct to receive/send messages.
 - The user data uses a message queue that allows the server to prepare multiple messages to send to one client.
 - The message queue is also useful for message chat as messages for a target user can be pushed to their respective queues.
