@@ -369,7 +369,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 
     // Add user to channel
     Channel_add_member(channel, usr->username);
-    Vector_push(usr->channels, channel->name);
+    User_add_channel(usr, channel->name);
 
     // Broadcast JOIN to every client including current user
     char *join_message = make_reply("%s!%s@%s JOIN #%s", usr->nick, usr->username, usr->hostname, channel_name);
@@ -456,12 +456,20 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
                                          usr->nick, usr->username, usr->hostname, channel->name, reason);
 
     Server_broadcast_to_channel(serv, channel, broadcast_message);
-    Channel_remove_member(channel, usr->username);
+    Channel_remove_member(channel, usr->username); // Remove user from channel's list
+
+    // remove channel from user's personal list
+    User_remove_channel(usr, channel->name);
 
     free(broadcast_message);
     free(reason);
 
     log_info("user %s has left channel %s", usr->nick, channel->name);
+
+    if(Vector_size(channel->members) == 0) {
+        ht_remove(serv->channels_map, channel->name, NULL, NULL);
+        log_info("channel %s was removed from server", channel->name);
+    }
 }
 
 void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg) {

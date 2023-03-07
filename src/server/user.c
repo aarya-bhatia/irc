@@ -186,3 +186,30 @@ void Server_remove_user(Server *serv, User *usr) {
 
     User_free(usr);
 }
+
+bool User_is_member(User *usr, const char *channel_name) {
+    for (size_t i = 0; i < Vector_size(usr->channels); i++) {
+        if (!strcmp(Vector_get_at(usr->channels, i), channel_name)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void User_add_channel(User *usr, const char *channel_name) {
+    if (!User_is_member(usr, channel_name)) {
+        Vector_push(usr->channels, channel_name);
+    }
+}
+
+bool User_remove_channel(User *usr, const char *channel_name) {
+    for (size_t i = 0; i < Vector_size(usr->channels); i++) {
+        if (!strcmp(Vector_get_at(usr->channels, i), channel_name)) {
+            Vector_remove(usr->channels, i, NULL);
+            return true;
+        }
+    }
+
+    return false;
+}

@@ -32,6 +32,18 @@ static struct rpl_handle_t rpl_handlers[] = {
     {"TOPIC", Server_reply_to_TOPIC},
 };
 
+User *Server_get_user_by_socket(Server *serv, int sock) {
+    return ht_get(serv->sock_to_user_map, &sock);
+}
+
+User *Server_get_user_by_nick(Server *serv, const char *nick) {
+    return ht_get(serv->online_nick_to_username_map, nick);
+}
+
+User *Server_get_user_by_username(Server *serv, const char *username) {
+    return ht_get(serv->username_to_user_map, username);
+}
+
 void _close_connection(void *fd, void *usr) {
     (void)fd;
     User_free((User *)usr);
@@ -228,7 +240,7 @@ void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *mes
     for (size_t i = 0; i < Vector_size(channel->members); i++) {
         Membership *member = Vector_get_at(channel->members, i);
         assert(member);
-        User *member_user = ht_get(serv->online_nick_to_username_map, member->username);
+        User *member_user = ht_get(serv->username_to_user_map, member->username);
         if (member_user) {
             List_push_back(member_user->msg_queue, strdup(message));
         }

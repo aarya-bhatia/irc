@@ -1,2 +1,4 @@
 testchannel 0 0 5 :Hello
 hello 1678201522 0 5 :world
+hi 1678217108 0 5 :(null)
+HI 1678217131 0 5 :(null)
