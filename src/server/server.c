@@ -9,6 +9,29 @@
 #include "include/types.h"
 #include "include/user.h"
 
+struct rpl_handle_t {
+    const char *name;
+    void (*function)(Server *, User *, Message *);
+};
+
+static struct rpl_handle_t rpl_handlers[] = {
+    {"NICK", Server_reply_to_NICK},
+    {"USER", Server_reply_to_USER},
+    {"PRIVMSG", Server_reply_to_PRIVMSG},
+    {"PING", Server_reply_to_PING},
+    {"QUIT", Server_reply_to_QUIT},
+    {"MOTD", Server_reply_to_MOTD},
+    {"LIST", Server_reply_to_LIST},
+    {"WHO", Server_reply_to_WHO},
+    {"WHOIS", Server_reply_to_WHOIS},
+    {"SERVER", Server_reply_to_SERVER},
+    {"CONNECT", Server_reply_to_CONNECT},
+    {"JOIN", Server_reply_to_JOIN},
+    {"PART", Server_reply_to_PART},
+    {"NAMES", Server_reply_to_NAMES},
+    {"TOPIC", Server_reply_to_TOPIC},
+};
+
 void _close_connection(void *fd, void *usr) {
     (void)fd;
     User_free((User *)usr);
@@ -42,7 +65,7 @@ Server *Server_create(int port) {
     Server *serv = calloc(1, sizeof *serv);
     assert(serv);
 
-    serv->sock_to_user_map = ht_alloc();   /* Map<int, User *> */
+    serv->sock_to_user_map = ht_alloc();             /* Map<int, User *> */
     serv->username_to_user_map = ht_alloc();         /* Map<string, User*> */
     serv->online_nick_to_username_map = ht_alloc();  /* Map<string, string>*/
     serv->offline_nick_to_username_map = ht_alloc(); /* Map<string, string>*/
@@ -145,31 +168,32 @@ void Server_process_request(Server *serv, User *usr) {
     // Iterate over the request messages and add response message(s) to user's message queue in the same order.
     for (size_t i = 0; i < Vector_size(messages); i++) {
         Message *message = Vector_get_at(messages, i);
-
         assert(message);
-
         if (!message->command) {
             log_error("invalid message");
             continue;
         }
 
-        if (!strcmp(message->command, "MOTD")) {
-            Server_reply_to_MOTD(serv, usr, message);
-        } else if (!strcmp(message->command, "NICK")) {
-            Server_reply_to_NICK(serv, usr, message);
-        } else if (!strcmp(message->command, "USER")) {
-            Server_reply_to_USER(serv, usr, message);
-        } else if (!strcmp(message->command, "PING")) {
-            Server_reply_to_PING(serv, usr, message);
-        } else if (!strcmp(message->command, "PRIVMSG")) {
-            Server_reply_to_PRIVMSG(serv, usr, message);
-        } else if (!strcmp(message->command, "JOIN")) {
-            Server_reply_to_JOIN(serv, usr, message);
-        } else if (!strcmp(message->command, "QUIT")) {
-            Server_reply_to_QUIT(serv, usr, message);
-            assert(List_size(usr->msg_queue) > 0);
-            usr->quit = true;
-        } else if (!usr->registered) {
+        // Find a handler to execute for given request
+
+        bool found = false;
+
+        for (size_t j = 0; j < sizeof rpl_handlers / sizeof *rpl_handlers; j++) {
+            struct rpl_handle_t handle = rpl_handlers[j];
+            if (!strcmp(handle.name, message->command)) {
+                handle.function(serv, usr, message);
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            continue;
+        }
+
+        // Handle every other command:
+
+        if (!usr->registered) {
             char *reply = make_reply(":%s " ERR_NOTREGISTERED_MSG,
                                      serv->hostname,
                                      usr->nick);

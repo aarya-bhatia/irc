@@ -26,11 +26,17 @@ void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);
 void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);
 void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);
 void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PART(Server *serv, User *usr, Message *msg);
+void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg);
 void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);
 void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);
 void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);
+
+// middleware.c
+bool Server_registered_middleware(Server *serv, User *usr, Message *msg);
+bool Server_channel_middleware(Server *serv, User *usr, Message *msg);
 
 // user.c
 bool Server_add_user(Server *, User *);

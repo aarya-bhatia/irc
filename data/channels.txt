@@ -1,1 +1,1 @@
-testchannel 0 0 5 :topic is here
+testchannel 0 0 5 :Hello

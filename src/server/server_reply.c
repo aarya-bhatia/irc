@@ -4,12 +4,6 @@
 #include "include/types.h"
 #include "include/user.h"
 
-void _sanity_check(Server *serv, User *usr, Message *msg) {
-    assert(serv);
-    assert(usr);
-    assert(msg);
-}
-
 /**
  * To complete registration, the user must have a username, realname and a nick.
  */
@@ -55,9 +49,6 @@ bool check_registration_complete(Server *serv, User *usr) {
  * RPL_NAMES as multipart message
  */
 void RPL_NAMEREPLY(Server *serv, User *usr, Channel *channel) {
-    assert(serv);
-    assert(usr);
-
     char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=",
                                 channel->name);
 
@@ -109,7 +100,6 @@ void RPL_NAMEREPLY(Server *serv, User *usr, Channel *channel) {
  * - ERR_NICKNAMEINUSE
  */
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
     assert(!strcmp(msg->command, "NICK"));
 
     if (msg->n_params < 1) {
@@ -160,7 +150,6 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
  * - Realname can contain spaces.
  */
 void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
     assert(!strcmp(msg->command, "USER"));
 
     if (msg->n_params < 3 || !msg->body) {
@@ -194,7 +183,6 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {
 }
 
 void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
     assert(!strcmp(msg->command, "MOTD"));
 
     char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
@@ -209,7 +197,6 @@ void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {
 }
 
 void Server_reply_to_PING(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
     assert(!strcmp(msg->command, "PING"));
     List_push_back(usr->msg_queue, make_reply(":%s "
                                               "PONG %s",
@@ -230,17 +217,11 @@ void Server_reply_to_PING(Server *serv, User *usr, Message *msg) {
  * - ERR_TOOMANYTARGETS
  */
 void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
     assert(!strcmp(msg->command, "PRIVMSG"));
 
-    if (!usr->registered) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NOTREGISTERED_MSG,
-                                  serv->hostname, usr->nick));
+    if (!Server_registered_middleware(serv, usr, msg)) {
         return;
     }
-
-    assert(usr->username);
 
     if (msg->n_params == 0) {
         List_push_back(usr->msg_queue,
@@ -260,41 +241,47 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
     // The nick to send message to
     const char *target_nick = msg->params[0];
 
-    if (ht_contains(serv->offline_nick_to_username_map, target_nick)) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " RPL_AWAY_MSG, serv->hostname,
-                                  usr->nick, target_nick));
-        return;
+    // Message target is channel
+    if (target_nick[0] == '#') {
+        
+    } else {
+        // Message target is user
+        if (ht_contains(serv->offline_nick_to_username_map, target_nick)) {
+            List_push_back(usr->msg_queue,
+                           make_reply(":%s " RPL_AWAY_MSG, serv->hostname,
+                                      usr->nick, target_nick));
+            return;
+        }
+
+        char *target_username = ht_get(serv->online_nick_to_username_map, target_nick);
+
+        if (!target_username) {
+            List_push_back(usr->msg_queue,
+                           make_reply(":%s " ERR_NOSUCHNICK_MSG,
+                                      serv->hostname, usr->nick,
+                                      target_nick));
+            return;
+        }
+
+        User *target_data = ht_get(serv->username_to_user_map, target_username);
+
+        if (!target_data) {
+            List_push_back(usr->msg_queue,
+                           make_reply(":%s " ERR_NOSUCHNICK_MSG,
+                                      serv->hostname, usr->nick,
+                                      target_nick));
+            return;
+        }
+
+        // Add message to target user's queue
+        List_push_back(target_data->msg_queue,
+                       make_reply(":%s!%s@%s PRIVMSG %s :%s", usr->nick,
+                                  usr->username, usr->hostname,
+                                  target_nick, msg->body));
+
+        log_info("PRIVMSG sent from user %s to user %s", usr->nick,
+                 target_nick);
     }
-
-    char *target_username = ht_get(serv->online_nick_to_username_map, target_nick);
-
-    if (!target_username) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NOSUCHNICK_MSG,
-                                  serv->hostname, usr->nick,
-                                  target_nick));
-        return;
-    }
-
-    User *target_data = ht_get(serv->username_to_user_map, target_username);
-
-    if (!target_data) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NOSUCHNICK_MSG,
-                                  serv->hostname, usr->nick,
-                                  target_nick));
-        return;
-    }
-
-    // Add message to target user's queue
-    List_push_back(target_data->msg_queue,
-                   make_reply(":%s!%s@%s PRIVMSG %s :%s", usr->nick,
-                              usr->username, usr->hostname,
-                              target_nick, msg->body));
-
-    log_info("PRIVMSG sent from user %s to user %s", usr->nick,
-             target_nick);
 }
 
 /**
@@ -308,7 +295,6 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
  * - ERROR
  */
 void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
     assert(!strcmp(msg->command, "QUIT"));
 
     char *reason = (msg->body ? msg->body : "Client Quit");
@@ -316,58 +302,33 @@ void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg) {
     List_push_back(usr->msg_queue, make_reply(":%s "
                                               "ERROR :Closing Link: %s (%s)",
                                               serv->hostname, usr->hostname, reason));
+    assert(List_size(usr->msg_queue) > 0);
+    usr->quit = true;
 }
 
 void Server_reply_to_WHO(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
 }
 
 /**
  * Join a channel
  */
 void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
     assert(!strcmp(msg->command, "JOIN"));
 
-    // JOIN is only for registered username_to_user_map
-    if (!usr->registered) {
-        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOTREGISTERED_MSG, serv->hostname, usr->nick));
+    if (!Server_registered_middleware(serv, usr, msg)) {
         return;
     }
 
-    assert(usr->username);
-
-    // Param for channel name required
-    if (msg->n_params == 0) {
-        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NEEDMOREPARAMS_MSG, serv->hostname, usr->nick, msg->command));
-        return;
-    }
-
-    assert(msg->params[0]);
-
-    // Channel should begin with #
-    if (msg->params[0][0] != '#') {
-        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, msg->params[0]));
+    if (!Server_channel_middleware(serv, usr, msg)) {
         return;
     }
 
     char *channel_name = msg->params[0] + 1;  // skip #
-
     Channel *channel = ht_get(serv->channels_map, channel_name);
-
-    if (!channel) {
-        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, channel_name));
-        return;
-    }
-
-    if (Vector_size(usr->channels) > MAX_CHANNEL_COUNT) {
-        List_push_back(usr->msg_queue, make_reply(":%s " ERR_TOOMANYCHANNELS_MSG, serv->hostname, usr->nick, channel_name));
-        return;
-    }
+    assert(channel);
 
     // Add user to channel
     Channel_add_member(channel, usr->username);
@@ -383,26 +344,104 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
         List_push_back(usr->msg_queue, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel_name, channel->topic));
     }
 
-    // NAMES reply
+    // Send NAMES reply
     RPL_NAMEREPLY(serv, usr, channel);
 }
 
 void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
+    assert(!strcmp(msg->command, "NAMES"));
+
+    if (!Server_registered_middleware(serv, usr, msg)) {
+        return;
+    }
+
+    if (!Server_channel_middleware(serv, usr, msg)) {
+        return;
+    }
+
+    Channel *channel = ht_get(serv->channels_map, msg->params[0] + 1);
+    assert(channel);
+
+    RPL_NAMEREPLY(serv, usr, channel);
+}
+
+void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg) {
+    assert(!strcmp(msg->command, "TOPIC"));
+
+    if (!Server_registered_middleware(serv, usr, msg)) {
+        return;
+    }
+
+    if (!Server_channel_middleware(serv, usr, msg)) {
+        return;
+    }
+
+    char *channel_name = msg->params[0] + 1;
+    Channel *channel = ht_get(serv->channels_map, channel_name);
+    assert(channel);
+
+    // update or view topic
+
+    if (msg->body) {
+        channel->topic = strdup(msg->body);
+        log_info("user %s set topic for channel %s", usr->nick, channel->name);
+    } else if (channel->topic) {
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel_name, channel->topic));
+    } else {
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_NOTOPIC_MSG, serv->hostname, usr->nick, channel_name));
+    }
+}
+
+void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
+    assert(!strcmp(msg->command, "PART"));
+
+    if (!Server_registered_middleware(serv, usr, msg)) {
+        return;
+    }
+
+    if (!Server_channel_middleware(serv, usr, msg)) {
+        return;
+    }
+
+    char *channel_name = msg->params[0] + 1;
+    Channel *channel = ht_get(serv->channels_map, channel_name);
+
+    if (!Channel_has_member(channel, usr->username)) {
+        List_push_back(usr->msg_queue,
+                       make_reply(":%s " ERR_NOTONCHANNEL_MSG, serv->hostname,
+                                  usr->nick, channel->name));
+        return;
+    }
+
+    char *reason = msg->body ? strdup(msg->body) : make_string("%s is leaving channel %s", usr->nick, channel->name);
+    char *broadcast_message = make_reply("%s!%s@%s PART #%s :%s",
+                                         usr->nick, usr->username, usr->hostname, channel->name, reason);
+
+    // broadcast message to users on channel
+    for (size_t i = 0; i < Vector_size(channel->members); i++) {
+        Membership *member = Vector_get_at(channel->members, i);
+        assert(member);
+        User *member_user = ht_get(serv->online_nick_to_username_map, member->username);
+        if (member_user) {
+            List_push_back(member_user->msg_queue, strdup(broadcast_message));
+        }
+    }
+
+    Channel_remove_member(channel, usr->username);
+    log_info("user %s has left channel %s", usr->nick, channel->name);
+
+    free(broadcast_message);
+    free(reason);
 }
 
 void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_PASS(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
 }
 
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
-    _sanity_check(serv, usr, msg);
 }
