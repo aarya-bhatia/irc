@@ -224,6 +224,17 @@ void Server_broadcast_message(Server *serv, const char *message) {
     }
 }
 
+void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message) {
+    for (size_t i = 0; i < Vector_size(channel->members); i++) {
+        Membership *member = Vector_get_at(channel->members, i);
+        assert(member);
+        User *member_user = ht_get(serv->online_nick_to_username_map, member->username);
+        if (member_user) {
+            List_push_back(member_user->msg_queue, strdup(message));
+        }
+    }
+}
+
 char *get_motd(char *fname) {
     FILE *file = fopen(fname, "r");
 

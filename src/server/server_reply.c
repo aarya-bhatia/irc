@@ -4,6 +4,39 @@
 #include "include/types.h"
 #include "include/user.h"
 
+void send_motd_reply(Server *serv, User *usr) {
+    char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
+
+    if (motd) {
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_MOTD_MSG,
+                                                  serv->hostname, usr->nick,
+                                                  motd));
+    } else {
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOMOTD_MSG,
+                                                  serv->hostname, usr->nick));
+    }
+}
+
+void send_welcome_reply(Server *serv, User *usr) {
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_WELCOME_MSG, serv->hostname,
+                                              usr->nick, usr->nick));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_YOURHOST_MSG, serv->hostname,
+                                              usr->nick, usr->hostname));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_CREATED_MSG, serv->hostname,
+                                              usr->nick, serv->created_at));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_MYINFO_MSG, serv->hostname,
+                                              usr->nick, serv->hostname, "*", "*",
+                                              "*"));
+}
+
+void send_topic_reply(Server *serv, User *usr, Channel *channel) {
+    if (channel->topic) {
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel->name, channel->topic));
+    } else {
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_NOTOPIC_MSG, serv->hostname, usr->nick, channel->name));
+    }
+}
+
 /**
  * To complete registration, the user must have a username, realname and a nick.
  */
@@ -14,28 +47,8 @@ bool check_registration_complete(Server *serv, User *usr) {
         ht_set(serv->username_to_user_map, usr->username, usr);
         ht_set(serv->online_nick_to_username_map, usr->nick, usr->username);
 
-        // Send welcome messages
-
-        List_push_back(usr->msg_queue, make_reply(":%s " RPL_WELCOME_MSG, serv->hostname,
-                                                  usr->nick, usr->nick));
-        List_push_back(usr->msg_queue, make_reply(":%s " RPL_YOURHOST_MSG, serv->hostname,
-                                                  usr->nick, usr->hostname));
-        List_push_back(usr->msg_queue, make_reply(":%s " RPL_CREATED_MSG, serv->hostname,
-                                                  usr->nick, serv->created_at));
-        List_push_back(usr->msg_queue, make_reply(":%s " RPL_MYINFO_MSG, serv->hostname,
-                                                  usr->nick, serv->hostname, "*", "*",
-                                                  "*"));
-
-        char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
-
-        if (motd) {
-            List_push_back(usr->msg_queue, make_reply(":%s " RPL_MOTD_MSG,
-                                                      serv->hostname, usr->nick,
-                                                      motd));
-        } else {
-            List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOMOTD_MSG,
-                                                      serv->hostname, usr->nick));
-        }
+        send_welcome_reply(serv, usr);
+        send_motd_reply(serv, usr);
 
         log_info("registration completed for user %s", usr->nick);
 
@@ -48,7 +61,7 @@ bool check_registration_complete(Server *serv, User *usr) {
 /**
  * RPL_NAMES as multipart message
  */
-void RPL_NAMEREPLY(Server *serv, User *usr, Channel *channel) {
+void send_names_reply(Server *serv, User *usr, Channel *channel) {
     char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=",
                                 channel->name);
 
@@ -243,6 +256,24 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
 
     // Message target is channel
     if (target_nick[0] == '#') {
+        char *channel_name = target_nick + 1;
+        Channel *channel = ht_get(serv->channels_map, channel_name);
+        if (!channel) {
+            List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, channel_name));
+            return;
+        }
+
+        if (!Channel_has_member(channel, usr->username)) {
+            List_push_back(usr->msg_queue, make_reply(":%s " ERR_CANNOTSENDTOCHAN_MSG, serv->hostname, usr->nick, channel_name));
+            return;
+        }
+
+        char *message = make_reply("%s!%s@%s PRIVMSG #%s :%s", usr->nick, usr->username, usr->hostname, channel->name, msg->body);
+        Server_broadcast_to_channel(serv, channel, message);
+        free(message);
+
+        log_debug("user %s sent message to channel %s", usr->nick, channel->name);
+
     } else {
         // Message target is user
         if (ht_contains(serv->offline_nick_to_username_map, target_nick)) {
@@ -278,8 +309,7 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
                                   usr->username, usr->hostname,
                                   target_nick, msg->body));
 
-        log_info("PRIVMSG sent from user %s to user %s", usr->nick,
-                 target_nick);
+        log_info("PRIVMSG sent from user %s to user %s", usr->nick, target_nick);
     }
 }
 
@@ -325,7 +355,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 
     if (Vector_size(usr->channels) > MAX_CHANNEL_COUNT) {
         List_push_back(usr->msg_queue, make_reply(":%s " ERR_TOOMANYCHANNELS_MSG, serv->hostname, usr->nick, channel_name));
-        return false;
+        return;
     }
 
     Channel *channel = ht_get(serv->channels_map, channel_name);
@@ -339,7 +369,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 
     // Add user to channel
     Channel_add_member(channel, usr->username);
-    Vector_push(usr->channels, channel);
+    Vector_push(usr->channels, channel->name);
 
     // Broadcast JOIN to every client including current user
     char *join_message = make_reply("%s!%s@%s JOIN #%s", usr->nick, usr->username, usr->hostname, channel_name);
@@ -352,7 +382,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
     }
 
     // Send NAMES reply
-    RPL_NAMEREPLY(serv, usr, channel);
+    send_names_reply(serv, usr, channel);
 }
 
 void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
@@ -372,7 +402,7 @@ void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {
     Channel *channel = ht_get(serv->channels_map, msg->params[0] + 1);
     assert(channel);
 
-    RPL_NAMEREPLY(serv, usr, channel);
+    send_names_reply(serv, usr, channel);
 }
 
 void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg) {
@@ -395,10 +425,8 @@ void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg) {
     if (msg->body) {
         channel->topic = strdup(msg->body);
         log_info("user %s set topic for channel %s", usr->nick, channel->name);
-    } else if (channel->topic) {
-        List_push_back(usr->msg_queue, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel_name, channel->topic));
     } else {
-        List_push_back(usr->msg_queue, make_reply(":%s " RPL_NOTOPIC_MSG, serv->hostname, usr->nick, channel_name));
+        send_topic_reply(serv, usr, channel);
     }
 }
 
@@ -427,21 +455,13 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
     char *broadcast_message = make_reply("%s!%s@%s PART #%s :%s",
                                          usr->nick, usr->username, usr->hostname, channel->name, reason);
 
-    // broadcast message to users on channel
-    for (size_t i = 0; i < Vector_size(channel->members); i++) {
-        Membership *member = Vector_get_at(channel->members, i);
-        assert(member);
-        User *member_user = ht_get(serv->online_nick_to_username_map, member->username);
-        if (member_user) {
-            List_push_back(member_user->msg_queue, strdup(broadcast_message));
-        }
-    }
-
+    Server_broadcast_to_channel(serv, channel, broadcast_message);
     Channel_remove_member(channel, usr->username);
-    log_info("user %s has left channel %s", usr->nick, channel->name);
 
     free(broadcast_message);
     free(reason);
+
+    log_info("user %s has left channel %s", usr->nick, channel->name);
 }
 
 void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg) {

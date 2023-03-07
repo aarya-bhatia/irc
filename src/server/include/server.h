@@ -13,6 +13,7 @@ void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
 void Server_process_request(Server *serv, User *usr);
 void Server_broadcast_message(Server *serv, const char *message);
+void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message);
 
 // server_reply.c
 bool check_registration_complete(Server *serv, User *usr);
