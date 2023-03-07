@@ -243,7 +243,6 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
 
     // Message target is channel
     if (target_nick[0] == '#') {
-        
     } else {
         // Message target is user
         if (ht_contains(serv->offline_nick_to_username_map, target_nick)) {
@@ -322,13 +321,21 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    if (!Server_channel_middleware(serv, usr, msg)) {
-        return;
+    char *channel_name = msg->params[0] + 1;  // skip #
+
+    if (Vector_size(usr->channels) > MAX_CHANNEL_COUNT) {
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_TOOMANYCHANNELS_MSG, serv->hostname, usr->nick, channel_name));
+        return false;
     }
 
-    char *channel_name = msg->params[0] + 1;  // skip #
     Channel *channel = ht_get(serv->channels_map, channel_name);
-    assert(channel);
+
+    if (!channel) {
+        // Create channel
+        channel = Channel_alloc(channel_name);
+        ht_set(serv->channels_map, channel_name, channel);
+        log_info("New channel %s created by user %s", channel_name, usr->nick);
+    }
 
     // Add user to channel
     Channel_add_member(channel, usr->username);

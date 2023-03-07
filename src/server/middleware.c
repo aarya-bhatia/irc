@@ -47,12 +47,5 @@ bool Server_channel_middleware(Server *serv, User *usr, Message *msg) {
         return false;
     }
 
-    char *name = msg->params[0] + 1;  // skip #
-
-    if (!strcmp(msg->command, "JOIN") && Vector_size(usr->channels) > MAX_CHANNEL_COUNT) {
-        List_push_back(usr->msg_queue, make_reply(":%s " ERR_TOOMANYCHANNELS_MSG, serv->hostname, usr->nick, name));
-        return false;
-    }
-
     return true;
 }
