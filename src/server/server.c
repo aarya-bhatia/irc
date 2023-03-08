@@ -240,7 +240,9 @@ void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *mes
     for (size_t i = 0; i < Vector_size(channel->members); i++) {
         Membership *member = Vector_get_at(channel->members, i);
         assert(member);
-        User *member_user = ht_get(serv->username_to_user_map, member->username);
+
+        User *member_user = Server_get_user_by_username(serv, member->username);
+
         if (member_user) {
             List_push_back(member_user->msg_queue, strdup(message));
         }

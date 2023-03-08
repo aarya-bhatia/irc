@@ -456,7 +456,7 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
                                          usr->nick, usr->username, usr->hostname, channel->name, reason);
 
     Server_broadcast_to_channel(serv, channel, broadcast_message);
-    Channel_remove_member(channel, usr->username); // Remove user from channel's list
+    Channel_remove_member(channel, usr->username);  // Remove user from channel's list
 
     // remove channel from user's personal list
     User_remove_channel(usr, channel->name);
@@ -466,9 +466,9 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
 
     log_info("user %s has left channel %s", usr->nick, channel->name);
 
-    if(Vector_size(channel->members) == 0) {
+    if (Vector_size(channel->members) == 0) {
+        log_info("removing channel %s from server", channel->name);
         ht_remove(serv->channels_map, channel->name, NULL, NULL);
-        log_info("channel %s was removed from server", channel->name);
     }
 }
 

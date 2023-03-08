@@ -32,13 +32,22 @@ void *Vector_get_at(Vector *this, size_t index) {
     return index < this->size ? this->elems[index] : NULL;
 }
 
+static size_t _align_capacity(size_t capacity) {
+    size_t i = 1;
+    while (i < capacity) {
+        i *= 2;
+    }
+
+    return i;
+}
+
 void Vector_reserve(Vector *this, size_t capacity) {
     if (capacity <= this->capacity) {
         return;
     }
-    this->capacity = capacity;
-    this->elems = realloc(this->elems, capacity * sizeof *this->elems);
-    memset(this->elems + this->size, 0, (capacity - this->size) * sizeof *this->elems);
+    this->capacity = _align_capacity(capacity);
+    this->elems = realloc(this->elems, this->capacity * sizeof *this->elems);
+    memset(this->elems + this->size, 0, (this->capacity - this->size) * sizeof *this->elems);
 }
 
 void *Vector_find(Vector *this, bool (*cb)(void *, const void *), const void *args) {

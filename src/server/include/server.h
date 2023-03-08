@@ -15,6 +15,10 @@ void Server_process_request(Server *serv, User *usr);
 void Server_broadcast_message(Server *serv, const char *message);
 void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message);
 
+User *Server_get_user_by_socket(Server *serv, int sock);
+User *Server_get_user_by_nick(Server *serv, const char *nick);
+User *Server_get_user_by_username(Server *serv, const char *username);
+
 // server_reply.c
 bool check_registration_complete(Server *serv, User *usr);
 
