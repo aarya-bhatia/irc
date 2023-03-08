@@ -53,10 +53,10 @@ typedef struct _Membership {
 typedef struct _Channel {
     char *name;   // name of channel
     char *topic;  // channel topic
-    // time_t topic_changed_at;
-    // char *topic_changed_by;
     int mode;             // channel mode
-    int user_limit;       // max user count
     time_t time_created;  // time channel was created
     Vector *members;      // usernames of members in the channel
+						  
+    // time_t topic_changed_at;
+    // char *topic_changed_by;
 } Channel;

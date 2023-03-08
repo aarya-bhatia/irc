@@ -12,7 +12,6 @@ Channel *Channel_alloc(const char *name) {
     Channel *channel = calloc(1, sizeof *channel);
     channel->name = strdup(name);
     channel->time_created = time(NULL);
-    channel->user_limit = MAX_CHANNEL_USERS;
     channel->members = Vector_alloc(10, NULL, (elem_free_type)Membership_free);
     return channel;
 }
@@ -113,13 +112,11 @@ Hashtable *load_channels(const char *filename) {
         char *name = strtok_r(info, " ", &saveptr1);
         time_t time_created = atol(strtok_r(NULL, " ", &saveptr1));
         int mode = atoi(strtok_r(NULL, " ", &saveptr1));
-        int user_limit = atoi(strtok_r(NULL, " ", &saveptr1));
 
         Channel *this = Channel_alloc(name);
         this->mode = mode;
         this->time_created = time_created;
-        this->topic = strdup(topic);
-        this->user_limit = user_limit;
+        this->topic = topic ? strdup(topic) : NULL;
 
         log_info("Added channel %s with topic %s", this->name, this->topic);
         ht_set(hashtable, name, this);
@@ -148,7 +145,13 @@ void save_channels(Hashtable *hashtable, const char *filename) {
     Channel *channel = NULL;
 
     while (ht_iter_next(&itr, NULL, (void **)&channel)) {
-        fprintf(file, "%s %ld %d %d :%s\n", channel->name, (long)channel->time_created, channel->mode, channel->user_limit, channel->topic);
+        fprintf(file, "%s %ld %d", channel->name, (long)channel->time_created, channel->mode);
+
+		if(channel->topic) {
+			fprintf(file, " :%s", channel->topic);
+		}
+
+		fprintf(file, "\n");
     }
 
     fclose(file);
