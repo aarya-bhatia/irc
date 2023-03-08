@@ -8,6 +8,7 @@ void send_who_reply(Server *serv, User *usr, Channel *target_channel, User *targ
     // RPL_WHOREPLY: "<client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>"
     char *flags = ht_contains(serv->online_nick_to_username_map, target_usr->nick) ? "H" : "G";
     List_push_back(usr->msg_queue, make_reply(":%s " RPL_WHOREPLY_MSG,
+                                              serv->hostname,
                                               usr->nick,
                                               target_channel->name,
                                               target_usr->username,
