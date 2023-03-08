@@ -37,7 +37,8 @@ User *Server_get_user_by_socket(Server *serv, int sock) {
 }
 
 User *Server_get_user_by_nick(Server *serv, const char *nick) {
-    return ht_get(serv->online_nick_to_username_map, nick);
+    const char *username = ht_get(serv->online_nick_to_username_map, nick);
+    return username == NULL ? NULL : ht_get(serv->username_to_user_map, username);
 }
 
 User *Server_get_user_by_username(Server *serv, const char *username) {

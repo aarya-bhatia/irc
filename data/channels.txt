@@ -1,4 +1,4 @@
-testchannel 0 0 5 :Hello
-hello 1678201522 0 5 :world
-hi 1678217108 0 5 :(null)
-HI 1678217131 0 5 :(null)
+testchannel 0 0 :Hello
+hello 1678201522 0 :world
+hi 1678242889 0 :cotton
+HI 1678217131 0
