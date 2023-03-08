@@ -386,6 +386,41 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
 }
 
 void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
+	assert(!strcmp(msg->command, "LIST"));
+
+	// Reply start
+	List_push_back(usr->msg_queue, make_reply(":%s " RPL_LISTSTART_MSG, serv->hostname, usr->nick));
+
+	// List all channels
+	if(msg->n_params == 0) {
+		HashtableIter itr;
+		ht_iter_init(&itr, serv->channels_map);
+		Channel *channel = NULL;
+		while(ht_iter_next(&itr, NULL, &channel)){
+			assert(channel);
+			List_push_back(usr->msg_queue, make_reply(":%s " RPL_LIST_MSG, serv->hostname, usr->nick, channel->name, Vector_size(channel->members), channel->topic));
+		}
+	}
+	else { // List specified channels
+		char *targets = msg->params[0];
+		assert(targets);
+		// get channel names separated by commas
+		char *tok = strtok(targets, ",");
+		while(tok) {
+			if(tok[0] != '#') { continue; }
+			char *target = tok+1;
+			if(ht_contains(serv->channels_map, target)) {
+				Channel *channel = ht_get(serv->channels_map, target);
+				assert(channel);
+				List_push_back(usr->msg_queue, make_reply(":%s " RPL_LIST_MSG, serv->hostname, usr->nick, channel->name, Vector_size(channel->members), channel->topic));
+			}
+			tok = strtok(NULL, ",");
+		}
+	}
+	
+
+	// Reply end
+	List_push_back(usr->msg_queue, make_reply(":%s " RPL_LISTEND_MSG, serv->hostname, usr->nick));
 }
 
 void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {

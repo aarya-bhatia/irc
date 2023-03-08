@@ -1,0 +1,345 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CHANNELS_FILENAME	include/channel.h	8;"	d
+Channel	include/types.h	/^} Channel;$/;"	t	typeref:struct:_Channel
+Channel_add_member	channel.c	/^void Channel_add_member(Channel *this, const char *username) {$/;"	f	signature:(Channel *this, const char *username)
+Channel_add_member	include/channel.h	/^void Channel_add_member(Channel *this, const char *username);$/;"	p	signature:(Channel *this, const char *username)
+Channel_alloc	channel.c	/^Channel *Channel_alloc(const char *name) {$/;"	f	signature:(const char *name)
+Channel_alloc	include/channel.h	/^Channel *Channel_alloc(const char *name);$/;"	p	signature:(const char *name)
+Channel_free	channel.c	/^void Channel_free(Channel *this) {$/;"	f	signature:(Channel *this)
+Channel_free	include/channel.h	/^void Channel_free(Channel *this);$/;"	p	signature:(Channel *this)
+Channel_has_member	channel.c	/^bool Channel_has_member(Channel *this, const char *username) {$/;"	f	signature:(Channel *this, const char *username)
+Channel_has_member	include/channel.h	/^bool Channel_has_member(Channel *this, const char *username);$/;"	p	signature:(Channel *this, const char *username)
+Channel_remove_member	channel.c	/^bool Channel_remove_member(Channel *this, const char *username) {$/;"	f	signature:(Channel *this, const char *username)
+Channel_remove_member	include/channel.h	/^bool Channel_remove_member(Channel *this, const char *username);$/;"	p	signature:(Channel *this, const char *username)
+ERR_ALREADYREGISTRED_MSG	include/replies.h	118;"	d
+ERR_BADCHANNELKEY_MSG	include/replies.h	127;"	d
+ERR_BANNEDFROMCHAN_MSG	include/replies.h	126;"	d
+ERR_CANNOTSENDTOCHAN_MSG	include/replies.h	93;"	d
+ERR_CANTKILLSERVER_MSG	include/replies.h	135;"	d
+ERR_CHANNELISFULL_MSG	include/replies.h	120;"	d
+ERR_CHANOPPRIVTOOLOW_MSG	include/replies.h	133;"	d
+ERR_CHANOPRIVSNEEDED_MSG	include/replies.h	132;"	d
+ERR_ERRONEUSNICKNAME_MSG	include/replies.h	105;"	d
+ERR_FORBIDDENNICKNAME_MSG	include/replies.h	107;"	d
+ERR_INVALIDCAP_MSG	include/replies.h	98;"	d
+ERR_INVALIDMODEPARAM_MSG	include/replies.h	148;"	d
+ERR_INVITEONLYCHAN_MSG	include/replies.h	125;"	d
+ERR_KICKDENY_MSG	include/replies.h	134;"	d
+ERR_LISTFULL_MSG	include/replies.h	130;"	d
+ERR_NEEDMOREPARAMS_MSG	include/replies.h	117;"	d
+ERR_NEEDREGGEDNICK_MSG	include/replies.h	129;"	d
+ERR_NICKNAMEINUSE_MSG	include/replies.h	108;"	d
+ERR_NICKNAMETOOLONG_MSG	include/replies.h	106;"	d
+ERR_NICKREGISTER_MSG	include/replies.h	137;"	d
+ERR_NOCHANMODES_MSG	include/replies.h	128;"	d
+ERR_NOINVITE_MSG	include/replies.h	146;"	d
+ERR_NOMOTD_MSG	include/replies.h	103;"	d
+ERR_NONICKCHANGE_MSG	include/replies.h	114;"	d
+ERR_NONICKNAMEGIVEN_MSG	include/replies.h	104;"	d
+ERR_NONONREG_MSG	include/replies.h	138;"	d
+ERR_NOOPERHOST_MSG	include/replies.h	139;"	d
+ERR_NOORIGIN_MSG	include/replies.h	97;"	d
+ERR_NOPRIVILEGES_MSG	include/replies.h	131;"	d
+ERR_NORECIPIENT_MSG	include/replies.h	99;"	d
+ERR_NOSUCHCHANNEL_MSG	include/replies.h	92;"	d
+ERR_NOSUCHNICK_MSG	include/replies.h	90;"	d
+ERR_NOSUCHSERVER_MSG	include/replies.h	91;"	d
+ERR_NOTEXTTOSEND_MSG	include/replies.h	100;"	d
+ERR_NOTONCHANNEL_MSG	include/replies.h	110;"	d
+ERR_NOTONSAMECHANNEL_MSG	include/replies.h	140;"	d
+ERR_NOTREGISTEREDSERVER_MSG	include/replies.h	116;"	d
+ERR_NOTREGISTERED_MSG	include/replies.h	115;"	d
+ERR_OPONLYCHANNEL_MSG	include/replies.h	122;"	d
+ERR_PASSWDMISMATCH_MSG	include/replies.h	119;"	d
+ERR_REGONLYCHANNEL_MSG	include/replies.h	123;"	d
+ERR_RESTRICTED_MSG	include/replies.h	136;"	d
+ERR_SECURECHANNEL_MSG	include/replies.h	121;"	d
+ERR_SUMMONDISABLED_MSG	include/replies.h	112;"	d
+ERR_TOOMANYCHANNELS_MSG	include/replies.h	94;"	d
+ERR_TOOMANYTARGETS_MSG	include/replies.h	96;"	d
+ERR_UMODEUNKNOWNFLAG2_MSG	include/replies.h	143;"	d
+ERR_UMODEUNKNOWNFLAG_MSG	include/replies.h	142;"	d
+ERR_UNKNOWNCOMMAND_MSG	include/replies.h	102;"	d
+ERR_UNKNOWNMODE_MSG	include/replies.h	124;"	d
+ERR_USERNOTINCHANNEL_MSG	include/replies.h	109;"	d
+ERR_USERNOTONSERV_MSG	include/replies.h	145;"	d
+ERR_USERONCHANNEL_MSG	include/replies.h	111;"	d
+ERR_USERSDISABLED_MSG	include/replies.h	113;"	d
+ERR_USERSDONTMATCH_MSG	include/replies.h	144;"	d
+ERR_WASNOSUCHNICK_MSG	include/replies.h	95;"	d
+ERR_WILDTOPLEVEL_MSG	include/replies.h	101;"	d
+MAX_CHANNEL_COUNT	include/channel.h	6;"	d
+MAX_CHANNEL_USERS	include/channel.h	7;"	d
+MODES	include/types.h	/^enum MODES {$/;"	g
+MODE_AWAY	include/types.h	/^    MODE_AWAY,$/;"	e	enum:MODES
+MODE_NORMAL	include/types.h	/^    MODE_NORMAL,$/;"	e	enum:MODES
+MODE_OPERATOR	include/types.h	/^    MODE_OPERATOR$/;"	e	enum:MODES
+MOTD_FILENAME	include/server.h	6;"	d
+Membership	include/types.h	/^} Membership;$/;"	t	typeref:struct:_Membership
+Membership_alloc	include/membership.h	/^Membership *Membership_alloc(const char *channel, const char *username, int mode);$/;"	p	signature:(const char *channel, const char *username, int mode)
+Membership_alloc	membership.c	/^Membership *Membership_alloc(const char *channel, const char *username, int mode)$/;"	f	signature:(const char *channel, const char *username, int mode)
+Membership_free	include/membership.h	/^void Membership_free(Membership *membership);/;"	p	signature:(Membership *membership)
+Membership_free	membership.c	/^void Membership_free(Membership *membership)$/;"	f	signature:(Membership *membership)
+RPL_ADMINEMAIL_MSG	include/replies.h	30;"	d
+RPL_ADMINLOC1_MSG	include/replies.h	28;"	d
+RPL_ADMINLOC2_MSG	include/replies.h	29;"	d
+RPL_ADMINME_MSG	include/replies.h	27;"	d
+RPL_AWAY_MSG	include/replies.h	38;"	d
+RPL_BANLIST_MSG	include/replies.h	74;"	d
+RPL_CHANNELMODEIS_MSG	include/replies.h	56;"	d
+RPL_CREATED_MSG	include/replies.h	5;"	d
+RPL_CREATIONTIME_MSG	include/replies.h	57;"	d
+RPL_ENDOFBANLIST_MSG	include/replies.h	75;"	d
+RPL_ENDOFEXCEPTLIST_MSG	include/replies.h	67;"	d
+RPL_ENDOFINFO_MSG	include/replies.h	78;"	d
+RPL_ENDOFINVITELIST_MSG	include/replies.h	65;"	d
+RPL_ENDOFLINKS_MSG	include/replies.h	72;"	d
+RPL_ENDOFMOTD_MSG	include/replies.h	81;"	d
+RPL_ENDOFNAMES_MSG	include/replies.h	73;"	d
+RPL_ENDOFSTATS_MSG	include/replies.h	17;"	d
+RPL_ENDOFWHOIS_MSG	include/replies.h	51;"	d
+RPL_ENDOFWHOWAS_MSG	include/replies.h	76;"	d
+RPL_ENDOFWHO_MSG	include/replies.h	49;"	d
+RPL_EXCEPTLIST_MSG	include/replies.h	66;"	d
+RPL_HOSTHIDDEN_MSG	include/replies.h	88;"	d
+RPL_INFO_MSG	include/replies.h	77;"	d
+RPL_INVITELIST_MSG	include/replies.h	64;"	d
+RPL_INVITING_MSG	include/replies.h	63;"	d
+RPL_ISON_MSG	include/replies.h	40;"	d
+RPL_ISUPPORT1_MSG	include/replies.h	8;"	d
+RPL_ISUPPORT2_MSG	include/replies.h	9;"	d
+RPL_ISUPPORTNET_MSG	include/replies.h	7;"	d
+RPL_LINKS_MSG	include/replies.h	71;"	d
+RPL_LISTEND_MSG	include/replies.h	55;"	d
+RPL_LISTSTART_MSG	include/replies.h	53;"	d
+RPL_LIST_MSG	include/replies.h	54;"	d
+RPL_LOCALUSERS_MSG	include/replies.h	32;"	d
+RPL_LUSERCHANNELS_MSG	include/replies.h	25;"	d
+RPL_LUSERCLIENT_MSG	include/replies.h	22;"	d
+RPL_LUSERME_MSG	include/replies.h	26;"	d
+RPL_LUSEROP_MSG	include/replies.h	23;"	d
+RPL_LUSERUNKNOWN_MSG	include/replies.h	24;"	d
+RPL_MOTDSTART_MSG	include/replies.h	80;"	d
+RPL_MOTD_MSG	include/replies.h	79;"	d
+RPL_MYINFO_MSG	include/replies.h	6;"	d
+RPL_NAMREPLY_MSG	include/replies.h	70;"	d
+RPL_NETUSERS_MSG	include/replies.h	33;"	d
+RPL_NOTOPIC_MSG	include/replies.h	59;"	d
+RPL_NOWAWAY_MSG	include/replies.h	42;"	d
+RPL_REHASHING_MSG	include/replies.h	85;"	d
+RPL_SERVLISTEND_MSG	include/replies.h	20;"	d
+RPL_SERVLIST_MSG	include/replies.h	19;"	d
+RPL_STATSCOMMANDS_MSG	include/replies.h	15;"	d
+RPL_STATSCONN_MSG	include/replies.h	34;"	d
+RPL_STATSLINKINFO_MSG	include/replies.h	14;"	d
+RPL_STATSUPTIME	include/replies.h	21;"	d
+RPL_STATSXLINE_MSG	include/replies.h	16;"	d
+RPL_TIME_MSG	include/replies.h	87;"	d
+RPL_TOPICSETBY_MSG	include/replies.h	61;"	d
+RPL_TOPIC_MSG	include/replies.h	60;"	d
+RPL_TRACEEND_MSG	include/replies.h	31;"	d
+RPL_TRACELINK_MSG	include/replies.h	11;"	d
+RPL_TRACEOPERATOR_MSG	include/replies.h	12;"	d
+RPL_TRACESERVER_MSG	include/replies.h	13;"	d
+RPL_UMODEIS_MSG	include/replies.h	18;"	d
+RPL_UNAWAY_MSG	include/replies.h	41;"	d
+RPL_USERHOST_MSG	include/replies.h	39;"	d
+RPL_VERSION_MSG	include/replies.h	68;"	d
+RPL_WELCOME_MSG	include/replies.h	3;"	d
+RPL_WHOISBOT_MSG	include/replies.h	62;"	d
+RPL_WHOISCERTFP_MSG	include/replies.h	36;"	d
+RPL_WHOISCHANNELS_MSG	include/replies.h	52;"	d
+RPL_WHOISHOST_MSG	include/replies.h	82;"	d
+RPL_WHOISIDLE_MSG	include/replies.h	50;"	d
+RPL_WHOISLOGGEDIN_MSG	include/replies.h	58;"	d
+RPL_WHOISMODES_MSG	include/replies.h	83;"	d
+RPL_WHOISOPERATOR_MSG	include/replies.h	47;"	d
+RPL_WHOISREGNICK_MSG	include/replies.h	43;"	d
+RPL_WHOISSERVER_MSG	include/replies.h	46;"	d
+RPL_WHOISSERVICE_MSG	include/replies.h	44;"	d
+RPL_WHOISSSL_MSG	include/replies.h	35;"	d
+RPL_WHOISUSER_MSG	include/replies.h	45;"	d
+RPL_WHOREPLY_MSG	include/replies.h	69;"	d
+RPL_WHOWASUSER_MSG	include/replies.h	48;"	d
+RPL_YOUREOPER_MSG	include/replies.h	84;"	d
+RPL_YOURESERVICE_MSG	include/replies.h	86;"	d
+RPL_YOURHOST_MSG	include/replies.h	4;"	d
+Server	include/types.h	/^} Server;$/;"	t	typeref:struct:_Server
+Server_accept_all	include/server.h	/^void Server_accept_all(Server *serv);$/;"	p	signature:(Server *serv)
+Server_accept_all	server.c	/^void Server_accept_all(Server *serv) {$/;"	f	signature:(Server *serv)
+Server_add_user	include/server.h	/^bool Server_add_user(Server *, User *);$/;"	p	signature:(Server *, User *)
+Server_add_user	user.c	/^bool Server_add_user(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
+Server_broadcast_message	include/server.h	/^void Server_broadcast_message(Server *serv, const char *message);$/;"	p	signature:(Server *serv, const char *message)
+Server_broadcast_message	server.c	/^void Server_broadcast_message(Server *serv, const char *message) {$/;"	f	signature:(Server *serv, const char *message)
+Server_broadcast_to_channel	include/server.h	/^void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message);$/;"	p	signature:(Server *serv, Channel *channel, const char *message)
+Server_broadcast_to_channel	server.c	/^void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message) {$/;"	f	signature:(Server *serv, Channel *channel, const char *message)
+Server_channel_middleware	include/server.h	/^bool Server_channel_middleware(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_channel_middleware	middleware.c	/^bool Server_channel_middleware(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_create	include/server.h	/^Server *Server_create(int port);$/;"	p	signature:(int port)
+Server_create	server.c	/^Server *Server_create(int port) {$/;"	f	signature:(int port)
+Server_destroy	include/server.h	/^void Server_destroy(Server *serv);$/;"	p	signature:(Server *serv)
+Server_destroy	server.c	/^void Server_destroy(Server *serv) {$/;"	f	signature:(Server *serv)
+Server_get_user_by_nick	include/server.h	/^User *Server_get_user_by_nick(Server *serv, const char *nick);$/;"	p	signature:(Server *serv, const char *nick)
+Server_get_user_by_nick	server.c	/^User *Server_get_user_by_nick(Server *serv, const char *nick) {$/;"	f	signature:(Server *serv, const char *nick)
+Server_get_user_by_socket	include/server.h	/^User *Server_get_user_by_socket(Server *serv, int sock);$/;"	p	signature:(Server *serv, int sock)
+Server_get_user_by_socket	server.c	/^User *Server_get_user_by_socket(Server *serv, int sock) {$/;"	f	signature:(Server *serv, int sock)
+Server_get_user_by_username	include/server.h	/^User *Server_get_user_by_username(Server *serv, const char *username);$/;"	p	signature:(Server *serv, const char *username)
+Server_get_user_by_username	server.c	/^User *Server_get_user_by_username(Server *serv, const char *username) {$/;"	f	signature:(Server *serv, const char *username)
+Server_process_request	include/server.h	/^void Server_process_request(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+Server_process_request	server.c	/^void Server_process_request(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
+Server_registered_middleware	include/server.h	/^bool Server_registered_middleware(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_registered_middleware	middleware.c	/^bool Server_registered_middleware(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_remove_user	include/server.h	/^void Server_remove_user(Server *, User *);$/;"	p	signature:(Server *, User *)
+Server_remove_user	user.c	/^void Server_remove_user(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
+Server_reply_to_CONNECT	include/server.h	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_CONNECT	server_reply.c	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_JOIN	include/server.h	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_JOIN	server_reply.c	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_LIST	include/server.h	/^void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_LIST	server_reply.c	/^void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_MOTD	include/server.h	/^void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_MOTD	server_reply.c	/^void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NAMES	include/server.h	/^void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NAMES	server_reply.c	/^void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NICK	include/server.h	/^void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NICK	server_reply.c	/^void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PART	include/server.h	/^void Server_reply_to_PART(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PART	server_reply.c	/^void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PASS	include/server.h	/^void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PASS	server_reply.c	/^void Server_reply_to_PASS(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PING	include/server.h	/^void Server_reply_to_PING(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PING	server_reply.c	/^void Server_reply_to_PING(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PRIVMSG	include/server.h	/^void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_PRIVMSG	server_reply.c	/^void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_QUIT	include/server.h	/^void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_QUIT	server_reply.c	/^void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_SERVER	include/server.h	/^void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_SERVER	server_reply.c	/^void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_TOPIC	include/server.h	/^void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_TOPIC	server_reply.c	/^void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_USER	include/server.h	/^void Server_reply_to_USER(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_USER	server_reply.c	/^void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_WHO	include/server.h	/^void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_WHO	server_reply.c	/^void Server_reply_to_WHO(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_WHOIS	include/server.h	/^void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_WHOIS	server_reply.c	/^void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+User	include/types.h	/^} User;$/;"	t	typeref:struct:_User
+User_Read_Event	include/user.h	/^ssize_t User_Read_Event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+User_Read_Event	user.c	/^ssize_t User_Read_Event(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
+User_Write_Event	include/user.h	/^ssize_t User_Write_Event(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+User_Write_Event	user.c	/^ssize_t User_Write_Event(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
+User_add_channel	include/user.h	/^void User_add_channel(User *usr, const char *channel_name);$/;"	p	signature:(User *usr, const char *channel_name)
+User_add_channel	user.c	/^void User_add_channel(User *usr, const char *channel_name) {$/;"	f	signature:(User *usr, const char *channel_name)
+User_alloc	include/user.h	/^User *User_alloc(int fd, struct sockaddr *addr, socklen_t addrlen);$/;"	p	signature:(int fd, struct sockaddr *addr, socklen_t addrlen)
+User_alloc	user.c	/^User *User_alloc(int fd, struct sockaddr *addr, socklen_t addrlen) {$/;"	f	signature:(int fd, struct sockaddr *addr, socklen_t addrlen)
+User_free	include/user.h	/^void User_free(User *this);$/;"	p	signature:(User *this)
+User_free	user.c	/^void User_free(User *usr) {$/;"	f	signature:(User *usr)
+User_is_member	include/user.h	/^bool User_is_member(User *usr, const char *channel_name);$/;"	p	signature:(User *usr, const char *channel_name)
+User_is_member	user.c	/^bool User_is_member(User *usr, const char *channel_name) {$/;"	f	signature:(User *usr, const char *channel_name)
+User_load_from_file	include/user.h	/^User *User_load_from_file(const char *filename);$/;"	p	signature:(const char *filename)
+User_remove_channel	include/user.h	/^bool User_remove_channel(User *usr, const char *channel_name);/;"	p	signature:(User *usr, const char *channel_name)
+User_remove_channel	user.c	/^bool User_remove_channel(User *usr, const char *channel_name) {$/;"	f	signature:(User *usr, const char *channel_name)
+User_save_to_file	include/user.h	/^void User_save_to_file(User *usr, const char *filename);$/;"	p	signature:(User *usr, const char *filename)
+_Channel	include/types.h	/^typedef struct _Channel {$/;"	s
+_Channel::members	include/types.h	/^    Vector *members;      \/\/ usernames of members in the channel$/;"	m	struct:_Channel	access:public
+_Channel::mode	include/types.h	/^    int mode;             \/\/ channel mode$/;"	m	struct:_Channel	access:public
+_Channel::name	include/types.h	/^    char *name;   \/\/ name of channel$/;"	m	struct:_Channel	access:public
+_Channel::time_created	include/types.h	/^    time_t time_created;  \/\/ time channel was created$/;"	m	struct:_Channel	access:public
+_Channel::topic	include/types.h	/^    char *topic;  \/\/ channel topic$/;"	m	struct:_Channel	access:public
+_Membership	include/types.h	/^typedef struct _Membership {$/;"	s
+_Membership::channel	include/types.h	/^    char *channel;   \/\/ channel name$/;"	m	struct:_Membership	access:public
+_Membership::mode	include/types.h	/^    int mode;        \/\/ member mode$/;"	m	struct:_Membership	access:public
+_Membership::username	include/types.h	/^    char *username;  \/\/ username of member$/;"	m	struct:_Membership	access:public
+_Server	include/types.h	/^typedef struct _Server {$/;"	s
+_Server::channels_map	include/types.h	/^    Hashtable *channels_map;                  \/\/ Map channel name to channel struct pointer$/;"	m	struct:_Server	access:public
+_Server::created_at	include/types.h	/^    char created_at[64];                      \/\/ server time created at as string$/;"	m	struct:_Server	access:public
+_Server::epollfd	include/types.h	/^    int epollfd;                              \/\/ epoll fd$/;"	m	struct:_Server	access:public
+_Server::fd	include/types.h	/^    int fd;                                   \/\/ listen socket$/;"	m	struct:_Server	access:public
+_Server::hostname	include/types.h	/^    char *hostname;                           \/\/ server hostname$/;"	m	struct:_Server	access:public
+_Server::motd_file	include/types.h	/^    char *motd_file;                          \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
+_Server::offline_nick_to_username_map	include/types.h	/^    Hashtable *offline_nick_to_username_map;  \/\/ Map nick to username of offline user$/;"	m	struct:_Server	access:public
+_Server::online_nick_to_username_map	include/types.h	/^    Hashtable *online_nick_to_username_map;   \/\/ Map nick to username of online user$/;"	m	struct:_Server	access:public
+_Server::port	include/types.h	/^    char *port;                               \/\/ server port$/;"	m	struct:_Server	access:public
+_Server::servaddr	include/types.h	/^    struct sockaddr_in servaddr;              \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+_Server::sock_to_user_map	include/types.h	/^    Hashtable *sock_to_user_map;              \/\/ Maps socket to user struct for every connected user$/;"	m	struct:_Server	access:public
+_Server::username_to_user_map	include/types.h	/^    Hashtable *username_to_user_map;          \/\/ Map username to user struct for registered users$/;"	m	struct:_Server	access:public
+_User	include/types.h	/^typedef struct _User {$/;"	s
+_User::channels	include/types.h	/^    Vector *channels;               \/\/ list of channels joined by user$/;"	m	struct:_User	access:public
+_User::fd	include/types.h	/^    int fd;                         \/\/ socket connection$/;"	m	struct:_User	access:public
+_User::hostname	include/types.h	/^    char *hostname;                 \/\/ client ip$/;"	m	struct:_User	access:public
+_User::msg_queue	include/types.h	/^    List *msg_queue;                \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
+_User::nick	include/types.h	/^    char *nick;                     \/\/ display name$/;"	m	struct:_User	access:public
+_User::nick_changed	include/types.h	/^    bool nick_changed;              \/\/ flag to indicate user has set a nick$/;"	m	struct:_User	access:public
+_User::quit	include/types.h	/^    bool quit;                      \/\/ flag to indicate user is leaving server$/;"	m	struct:_User	access:public
+_User::realname	include/types.h	/^    char *realname;                 \/\/ full name$/;"	m	struct:_User	access:public
+_User::registered	include/types.h	/^    bool registered;                \/\/ flag to indicate user has registered with username, realname and nick$/;"	m	struct:_User	access:public
+_User::req_buf	include/types.h	/^    char req_buf[MAX_MSG_LEN + 1];  \/\/ the request message$/;"	m	struct:_User	access:public
+_User::req_len	include/types.h	/^    size_t req_len;                 \/\/ length of request buffer$/;"	m	struct:_User	access:public
+_User::res_buf	include/types.h	/^    char res_buf[MAX_MSG_LEN + 1];  \/\/ the response message$/;"	m	struct:_User	access:public
+_User::res_len	include/types.h	/^    size_t res_len;                 \/\/ length of response buffer$/;"	m	struct:_User	access:public
+_User::res_off	include/types.h	/^    size_t res_off;                 \/\/ no of bytes of the response sent$/;"	m	struct:_User	access:public
+_User::username	include/types.h	/^    char *username;                 \/\/ unique identifier$/;"	m	struct:_User	access:public
+_close_connection	server.c	/^void _close_connection(void *fd, void *usr) {$/;"	f	signature:(void *fd, void *usr)
+_find_member	channel.c	/^bool _find_member(void *elem, const void *arg) {$/;"	f	signature:(void *elem, const void *arg)
+channel	include/types.h	/^    char *channel;   \/\/ channel name$/;"	m	struct:_Membership	access:public
+channels	include/types.h	/^    Vector *channels;               \/\/ list of channels joined by user$/;"	m	struct:_User	access:public
+channels_map	include/types.h	/^    Hashtable *channels_map;                  \/\/ Map channel name to channel struct pointer$/;"	m	struct:_Server	access:public
+check_registration_complete	include/server.h	/^bool check_registration_complete(Server *serv, User *usr);$/;"	p	signature:(Server *serv, User *usr)
+check_registration_complete	server_reply.c	/^bool check_registration_complete(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
+created_at	include/types.h	/^    char created_at[64];                      \/\/ server time created at as string$/;"	m	struct:_Server	access:public
+epollfd	include/types.h	/^    int epollfd;                              \/\/ epoll fd$/;"	m	struct:_Server	access:public
+fd	include/types.h	/^    int fd;                                   \/\/ listen socket$/;"	m	struct:_Server	access:public
+fd	include/types.h	/^    int fd;                         \/\/ socket connection$/;"	m	struct:_User	access:public
+function	server.c	/^    void (*function)(Server *, User *, Message *);$/;"	m	struct:rpl_handle_t	file:	access:public
+g_alive	server_main.c	/^static volatile bool g_alive = true;$/;"	v	file:
+get_motd	include/server.h	/^char *get_motd(char *fname);$/;"	p	signature:(char *fname)
+get_motd	server.c	/^char *get_motd(char *fname) {$/;"	f	signature:(char *fname)
+hostname	include/types.h	/^    char *hostname;                           \/\/ server hostname$/;"	m	struct:_Server	access:public
+hostname	include/types.h	/^    char *hostname;                 \/\/ client ip$/;"	m	struct:_User	access:public
+load_channels	channel.c	/^Hashtable *load_channels(const char *filename) {$/;"	f	signature:(const char *filename)
+load_channels	include/channel.h	/^Hashtable *load_channels(const char *filename);$/;"	p	signature:(const char *filename)
+main	server_main.c	/^int main(int argc, char *argv[]) {$/;"	f	signature:(int argc, char *argv[])
+members	include/types.h	/^    Vector *members;      \/\/ usernames of members in the channel$/;"	m	struct:_Channel	access:public
+mode	include/types.h	/^    int mode;             \/\/ channel mode$/;"	m	struct:_Channel	access:public
+mode	include/types.h	/^    int mode;        \/\/ member mode$/;"	m	struct:_Membership	access:public
+motd_file	include/types.h	/^    char *motd_file;                          \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
+msg_queue	include/types.h	/^    List *msg_queue;                \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
+name	include/types.h	/^    char *name;   \/\/ name of channel$/;"	m	struct:_Channel	access:public
+name	server.c	/^    const char *name;$/;"	m	struct:rpl_handle_t	file:	access:public
+nick	include/types.h	/^    char *nick;                     \/\/ display name$/;"	m	struct:_User	access:public
+nick_changed	include/types.h	/^    bool nick_changed;              \/\/ flag to indicate user has set a nick$/;"	m	struct:_User	access:public
+offline_nick_to_username_map	include/types.h	/^    Hashtable *offline_nick_to_username_map;  \/\/ Map nick to username of offline user$/;"	m	struct:_Server	access:public
+online_nick_to_username_map	include/types.h	/^    Hashtable *online_nick_to_username_map;   \/\/ Map nick to username of online user$/;"	m	struct:_Server	access:public
+port	include/types.h	/^    char *port;                               \/\/ server port$/;"	m	struct:_Server	access:public
+quit	include/types.h	/^    bool quit;                      \/\/ flag to indicate user is leaving server$/;"	m	struct:_User	access:public
+realname	include/types.h	/^    char *realname;                 \/\/ full name$/;"	m	struct:_User	access:public
+registered	include/types.h	/^    bool registered;                \/\/ flag to indicate user has registered with username, realname and nick$/;"	m	struct:_User	access:public
+req_buf	include/types.h	/^    char req_buf[MAX_MSG_LEN + 1];  \/\/ the request message$/;"	m	struct:_User	access:public
+req_len	include/types.h	/^    size_t req_len;                 \/\/ length of request buffer$/;"	m	struct:_User	access:public
+res_buf	include/types.h	/^    char res_buf[MAX_MSG_LEN + 1];  \/\/ the response message$/;"	m	struct:_User	access:public
+res_len	include/types.h	/^    size_t res_len;                 \/\/ length of response buffer$/;"	m	struct:_User	access:public
+res_off	include/types.h	/^    size_t res_off;                 \/\/ no of bytes of the response sent$/;"	m	struct:_User	access:public
+rpl_handle_t	server.c	/^struct rpl_handle_t {$/;"	s	file:
+rpl_handle_t::function	server.c	/^    void (*function)(Server *, User *, Message *);$/;"	m	struct:rpl_handle_t	file:	access:public
+rpl_handle_t::name	server.c	/^    const char *name;$/;"	m	struct:rpl_handle_t	file:	access:public
+rpl_handlers	server.c	/^static struct rpl_handle_t rpl_handlers[] = {$/;"	v	typeref:struct:rpl_handle_t	file:
+save_channels	channel.c	/^void save_channels(Hashtable *hashtable, const char *filename) {$/;"	f	signature:(Hashtable *hashtable, const char *filename)
+save_channels	include/channel.h	/^void save_channels(Hashtable *hashtable, const char *filename);$/;"	p	signature:(Hashtable *hashtable, const char *filename)
+send_motd_reply	server_reply.c	/^void send_motd_reply(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
+send_names_reply	server_reply.c	/^void send_names_reply(Server *serv, User *usr, Channel *channel) {$/;"	f	signature:(Server *serv, User *usr, Channel *channel)
+send_topic_reply	server_reply.c	/^void send_topic_reply(Server *serv, User *usr, Channel *channel) {$/;"	f	signature:(Server *serv, User *usr, Channel *channel)
+send_welcome_reply	server_reply.c	/^void send_welcome_reply(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
+servaddr	include/types.h	/^    struct sockaddr_in servaddr;              \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+sighandler	server_main.c	/^void sighandler(int sig) {$/;"	f	signature:(int sig)
+sighandler	server_main.c	/^void sighandler(int sig);$/;"	p	file:	signature:(int sig)
+sock_to_user_map	include/types.h	/^    Hashtable *sock_to_user_map;              \/\/ Maps socket to user struct for every connected user$/;"	m	struct:_Server	access:public
+time_created	include/types.h	/^    time_t time_created;  \/\/ time channel was created$/;"	m	struct:_Channel	access:public
+topic	include/types.h	/^    char *topic;  \/\/ channel topic$/;"	m	struct:_Channel	access:public
+username	include/types.h	/^    char *username;                 \/\/ unique identifier$/;"	m	struct:_User	access:public
+username	include/types.h	/^    char *username;  \/\/ username of member$/;"	m	struct:_Membership	access:public
+username_to_user_map	include/types.h	/^    Hashtable *username_to_user_map;          \/\/ Map username to user struct for registered users$/;"	m	struct:_Server	access:public
