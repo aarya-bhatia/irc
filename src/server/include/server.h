@@ -25,6 +25,7 @@ bool check_registration_complete(Server *serv, User *usr);
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);
 void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);
+void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PING(Server *serv, User *usr, Message *msg);
 void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg);
 void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);

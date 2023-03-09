@@ -616,6 +616,53 @@ void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
     }
 
     // HELP about specific command
+    // TODO: Add help text for commands
     char *subject = msg->n_params > 0 ? msg->params[0] : msg->body;
     List_push_back(usr->msg_queue, make_reply(":%s 524 %s %s :No help available on this topic", serv->hostname, usr->nick, subject));
+}
+
+/**
+ * Command: NOTICE
+ * Parameters: <target>{,<target>} <text to be sent>
+ *
+ * The NOTICE command is used to send notices between users, as well as to send notices to channels.
+ * <target> is interpreted the same way as it is for the PRIVMSG command.
+ * The difference between NOTICE and PRIVMSG is that automatic replies must never be sent in response to a NOTICE message.
+ */
+void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg) {
+    assert(!strcmp(msg->command, "NOTICE"));
+
+    if (msg->n_params == 0) {
+        return;
+    }
+
+    char *targets = msg->params[0];
+
+    if (!targets) {
+        return;
+    }
+
+    char *save = NULL;
+    char *target = strtok_r(targets, ",", &save);
+
+    while (target) {
+        if (target[0] == '#') {
+            Channel *channel = ht_get(serv->channels_map, target + 1);
+            if (!channel) {
+                return;
+            }
+
+            Server_broadcast_to_channel(serv, channel, msg->body);
+
+        } else {
+            User *other_user = Server_get_user_by_nick(serv, target);
+            if (!other_user) {
+                return;
+            }
+
+            List_push_back(other_user->msg_queue, make_reply("%s!%s@%s NOTICE %s :%s",
+                                                             usr->nick, usr->username, usr->hostname, target, msg->body));
+        }
+        target = strtok_r(NULL, ",", &save);
+    }
 }

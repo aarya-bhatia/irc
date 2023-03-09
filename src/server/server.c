@@ -18,6 +18,7 @@ static struct rpl_handle_t rpl_handlers[] = {
     {"NICK", Server_reply_to_NICK},
     {"USER", Server_reply_to_USER},
     {"PRIVMSG", Server_reply_to_PRIVMSG},
+    {"NOTICE", Server_reply_to_NOTICE},
     {"PING", Server_reply_to_PING},
     {"QUIT", Server_reply_to_QUIT},
     {"MOTD", Server_reply_to_MOTD},
