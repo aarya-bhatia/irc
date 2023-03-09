@@ -38,6 +38,8 @@ void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);
 void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);
+void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg);
+void Server_reply_to_HELP(Server *serv, User *usr, Message *msg);
 
 // middleware.c
 bool Server_registered_middleware(Server *serv, User *usr, Message *msg);

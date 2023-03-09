@@ -30,6 +30,8 @@ static struct rpl_handle_t rpl_handlers[] = {
     {"PART", Server_reply_to_PART},
     {"NAMES", Server_reply_to_NAMES},
     {"TOPIC", Server_reply_to_TOPIC},
+    {"LUSERS", Server_reply_to_LUSERS},
+    {"HELP", Server_reply_to_HELP},
 };
 
 User *Server_get_user_by_socket(Server *serv, int sock) {

@@ -568,3 +568,54 @@ void Server_reply_to_PASS(Server *serv, User *usr, Message *msg) {
 
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
 }
+
+/**
+ * Returns statistics about local and global users, as numeric replies.
+ */
+void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg) {
+    assert(!strcmp(msg->command, "LUSERS"));
+
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERCLIENT_MSG, serv->hostname,
+                                              usr->nick, ht_size(serv->username_to_user_map), 0, 1));
+
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSEROP_MSG, serv->hostname,
+                                              usr->nick, 0));
+
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERUNKNOWN_MSG, serv->hostname,
+                                              usr->nick, ht_size(serv->sock_to_user_map) - ht_size(serv->username_to_user_map)));
+
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERCHANNELS_MSG, serv->hostname,
+                                              usr->nick, ht_size(serv->channels_map)));
+
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERME_MSG, serv->hostname,
+                                              usr->nick, ht_size(serv->username_to_user_map), 0, 0));
+}
+
+/**
+ * The HELP command is used to return documentation about the IRC server and the IRC commands it implements.
+ */
+void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
+    assert(!strcmp(msg->command, "HELP"));
+
+    static const char *help_text[] = {
+        "** Help system **",
+        "",
+        "Try /HELP <command> for specific help",
+        ""};
+
+    size_t num_lines = sizeof help_text / sizeof *help_text;
+
+    // Generic HELP
+    if (msg->n_params == 0 && !msg->body) {
+        List_push_back(usr->msg_queue, make_reply(":%s 704 %s * :Start of help", serv->hostname, usr->nick));
+        for (size_t i = 0; i < num_lines; i++) {
+            List_push_back(usr->msg_queue, make_reply(":%s 705 %s * :%s", serv->hostname, usr->nick, help_text[i]));
+        }
+        List_push_back(usr->msg_queue, make_reply(":%s 706 %s * :End of help", serv->hostname, usr->nick));
+        return;
+    }
+
+    // HELP about specific command
+    char *subject = msg->n_params > 0 ? msg->params[0] : msg->body;
+    List_push_back(usr->msg_queue, make_reply(":%s 524 %s %s :No help available on this topic", serv->hostname, usr->nick, subject));
+}
