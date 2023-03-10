@@ -4,6 +4,7 @@
 #include "include/hashtable.h"
 #include "include/list.h"
 #include "include/vector.h"
+#include "include/message.h"
 
 enum MODES {
     MODE_NORMAL,
@@ -51,12 +52,23 @@ typedef struct _Membership {
 } Membership;
 
 typedef struct _Channel {
-    char *name;   // name of channel
-    char *topic;  // channel topic
+    char *name;           // name of channel
+    char *topic;          // channel topic
     int mode;             // channel mode
     time_t time_created;  // time channel was created
     Vector *members;      // usernames of members in the channel
-						  
+
     // time_t topic_changed_at;
     // char *topic_changed_by;
 } Channel;
+
+struct rpl_handle_t {
+    const char *name;
+    void (*function)(Server *, User *, Message *);
+};
+
+struct help_t {
+    const char *subject;
+    const char *title;
+    const char *body;
+};

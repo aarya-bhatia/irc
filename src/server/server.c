@@ -9,11 +9,6 @@
 #include "include/types.h"
 #include "include/user.h"
 
-struct rpl_handle_t {
-    const char *name;
-    void (*function)(Server *, User *, Message *);
-};
-
 static struct rpl_handle_t rpl_handlers[] = {
     {"NICK", Server_reply_to_NICK},
     {"USER", Server_reply_to_USER},

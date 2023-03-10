@@ -228,7 +228,7 @@ void read_test(const char *filename) {
     if (!file) {
         perror("fopen");
         log_error("Failed to open file %s", filename);
-        return NULL;
+        return;
     }
 
     Vector *lines = Vector_alloc(10, (elem_copy_type)strdup, free);
@@ -258,6 +258,14 @@ void read_test(const char *filename) {
     for (size_t i = 0; i < Vector_size(lines); i++) {
         puts(Vector_get_at(lines, i));
     }
+
+    Vector_free(lines);
+}
+
+void line_wrap_test(size_t width) {
+    Vector *lines = text_wrap("The /PRIVMSG command is the main way to send messages to other users.", width);
+
+    Vector_foreach(lines, puts);
 
     Vector_free(lines);
 }
@@ -292,6 +300,10 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
             read_test(filename);
+            break;
+        case 7:
+            size_t width = argc < 3 ? 10 : atol(argv[2]);
+            line_wrap_test(width);
             break;
         default:
             log_error("No such test case");

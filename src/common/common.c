@@ -256,3 +256,44 @@ Vector *readlines(const char *filename) {
 
     return lines;
 }
+
+/**
+ * Find the length of word in string at the given position.
+ */
+size_t word_len(const char *str) {
+    char *tok = strstr(str, " ");
+
+    if (!tok) {
+        return strlen(str);
+    } else {
+        return tok - str;
+    }
+}
+
+/**
+ * Break given string into multiple lines at given line width.
+ * Return a vector containing lines of the wrapped text.
+ */
+Vector *text_wrap(const char *str, const size_t line_width) {
+    Vector *lines = Vector_alloc(4, NULL, free);
+    size_t line_len = 0;
+    const char *line = str;
+
+    for (size_t i = 0; str[i] != 0; i++) {
+        if (str[i] == '\n') {
+            line_len = 0;
+        } else if (str[i] == ' ') {
+            if (line_len + word_len(str + i + 1) + 1 >= line_width) {
+                char *line_copy = strndup(line, line_len);
+                Vector_push(lines, line_copy);
+
+                line_len = 0;
+                line = str + i + 1;
+            }
+        }
+
+        line_len++;
+    }
+
+    return lines;
+}

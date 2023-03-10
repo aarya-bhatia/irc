@@ -1,3 +1,5 @@
+#include <ctype.h>
+
 #include "include/channel.h"
 #include "include/replies.h"
 #include "include/server.h"
@@ -597,27 +599,35 @@ void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg) {
 void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "HELP"));
 
-    static const char *help_text[] = {
-        "** Help system **",
-        "",
-        "Try /HELP <command> for specific help",
-        ""};
+    struct help_t *help = NULL;
+    const char *subject = NULL;
 
-    size_t num_lines = sizeof help_text / sizeof *help_text;
-
-    // Generic HELP
     if (msg->n_params == 0 && !msg->body) {
-        List_push_back(usr->msg_queue, make_reply(":%s 704 %s * :Start of help", serv->hostname, usr->nick));
-        for (size_t i = 0; i < num_lines; i++) {
-            List_push_back(usr->msg_queue, make_reply(":%s 705 %s * :%s", serv->hostname, usr->nick, help_text[i]));
+        subject = "*";
+        help = get_help_text("HELP");
+    } else {
+        subject = msg->n_params > 0 ? msg->params[0] : msg->body;
+        help = get_help_text(subject);
+    }
+
+    if (help) {
+        List_push_back(usr->msg_queue, make_reply(":%s 704 %s %s :%s", serv->hostname, usr->nick, subject, help->title));
+        List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
+
+        // Send help text as multipart messages and break long lines into multiple messages.
+        Vector *lines = text_wrap(help->body, 30);
+
+        for (size_t i = 0; i < Vector_size(lines); i++) {
+            List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :%s", serv->hostname, usr->nick, subject, Vector_get_at(lines, i)));
         }
-        List_push_back(usr->msg_queue, make_reply(":%s 706 %s * :End of help", serv->hostname, usr->nick));
+
+        Vector_free(lines);
+
+        List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
+        List_push_back(usr->msg_queue, make_reply(":%s 706 %s %s :End of help", serv->hostname, usr->nick, subject));
         return;
     }
 
-    // HELP about specific command
-    // TODO: Add help text for commands
-    char *subject = msg->n_params > 0 ? msg->params[0] : msg->body;
     List_push_back(usr->msg_queue, make_reply(":%s 524 %s %s :No help available on this topic", serv->hostname, usr->nick, subject));
 }
 
