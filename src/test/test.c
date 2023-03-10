@@ -243,7 +243,7 @@ void read_test(const char *filename) {
         assert(len > 0);
 
         size_t n = strlen(line);
-        line[n-1] = 0;
+        line[n - 1] = 0;
 
         if (strlen(line) == 0) {
             continue;
@@ -263,10 +263,24 @@ void read_test(const char *filename) {
 }
 
 void line_wrap_test(size_t width) {
-    Vector *lines = text_wrap("The /PRIVMSG command is the main way to send messages to other users.", width);
+    const char help_who[] =
+        "The /WHO Command is used to query a list of users that match given mask.\n"
+        "Example: WHO emersion ; request information on user 'emersion'.\n"
+        "Example: WHO #ircv3 ; list users in the '#ircv3' channel";
 
+    const char help_privmsg[] =
+        "The /PRIVMSG command is the main way to send messages to other users.\n"
+        "PRIVMSG Angel :yes I'm receiving it ! ; Command to send a message to Angel.\n"
+        "PRIVMSG #bunny :Hi! I have a problem! ; Command to send a message to channel #bunny.";
+
+    Vector *lines = text_wrap(help_who, width);
     Vector_foreach(lines, puts);
+    Vector_free(lines);
 
+    puts("\n");
+
+    lines = text_wrap(help_privmsg, width);
+    Vector_foreach(lines, puts);
     Vector_free(lines);
 }
 

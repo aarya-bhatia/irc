@@ -2,13 +2,13 @@
 #include "include/types.h"
 
 const char help_who[] =
-    "The /WHO Command is used to query a list of users that match given mask."
-    "Example: WHO emersion ; request information on user 'emersion'"
+    "The /WHO Command is used to query a list of users that match given mask.\n"
+    "Example: WHO emersion ; request information on user 'emersion'\n"
     "Example: WHO #ircv3 ; list users in the '#ircv3' channel";
 
 const char help_privmsg[] =
-    "The /PRIVMSG command is the main way to send messages to other users."
-    "PRIVMSG Angel :yes I'm receiving it ! ; Command to send a message to Angel."
+    "The /PRIVMSG command is the main way to send messages to other users.\n"
+    "PRIVMSG Angel :yes I'm receiving it ! ; Command to send a message to Angel.\n"
     "PRIVMSG #bunny :Hi! I have a problem! ; Command to send a message to channel #bunny.";
 
 const struct help_t help[] = {

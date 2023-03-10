@@ -279,13 +279,23 @@ Vector *text_wrap(const char *str, const size_t line_width) {
     const char *line = str;
 
     for (size_t i = 0; str[i] != 0; i++) {
+        if (str[i] == '\n') {
+            if (line && line_len > 0) {
+                char *line_copy = strndup(line, line_len);
+                Vector_push(lines, line_copy);
+                line_len = 0;
+                line = &str[i+1];
+                continue;
+            }
+        }
+
         if (isspace(str[i])) {
             if (line_len + word_len(str + i + 1) + 1 >= line_width) {
                 char *line_copy = strndup(line, line_len);
                 Vector_push(lines, line_copy);
-
                 line_len = 0;
-                line = str + i + 1;
+                line = &str[i+1];
+                continue;
             }
         }
 

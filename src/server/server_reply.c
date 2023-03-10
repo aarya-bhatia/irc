@@ -618,7 +618,7 @@ void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
         List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
 
         // Send help text as multipart messages and break long lines into multiple messages.
-        Vector *lines = text_wrap(help->body, 128);
+        Vector *lines = text_wrap(help->body, 200);
 
         for (size_t i = 0; i < Vector_size(lines); i++) {
             List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :%s", serv->hostname, usr->nick, subject, Vector_get_at(lines, i)));
