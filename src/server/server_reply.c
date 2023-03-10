@@ -353,6 +353,10 @@ void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg) {
     usr->quit = true;
 }
 
+/**
+ * This command is used to query a list of users who match the provided mask. 
+ * The server will answer this command with zero, one or more RPL_WHOREPLY, and end the list with RPL_ENDOFWHO.
+*/
 void Server_reply_to_WHO(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "WHO"));
 
@@ -367,7 +371,6 @@ void Server_reply_to_WHO(Server *serv, User *usr, Message *msg) {
     if (mask[0] == '#') {
         if (ht_contains(serv->channels_map, mask + 1)) {
             // Return who reply for each user in channel
-            User *other_user = NULL;
             Channel *channel = ht_get(serv->channels_map, mask + 1);
 
             for (size_t i = 0; i < Vector_size(channel->members); i++) {
@@ -451,7 +454,7 @@ void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
         HashtableIter itr;
         ht_iter_init(&itr, serv->channels_map);
         Channel *channel = NULL;
-        while (ht_iter_next(&itr, NULL, &channel)) {
+        while (ht_iter_next(&itr, NULL, (void **) &channel)) {
             assert(channel);
             List_push_back(usr->msg_queue, make_reply(":%s " RPL_LIST_MSG, serv->hostname, usr->nick, channel->name, Vector_size(channel->members), channel->topic));
         }
@@ -599,7 +602,7 @@ void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg) {
 void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "HELP"));
 
-    struct help_t *help = NULL;
+    const struct help_t *help = NULL;
     const char *subject = NULL;
 
     if (msg->n_params == 0 && !msg->body) {
@@ -615,7 +618,7 @@ void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
         List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
 
         // Send help text as multipart messages and break long lines into multiple messages.
-        Vector *lines = text_wrap(help->body, 30);
+        Vector *lines = text_wrap(help->body, 128);
 
         for (size_t i = 0; i < Vector_size(lines); i++) {
             List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :%s", serv->hostname, usr->nick, subject, Vector_get_at(lines, i)));
@@ -623,7 +626,7 @@ void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
 
         Vector_free(lines);
 
-        List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
+        // List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
         List_push_back(usr->msg_queue, make_reply(":%s 706 %s %s :End of help", serv->hostname, usr->nick, subject));
         return;
     }

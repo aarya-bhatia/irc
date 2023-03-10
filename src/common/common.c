@@ -243,10 +243,9 @@ Vector *readlines(const char *filename) {
 
         size_t n = strlen(line);
 
-		if(line[n - 1] == '\n')
-        {
-			line[n - 1] = 0;
-		}
+        if (line[n - 1] == '\n') {
+            line[n - 1] = 0;
+        }
 
         Vector_push(lines, line);
     }
@@ -280,9 +279,7 @@ Vector *text_wrap(const char *str, const size_t line_width) {
     const char *line = str;
 
     for (size_t i = 0; str[i] != 0; i++) {
-        if (str[i] == '\n') {
-            line_len = 0;
-        } else if (str[i] == ' ') {
+        if (isspace(str[i])) {
             if (line_len + word_len(str + i + 1) + 1 >= line_width) {
                 char *line_copy = strndup(line, line_len);
                 Vector_push(lines, line_copy);
@@ -293,6 +290,11 @@ Vector *text_wrap(const char *str, const size_t line_width) {
         }
 
         line_len++;
+    }
+
+    if (line != NULL && line_len > 0) {
+        char *line_copy = strndup(line, line_len);
+        Vector_push(lines, line_copy);
     }
 
     return lines;

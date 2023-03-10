@@ -1,7 +1,12 @@
 #pragma once
 
 #include <sys/types.h>
-#include "common.h"
+#include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include "common_types.h"
 
 typedef struct Vector
 {

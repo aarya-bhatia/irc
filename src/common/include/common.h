@@ -20,9 +20,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#include "hashtable.h"
-#include "list.h"
 #include "log.h"
+#include "list.h"
+#include "hashtable.h"
 #include "vector.h"
 
 #define MAX_EVENTS 10
@@ -33,9 +33,9 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-typedef int (*compare_type)(const void *, const void *);
-typedef void *(*elem_copy_type)(void *elem);
-typedef void (*elem_free_type)(void *elem);
+#ifdef LOG_DEBUG
+#define log_debug(...) (void)0
+#endif
 
 #define _CHECK(status, msg)                         \
     if (status < 0) {                               \

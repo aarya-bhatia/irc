@@ -199,7 +199,7 @@ bool User_is_member(User *usr, const char *channel_name) {
 
 void User_add_channel(User *usr, const char *channel_name) {
     if (!User_is_member(usr, channel_name)) {
-        Vector_push(usr->channels, channel_name);
+        Vector_push(usr->channels, (void *) channel_name);
     }
 }
 

@@ -1,6 +1,8 @@
 #include "include/client.h"
 #include <sys/epoll.h>
 
+#define DEBUG_LOG
+
 #define EPOLL_TIMEOUT 2500	// Seconds
 
 extern pthread_mutex_t mutex_stdout;	// use this lock before printing to stdout

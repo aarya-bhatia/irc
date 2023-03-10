@@ -5,7 +5,7 @@
 
 #define MOTD_FILENAME "./data/motd.txt"
 
-struct help_t *get_help_text(const char *subject);
+const struct help_t *get_help_text(const char *subject);
 
 // server.c
 char *get_motd(char *fname);
