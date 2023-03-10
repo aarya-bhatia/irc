@@ -15,7 +15,8 @@
         "signal.h": "c",
         "vector.h": "c",
         "hashtable.h": "c",
-        "message.h": "c"
+        "message.h": "c",
+        "errno.h": "c"
     },
     "cmake.configureOnOpen": true
 }

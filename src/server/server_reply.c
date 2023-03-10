@@ -114,8 +114,7 @@ void send_names_reply(Server *serv, User *usr, Channel *channel) {
 
     free(subject);
 
-    List_push_back(usr->msg_queue, make_reply(":%s " RPL_ENDOFNAMES_MSG, serv->hostname,
-                                              usr->nick, channel->name));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_ENDOFNAMES_MSG, serv->hostname, usr->nick, channel->name));
 }
 
 /**
@@ -354,9 +353,9 @@ void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg) {
 }
 
 /**
- * This command is used to query a list of users who match the provided mask. 
+ * This command is used to query a list of users who match the provided mask.
  * The server will answer this command with zero, one or more RPL_WHOREPLY, and end the list with RPL_ENDOFWHO.
-*/
+ */
 void Server_reply_to_WHO(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "WHO"));
 
@@ -454,7 +453,7 @@ void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
         HashtableIter itr;
         ht_iter_init(&itr, serv->channels_map);
         Channel *channel = NULL;
-        while (ht_iter_next(&itr, NULL, (void **) &channel)) {
+        while (ht_iter_next(&itr, NULL, (void **)&channel)) {
             assert(channel);
             List_push_back(usr->msg_queue, make_reply(":%s " RPL_LIST_MSG, serv->hostname, usr->nick, channel->name, Vector_size(channel->members), channel->topic));
         }
@@ -488,14 +487,37 @@ void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    if (!Server_channel_middleware(serv, usr, msg)) {
+    // send NAME reply for all channels on server
+    if (msg->n_params == 0) {
+        HashtableIter itr;
+        ht_iter_init(&itr, serv->channels_map);
+        Channel *channel = NULL;
+        while (ht_iter_next(&itr, NULL, (void **)&channel)) {
+            send_names_reply(serv, usr, channel);
+        }
+
         return;
     }
 
-    Channel *channel = ht_get(serv->channels_map, msg->params[0] + 1);
-    assert(channel);
+    assert(msg->params[0]);
+    const char *targets = msg->params[0];
 
-    send_names_reply(serv, usr, channel);
+    // send NAME reply for each channel in comma separated list
+    for (char *tok = strtok(targets, ","); tok != NULL; tok = strtok(NULL, ",")) {
+        if (tok[0] != '#') {
+            log_debug("no such channel");
+            continue;
+        }
+
+        Channel *channel = ht_get(serv->channels_map, tok + 1);
+
+        if (!channel) {
+            log_debug("channel %s not found", tok);
+            continue;
+        }
+
+        send_names_reply(serv, usr, channel);
+    }
 }
 
 void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg) {
