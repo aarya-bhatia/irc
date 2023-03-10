@@ -33,7 +33,7 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-#ifdef LOG_DEBUG
+#ifndef LOG_DEBUG
 #define log_debug(...) (void)0
 #endif
 

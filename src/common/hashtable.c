@@ -3,7 +3,6 @@
 #include "include/hashtable.h"
 
 #include <assert.h>
-#include <log.h>
 #include <stdlib.h>
 #include <string.h>
 
