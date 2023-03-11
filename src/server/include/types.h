@@ -3,14 +3,22 @@
 #include "include/common.h"
 #include "include/hashtable.h"
 #include "include/list.h"
-#include "include/vector.h"
 #include "include/message.h"
+#include "include/vector.h"
 
-enum MODES {
-    MODE_NORMAL,
-    MODE_AWAY,
-    MODE_OPERATOR
-};
+typedef struct IRCNode {
+    int fd;
+    char *name;
+	char *hostname;
+    List *msg_queue;
+    size_t req_len;                 // length of request buffer
+    size_t res_len;                 // length of response buffer
+    size_t res_off;                 // no of bytes of the response sent
+    char req_buf[MAX_MSG_LEN + 1];  // the request message
+    char res_buf[MAX_MSG_LEN + 1];  // the response message
+    bool quit;                      // flag to indicate server leaving
+    bool authenticated;             // flag to check if remote server has authenticated with password
+} IRCNode;
 
 typedef struct _Server {
     Hashtable *sock_to_user_map;              // Maps socket to user struct for every connected user
@@ -18,13 +26,16 @@ typedef struct _Server {
     Hashtable *online_nick_to_username_map;   // Map nick to username of online user
     Hashtable *offline_nick_to_username_map;  // Map nick to username of offline user
     Hashtable *channels_map;                  // Map channel name to channel struct pointer
+    Hashtable *server_name_to_node_map;       // Map irc server name to IRCNode struct
     struct sockaddr_in servaddr;              // address info for server
     int fd;                                   // listen socket
     int epollfd;                              // epoll fd
+    char *name;                          	  // name of this server
     char *hostname;                           // server hostname
     char *port;                               // server port
     char created_at[64];                      // server time created at as string
     char *motd_file;                          // file to use for message of the day greetings
+    char *config_file;						  // name of config file with irc server address and passwords
 } Server;
 
 typedef struct _User {
@@ -44,6 +55,12 @@ typedef struct _User {
     bool nick_changed;              // flag to indicate user has set a nick
     bool quit;                      // flag to indicate user is leaving server
 } User;
+
+enum MODES {
+    MODE_NORMAL,
+    MODE_AWAY,
+    MODE_OPERATOR
+};
 
 typedef struct _Membership {
     char *username;  // username of member

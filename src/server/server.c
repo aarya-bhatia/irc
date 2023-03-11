@@ -85,8 +85,10 @@ Server *Server_create(int port) {
     serv->sock_to_user_map->key_compare = (compare_type)int_compare;
     serv->sock_to_user_map->key_copy = (elem_copy_type)int_copy;
     serv->sock_to_user_map->key_free = free;
+
     serv->online_nick_to_username_map->value_copy = (elem_copy_type)strdup;
     serv->offline_nick_to_username_map->value_copy = (elem_copy_type)strdup;
+
     serv->online_nick_to_username_map->value_free = free;
     serv->offline_nick_to_username_map->value_free = free;
 

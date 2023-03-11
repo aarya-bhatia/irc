@@ -73,6 +73,21 @@ ERR_USERSDISABLED_MSG	include/replies.h	113;"	d
 ERR_USERSDONTMATCH_MSG	include/replies.h	144;"	d
 ERR_WASNOSUCHNICK_MSG	include/replies.h	95;"	d
 ERR_WILDTOPLEVEL_MSG	include/replies.h	101;"	d
+IRCNode	include/types.h	/^typedef struct IRCNode {$/;"	s
+IRCNode	include/types.h	/^} IRCNode;$/;"	t	typeref:struct:IRCNode
+IRCNode::addr	include/types.h	/^    struct sockaddr_storage addr;$/;"	m	struct:IRCNode	typeref:struct:IRCNode::sockaddr_storage	access:public
+IRCNode::addrlen	include/types.h	/^    socklen_t addrlen;$/;"	m	struct:IRCNode	access:public
+IRCNode::authenticated	include/types.h	/^    bool authenticated;             \/\/ flag to check if remote server has authenticated with password$/;"	m	struct:IRCNode	access:public
+IRCNode::fd	include/types.h	/^    int fd;$/;"	m	struct:IRCNode	access:public
+IRCNode::name	include/types.h	/^    char *name;$/;"	m	struct:IRCNode	access:public
+IRCNode::quit	include/types.h	/^    bool quit;                      \/\/ flag to indicate server leaving$/;"	m	struct:IRCNode	access:public
+IRCNode::req_buf	include/types.h	/^    char req_buf[MAX_MSG_LEN + 1];  \/\/ the request message$/;"	m	struct:IRCNode	access:public
+IRCNode::req_len	include/types.h	/^    size_t req_len;                 \/\/ length of request buffer$/;"	m	struct:IRCNode	access:public
+IRCNode::res_buf	include/types.h	/^    char res_buf[MAX_MSG_LEN + 1];  \/\/ the response message$/;"	m	struct:IRCNode	access:public
+IRCNode::res_len	include/types.h	/^    size_t res_len;                 \/\/ length of response buffer$/;"	m	struct:IRCNode	access:public
+IRCNode::res_off	include/types.h	/^    size_t res_off;                 \/\/ no of bytes of the response sent$/;"	m	struct:IRCNode	access:public
+IRCNode_alloc	irc_node.c	/^IRCNode *IRCNode_alloc(const char *name, const char *hostname, const char *port) {$/;"	f	signature:(const char *name, const char *hostname, const char *port)
+IRCNode_free	irc_node.c	/^void IRCNode_free(IRCNode *this)$/;"	f	signature:(IRCNode *this)
 MAX_CHANNEL_COUNT	include/channel.h	6;"	d
 MAX_CHANNEL_USERS	include/channel.h	7;"	d
 MODES	include/types.h	/^enum MODES {$/;"	g
@@ -172,6 +187,7 @@ RPL_YOURHOST_MSG	include/replies.h	4;"	d
 Server	include/types.h	/^} Server;$/;"	t	typeref:struct:_Server
 Server_accept_all	include/server.h	/^void Server_accept_all(Server *serv);$/;"	p	signature:(Server *serv)
 Server_accept_all	server.c	/^void Server_accept_all(Server *serv) {$/;"	f	signature:(Server *serv)
+Server_add_irc_node	irc_node.c	/^void Server_add_irc_node(Server *serv, IRCNode *this)$/;"	f	signature:(Server *serv, IRCNode *this)
 Server_add_user	include/server.h	/^bool Server_add_user(Server *, User *);$/;"	p	signature:(Server *, User *)
 Server_add_user	user.c	/^bool Server_add_user(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
 Server_broadcast_message	include/server.h	/^void Server_broadcast_message(Server *serv, const char *message);$/;"	p	signature:(Server *serv, const char *message)
@@ -198,16 +214,22 @@ Server_remove_user	include/server.h	/^void Server_remove_user(Server *, User *);
 Server_remove_user	user.c	/^void Server_remove_user(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
 Server_reply_to_CONNECT	include/server.h	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_CONNECT	server_reply.c	/^void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_HELP	include/server.h	/^void Server_reply_to_HELP(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_HELP	server_reply.c	/^void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_JOIN	include/server.h	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_JOIN	server_reply.c	/^void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_LIST	include/server.h	/^void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_LIST	server_reply.c	/^void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_LUSERS	include/server.h	/^void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_LUSERS	server_reply.c	/^void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_MOTD	include/server.h	/^void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_MOTD	server_reply.c	/^void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_NAMES	include/server.h	/^void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_NAMES	server_reply.c	/^void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_NICK	include/server.h	/^void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_NICK	server_reply.c	/^void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NOTICE	include/server.h	/^void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
+Server_reply_to_NOTICE	server_reply.c	/^void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_PART	include/server.h	/^void Server_reply_to_PART(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_PART	server_reply.c	/^void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {$/;"	f	signature:(Server *serv, User *usr, Message *msg)
 Server_reply_to_PASS	include/server.h	/^void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);$/;"	p	signature:(Server *serv, User *usr, Message *msg)
@@ -248,9 +270,9 @@ User_save_to_file	include/user.h	/^void User_save_to_file(User *usr, const char 
 _Channel	include/types.h	/^typedef struct _Channel {$/;"	s
 _Channel::members	include/types.h	/^    Vector *members;      \/\/ usernames of members in the channel$/;"	m	struct:_Channel	access:public
 _Channel::mode	include/types.h	/^    int mode;             \/\/ channel mode$/;"	m	struct:_Channel	access:public
-_Channel::name	include/types.h	/^    char *name;   \/\/ name of channel$/;"	m	struct:_Channel	access:public
+_Channel::name	include/types.h	/^    char *name;           \/\/ name of channel$/;"	m	struct:_Channel	access:public
 _Channel::time_created	include/types.h	/^    time_t time_created;  \/\/ time channel was created$/;"	m	struct:_Channel	access:public
-_Channel::topic	include/types.h	/^    char *topic;  \/\/ channel topic$/;"	m	struct:_Channel	access:public
+_Channel::topic	include/types.h	/^    char *topic;          \/\/ channel topic$/;"	m	struct:_Channel	access:public
 _Membership	include/types.h	/^typedef struct _Membership {$/;"	s
 _Membership::channel	include/types.h	/^    char *channel;   \/\/ channel name$/;"	m	struct:_Membership	access:public
 _Membership::mode	include/types.h	/^    int mode;        \/\/ member mode$/;"	m	struct:_Membership	access:public
@@ -265,7 +287,9 @@ _Server::motd_file	include/types.h	/^    char *motd_file;                       
 _Server::offline_nick_to_username_map	include/types.h	/^    Hashtable *offline_nick_to_username_map;  \/\/ Map nick to username of offline user$/;"	m	struct:_Server	access:public
 _Server::online_nick_to_username_map	include/types.h	/^    Hashtable *online_nick_to_username_map;   \/\/ Map nick to username of online user$/;"	m	struct:_Server	access:public
 _Server::port	include/types.h	/^    char *port;                               \/\/ server port$/;"	m	struct:_Server	access:public
+_Server::self_name	include/types.h	/^    char *self_name;                          \/\/ name of this server$/;"	m	struct:_Server	access:public
 _Server::servaddr	include/types.h	/^    struct sockaddr_in servaddr;              \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+_Server::server_name_to_node_map	include/types.h	/^    Hashtable *server_name_to_node_map;       \/\/ Map irc server name to IRCNode struct$/;"	m	struct:_Server	access:public
 _Server::sock_to_user_map	include/types.h	/^    Hashtable *sock_to_user_map;              \/\/ Maps socket to user struct for every connected user$/;"	m	struct:_Server	access:public
 _Server::username_to_user_map	include/types.h	/^    Hashtable *username_to_user_map;          \/\/ Map username to user struct for registered users$/;"	m	struct:_Server	access:public
 _User	include/types.h	/^typedef struct _User {$/;"	s
@@ -286,6 +310,10 @@ _User::res_off	include/types.h	/^    size_t res_off;                 \/\/ no of 
 _User::username	include/types.h	/^    char *username;                 \/\/ unique identifier$/;"	m	struct:_User	access:public
 _close_connection	server.c	/^void _close_connection(void *fd, void *usr) {$/;"	f	signature:(void *fd, void *usr)
 _find_member	channel.c	/^bool _find_member(void *elem, const void *arg) {$/;"	f	signature:(void *elem, const void *arg)
+addr	include/types.h	/^    struct sockaddr_storage addr;$/;"	m	struct:IRCNode	typeref:struct:IRCNode::sockaddr_storage	access:public
+addrlen	include/types.h	/^    socklen_t addrlen;$/;"	m	struct:IRCNode	access:public
+authenticated	include/types.h	/^    bool authenticated;             \/\/ flag to check if remote server has authenticated with password$/;"	m	struct:IRCNode	access:public
+body	include/types.h	/^    const char *body;$/;"	m	struct:help_t	access:public
 channel	include/types.h	/^    char *channel;   \/\/ channel name$/;"	m	struct:_Membership	access:public
 channels	include/types.h	/^    Vector *channels;               \/\/ list of channels joined by user$/;"	m	struct:_User	access:public
 channels_map	include/types.h	/^    Hashtable *channels_map;                  \/\/ Map channel name to channel struct pointer$/;"	m	struct:_Server	access:public
@@ -295,10 +323,20 @@ created_at	include/types.h	/^    char created_at[64];                      \/\/ 
 epollfd	include/types.h	/^    int epollfd;                              \/\/ epoll fd$/;"	m	struct:_Server	access:public
 fd	include/types.h	/^    int fd;                                   \/\/ listen socket$/;"	m	struct:_Server	access:public
 fd	include/types.h	/^    int fd;                         \/\/ socket connection$/;"	m	struct:_User	access:public
-function	server.c	/^    void (*function)(Server *, User *, Message *);$/;"	m	struct:rpl_handle_t	file:	access:public
+fd	include/types.h	/^    int fd;$/;"	m	struct:IRCNode	access:public
+function	include/types.h	/^    void (*function)(Server *, User *, Message *);$/;"	m	struct:rpl_handle_t	access:public
 g_alive	server_main.c	/^static volatile bool g_alive = true;$/;"	v	file:
+get_help_text	help.c	/^const struct help_t *get_help_text(const char *subject) {$/;"	f	signature:(const char *subject)
+get_help_text	include/server.h	/^const struct help_t *get_help_text(const char *subject);$/;"	p	signature:(const char *subject)
 get_motd	include/server.h	/^char *get_motd(char *fname);$/;"	p	signature:(char *fname)
 get_motd	server.c	/^char *get_motd(char *fname) {$/;"	f	signature:(char *fname)
+help	help.c	/^const struct help_t help[] = {$/;"	v	typeref:struct:help_t
+help_privmsg	help.c	/^const char help_privmsg[] =$/;"	v
+help_t	include/types.h	/^struct help_t {$/;"	s
+help_t::body	include/types.h	/^    const char *body;$/;"	m	struct:help_t	access:public
+help_t::subject	include/types.h	/^    const char *subject;$/;"	m	struct:help_t	access:public
+help_t::title	include/types.h	/^    const char *title;$/;"	m	struct:help_t	access:public
+help_who	help.c	/^const char help_who[] =$/;"	v
 hostname	include/types.h	/^    char *hostname;                           \/\/ server hostname$/;"	m	struct:_Server	access:public
 hostname	include/types.h	/^    char *hostname;                 \/\/ client ip$/;"	m	struct:_User	access:public
 load_channels	channel.c	/^Hashtable *load_channels(const char *filename) {$/;"	f	signature:(const char *filename)
@@ -309,37 +347,49 @@ mode	include/types.h	/^    int mode;             \/\/ channel mode$/;"	m	struct:
 mode	include/types.h	/^    int mode;        \/\/ member mode$/;"	m	struct:_Membership	access:public
 motd_file	include/types.h	/^    char *motd_file;                          \/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
 msg_queue	include/types.h	/^    List *msg_queue;                \/\/ messages to be delivered to user$/;"	m	struct:_User	access:public
-name	include/types.h	/^    char *name;   \/\/ name of channel$/;"	m	struct:_Channel	access:public
-name	server.c	/^    const char *name;$/;"	m	struct:rpl_handle_t	file:	access:public
+name	include/types.h	/^    char *name;           \/\/ name of channel$/;"	m	struct:_Channel	access:public
+name	include/types.h	/^    char *name;$/;"	m	struct:IRCNode	access:public
+name	include/types.h	/^    const char *name;$/;"	m	struct:rpl_handle_t	access:public
 nick	include/types.h	/^    char *nick;                     \/\/ display name$/;"	m	struct:_User	access:public
 nick_changed	include/types.h	/^    bool nick_changed;              \/\/ flag to indicate user has set a nick$/;"	m	struct:_User	access:public
 offline_nick_to_username_map	include/types.h	/^    Hashtable *offline_nick_to_username_map;  \/\/ Map nick to username of offline user$/;"	m	struct:_Server	access:public
 online_nick_to_username_map	include/types.h	/^    Hashtable *online_nick_to_username_map;   \/\/ Map nick to username of online user$/;"	m	struct:_Server	access:public
 port	include/types.h	/^    char *port;                               \/\/ server port$/;"	m	struct:_Server	access:public
+quit	include/types.h	/^    bool quit;                      \/\/ flag to indicate server leaving$/;"	m	struct:IRCNode	access:public
 quit	include/types.h	/^    bool quit;                      \/\/ flag to indicate user is leaving server$/;"	m	struct:_User	access:public
 realname	include/types.h	/^    char *realname;                 \/\/ full name$/;"	m	struct:_User	access:public
 registered	include/types.h	/^    bool registered;                \/\/ flag to indicate user has registered with username, realname and nick$/;"	m	struct:_User	access:public
+req_buf	include/types.h	/^    char req_buf[MAX_MSG_LEN + 1];  \/\/ the request message$/;"	m	struct:IRCNode	access:public
 req_buf	include/types.h	/^    char req_buf[MAX_MSG_LEN + 1];  \/\/ the request message$/;"	m	struct:_User	access:public
+req_len	include/types.h	/^    size_t req_len;                 \/\/ length of request buffer$/;"	m	struct:IRCNode	access:public
 req_len	include/types.h	/^    size_t req_len;                 \/\/ length of request buffer$/;"	m	struct:_User	access:public
+res_buf	include/types.h	/^    char res_buf[MAX_MSG_LEN + 1];  \/\/ the response message$/;"	m	struct:IRCNode	access:public
 res_buf	include/types.h	/^    char res_buf[MAX_MSG_LEN + 1];  \/\/ the response message$/;"	m	struct:_User	access:public
+res_len	include/types.h	/^    size_t res_len;                 \/\/ length of response buffer$/;"	m	struct:IRCNode	access:public
 res_len	include/types.h	/^    size_t res_len;                 \/\/ length of response buffer$/;"	m	struct:_User	access:public
+res_off	include/types.h	/^    size_t res_off;                 \/\/ no of bytes of the response sent$/;"	m	struct:IRCNode	access:public
 res_off	include/types.h	/^    size_t res_off;                 \/\/ no of bytes of the response sent$/;"	m	struct:_User	access:public
-rpl_handle_t	server.c	/^struct rpl_handle_t {$/;"	s	file:
-rpl_handle_t::function	server.c	/^    void (*function)(Server *, User *, Message *);$/;"	m	struct:rpl_handle_t	file:	access:public
-rpl_handle_t::name	server.c	/^    const char *name;$/;"	m	struct:rpl_handle_t	file:	access:public
+rpl_handle_t	include/types.h	/^struct rpl_handle_t {$/;"	s
+rpl_handle_t::function	include/types.h	/^    void (*function)(Server *, User *, Message *);$/;"	m	struct:rpl_handle_t	access:public
+rpl_handle_t::name	include/types.h	/^    const char *name;$/;"	m	struct:rpl_handle_t	access:public
 rpl_handlers	server.c	/^static struct rpl_handle_t rpl_handlers[] = {$/;"	v	typeref:struct:rpl_handle_t	file:
 save_channels	channel.c	/^void save_channels(Hashtable *hashtable, const char *filename) {$/;"	f	signature:(Hashtable *hashtable, const char *filename)
 save_channels	include/channel.h	/^void save_channels(Hashtable *hashtable, const char *filename);$/;"	p	signature:(Hashtable *hashtable, const char *filename)
+self_name	include/types.h	/^    char *self_name;                          \/\/ name of this server$/;"	m	struct:_Server	access:public
 send_motd_reply	server_reply.c	/^void send_motd_reply(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
 send_names_reply	server_reply.c	/^void send_names_reply(Server *serv, User *usr, Channel *channel) {$/;"	f	signature:(Server *serv, User *usr, Channel *channel)
 send_topic_reply	server_reply.c	/^void send_topic_reply(Server *serv, User *usr, Channel *channel) {$/;"	f	signature:(Server *serv, User *usr, Channel *channel)
 send_welcome_reply	server_reply.c	/^void send_welcome_reply(Server *serv, User *usr) {$/;"	f	signature:(Server *serv, User *usr)
+send_who_reply	server_reply.c	/^void send_who_reply(Server *serv, User *usr, Channel *target_channel, User *target_usr) {$/;"	f	signature:(Server *serv, User *usr, Channel *target_channel, User *target_usr)
 servaddr	include/types.h	/^    struct sockaddr_in servaddr;              \/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+server_name_to_node_map	include/types.h	/^    Hashtable *server_name_to_node_map;       \/\/ Map irc server name to IRCNode struct$/;"	m	struct:_Server	access:public
 sighandler	server_main.c	/^void sighandler(int sig) {$/;"	f	signature:(int sig)
 sighandler	server_main.c	/^void sighandler(int sig);$/;"	p	file:	signature:(int sig)
 sock_to_user_map	include/types.h	/^    Hashtable *sock_to_user_map;              \/\/ Maps socket to user struct for every connected user$/;"	m	struct:_Server	access:public
+subject	include/types.h	/^    const char *subject;$/;"	m	struct:help_t	access:public
 time_created	include/types.h	/^    time_t time_created;  \/\/ time channel was created$/;"	m	struct:_Channel	access:public
-topic	include/types.h	/^    char *topic;  \/\/ channel topic$/;"	m	struct:_Channel	access:public
+title	include/types.h	/^    const char *title;$/;"	m	struct:help_t	access:public
+topic	include/types.h	/^    char *topic;          \/\/ channel topic$/;"	m	struct:_Channel	access:public
 username	include/types.h	/^    char *username;                 \/\/ unique identifier$/;"	m	struct:_User	access:public
 username	include/types.h	/^    char *username;  \/\/ username of member$/;"	m	struct:_Membership	access:public
 username_to_user_map	include/types.h	/^    Hashtable *username_to_user_map;          \/\/ Map username to user struct for registered users$/;"	m	struct:_Server	access:public

@@ -587,13 +587,52 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
     }
 }
 
+/**
+ * Initiate a server-to-server connection
+ */
 void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg) {
 }
 
 void Server_reply_to_PASS(Server *serv, User *usr, Message *msg) {
 }
 
+/**
+ *
+ * Command: CONNECT
+ * Parameters: <target server> [<port> [<remote server>]]
+ *
+ * The CONNECT command forces a server to try to establish a new connection to another server.
+ * CONNECT is a privileged command and is available only to IRC Operators.
+ * If a remote server is given, the connection is attempted by that remote server to <target server> using <port>.
+ */
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
+    assert(!strcmp(msg->command, "CONNECT"));
+
+    if (msg->n_params == 1) {
+        // Connect to given server as a client
+        // char *remote_name = msg->params[0];
+        // Address *remote_addr = ht_get(serv->server_name_to_addr_map, remote_name);
+
+        // if (!remote_addr) {
+        //     return;
+        // }
+
+        // int remote_sock = socket(AF_INET, SOCK_STREAM, 0);
+
+        // if (remote_sock == -1) {
+        //     log_error("socket() failed: %s", strerror(errno));
+        //     return;
+        // }
+
+        // if (connect(remote_sock, (struct sockaddr *)&remote_addr->addr, remote_addr->addrlen) == -1) {
+        //     log_error("connect() failed: %s", strerror(errno));
+        //     return;
+        // }
+
+        // log_info("connected to server: %s", remote_addr->name);
+
+        // User *remote_data = User_alloc(remote_sock, (struct sockaddr *) &remote_addr->addr, remote_addr->addrlen);
+    }
 }
 
 /**
