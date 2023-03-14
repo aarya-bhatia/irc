@@ -15,7 +15,7 @@ Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen) {
 }
 
 void Connection_free(Connection *this) {
-    if(this->fd != -1) {
+    if (this->fd != -1) {
         shutdown(this->fd, SHUT_RDWR);
         close(this->fd);
     }
@@ -109,4 +109,3 @@ ssize_t Connection_write(Connection *this) {
 
     return 0;
 }
-

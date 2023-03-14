@@ -4,25 +4,31 @@
 #include <sys/stat.h>
 #include <time.h>
 
+struct rpl_handle_t {
+    const char *name;
+    void (*user_handler)(Server *, User *, Message *);
+    void (*peer_handler)(Server *, Peer *, Message *);
+};
+
 static struct rpl_handle_t rpl_handlers[] = {
-    {"NICK", Server_reply_to_NICK},
-    {"USER", Server_reply_to_USER},
-    {"PRIVMSG", Server_reply_to_PRIVMSG},
-    {"NOTICE", Server_reply_to_NOTICE},
-    {"PING", Server_reply_to_PING},
-    {"QUIT", Server_reply_to_QUIT},
-    {"MOTD", Server_reply_to_MOTD},
-    {"LIST", Server_reply_to_LIST},
-    {"WHO", Server_reply_to_WHO},
-    {"WHOIS", Server_reply_to_WHOIS},
-    {"SERVER", Server_reply_to_SERVER},
-    {"CONNECT", Server_reply_to_CONNECT},
-    {"JOIN", Server_reply_to_JOIN},
-    {"PART", Server_reply_to_PART},
-    {"NAMES", Server_reply_to_NAMES},
-    {"TOPIC", Server_reply_to_TOPIC},
-    {"LUSERS", Server_reply_to_LUSERS},
-    {"HELP", Server_reply_to_HELP},
+    {"NICK", Server_reply_to_NICK, NULL},
+    {"USER", Server_reply_to_USER, NULL},
+    {"PRIVMSG", Server_reply_to_PRIVMSG, NULL},
+    {"NOTICE", Server_reply_to_NOTICE, NULL},
+    {"PING", Server_reply_to_PING, NULL},
+    {"QUIT", Server_reply_to_QUIT, NULL},
+    {"MOTD", Server_reply_to_MOTD, NULL},
+    {"LIST", Server_reply_to_LIST, NULL},
+    {"WHO", Server_reply_to_WHO, NULL},
+    {"WHOIS", Server_reply_to_WHOIS, NULL},
+    {"SERVER", Server_reply_to_SERVER, NULL},
+    {"CONNECT", Server_reply_to_CONNECT, NULL},
+    {"JOIN", Server_reply_to_JOIN, NULL},
+    {"PART", Server_reply_to_PART, NULL},
+    {"NAMES", Server_reply_to_NAMES, NULL},
+    {"TOPIC", Server_reply_to_TOPIC, NULL},
+    {"LUSERS", Server_reply_to_LUSERS, NULL},
+    {"HELP", Server_reply_to_HELP, NULL},
 };
 
 User *Server_get_user_by_socket(Server *serv, int sock) {
@@ -202,38 +208,56 @@ void Server_process_request(Server *serv, Connection *conn) {
         for (size_t j = 0; j < sizeof rpl_handlers / sizeof *rpl_handlers; j++) {
             struct rpl_handle_t handle = rpl_handlers[j];
             if (!strcmp(handle.name, message->command)) {
-                handle.function(serv, conn, message);
+                if (conn->conn_type == USER_CONNECTION) {
+                    handle.user_handler(serv, conn->data, message);
+                } else if (conn->conn_type == PEER_CONNECTION) {
+                    handle.peer_handler(serv, conn->data, message);
+                }
+
                 found = true;
                 break;
             }
         }
 
+        // flush message queues
         if (found) {
+            if (conn->conn_type == USER_CONNECTION) {
+                User *usr = conn->data;
+
+                while (List_size(usr->msg_queue) > 0) {
+                    List_push_back(conn->outgoing_messages, List_peek_front(usr->msg_queue));
+                    List_pop_front(usr->msg_queue);
+                }
+            } else if (conn->conn_type == PEER_CONNECTION) {
+                Peer *peer = conn->data;
+
+                while (List_size(peer->msg_queue) > 0) {
+                    List_push_back(conn->outgoing_messages, List_peek_front(peer->msg_queue));
+                    List_pop_front(peer->msg_queue);
+                }
+            }
+
             continue;
         }
 
         // Handle every other command:
 
-        if(conn->conn_type == USER_CONNECTION) {
+        if (conn->conn_type == USER_CONNECTION) {
             User *usr = conn->data;
 
             if (!usr->registered) {
-                char *reply = make_reply(":%s " ERR_NOTREGISTERED_MSG,
-                                        serv->hostname,
-                                        usr->nick);
+                char *reply = make_reply(":%s " ERR_NOTREGISTERED_MSG, serv->hostname, usr->nick);
                 List_push_back(conn->outgoing_messages, reply);
             } else {
                 char *reply = make_reply(":%s " ERR_UNKNOWNCOMMAND_MSG,
-                                        serv->hostname,
-                                        usr->nick,
-                                        message->command);
+                                         serv->hostname,
+                                         usr->nick,
+                                         message->command);
                 List_push_back(conn->outgoing_messages, reply);
             }
-        }
-        else {
+        } else {
             // TODO
         }
-
     }
 
     Vector_free(messages);
@@ -250,18 +274,18 @@ void Server_broadcast_message(Server *serv, const char *message) {
     }
 }
 
-// void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message) {
-//     for (size_t i = 0; i < Vector_size(channel->members); i++) {
-//         Membership *member = Vector_get_at(channel->members, i);
-//         assert(member);
+void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message) {
+    for (size_t i = 0; i < Vector_size(channel->members); i++) {
+        Membership *member = Vector_get_at(channel->members, i);
+        assert(member);
 
-//         User *member_user = Server_get_user_by_username(serv, member->username);
+        User *member_user = Server_get_user_by_username(serv, member->username);
 
-//         if (member_user) {
-//             List_push_back(member_user->msg_queue, strdup(message));
-//         }
-//     }
-// }
+        if (member_user) {
+            List_push_back(member_user->msg_queue, strdup(message));
+        }
+    }
+}
 
 char *get_motd(char *fname) {
     FILE *file = fopen(fname, "r");

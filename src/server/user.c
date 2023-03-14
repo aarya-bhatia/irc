@@ -6,6 +6,7 @@ User *User_alloc() {
     User *this = calloc(1, sizeof *this);
     this->nick = make_string("user%05d", (rand() % (int)1e5));  // temporary nick
     this->channels = Vector_alloc(4, (elem_copy_type)strdup, free);
+    this->msg_queue = List_alloc(NULL, free);
     return this;
 }
 
@@ -16,6 +17,7 @@ void User_free(User *usr) {
     free(usr->hostname);
 
     Vector_free(usr->channels);
+    List_free(usr->msg_queue);
 
     free(usr);
 }

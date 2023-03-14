@@ -56,21 +56,23 @@ typedef struct _Peer {
     char *name;
     bool quit;           // flag to indicate server leaving
     bool authenticated;  // flag to check if remote server has authenticated with password
+    List *msg_queue;
 } Peer;
 
 enum { USER_ONLINE,
        USER_OFFLINE };
 
 typedef struct _User {
-    char *nick;         // display name
-    char *username;     // unique identifier
-    char *realname;     // full name
-    char *hostname;     // client ip
-    Vector *channels;   // list of channels joined by user
+    char *nick;        // display name
+    char *username;    // unique identifier
+    char *realname;    // full name
+    char *hostname;    // client ip
+    Vector *channels;  // list of channels joined by user
     bool registered;    // flag to indicate user has registered with username, realname and nick
     bool nick_changed;  // flag to indicate user has set a nick
     bool quit;          // flag to indicate user is leaving server
     int status;         // to indicate if user online or offline
+    List *msg_queue;
 } User;
 
 enum MODES {
@@ -97,11 +99,6 @@ typedef struct _Channel {
     // char *topic_changed_by;
 } Channel;
 
-struct rpl_handle_t {
-    const char *name;
-    void (*function)(Server *, Connection *, Message *);
-};
-
 struct help_t {
     const char *subject;
     const char *title;
@@ -117,7 +114,7 @@ char *get_motd(char *fname);
 Server *Server_create(int port);
 void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
-void Server_process_request(Server *serv, User *usr);
+void Server_process_request(Server *serv, Connection *usr);
 void Server_broadcast_message(Server *serv, const char *message);
 void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message);
 
@@ -128,28 +125,28 @@ User *Server_get_user_by_username(Server *serv, const char *username);
 // server_reply.c
 bool check_registration_complete(Server *serv, User *usr);
 
-void Server_reply_to_NICK(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_USER(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_PRIVMSG(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_NOTICE(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_PING(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_QUIT(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_MOTD(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_WHO(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_WHOIS(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_JOIN(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_PART(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_TOPIC(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_LIST(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_NAMES(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_SERVER(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_PASS(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_CONNECT(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_LUSERS(Server *serv, Connection *conn, Message *msg);
-void Server_reply_to_HELP(Server *serv, Connection *conn, Message *msg);
+void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);
+void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);
+void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PING(Server *serv, User *usr, Message *msg);
+void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg);
+void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);
+void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);
+void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);
+void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PART(Server *serv, User *usr, Message *msg);
+void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg);
+void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);
+void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);
+void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);
+void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);
+void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);
+void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg);
+void Server_reply_to_HELP(Server *serv, User *usr, Message *msg);
 
-bool Server_registered_middleware(Server *serv, Connection *conn, Message *msg);
-bool Server_channel_middleware(Server *serv, Connection *conn, Message *msg);
+bool Server_registered_middleware(Server *serv, User *usr, Message *msg);
+bool Server_channel_middleware(Server *serv, User *usr, Message *msg);
 
 bool Server_add_user(Server *, User *);
 void Server_remove_user(Server *, User *);

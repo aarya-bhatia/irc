@@ -1,18 +1,13 @@
-#include <ctype.h>
-
 #include "include/replies.h"
 #include "include/server.h"
 
-bool Server_registered_middleware(Server *serv, Connection *conn, Message *msg) {
+bool Server_registered_middleware(Server *serv, User *usr, Message *msg) {
     assert(serv);
-    assert(conn);
+    assert(usr);
     assert(msg);
 
-    assert(conn->conn_type == USER_CONNECTION);
-    User *usr = conn->data;
-
     if (!usr->registered) {
-        List_push_back(conn->outgoing_messages,
+        List_push_back(usr->msg_queue,
                        make_reply(":%s " ERR_NOTREGISTERED_MSG,
                                   serv->hostname, usr->nick));
         return false;
@@ -25,22 +20,17 @@ bool Server_registered_middleware(Server *serv, Connection *conn, Message *msg) 
  * Validate channel request and return status.
  * Returns true if user is able to proceed or false if request failed.
  */
-bool Server_channel_middleware(Server *serv, Connection *conn, Message *msg) {
+bool Server_channel_middleware(Server *serv, User *usr, Message *msg) {
     assert(serv);
-    assert(conn);
+    assert(usr);
     assert(msg);
     assert(msg->command);
-
-    assert(conn->conn_type == USER_CONNECTION);
-    User *usr = conn->data;
-
-    assert(usr);
     assert(usr->registered);
     assert(usr->username);
 
     // Param for channel name required
     if (msg->n_params == 0) {
-        List_push_back(conn->outgoing_messages, make_reply(":%s " ERR_NEEDMOREPARAMS_MSG, serv->hostname, usr->nick, msg->command));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NEEDMOREPARAMS_MSG, serv->hostname, usr->nick, msg->command));
         return false;
     }
 
@@ -50,78 +40,66 @@ bool Server_channel_middleware(Server *serv, Connection *conn, Message *msg) {
     Channel *channel = NULL;
 
     if (*msg->params[0] != '#' || (channel = ht_get(serv->channels_map, msg->params[0] + 1)) == NULL) {
-        List_push_back(conn->outgoing_messages, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, msg->params[0]));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, msg->params[0]));
         return false;
     }
 
     return true;
 }
 
-void Connection_send_message(Connection *conn, char *message) {
-    Connection_send_message(conn, message);
-}
-
-/**
- * Reply: <client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>
- */
-void send_who_reply(Server *serv, Connection *conn, Channel *target_channel, User *target_usr) {
-    User *usr = conn->data;
+void send_who_reply(Server *serv, User *usr, Channel *target_channel, User *target_usr) {
+    // RPL_WHOREPLY: "<client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>"
     char *flags = ht_contains(serv->online_nick_to_username_map, target_usr->nick) ? "H" : "G";
-    Connection_send_message(conn, make_reply(":%s " RPL_WHOREPLY_MSG,
-                                             serv->hostname,
-                                             usr->nick,
-                                             target_channel->name,
-                                             target_usr->username,
-                                             target_usr->hostname,
-                                             serv->hostname,
-                                             target_usr->nick,
-                                             flags,
-                                             0,
-                                             target_usr->realname));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_WHOREPLY_MSG,
+                                              serv->hostname,
+                                              usr->nick,
+                                              target_channel->name,
+                                              target_usr->username,
+                                              target_usr->hostname,
+                                              serv->hostname,
+                                              target_usr->nick,
+                                              flags,
+                                              0,
+                                              target_usr->realname));
 }
 
-void send_motd_reply(Server *serv, Connection *conn) {
-    User *usr = conn->data;
+void send_motd_reply(Server *serv, User *usr) {
     char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
     if (motd) {
-        Connection_send_message(conn, make_reply(":%s " RPL_MOTD_MSG,
-                                                 serv->hostname, usr->nick,
-                                                 motd));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_MOTD_MSG,
+                                                  serv->hostname, usr->nick,
+                                                  motd));
     } else {
-        Connection_send_message(conn, make_reply(":%s " ERR_NOMOTD_MSG,
-                                                 serv->hostname, usr->nick));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOMOTD_MSG,
+                                                  serv->hostname, usr->nick));
     }
 }
 
-void send_welcome_reply(Server *serv, Connection *conn) {
-    User *usr = conn->data;
-
-    Connection_send_message(conn, make_reply(":%s " RPL_WELCOME_MSG, serv->hostname,
-                                             usr->nick, usr->nick));
-    Connection_send_message(conn, make_reply(":%s " RPL_YOURHOST_MSG, serv->hostname,
-                                             usr->nick, usr->hostname));
-    Connection_send_message(conn, make_reply(":%s " RPL_CREATED_MSG, serv->hostname,
-                                             usr->nick, serv->created_at));
-    Connection_send_message(conn, make_reply(":%s " RPL_MYINFO_MSG, serv->hostname,
-                                             usr->nick, serv->hostname, "*", "*",
-                                             "*"));
+void send_welcome_reply(Server *serv, User *usr) {
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_WELCOME_MSG, serv->hostname,
+                                              usr->nick, usr->nick));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_YOURHOST_MSG, serv->hostname,
+                                              usr->nick, usr->hostname));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_CREATED_MSG, serv->hostname,
+                                              usr->nick, serv->created_at));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_MYINFO_MSG, serv->hostname,
+                                              usr->nick, serv->hostname, "*", "*",
+                                              "*"));
 }
 
-void send_topic_reply(Server *serv, Connection *conn, Channel *channel) {
-    User *usr = conn->data;
+void send_topic_reply(Server *serv, User *usr, Channel *channel) {
     if (channel->topic) {
-        Connection_send_message(conn, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel->name, channel->topic));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel->name, channel->topic));
     } else {
-        Connection_send_message(conn, make_reply(":%s " RPL_NOTOPIC_MSG, serv->hostname, usr->nick, channel->name));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_NOTOPIC_MSG, serv->hostname, usr->nick, channel->name));
     }
 }
 
 /**
  * To complete registration, the user must have a username, realname and a nick.
  */
-bool check_registration_complete(Server *serv, Connection *conn) {
-    User *usr = conn->data;
+bool check_registration_complete(Server *serv, User *usr) {
     if (!usr->registered && usr->nick_changed && usr->username && usr->realname) {
         usr->registered = true;
 
@@ -142,8 +120,7 @@ bool check_registration_complete(Server *serv, Connection *conn) {
 /**
  * RPL_NAMES as multipart message
  */
-void send_names_reply(Server *serv, Connection *conn, Channel *channel) {
-    User *usr = conn->data;
+void send_names_reply(Server *serv, User *usr, Channel *channel) {
     char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=",
                                 channel->name);
 
@@ -162,7 +139,7 @@ void send_names_reply(Server *serv, Connection *conn, Channel *channel) {
 
         if (strlen(message) + len > MAX_MSG_LEN) {
             // End current message
-            Connection_send_message(conn, make_reply("%s", message));
+            List_push_back(usr->msg_queue, make_reply("%s", message));
 
             // Start new message with subject
             memset(message, 0, sizeof message);
@@ -174,11 +151,11 @@ void send_names_reply(Server *serv, Connection *conn, Channel *channel) {
         strcat(message, " ");
     }
 
-    Connection_send_message(conn, make_reply("%s", message));
+    List_push_back(usr->msg_queue, make_reply("%s", message));
 
     free(subject);
 
-    Connection_send_message(conn, make_reply(":%s " RPL_ENDOFNAMES_MSG, serv->hostname, usr->nick, channel->name));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_ENDOFNAMES_MSG, serv->hostname, usr->nick, channel->name));
 }
 
 /**
@@ -193,15 +170,14 @@ void send_names_reply(Server *serv, Connection *conn, Channel *channel) {
  * - ERR_NONICKNAMEGIVEN
  * - ERR_NICKNAMEINUSE
  */
-void Server_reply_to_NICK(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NICK"));
 
     if (msg->n_params < 1) {
-        Connection_send_message(conn,
-                                make_reply(":%s " ERR_NEEDMOREPARAMS_MSG,
-                                           serv->hostname, usr->nick,
-                                           msg->command));
+        List_push_back(usr->msg_queue,
+                       make_reply(":%s " ERR_NEEDMOREPARAMS_MSG,
+                                  serv->hostname, usr->nick,
+                                  msg->command));
         return;
     }
 
@@ -210,8 +186,8 @@ void Server_reply_to_NICK(Server *serv, Connection *conn, Message *msg) {
 
     if (ht_contains(serv->online_nick_to_username_map, new_nick) ||
         ht_contains(serv->offline_nick_to_username_map, new_nick)) {
-        Connection_send_message(conn, make_reply(":%s " ERR_NICKNAMEINUSE_MSG,
-                                                 serv->hostname, msg->params[0]));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NICKNAMEINUSE_MSG,
+                                                  serv->hostname, msg->params[0]));
         return;
     }
 
@@ -244,21 +220,20 @@ void Server_reply_to_NICK(Server *serv, Connection *conn, Message *msg) {
  * - A client will become registered after both USER and NICK have been received.
  * - Realname can contain spaces.
  */
-void Server_reply_to_USER(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "USER"));
 
     if (msg->n_params < 3 || !msg->body) {
-        Connection_send_message(conn, make_reply(":%s " ERR_NEEDMOREPARAMS_MSG,
-                                                 serv->hostname, usr->nick,
-                                                 msg->command));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NEEDMOREPARAMS_MSG,
+                                                  serv->hostname, usr->nick,
+                                                  msg->command));
         return;
     }
 
     // User cannot change username after registration
     if (usr->registered) {
-        Connection_send_message(conn, make_reply(":%s " ERR_ALREADYREGISTRED_MSG,
-                                                 serv->hostname, usr->nick));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_ALREADYREGISTRED_MSG,
+                                                  serv->hostname, usr->nick));
         return;
     }
 
@@ -278,27 +253,25 @@ void Server_reply_to_USER(Server *serv, Connection *conn, Message *msg) {
     check_registration_complete(serv, usr);
 }
 
-void Server_reply_to_MOTD(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "MOTD"));
 
     char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
     if (motd) {
-        Connection_send_message(conn, make_reply(":%s " RPL_MOTD_MSG, serv->hostname,
-                                                 usr->nick, motd));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_MOTD_MSG, serv->hostname,
+                                                  usr->nick, motd));
     } else {
-        Connection_send_message(conn, make_reply(":%s " ERR_NOMOTD_MSG, serv->hostname,
-                                                 usr->nick));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOMOTD_MSG, serv->hostname,
+                                                  usr->nick));
     }
 }
 
-void Server_reply_to_PING(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_PING(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "PING"));
-    Connection_send_message(conn, make_reply(":%s "
-                                             "PONG %s",
-                                             serv->hostname, serv->hostname));
+    List_push_back(usr->msg_queue, make_reply(":%s "
+                                              "PONG %s",
+                                              serv->hostname, serv->hostname));
 }
 
 /**
@@ -314,8 +287,7 @@ void Server_reply_to_PING(Server *serv, Connection *conn, Message *msg) {
  * - ERR_NOSUCHNICK
  * - ERR_TOOMANYTARGETS
  */
-void Server_reply_to_PRIVMSG(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "PRIVMSG"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -323,18 +295,18 @@ void Server_reply_to_PRIVMSG(Server *serv, Connection *conn, Message *msg) {
     }
 
     if (msg->n_params == 0) {
-        Connection_send_message(conn,
-                                make_reply(":%s " ERR_NORECIPIENT_MSG,
-                                           serv->hostname, usr->nick));
+        List_push_back(usr->msg_queue,
+                       make_reply(":%s " ERR_NORECIPIENT_MSG,
+                                  serv->hostname, usr->nick));
         return;
     }
 
     assert(msg->params[0]);
 
     if (msg->n_params > 1) {
-        Connection_send_message(conn,
-                                make_reply(":%s " ERR_TOOMANYTARGETS_MSG,
-                                           serv->hostname, usr->nick));
+        List_push_back(usr->msg_queue,
+                       make_reply(":%s " ERR_TOOMANYTARGETS_MSG,
+                                  serv->hostname, usr->nick));
         return;
     }
     // The nick to send message to
@@ -345,12 +317,12 @@ void Server_reply_to_PRIVMSG(Server *serv, Connection *conn, Message *msg) {
         char *channel_name = target_nick + 1;
         Channel *channel = ht_get(serv->channels_map, channel_name);
         if (!channel) {
-            Connection_send_message(conn, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, channel_name));
+            List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, channel_name));
             return;
         }
 
         if (!Channel_has_member(channel, usr->username)) {
-            Connection_send_message(conn, make_reply(":%s " ERR_CANNOTSENDTOCHAN_MSG, serv->hostname, usr->nick, channel_name));
+            List_push_back(usr->msg_queue, make_reply(":%s " ERR_CANNOTSENDTOCHAN_MSG, serv->hostname, usr->nick, channel_name));
             return;
         }
 
@@ -363,29 +335,29 @@ void Server_reply_to_PRIVMSG(Server *serv, Connection *conn, Message *msg) {
     } else {
         // Message target is user
         if (ht_contains(serv->offline_nick_to_username_map, target_nick)) {
-            Connection_send_message(conn,
-                                    make_reply(":%s " RPL_AWAY_MSG, serv->hostname,
-                                               usr->nick, target_nick));
+            List_push_back(usr->msg_queue,
+                           make_reply(":%s " RPL_AWAY_MSG, serv->hostname,
+                                      usr->nick, target_nick));
             return;
         }
 
         char *target_username = ht_get(serv->online_nick_to_username_map, target_nick);
 
         if (!target_username) {
-            Connection_send_message(conn,
-                                    make_reply(":%s " ERR_NOSUCHNICK_MSG,
-                                               serv->hostname, usr->nick,
-                                               target_nick));
+            List_push_back(usr->msg_queue,
+                           make_reply(":%s " ERR_NOSUCHNICK_MSG,
+                                      serv->hostname, usr->nick,
+                                      target_nick));
             return;
         }
 
         User *target_data = ht_get(serv->username_to_user_map, target_username);
 
         if (!target_data) {
-            Connection_send_message(conn,
-                                    make_reply(":%s " ERR_NOSUCHNICK_MSG,
-                                               serv->hostname, usr->nick,
-                                               target_nick));
+            List_push_back(usr->msg_queue,
+                           make_reply(":%s " ERR_NOSUCHNICK_MSG,
+                                      serv->hostname, usr->nick,
+                                      target_nick));
             return;
         }
 
@@ -409,16 +381,15 @@ void Server_reply_to_PRIVMSG(Server *serv, Connection *conn, Message *msg) {
  *
  * - ERROR
  */
-void Server_reply_to_QUIT(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "QUIT"));
 
     char *reason = (msg->body ? msg->body : "Client Quit");
 
-    Connection_send_message(conn, make_reply(":%s "
-                                             "ERROR :Closing Link: %s (%s)",
-                                             serv->hostname, usr->hostname, reason));
-    assert(List_size(conn->outgoing_messages) > 0);
+    List_push_back(usr->msg_queue, make_reply(":%s "
+                                              "ERROR :Closing Link: %s (%s)",
+                                              serv->hostname, usr->hostname, reason));
+    assert(List_size(usr->msg_queue) > 0);
     usr->quit = true;
 }
 
@@ -426,12 +397,11 @@ void Server_reply_to_QUIT(Server *serv, Connection *conn, Message *msg) {
  * This command is used to query a list of users who match the provided mask.
  * The server will answer this command with zero, one or more RPL_WHOREPLY, and end the list with RPL_ENDOFWHO.
  */
-void Server_reply_to_WHO(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_WHO(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "WHO"));
 
     if (msg->n_params == 0) {
-        Connection_send_message(conn, make_reply(":%s " RPL_ENDOFWHO_MSG, serv->hostname, usr->nick, ""));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_ENDOFWHO_MSG, serv->hostname, usr->nick, ""));
         return;
     }
 
@@ -463,17 +433,16 @@ void Server_reply_to_WHO(Server *serv, Connection *conn, Message *msg) {
         }
     }
 
-    Connection_send_message(conn, make_reply(":%s " RPL_ENDOFWHO_MSG, serv->hostname, usr->nick, ""));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_ENDOFWHO_MSG, serv->hostname, usr->nick, ""));
 }
 
-void Server_reply_to_WHOIS(Server *serv, Connection *conn, Message *msg) {
+void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg) {
 }
 
 /**
  * Join a channel
  */
-void Server_reply_to_JOIN(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "JOIN"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -483,7 +452,7 @@ void Server_reply_to_JOIN(Server *serv, Connection *conn, Message *msg) {
     char *channel_name = msg->params[0] + 1;  // skip #
 
     if (Vector_size(usr->channels) > MAX_CHANNEL_COUNT) {
-        Connection_send_message(conn, make_reply(":%s " ERR_TOOMANYCHANNELS_MSG, serv->hostname, usr->nick, channel_name));
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_TOOMANYCHANNELS_MSG, serv->hostname, usr->nick, channel_name));
         return;
     }
 
@@ -507,19 +476,18 @@ void Server_reply_to_JOIN(Server *serv, Connection *conn, Message *msg) {
 
     // Send channel topic
     if (channel->topic) {
-        Connection_send_message(conn, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel_name, channel->topic));
+        List_push_back(usr->msg_queue, make_reply(":%s " RPL_TOPIC_MSG, serv->hostname, usr->nick, channel_name, channel->topic));
     }
 
     // Send NAMES reply
     send_names_reply(serv, usr, channel);
 }
 
-void Server_reply_to_LIST(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "LIST"));
 
     // Reply start
-    Connection_send_message(conn, make_reply(":%s " RPL_LISTSTART_MSG, serv->hostname, usr->nick));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LISTSTART_MSG, serv->hostname, usr->nick));
 
     // List all channels
     if (msg->n_params == 0) {
@@ -528,7 +496,7 @@ void Server_reply_to_LIST(Server *serv, Connection *conn, Message *msg) {
         Channel *channel = NULL;
         while (ht_iter_next(&itr, NULL, (void **)&channel)) {
             assert(channel);
-            Connection_send_message(conn, make_reply(":%s " RPL_LIST_MSG, serv->hostname, usr->nick, channel->name, Vector_size(channel->members), channel->topic));
+            List_push_back(usr->msg_queue, make_reply(":%s " RPL_LIST_MSG, serv->hostname, usr->nick, channel->name, Vector_size(channel->members), channel->topic));
         }
     } else {  // List specified channels
         char *targets = msg->params[0];
@@ -543,18 +511,17 @@ void Server_reply_to_LIST(Server *serv, Connection *conn, Message *msg) {
             if (ht_contains(serv->channels_map, target)) {
                 Channel *channel = ht_get(serv->channels_map, target);
                 assert(channel);
-                Connection_send_message(conn, make_reply(":%s " RPL_LIST_MSG, serv->hostname, usr->nick, channel->name, Vector_size(channel->members), channel->topic));
+                List_push_back(usr->msg_queue, make_reply(":%s " RPL_LIST_MSG, serv->hostname, usr->nick, channel->name, Vector_size(channel->members), channel->topic));
             }
             tok = strtok(NULL, ",");
         }
     }
 
     // Reply end
-    Connection_send_message(conn, make_reply(":%s " RPL_LISTEND_MSG, serv->hostname, usr->nick));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LISTEND_MSG, serv->hostname, usr->nick));
 }
 
-void Server_reply_to_NAMES(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NAMES"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -594,8 +561,7 @@ void Server_reply_to_NAMES(Server *serv, Connection *conn, Message *msg) {
     }
 }
 
-void Server_reply_to_TOPIC(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "TOPIC"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -620,8 +586,7 @@ void Server_reply_to_TOPIC(Server *serv, Connection *conn, Message *msg) {
     }
 }
 
-void Server_reply_to_PART(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "PART"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -636,9 +601,9 @@ void Server_reply_to_PART(Server *serv, Connection *conn, Message *msg) {
     Channel *channel = ht_get(serv->channels_map, channel_name);
 
     if (!Channel_has_member(channel, usr->username)) {
-        Connection_send_message(conn,
-                                make_reply(":%s " ERR_NOTONCHANNEL_MSG, serv->hostname,
-                                           usr->nick, channel->name));
+        List_push_back(usr->msg_queue,
+                       make_reply(":%s " ERR_NOTONCHANNEL_MSG, serv->hostname,
+                                  usr->nick, channel->name));
         return;
     }
 
@@ -663,56 +628,43 @@ void Server_reply_to_PART(Server *serv, Connection *conn, Message *msg) {
     }
 }
 
-/**
- * Initiate a server-to-server connection
- */
-void Server_reply_to_SERVER(Server *serv, Connection *conn, Message *msg) {
+void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg) {
 }
 
-void Server_reply_to_PASS(Server *serv, Connection *conn, Message *msg) {
+void Server_reply_to_PASS(Server *serv, User *usr, Message *msg) {
 }
 
-/**
- *
- * Command: CONNECT
- * Parameters: <target server> [<port> [<remote server>]]
- *
- * The CONNECT command forces a server to try to establish a new connection to another server.
- * CONNECT is a privileged command and is available only to IRC Operators.
- * If a remote server is given, the connection is attempted by that remote server to <target server> using <port>.
- */
-void Server_reply_to_CONNECT(Server *serv, Connection *conn, Message *msg) {
-    assert(!strcmp(msg->command, "CONNECT"));
+void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
 }
 
 /**
  * Returns statistics about local and global users, as numeric replies.
+ * 
+ * TODO
  */
-void Server_reply_to_LUSERS(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "LUSERS"));
 
-    Connection_send_message(conn, make_reply(":%s " RPL_LUSERCLIENT_MSG, serv->hostname,
-                                             usr->nick, ht_size(serv->username_to_user_map), 0, 1));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERCLIENT_MSG, serv->hostname,
+                                              usr->nick, ht_size(serv->username_to_user_map), 0, 1));
 
-    Connection_send_message(conn, make_reply(":%s " RPL_LUSEROP_MSG, serv->hostname,
-                                             usr->nick, 0));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSEROP_MSG, serv->hostname,
+                                              usr->nick, 0));
 
-    Connection_send_message(conn, make_reply(":%s " RPL_LUSERUNKNOWN_MSG, serv->hostname,
-                                             usr->nick, ht_size(serv->sock_to_user_map) - ht_size(serv->username_to_user_map)));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERUNKNOWN_MSG, serv->hostname,
+                                              usr->nick, 0));
 
-    Connection_send_message(conn, make_reply(":%s " RPL_LUSERCHANNELS_MSG, serv->hostname,
-                                             usr->nick, ht_size(serv->channels_map)));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERCHANNELS_MSG, serv->hostname,
+                                              usr->nick, ht_size(serv->channels_map)));
 
-    Connection_send_message(conn, make_reply(":%s " RPL_LUSERME_MSG, serv->hostname,
-                                             usr->nick, ht_size(serv->username_to_user_map), 0, 0));
+    List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERME_MSG, serv->hostname,
+                                              usr->nick, ht_size(serv->username_to_user_map), 0, 0));
 }
 
 /**
  * The HELP command is used to return documentation about the IRC server and the IRC commands it implements.
  */
-void Server_reply_to_HELP(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "HELP"));
 
     const struct help_t *help = NULL;
@@ -727,24 +679,24 @@ void Server_reply_to_HELP(Server *serv, Connection *conn, Message *msg) {
     }
 
     if (help) {
-        Connection_send_message(conn, make_reply(":%s 704 %s %s :%s", serv->hostname, usr->nick, subject, help->title));
-        Connection_send_message(conn, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
+        List_push_back(usr->msg_queue, make_reply(":%s 704 %s %s :%s", serv->hostname, usr->nick, subject, help->title));
+        List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
 
         // Send help text as multipart messages and break long lines into multiple messages.
         Vector *lines = text_wrap(help->body, 200);
 
         for (size_t i = 0; i < Vector_size(lines); i++) {
-            Connection_send_message(conn, make_reply(":%s 705 %s %s :%s", serv->hostname, usr->nick, subject, Vector_get_at(lines, i)));
+            List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :%s", serv->hostname, usr->nick, subject, Vector_get_at(lines, i)));
         }
 
         Vector_free(lines);
 
-        // Connection_send_message(conn, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
-        Connection_send_message(conn, make_reply(":%s 706 %s %s :End of help", serv->hostname, usr->nick, subject));
+        // List_push_back(usr->msg_queue, make_reply(":%s 705 %s %s :", serv->hostname, usr->nick, subject));
+        List_push_back(usr->msg_queue, make_reply(":%s 706 %s %s :End of help", serv->hostname, usr->nick, subject));
         return;
     }
 
-    Connection_send_message(conn, make_reply(":%s 524 %s %s :No help available on this topic", serv->hostname, usr->nick, subject));
+    List_push_back(usr->msg_queue, make_reply(":%s 524 %s %s :No help available on this topic", serv->hostname, usr->nick, subject));
 }
 
 /**
@@ -755,8 +707,7 @@ void Server_reply_to_HELP(Server *serv, Connection *conn, Message *msg) {
  * <target> is interpreted the same way as it is for the PRIVMSG command.
  * The difference between NOTICE and PRIVMSG is that automatic replies must never be sent in response to a NOTICE message.
  */
-void Server_reply_to_NOTICE(Server *serv, Connection *conn, Message *msg) {
-    User *usr = conn->data;
+void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NOTICE"));
 
     if (msg->n_params == 0) {
@@ -792,10 +743,4 @@ void Server_reply_to_NOTICE(Server *serv, Connection *conn, Message *msg) {
         }
         target = strtok_r(NULL, ",", &save);
     }
-}
-
-void Server_handle_PASS(Server *serv, Peer *node, Message *msg) {
-}
-
-void Server_handle_SERVER(Server *serv, Peer *node, Message *msg) {
 }

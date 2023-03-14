@@ -5,16 +5,17 @@
  */
 Peer *Peer_alloc() {
     Peer *this = calloc(1, sizeof *this);
+    this->msg_queue = List_alloc(NULL, free);
     return this;
 }
 
 void Peer_free(Peer *this) {
+    List_free(this->msg_queue);
     free(this->name);
     free(this);
 }
 
 bool Server_add_peer(Server *serv, const char *name) {
-
     // Load server info from file
     FILE *file = fopen(serv->config_file, "r");
 
@@ -62,7 +63,7 @@ bool Server_add_peer(Server *serv, const char *name) {
 
     int fd = connect_to_host(remote_host, remote_port);
 
-    if(fd == -1) {
+    if (fd == -1) {
         return false;
     }
 
