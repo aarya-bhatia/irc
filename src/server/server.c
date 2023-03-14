@@ -4,11 +4,6 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "include/channel.h"
-#include "include/replies.h"
-#include "include/types.h"
-#include "include/user.h"
-
 static struct rpl_handle_t rpl_handlers[] = {
     {"NICK", Server_reply_to_NICK},
     {"USER", Server_reply_to_USER},
@@ -31,33 +26,50 @@ static struct rpl_handle_t rpl_handlers[] = {
 };
 
 User *Server_get_user_by_socket(Server *serv, int sock) {
-    return ht_get(serv->sock_to_user_map, &sock);
+    Connection *conn = ht_get(serv->connections, &sock);
+    if (!conn) {
+        return NULL;
+    }
+
+    if (conn->conn_type != USER_CONNECTION) {
+        log_error("Not a user connection!");
+        return NULL;
+    }
+
+    return conn->data;
 }
 
 User *Server_get_user_by_nick(Server *serv, const char *nick) {
     const char *username = ht_get(serv->online_nick_to_username_map, nick);
-    return username == NULL ? NULL : ht_get(serv->username_to_user_map, username);
+    return username ? ht_get(serv->username_to_user_map, username) : NULL;
 }
 
 User *Server_get_user_by_username(Server *serv, const char *username) {
     return ht_get(serv->username_to_user_map, username);
 }
 
-void _close_connection(void *fd, void *usr) {
-    (void)fd;
-    User_free((User *)usr);
-}
-
 void Server_destroy(Server *serv) {
     assert(serv);
-    ht_foreach(serv->sock_to_user_map, _close_connection);
+
     save_channels(serv->channels_map, CHANNELS_FILENAME);
 
-    ht_free(serv->sock_to_user_map);
+    ht_free(serv->channels_map);
+
+    ht_free(serv->name_to_peer_map);
     ht_free(serv->username_to_user_map);
     ht_free(serv->online_nick_to_username_map);
     ht_free(serv->offline_nick_to_username_map);
-    ht_free(serv->channels_map);
+
+    // close all connections
+    HashtableIter conn_itr;
+    ht_iter_init(&conn_itr, serv->connections);
+    Connection *conn = NULL;
+
+    while (ht_iter_next(&conn_itr, NULL, (void **)&conn)) {
+        Server_remove_connection(serv, conn);
+    }
+
+    ht_free(serv->connections);
 
     close(serv->fd);
     close(serv->epollfd);
@@ -76,15 +88,16 @@ Server *Server_create(int port) {
     Server *serv = calloc(1, sizeof *serv);
     assert(serv);
 
-    serv->sock_to_user_map = ht_alloc();             /* Map<int, User *> */
+    serv->connections = ht_alloc();                  /* Map<int, Connection *> */
+    serv->name_to_peer_map = ht_alloc();             /* Map<string, Peer *> */
     serv->username_to_user_map = ht_alloc();         /* Map<string, User*> */
     serv->online_nick_to_username_map = ht_alloc();  /* Map<string, string>*/
     serv->offline_nick_to_username_map = ht_alloc(); /* Map<string, string>*/
 
-    serv->sock_to_user_map->key_len = sizeof(int);
-    serv->sock_to_user_map->key_compare = (compare_type)int_compare;
-    serv->sock_to_user_map->key_copy = (elem_copy_type)int_copy;
-    serv->sock_to_user_map->key_free = free;
+    serv->connections->key_len = sizeof(int);
+    serv->connections->key_compare = (compare_type)int_compare;
+    serv->connections->key_copy = (elem_copy_type)int_copy;
+    serv->connections->key_free = free;
 
     serv->online_nick_to_username_map->value_copy = (elem_copy_type)strdup;
     serv->offline_nick_to_username_map->value_copy = (elem_copy_type)strdup;
@@ -145,8 +158,7 @@ void Server_accept_all(Server *serv) {
     socklen_t addrlen = sizeof(client_addr);
 
     while (1) {
-        int conn_sock =
-            accept(serv->fd, (struct sockaddr *)&client_addr, &addrlen);
+        int conn_sock = accept(serv->fd, (struct sockaddr *)&client_addr, &addrlen);
 
         if (conn_sock == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -156,27 +168,23 @@ void Server_accept_all(Server *serv) {
             die("accept");
         }
 
-        User *usr = User_alloc(conn_sock, (struct sockaddr *)&client_addr, addrlen);
+        Connection *conn = Connection_alloc(conn_sock, (struct sockaddr *)&client_addr, addrlen);
 
-        if (!Server_add_user(serv, usr)) {
-            Server_remove_user(serv, usr);
+        if (!Server_add_connection(serv, conn)) {
+            Server_remove_connection(serv, conn);
         }
     }
 }
 
-void Server_process_request(Server *serv, User *usr) {
+void Server_process_request(Server *serv, Connection *conn) {
     assert(serv);
-    assert(usr);
-    assert(strstr(usr->req_buf, "\r\n"));
+    assert(conn);
 
     // Get array of parsed messages
-    Vector *messages = parse_all_messages(usr->req_buf);
+    Vector *messages = parse_message_list(conn->incoming_messages);
     assert(messages);
 
-    log_debug("Processing %zu messages from user %s", Vector_size(messages), usr->nick);
-
-    usr->req_buf[0] = 0;
-    usr->req_len = 0;
+    log_debug("Processing %zu messages from connection %d", Vector_size(messages), conn->fd);
 
     // Iterate over the request messages and add response message(s) to user's message queue in the same order.
     for (size_t i = 0; i < Vector_size(messages); i++) {
@@ -194,7 +202,7 @@ void Server_process_request(Server *serv, User *usr) {
         for (size_t j = 0; j < sizeof rpl_handlers / sizeof *rpl_handlers; j++) {
             struct rpl_handle_t handle = rpl_handlers[j];
             if (!strcmp(handle.name, message->command)) {
-                handle.function(serv, usr, message);
+                handle.function(serv, conn, message);
                 found = true;
                 break;
             }
@@ -206,18 +214,26 @@ void Server_process_request(Server *serv, User *usr) {
 
         // Handle every other command:
 
-        if (!usr->registered) {
-            char *reply = make_reply(":%s " ERR_NOTREGISTERED_MSG,
-                                     serv->hostname,
-                                     usr->nick);
-            List_push_back(usr->msg_queue, reply);
-        } else {
-            char *reply = make_reply(":%s " ERR_UNKNOWNCOMMAND_MSG,
-                                     serv->hostname,
-                                     usr->nick,
-                                     message->command);
-            List_push_back(usr->msg_queue, reply);
+        if(conn->conn_type == USER_CONNECTION) {
+            User *usr = conn->data;
+
+            if (!usr->registered) {
+                char *reply = make_reply(":%s " ERR_NOTREGISTERED_MSG,
+                                        serv->hostname,
+                                        usr->nick);
+                List_push_back(conn->outgoing_messages, reply);
+            } else {
+                char *reply = make_reply(":%s " ERR_UNKNOWNCOMMAND_MSG,
+                                        serv->hostname,
+                                        usr->nick,
+                                        message->command);
+                List_push_back(conn->outgoing_messages, reply);
+            }
         }
+        else {
+            // TODO
+        }
+
     }
 
     Vector_free(messages);
@@ -225,30 +241,27 @@ void Server_process_request(Server *serv, User *usr) {
 
 void Server_broadcast_message(Server *serv, const char *message) {
     HashtableIter itr;
-    ht_iter_init(&itr, serv->sock_to_user_map);
-    int user_sock;
-    User *user_data = NULL;
+    ht_iter_init(&itr, serv->connections);
 
-    while (ht_iter_next(&itr, (void **)&user_sock, (void **)&user_data)) {
-        assert(user_data);
-        if (user_data->registered) {
-            List_push_back(user_data->msg_queue, strdup(message));
-        }
+    Connection *conn = NULL;
+
+    while (ht_iter_next(&itr, NULL, (void **)&conn)) {
+        List_push_back(conn->outgoing_messages, strdup(message));
     }
 }
 
-void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message) {
-    for (size_t i = 0; i < Vector_size(channel->members); i++) {
-        Membership *member = Vector_get_at(channel->members, i);
-        assert(member);
+// void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message) {
+//     for (size_t i = 0; i < Vector_size(channel->members); i++) {
+//         Membership *member = Vector_get_at(channel->members, i);
+//         assert(member);
 
-        User *member_user = Server_get_user_by_username(serv, member->username);
+//         User *member_user = Server_get_user_by_username(serv, member->username);
 
-        if (member_user) {
-            List_push_back(member_user->msg_queue, strdup(message));
-        }
-    }
-}
+//         if (member_user) {
+//             List_push_back(member_user->msg_queue, strdup(message));
+//         }
+//     }
+// }
 
 char *get_motd(char *fname) {
     FILE *file = fopen(fname, "r");
@@ -292,4 +305,65 @@ char *get_motd(char *fname) {
     fclose(file);
 
     return res;
+}
+
+bool Server_add_connection(Server *serv, Connection *connection) {
+    // Make user socket non-blocking
+    if (fcntl(connection->fd, F_SETFL, fcntl(connection->fd, F_GETFL) | O_NONBLOCK) != 0) {
+        perror("fcntl");
+        return false;
+    }
+
+    // Add event
+    struct epoll_event ev = {.data.fd = connection->fd, .events = EPOLLIN | EPOLLOUT};
+
+    // Add user socket to epoll set
+    if (epoll_ctl(serv->epollfd, EPOLL_CTL_ADD, connection->fd, &ev) !=
+        0) {
+        perror("epoll_ctl");
+        return false;
+    }
+
+    log_info("Got connection %d from %s", connection->fd, connection->hostname);
+
+    return true;
+}
+
+void Server_remove_connection(Server *serv, Connection *connection) {
+    ht_remove(serv->connections, &connection->fd, NULL, NULL);
+    epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, connection->fd, NULL);
+
+    if (connection->conn_type == USER_CONNECTION) {
+        User *usr = connection->data;
+
+        log_info("Closing connection with user %s", usr->nick);
+
+        ht_remove(serv->online_nick_to_username_map, usr->nick, NULL, NULL);
+        ht_remove(serv->offline_nick_to_username_map, usr->nick, NULL, NULL);
+        ht_remove(serv->username_to_user_map, usr->username, NULL, NULL);
+
+        // Remove user from channels
+        for (size_t i = 0; i < Vector_size(usr->channels); i++) {
+            char *name = Vector_get_at(usr->channels, i);
+            Channel *channel = ht_get(serv->channels_map, name);
+            if (channel) {
+                Channel_remove_member(channel, usr->username);
+            }
+        }
+
+        User_free(usr);
+
+    } else if (connection->conn_type == PEER_CONNECTION) {
+        Peer *peer = connection->data;
+
+        log_info("Closing connection with peer %d", connection->fd);
+
+        if (peer->name) {
+            ht_remove(serv->name_to_peer_map, peer->name, NULL, NULL);
+        }
+
+        Peer_free(peer);
+    }
+
+    Connection_free(connection);
 }

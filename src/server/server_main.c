@@ -1,11 +1,9 @@
 
 
-#include <sys/epoll.h>
 #include <signal.h>
+#include <sys/epoll.h>
 
 #include "include/server.h"
-#include "include/types.h"
-#include "include/user.h"
 
 static volatile bool g_alive = true;
 
@@ -54,41 +52,78 @@ int main(int argc, char *argv[]) {
         }
 
         for (int i = 0; i < num; i++) {
-            // Event on listening socket
             if (events[i].data.fd == serv->fd) {
-                // Accept all new users
                 Server_accept_all(serv);
             } else {
                 int e = events[i].events;
                 int fd = events[i].data.fd;
 
-                User *usr = ht_get(serv->sock_to_user_map, &fd);
+                Connection *connection = ht_get(serv->connections, &fd);
 
-                if (!usr) {
-                    epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, fd, NULL);
+                if (!connection) {
+                    Server_remove_connection(serv, connection);
                     continue;
                 }
 
                 if (e & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)) {
-                    log_debug("user %s disconnected", usr->nick);
-                    Server_remove_user(serv, usr);
+                    Server_remove_connection(serv, connection);
                     continue;
                 }
 
                 if (e & EPOLLIN) {
-                    if (User_Read_Event(serv, usr) == -1) {
+                    if (Connection_read(connection) == -1) {
+                        Server_remove_connection(serv, connection);
                         continue;
                     }
                 }
 
                 if (e & EPOLLOUT) {
-                    if (User_Write_Event(serv, usr) == -1) {
+                    if (Connection_write(connection) == -1) {
+                        Server_remove_connection(serv, connection);
                         continue;
                     }
+                }
+
+                if (connection->conn_type == UNKNOWN_CONNECTION) {
+                    if (List_size(connection->incoming_messages) > 0) {
+                        char *message = List_peek_front(connection->incoming_messages);
+                        if (strncmp(message, "NICK", 4) == 0 || strncmp(message, "USER", 4) == 0) {
+                            connection->conn_type = USER_CONNECTION;
+                            connection->data = User_alloc();
+                        } else if (strncmp(message, "PASS", 4) == 0) {
+                            connection->conn_type = USER_CONNECTION;
+                            connection->data = Peer_alloc();
+                        } else {
+                            // Ignore message
+                            List_pop_front(connection->incoming_messages);
+                            continue;
+                        }
+                    }
+                }
+
+                if (connection->conn_type == USER_CONNECTION) {
+                    if (List_size(connection->incoming_messages) > 0) {
+                        Server_process_user_request(serv, connection);
+                    }
+
+                    User *usr = connection->data;
 
                     // User is quitting and all pending messages were sent
-                    if (usr->quit && List_size(usr->msg_queue) == 0 && usr->res_len == 0) {
-                        Server_remove_user(serv, usr);
+                    if (usr->quit && List_size(connection->outgoing_messages) == 0 && connection->res_len == 0) {
+                        Server_remove_connection(serv, connection);
+                        continue;
+                    }
+                }
+
+                if (connection->conn_type == PEER_CONNECTION) {
+                    if (List_size(connection->incoming_messages) > 0) {
+                        Server_process_peer_request(serv, connection);
+                    }
+
+                    Peer *peer = connection->data;
+
+                    if (peer->quit && List_size(connection->outgoing_messages) == 0 && connection->res_len == 0) {
+                        Server_remove_connection(serv, connection);
                         continue;
                     }
                 }

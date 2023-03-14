@@ -1,4 +1,4 @@
-#include "include/membership.h"
+#include "include/server.h"
 
 Membership *Membership_alloc(const char *channel, const char *username, int mode)
 {

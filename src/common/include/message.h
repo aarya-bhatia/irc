@@ -16,4 +16,4 @@ void message_init(Message *msg);
 void message_destroy(Message *msg);
 int parse_message(char *str, Message *msg);
 Vector *parse_all_messages(char *str);
-
+Vector *parse_message_list(List *list);

@@ -76,6 +76,50 @@ char *rstrstr(char *string, char *pattern) {
     return prev;
 }
 
+int connect_to_host(char *hostname, char *port) {
+    struct addrinfo hints, *info = NULL;
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    int ret;
+
+    if ((ret = getaddrinfo(hostname, port, &hints, &info)) == -1) {
+        log_error("getaddrinfo() failed: %s", gai_strerror(ret));
+        return -1;
+    }
+
+    int fd;
+
+    struct addrinfo *itr = NULL;
+    for (; itr != NULL; itr = itr->ai_next) {
+        fd = socket(itr->ai_family, itr->ai_socktype, itr->ai_protocol);
+
+        if (fd == -1) {
+            continue;
+        }
+
+        if (connect(fd, itr->ai_addr, itr->ai_addrlen) != -1) {
+            break; /* Success */
+        }
+
+        close(fd);
+    }
+
+    freeaddrinfo(info);
+
+    if (!itr) {
+        log_error("Failed to connect to server %s:%s", hostname, port);
+        return -1;
+    }
+
+    log_info("connected to server %s on port %s", hostname, port);
+
+    return fd;
+}
+
+
 /**
  *
  * This function will create and bind a TCP socket to give hostname and port.
@@ -137,6 +181,16 @@ void *get_in_addr(struct sockaddr *sa) {
     }
 
     return &(((struct sockaddr_in6 *)sa)->sin6_addr);
+}
+
+int get_port(struct sockaddr *sa, socklen_t len) {
+    if (sa->sa_family == AF_INET) {
+        struct sockaddr_in *sin = (struct sockaddr_in *)sa;
+        return ntohs(sin->sin_port);
+    } else {
+        struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)sa;
+        return ntohs(sin6->sin6_port);
+    }
 }
 
 /**
@@ -284,7 +338,7 @@ Vector *text_wrap(const char *str, const size_t line_width) {
                 char *line_copy = strndup(line, line_len);
                 Vector_push(lines, line_copy);
                 line_len = 0;
-                line = &str[i+1];
+                line = &str[i + 1];
                 continue;
             }
         }
@@ -294,7 +348,7 @@ Vector *text_wrap(const char *str, const size_t line_width) {
                 char *line_copy = strndup(line, line_len);
                 Vector_push(lines, line_copy);
                 line_len = 0;
-                line = &str[i+1];
+                line = &str[i + 1];
                 continue;
             }
         }

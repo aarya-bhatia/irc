@@ -1,5 +1,4 @@
 #include "include/server.h"
-#include "include/types.h"
 
 const char help_who[] =
     "The /WHO Command is used to query a list of users that match given mask.\n"

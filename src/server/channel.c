@@ -1,9 +1,6 @@
-#include "include/channel.h"
+#include "include/server.h"
 
 #include <time.h>
-
-#include "include/membership.h"
-#include "include/types.h"
 
 /**
  * Create and initialise new channel with given values and returns it.

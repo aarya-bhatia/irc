@@ -75,8 +75,10 @@ int int_compare(const void *key1, const void *key2); /* integer comparator */
 void *int_copy(void *other_int);                     /* integer copy constructor */
 
 // Networking helper functions
+int connect_to_host(char *hostname, char *port);
 int create_and_bind_socket(char *hostname, char *port);     /* creates tcp socket to connect to given host and port  */
 void *get_in_addr(struct sockaddr *sa);                     /* returns the in_addr of ivp4 and ipv6 addresses */
+int get_port(struct sockaddr *sa, socklen_t len);
 char *addr_to_string(struct sockaddr *addr, socklen_t len); /* get ip address from sockaddr */
 
 // Note: For non blocking sockets, these fuctions may read/write fewer bytes than requested.

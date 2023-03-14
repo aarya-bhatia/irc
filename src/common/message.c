@@ -26,6 +26,30 @@ void message_free_callback(void *ptr) {
     free(ptr);
 }
 
+Vector *parse_message_list(List *list) {
+    Vector *array = Vector_alloc(4, NULL, message_free_callback);  // initialise a message vector with shallow copy and destructor
+
+    int ret;
+
+    while(List_size(list) > 0) {
+        char *message = List_peek_front(list);
+
+        Message *msg = calloc(1, sizeof *msg);
+        message_init(msg);
+
+        if ((ret = parse_message(message, msg)) == -1) {
+            log_warn("Invalid message");
+            message_destroy(msg);
+        } else {
+            Vector_push(array, msg);
+        }
+
+        List_pop_front(list);
+    }
+
+    return array;
+}
+
 Vector *parse_all_messages(char *str) {
     assert(str);
 

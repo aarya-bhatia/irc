@@ -2,25 +2,32 @@
  * Functions to read/write from a socket byte stream
  */
 
-#include "include/common.h"
 #include "include/server.h"
-#include "include/types.h"
 
-typedef struct DataStream {
-    int fd;
-    size_t req_len;                 // length of request buffer
-    size_t res_len;                 // length of response buffer
-    size_t res_off;                 // no of bytes of the response sent
-    char req_buf[MAX_MSG_LEN + 1];  // the request message
-    char res_buf[MAX_MSG_LEN + 1];  // the response message
-    List *incoming_messages;
-    List *outgoing_messages;
-} DataStream;
+Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen) {
+    Connection *this = calloc(1, sizeof *this);
+    this->fd = fd;
+    this->hostname = strdup(addr_to_string(addr, addrlen));
+    this->port = get_port(addr, addrlen);
+    this->incoming_messages = List_alloc(NULL, free);
+    this->outgoing_messages = List_alloc(NULL, free);
+    return this;
+}
+
+void Connection_free(Connection *this) {
+    if(this->fd != -1) {
+        shutdown(this->fd, SHUT_RDWR);
+        close(this->fd);
+    }
+    List_free(this->incoming_messages);
+    List_free(this->outgoing_messages);
+    free(this);
+}
 
 /**
  * Returns number of bytes read
  */
-ssize_t DataStream_read(DataStream *this) {
+ssize_t Connection_read(Connection *this) {
     assert(this);
 
     // invalid message
@@ -39,16 +46,15 @@ ssize_t DataStream_read(DataStream *this) {
     this->req_len += nread;
     this->req_buf[this->req_len] = 0;
 
-    int num = 0;
     char *start_msg = this->req_buf;
     char *end_msg = NULL;
 
-    // parse all messages and add them to incoming list
-    for (end_msg = strstr(start_msg, "\r\n"); end_msg; end_msg = strstr(start_msg, "\r\n")) {
-        char *message = strndup(start_msg, end_msg - start_msg + 2);
+    // Add all available messages to inbox
+    while (*end_msg != '\0' && (end_msg = strstr(start_msg, "\r\n")) != NULL) {
+        char *message = strndup(start_msg, end_msg - start_msg);
+        log_debug("Message: %s", message);
         List_push_back(this->incoming_messages, message);
         start_msg = end_msg + 2;
-        num++;
     }
 
     // move partial message to front
@@ -65,7 +71,7 @@ ssize_t DataStream_read(DataStream *this) {
 /**
  * Returns number of bytes written
  */
-ssize_t DataStream_write(DataStream *this) {
+ssize_t Connection_write(Connection *this) {
     assert(this);
 
     // Send all available bytes from response buffer
@@ -103,3 +109,4 @@ ssize_t DataStream_write(DataStream *this) {
 
     return 0;
 }
+
