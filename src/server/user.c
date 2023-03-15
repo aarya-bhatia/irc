@@ -48,3 +48,18 @@ bool User_remove_channel(User *usr, const char *channel_name) {
 
     return false;
 }
+
+/**
+ * Creates and connects to an irc server
+ */
+Peer *Peer_alloc() {
+    Peer *this = calloc(1, sizeof *this);
+    this->msg_queue = List_alloc(NULL, free);
+    return this;
+}
+
+void Peer_free(Peer *this) {
+    List_free(this->msg_queue);
+    free(this->name);
+    free(this);
+}

@@ -7,10 +7,7 @@ bool Server_registered_middleware(Server *serv, User *usr, Message *msg) {
     assert(msg);
 
     if (!usr->registered) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_NOTREGISTERED_MSG,
-                                  serv->hostname, usr->nick));
-        return false;
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOTREGISTERED_MSG, serv->hostname, usr->nick)); return false;
     }
 
     return true;
@@ -541,7 +538,7 @@ void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {
     }
 
     assert(msg->params[0]);
-    const char *targets = msg->params[0];
+    char *targets = msg->params[0];
 
     // send NAME reply for each channel in comma separated list
     for (char *tok = strtok(targets, ","); tok != NULL; tok = strtok(NULL, ",")) {
@@ -628,18 +625,12 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
     }
 }
 
-void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg) {
-}
-
-void Server_reply_to_PASS(Server *serv, User *usr, Message *msg) {
-}
-
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
 }
 
 /**
  * Returns statistics about local and global users, as numeric replies.
- * 
+ *
  * TODO
  */
 void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg) {
@@ -743,4 +734,10 @@ void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg) {
         }
         target = strtok_r(NULL, ",", &save);
     }
+}
+
+void Server_reply_to_SERVER(Server *serv, Peer *peer, Message *msg) {
+}
+
+void Server_reply_to_PASS(Server *serv, Peer *peer, Message *msg) {
 }

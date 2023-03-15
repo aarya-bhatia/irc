@@ -1,5 +1,7 @@
 #include "include/server.h"
 
+// TODO: complete help messages
+
 const char help_who[] =
     "The /WHO Command is used to query a list of users that match given mask.\n"
     "Example: WHO emersion ; request information on user 'emersion'\n"

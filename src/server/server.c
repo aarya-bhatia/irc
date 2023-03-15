@@ -21,29 +21,15 @@ static struct rpl_handle_t rpl_handlers[] = {
     {"LIST", Server_reply_to_LIST, NULL},
     {"WHO", Server_reply_to_WHO, NULL},
     {"WHOIS", Server_reply_to_WHOIS, NULL},
-    {"SERVER", Server_reply_to_SERVER, NULL},
-    {"CONNECT", Server_reply_to_CONNECT, NULL},
     {"JOIN", Server_reply_to_JOIN, NULL},
     {"PART", Server_reply_to_PART, NULL},
     {"NAMES", Server_reply_to_NAMES, NULL},
     {"TOPIC", Server_reply_to_TOPIC, NULL},
     {"LUSERS", Server_reply_to_LUSERS, NULL},
     {"HELP", Server_reply_to_HELP, NULL},
+    {"CONNECT", Server_reply_to_CONNECT, NULL},
+    {"SERVER", NULL, Server_reply_to_SERVER},
 };
-
-User *Server_get_user_by_socket(Server *serv, int sock) {
-    Connection *conn = ht_get(serv->connections, &sock);
-    if (!conn) {
-        return NULL;
-    }
-
-    if (conn->conn_type != USER_CONNECTION) {
-        log_error("Not a user connection!");
-        return NULL;
-    }
-
-    return conn->data;
-}
 
 User *Server_get_user_by_nick(Server *serv, const char *nick) {
     const char *username = ht_get(serv->online_nick_to_username_map, nick);
@@ -246,10 +232,10 @@ void Server_process_request(Server *serv, Connection *conn) {
             User *usr = conn->data;
 
             if (!usr->registered) {
-                char *reply = make_reply(":%s " ERR_NOTREGISTERED_MSG, serv->hostname, usr->nick);
+                char *reply = make_reply(":%s 451 %s :Connection not registered", serv->hostname, usr->nick);
                 List_push_back(conn->outgoing_messages, reply);
             } else {
-                char *reply = make_reply(":%s " ERR_UNKNOWNCOMMAND_MSG,
+                char *reply = make_reply(":%s 421 %s %s :Unknown command",
                                          serv->hostname,
                                          usr->nick,
                                          message->command);
@@ -332,6 +318,8 @@ char *get_motd(char *fname) {
 }
 
 bool Server_add_connection(Server *serv, Connection *connection) {
+    ht_set(serv->connections, &connection->fd, connection);
+
     // Make user socket non-blocking
     if (fcntl(connection->fd, F_SETFL, fcntl(connection->fd, F_GETFL) | O_NONBLOCK) != 0) {
         perror("fcntl");
@@ -390,4 +378,78 @@ void Server_remove_connection(Server *serv, Connection *connection) {
     }
 
     Connection_free(connection);
+}
+
+bool Server_add_peer(Server *serv, const char *name) {
+    // Load server info from file
+    FILE *file = fopen(serv->config_file, "r");
+
+    if (!file) {
+        log_error("failed to open config file %s", serv->config_file);
+        return false;
+    }
+
+    char *remote_name = NULL;
+    char *remote_host = NULL;
+    char *remote_port = NULL;
+    char *remote_passwd = NULL;
+
+    char *line = NULL;
+    size_t capacity = 0;
+    ssize_t nread = 0;
+
+    while ((nread = getline(&line, &capacity, file)) > 0) {
+        if (line[nread - 1] == '\n') {
+            line[nread - 1] = 0;
+        }
+
+        remote_name = strtok(line, ",");
+        remote_host = strtok(NULL, ",");
+        remote_port = strtok(NULL, ",");
+        remote_passwd = strtok(NULL, ",");
+
+        assert(remote_name);
+        assert(remote_host);
+        assert(remote_port);
+        assert(remote_passwd);
+
+        if (!strcmp(remote_name, name)) {
+            break;
+        }
+    }
+
+    fclose(file);
+    free(line);
+
+    if (strcmp(remote_name, name) != 0) {
+        log_error("Server not configured in file %s", serv->config_file);
+        return false;
+    }
+
+    int fd = connect_to_host(remote_host, remote_port);
+
+    if (fd == -1) {
+        return false;
+    }
+
+    Connection *conn = calloc(1, sizeof *conn);
+    conn->fd = fd;
+    conn->hostname = strdup(remote_host);
+    conn->port = atoi(remote_port);
+    conn->incoming_messages = List_alloc(NULL, free);
+    conn->outgoing_messages = List_alloc(NULL, free);
+
+    Peer *peer = Peer_alloc();
+    peer->name = strdup(remote_name);
+
+    conn->conn_type = PEER_CONNECTION;
+    conn->data = peer;
+
+    ht_set(serv->connections, &fd, conn);
+    ht_set(serv->name_to_peer_map, remote_name, peer);
+
+    List_push_back(conn->outgoing_messages, make_string("PASS %s * *\r\n", remote_passwd));
+    List_push_back(conn->outgoing_messages, make_string("SERVER %s :\r\n", serv->name));
+
+    return true;
 }

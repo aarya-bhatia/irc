@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
                 Connection *connection = ht_get(serv->connections, &fd);
 
                 if (!connection) {
-                    Server_remove_connection(serv, connection);
+                    epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, fd, NULL);
                     continue;
                 }
 
@@ -90,11 +90,11 @@ int main(int argc, char *argv[]) {
                         if (strncmp(message, "NICK", 4) == 0 || strncmp(message, "USER", 4) == 0) {
                             connection->conn_type = USER_CONNECTION;
                             connection->data = User_alloc();
+                            ((User *)connection->data)->hostname = strdup(connection->hostname);
                         } else if (strncmp(message, "PASS", 4) == 0) {
-                            connection->conn_type = USER_CONNECTION;
+                            connection->conn_type = PEER_CONNECTION;
                             connection->data = Peer_alloc();
-                        } else {
-                            // Ignore message
+                        } else {  // Ignore message
                             List_pop_front(connection->incoming_messages);
                             continue;
                         }
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
 
                 if (connection->conn_type == USER_CONNECTION) {
                     if (List_size(connection->incoming_messages) > 0) {
-                        Server_process_user_request(serv, connection);
+                        Server_process_request(serv, connection);
                     }
 
                     User *usr = connection->data;
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 
                 if (connection->conn_type == PEER_CONNECTION) {
                     if (List_size(connection->incoming_messages) > 0) {
-                        Server_process_peer_request(serv, connection);
+                        Server_process_request(serv, connection);
                     }
 
                     Peer *peer = connection->data;

@@ -50,7 +50,7 @@ ssize_t Connection_read(Connection *this) {
     char *end_msg = NULL;
 
     // Add all available messages to inbox
-    while (*end_msg != '\0' && (end_msg = strstr(start_msg, "\r\n")) != NULL) {
+    while ((end_msg = strstr(start_msg, "\r\n")) != NULL) {
         char *message = strndup(start_msg, end_msg - start_msg);
         log_debug("Message: %s", message);
         List_push_back(this->incoming_messages, message);
@@ -63,6 +63,10 @@ ssize_t Connection_read(Connection *this) {
         memmove(start_msg, this->req_buf, new_len);
         this->req_buf[new_len] = 0;
         this->req_len = new_len;
+    }
+    else {
+        this->req_buf[0] = 0;
+        this->req_len = 0;
     }
 
     return nread;

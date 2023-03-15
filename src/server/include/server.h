@@ -63,11 +63,11 @@ enum { USER_ONLINE,
        USER_OFFLINE };
 
 typedef struct _User {
-    char *nick;        // display name
-    char *username;    // unique identifier
-    char *realname;    // full name
-    char *hostname;    // client ip
-    Vector *channels;  // list of channels joined by user
+    char *nick;         // display name
+    char *username;     // unique identifier
+    char *realname;     // full name
+    char *hostname;     // client ip
+    Vector *channels;   // list of channels joined by user
     bool registered;    // flag to indicate user has registered with username, realname and nick
     bool nick_changed;  // flag to indicate user has set a nick
     bool quit;          // flag to indicate user is leaving server
@@ -139,17 +139,20 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg);
 void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg);
 void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);
 void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);
-void Server_reply_to_SERVER(Server *serv, User *usr, Message *msg);
-void Server_reply_to_PASS(Server *serv, User *usr, Message *msg);
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);
 void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg);
 void Server_reply_to_HELP(Server *serv, User *usr, Message *msg);
+void Server_reply_to_SERVER(Server *serv, Peer *peer, Message *msg);
+void Server_reply_to_PASS(Server *serv, Peer *peer, Message *msg);
 
 bool Server_registered_middleware(Server *serv, User *usr, Message *msg);
 bool Server_channel_middleware(Server *serv, User *usr, Message *msg);
 
 bool Server_add_user(Server *, User *);
 void Server_remove_user(Server *, User *);
+
+bool Server_add_connection(Server *serv, Connection *connection);
+void Server_remove_connection(Server *serv, Connection *connection);
 
 User *User_alloc();
 void User_free(User *this);
