@@ -258,10 +258,13 @@ void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {
     if (motd) {
         List_push_back(usr->msg_queue, make_reply(":%s " RPL_MOTD_MSG, serv->hostname,
                                                   usr->nick, motd));
+        
+        free(motd);
     } else {
         List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOMOTD_MSG, serv->hostname,
                                                   usr->nick));
     }
+
 }
 
 void Server_reply_to_PING(Server *serv, User *usr, Message *msg) {

@@ -308,11 +308,10 @@ char *get_motd(char *fname) {
     if (res) {
         size_t len = strlen(res);
         if (res[len - 1] == '\n') {
-            res[res_len - 1] = 0;
+            res[len - 1] = 0;
         }
     }
 
-    free(res);
     fclose(file);
 
     return res;
