@@ -312,6 +312,7 @@ char *get_motd(char *fname) {
         }
     }
 
+    free(res);
     fclose(file);
 
     return res;
