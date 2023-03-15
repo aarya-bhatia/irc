@@ -211,14 +211,14 @@ void Server_process_request(Server *serv, Connection *conn) {
                 User *usr = conn->data;
 
                 while (List_size(usr->msg_queue) > 0) {
-                    List_push_back(conn->outgoing_messages, List_peek_front(usr->msg_queue));
+                    List_push_back(conn->outgoing_messages, strdup(List_peek_front(usr->msg_queue)));
                     List_pop_front(usr->msg_queue);
                 }
             } else if (conn->conn_type == PEER_CONNECTION) {
                 Peer *peer = conn->data;
 
                 while (List_size(peer->msg_queue) > 0) {
-                    List_push_back(conn->outgoing_messages, List_peek_front(peer->msg_queue));
+                    List_push_back(conn->outgoing_messages, strdup(List_peek_front(peer->msg_queue)));
                     List_pop_front(peer->msg_queue);
                 }
             }
