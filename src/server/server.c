@@ -168,6 +168,34 @@ void Server_accept_all(Server *serv) {
     }
 }
 
+void flush_message_queues(Server *serv) {
+    HashtableIter itr;
+    ht_iter_init(&itr, serv->connections);
+
+    Connection *conn = NULL;
+
+    while (ht_iter_next(&itr, NULL, (void **)&conn)) {
+        if (conn->conn_type == UNKNOWN_CONNECTION) {
+            continue;
+        }
+
+        List *messages = NULL;
+
+        if (conn->conn_type == USER_CONNECTION) {
+            messages = ((User *)conn->data)->msg_queue;
+        } else if (conn->conn_type == PEER_CONNECTION) {
+            messages = ((Peer *)conn->data)->msg_queue;
+        }
+
+        if (messages && List_size(messages) > 0) {
+            while (List_size(messages) > 0) {
+                List_push_back(conn->outgoing_messages, strdup(List_peek_front(messages)));
+                List_pop_front(messages);
+            }
+        }
+    }
+}
+
 void Server_process_request(Server *serv, Connection *conn) {
     assert(serv);
     assert(conn);
@@ -205,23 +233,25 @@ void Server_process_request(Server *serv, Connection *conn) {
             }
         }
 
-        // flush message queues
+        // flush user message queues
+        flush_message_queues(serv);
+
         if (found) {
-            if (conn->conn_type == USER_CONNECTION) {
-                User *usr = conn->data;
+            // if (conn->conn_type == USER_CONNECTION) {
+            //     User *usr = conn->data;
 
-                while (List_size(usr->msg_queue) > 0) {
-                    List_push_back(conn->outgoing_messages, strdup(List_peek_front(usr->msg_queue)));
-                    List_pop_front(usr->msg_queue);
-                }
-            } else if (conn->conn_type == PEER_CONNECTION) {
-                Peer *peer = conn->data;
+            //     while (List_size(usr->msg_queue) > 0) {
+            //         List_push_back(conn->outgoing_messages, strdup(List_peek_front(usr->msg_queue)));
+            //         List_pop_front(usr->msg_queue);
+            //     }
+            // } else if (conn->conn_type == PEER_CONNECTION) {
+            //     Peer *peer = conn->data;
 
-                while (List_size(peer->msg_queue) > 0) {
-                    List_push_back(conn->outgoing_messages, strdup(List_peek_front(peer->msg_queue)));
-                    List_pop_front(peer->msg_queue);
-                }
-            }
+            //     while (List_size(peer->msg_queue) > 0) {
+            //         List_push_back(conn->outgoing_messages, strdup(List_peek_front(peer->msg_queue)));
+            //         List_pop_front(peer->msg_queue);
+            //     }
+            // }
 
             continue;
         }

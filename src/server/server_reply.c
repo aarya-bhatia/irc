@@ -343,19 +343,9 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
             return;
         }
 
-        char *target_username = ht_get(serv->online_nick_to_username_map, target_nick);
+        User *target_user = Server_get_user_by_nick(serv, target_nick);
 
-        if (!target_username) {
-            List_push_back(usr->msg_queue,
-                           make_reply(":%s " ERR_NOSUCHNICK_MSG,
-                                      serv->hostname, usr->nick,
-                                      target_nick));
-            return;
-        }
-
-        User *target_data = ht_get(serv->username_to_user_map, target_username);
-
-        if (!target_data) {
+        if (!target_user) {
             List_push_back(usr->msg_queue,
                            make_reply(":%s " ERR_NOSUCHNICK_MSG,
                                       serv->hostname, usr->nick,
@@ -364,7 +354,7 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
         }
 
         // Add message to target user's queue
-        List_push_back(target_data->msg_queue,
+        List_push_back(target_user->msg_queue,
                        make_reply(":%s!%s@%s PRIVMSG %s :%s", usr->nick,
                                   usr->username, usr->hostname,
                                   target_nick, msg->body));
