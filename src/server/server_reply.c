@@ -7,7 +7,8 @@ bool Server_registered_middleware(Server *serv, User *usr, Message *msg) {
     assert(msg);
 
     if (!usr->registered) {
-        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOTREGISTERED_MSG, serv->hostname, usr->nick)); return false;
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOTREGISTERED_MSG, serv->hostname, usr->nick));
+        return false;
     }
 
     return true;
@@ -71,6 +72,8 @@ void send_motd_reply(Server *serv, User *usr) {
         List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOMOTD_MSG,
                                                   serv->hostname, usr->nick));
     }
+
+    free(motd);
 }
 
 void send_welcome_reply(Server *serv, User *usr) {
@@ -258,13 +261,12 @@ void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {
     if (motd) {
         List_push_back(usr->msg_queue, make_reply(":%s " RPL_MOTD_MSG, serv->hostname,
                                                   usr->nick, motd));
-        
+
         free(motd);
     } else {
         List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOMOTD_MSG, serv->hostname,
                                                   usr->nick));
     }
-
 }
 
 void Server_reply_to_PING(Server *serv, User *usr, Message *msg) {
@@ -483,6 +485,10 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
     send_names_reply(serv, usr, channel);
 }
 
+/**
+ * The LIST command is used to get a list of channels along with some information about each channel.
+ * Both parameters to this command are optional as they have different syntaxes.
+ */
 void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "LIST"));
 
@@ -521,6 +527,10 @@ void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
     List_push_back(usr->msg_queue, make_reply(":%s " RPL_LISTEND_MSG, serv->hostname, usr->nick));
 }
 
+/**
+ * The NAMES command is used to view the nicknames joined to a channel and their channel membership prefixes.
+ * The param of this command is a list of channel names, delimited by a comma.
+ */
 void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NAMES"));
 

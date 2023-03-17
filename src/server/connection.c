@@ -21,6 +21,7 @@ void Connection_free(Connection *this) {
     }
     List_free(this->incoming_messages);
     List_free(this->outgoing_messages);
+    free(this->hostname);
     free(this);
 }
 

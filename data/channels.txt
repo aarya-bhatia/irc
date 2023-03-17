@@ -1,3 +1,2 @@
-hello 1678201522 0 :world
 hi 1678242889 0 :cotton
 testchannel 0 0 :Hello
