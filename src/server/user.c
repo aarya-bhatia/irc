@@ -61,5 +61,6 @@ Peer *Peer_alloc() {
 void Peer_free(Peer *this) {
     List_free(this->msg_queue);
     free(this->name);
+    free(this->passwd);
     free(this);
 }

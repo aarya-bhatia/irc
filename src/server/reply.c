@@ -1,3 +1,4 @@
+#include "include/list.h"
 #include "include/replies.h"
 #include "include/server.h"
 
@@ -99,7 +100,7 @@ void send_topic_reply(Server *serv, User *usr, Channel *channel) {
 /**
  * To complete registration, the user must have a username, realname and a nick.
  */
-bool check_registration_complete(Server *serv, User *usr) {
+bool check_user_registration(Server *serv, User *usr) {
     if (!usr->registered && usr->nick_changed && usr->username && usr->realname) {
         usr->registered = true;
 
@@ -207,7 +208,7 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
     log_info("user %s updated nick", usr->nick);
 
     if (!usr->registered) {
-        check_registration_complete(serv, usr);
+        check_user_registration(serv, usr);
     }
 }
 
@@ -250,11 +251,13 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {
     log_debug("user %s set username to %s and realname to %s", usr->nick, username, realname);
 
     // Complete registration
-    check_registration_complete(serv, usr);
+    check_user_registration(serv, usr);
 }
 
 void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "MOTD"));
+
+    List_push_back(usr->msg_queue, make_reply(":%s 375 %s :- %s Message of the day - ", serv->hostname, usr->nick, serv->name));
 
     char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
@@ -739,8 +742,95 @@ void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg) {
     }
 }
 
+void check_peer_registration(Server *serv, Peer *peer) {
+    if (peer->registered) {
+        return;
+    }
+
+    if (!peer->passwd || !peer->name) {
+        return;
+    }
+
+    if (ht_contains(serv->name_to_peer_map, peer->name)) {
+        List_push_back(peer->msg_queue, make_string("ERROR :ID \"%s\" already registered\r\n", peer->name));
+        peer->quit = true;
+        return;
+    }
+
+    if (strcmp(peer->passwd, serv->passwd) != 0) {
+        List_push_back(peer->msg_queue, make_string("ERROR :Bad password\r\n"));
+        peer->quit = true;
+        return;
+    }
+
+    char *other_passwd = NULL;
+
+    if (!(other_passwd = get_server_passwd(serv->config_file, peer->name))) {
+        List_push_back(peer->msg_queue, make_string("ERROR :Server not configured here\r\n"));
+        peer->quit = true;
+        return;
+    }
+
+    peer->registered = true;
+
+    log_info("Server %s has registrated", peer->name);
+
+    List_push_back(peer->msg_queue, make_reply(":%s PASS %s 0210 |", serv->hostname, other_passwd));
+    List_push_back(peer->msg_queue, make_reply(":%s SERVER %s :%s", serv->hostname, serv->hostname, serv->info));
+
+    free(other_passwd);
+}
+
+void Server_reply_to_INFO(Server *serv, User *usr, Message *msg) {
+    assert(!strcmp(msg->command, "INFO"));
+    List_push_back(usr->msg_queue, make_reply(":%s 371 %s :%s", serv->hostname, usr->nick, serv->info));
+    List_push_back(usr->msg_queue, make_reply(":%s 374 %s :End of INFO list", serv->hostname, usr->nick));
+}
+
+/**
+ *  The SERVER command is used to register a new server.
+ */
 void Server_reply_to_SERVER(Server *serv, Peer *peer, Message *msg) {
+    assert(!strcmp(msg->command, "SERVER"));
+
+    if (peer->registered) {
+        List_push_back(peer->msg_queue, make_reply(":%s 462 %s :You may not reregister", serv->hostname, peer->name));
+        return;
+    }
+
+    if (msg->n_params < 1) {
+        List_push_back(peer->msg_queue, make_reply(":%s 461 %s %s :Not enough parameters", serv->hostname, peer->name, msg->command));
+        return;
+    }
+
+    free(peer->name);
+
+    char *serv_name = msg->params[0];
+    assert(serv_name);
+
+    peer->name = strdup(serv_name);
+
+    check_peer_registration(serv, peer);
 }
 
 void Server_reply_to_PASS(Server *serv, Peer *peer, Message *msg) {
+    assert(!strcmp(msg->command, "PASS"));
+
+    if (peer->registered) {
+        List_push_back(peer->msg_queue, make_reply(":%s 462 %s :You may not reregister", serv->hostname, peer->name));
+        return;
+    }
+
+    if (msg->n_params == 0) {
+        List_push_back(peer->msg_queue, make_reply(":%s 461 %s %s :Not enough parameters", serv->hostname, peer->name, msg->command));
+        return;
+    }
+
+    char *passwd = msg->params[0];
+    assert(passwd);
+
+    free(peer->passwd);
+    peer->passwd = strdup(passwd);
+
+    check_peer_registration(serv, peer);
 }

@@ -7,9 +7,12 @@
 #include "include/vector.h"
 
 #define MOTD_FILENAME "./data/motd.txt"
+#define CONFIG_FILENAME "./config.csv"
 #define MAX_CHANNEL_COUNT 10
 #define MAX_CHANNEL_USERS 5
 #define CHANNELS_FILENAME "./data/channels.txt"
+#define DEFAULT_PASSWD "Test@123"
+#define DEFAULT_INFO "development irc server"
 
 typedef enum _conn_type_t {
     UNKNOWN_CONNECTION,
@@ -50,12 +53,15 @@ typedef struct _Server {
     char created_at[64];          // server time created at as string
     char *motd_file;              // file to use for message of the day greetings
     char *config_file;            // name of config file with irc server address and passwords
+    char *passwd;
+    char *info;
 } Server;
 
 typedef struct _Peer {
     char *name;
-    bool quit;           // flag to indicate server leaving
-    bool authenticated;  // flag to check if remote server has authenticated with password
+    char *passwd;
+    bool registered;
+    bool quit;  // flag to indicate server leaving
     List *msg_queue;
 } Peer;
 
@@ -109,9 +115,7 @@ struct help_t {
 const struct help_t *get_help_text(const char *subject);
 
 // server.c
-char *get_motd(char *fname);
-
-Server *Server_create(int port);
+Server *Server_create(int port, const char *name);
 void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
 void Server_process_request(Server *serv, Connection *usr);
@@ -122,8 +126,13 @@ User *Server_get_user_by_socket(Server *serv, int sock);
 User *Server_get_user_by_nick(Server *serv, const char *nick);
 User *Server_get_user_by_username(Server *serv, const char *username);
 
-// server_reply.c
+char *get_motd(char *fname);
+char *get_server_passwd(const char *config_filename, const char *name);
+
+// reply.c
+
 bool check_registration_complete(Server *serv, User *usr);
+void check_peer_registration(Server *serv, Peer *peer);
 
 void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);
 void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
@@ -132,6 +141,7 @@ void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg);
 void Server_reply_to_PING(Server *serv, User *usr, Message *msg);
 void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg);
 void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);
+void Server_reply_to_INFO(Server *serv, User *usr, Message *msg);
 void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);
 void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);
 void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);

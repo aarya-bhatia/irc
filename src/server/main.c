@@ -13,12 +13,12 @@ void sighandler(int sig);
  * To start IRC server on given port
  */
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s <port>", *argv);
+    if (argc < 3) {
+        fprintf(stderr, "Usage: %s <port> <name>", *argv);
         return 1;
     }
     // Create and start an IRC server on given port
-    Server *serv = Server_create(atoi(argv[1]));
+    Server *serv = Server_create(atoi(argv[1]), argv[2]);
 
     // Array for events returned from epoll
     struct epoll_event events[MAX_EVENTS] = {0};
@@ -116,6 +116,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 if (connection->conn_type == PEER_CONNECTION) {
+
                     if (List_size(connection->incoming_messages) > 0) {
                         Server_process_request(serv, connection);
                     }

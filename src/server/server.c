@@ -4,12 +4,18 @@
 #include <sys/stat.h>
 #include <time.h>
 
+/**
+ * request handler
+ */
 struct rpl_handle_t {
-    const char *name;
-    void (*user_handler)(Server *, User *, Message *);
-    void (*peer_handler)(Server *, Peer *, Message *);
+    const char *name;                                  /* the command to be handled */
+    void (*user_handler)(Server *, User *, Message *); /* handle request for user connection */
+    void (*peer_handler)(Server *, Peer *, Message *); /* handle request for peer connection */
 };
 
+/**
+ * Look up table for request handlers for a given command
+ */
 static struct rpl_handle_t rpl_handlers[] = {
     {"NICK", Server_reply_to_NICK, NULL},
     {"USER", Server_reply_to_USER, NULL},
@@ -18,6 +24,7 @@ static struct rpl_handle_t rpl_handlers[] = {
     {"PING", Server_reply_to_PING, NULL},
     {"QUIT", Server_reply_to_QUIT, NULL},
     {"MOTD", Server_reply_to_MOTD, NULL},
+    {"INFO", Server_reply_to_INFO, NULL},
     {"LIST", Server_reply_to_LIST, NULL},
     {"WHO", Server_reply_to_WHO, NULL},
     {"WHOIS", Server_reply_to_WHOIS, NULL},
@@ -67,6 +74,9 @@ void Server_destroy(Server *serv) {
     close(serv->epollfd);
     free(serv->hostname);
     free(serv->port);
+    free(serv->passwd);
+    free(serv->info);
+    free(serv->name);
     free(serv);
 
     log_debug("Server stopped");
@@ -76,30 +86,43 @@ void Server_destroy(Server *serv) {
 /**
  * Create and initialise the server. Bind socket to given port.
  */
-Server *Server_create(int port) {
+Server *Server_create(int port, const char *name) {
+    assert(name);
+
     Server *serv = calloc(1, sizeof *serv);
     assert(serv);
 
-    serv->connections = ht_alloc();                  /* Map<int, Connection *> */
-    serv->name_to_peer_map = ht_alloc();             /* Map<string, Peer *> */
-    serv->username_to_user_map = ht_alloc();         /* Map<string, User*> */
-    serv->online_nick_to_username_map = ht_alloc();  /* Map<string, string>*/
-    serv->offline_nick_to_username_map = ht_alloc(); /* Map<string, string>*/
-
+    serv->connections = ht_alloc(); /* Map<int, Connection *> */
     serv->connections->key_len = sizeof(int);
     serv->connections->key_compare = (compare_type)int_compare;
     serv->connections->key_copy = (elem_copy_type)int_copy;
     serv->connections->key_free = free;
 
-    serv->online_nick_to_username_map->value_copy = (elem_copy_type)strdup;
-    serv->offline_nick_to_username_map->value_copy = (elem_copy_type)strdup;
+    serv->name_to_peer_map = ht_alloc(); /* Map<string, Peer *> */
 
+    serv->username_to_user_map = ht_alloc(); /* Map<string, User*> */
+
+    serv->online_nick_to_username_map = ht_alloc(); /* Map<string, string>*/
+    serv->online_nick_to_username_map->value_copy = (elem_copy_type)strdup;
     serv->online_nick_to_username_map->value_free = free;
+
+    serv->offline_nick_to_username_map = ht_alloc(); /* Map<string, string>*/
+    serv->offline_nick_to_username_map->value_copy = (elem_copy_type)strdup;
     serv->offline_nick_to_username_map->value_free = free;
 
     serv->channels_map = load_channels(CHANNELS_FILENAME);
 
     serv->motd_file = MOTD_FILENAME;
+    serv->config_file = CONFIG_FILENAME;
+
+    serv->name = strdup(name);
+    serv->info = strdup(DEFAULT_INFO);
+
+    serv->passwd = get_server_passwd(serv->config_file, name);
+
+    if(!serv->passwd) {
+        die("Password not found");
+    }
 
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
@@ -237,22 +260,6 @@ void Server_process_request(Server *serv, Connection *conn) {
         flush_message_queues(serv);
 
         if (found) {
-            // if (conn->conn_type == USER_CONNECTION) {
-            //     User *usr = conn->data;
-
-            //     while (List_size(usr->msg_queue) > 0) {
-            //         List_push_back(conn->outgoing_messages, strdup(List_peek_front(usr->msg_queue)));
-            //         List_pop_front(usr->msg_queue);
-            //     }
-            // } else if (conn->conn_type == PEER_CONNECTION) {
-            //     Peer *peer = conn->data;
-
-            //     while (List_size(peer->msg_queue) > 0) {
-            //         List_push_back(conn->outgoing_messages, strdup(List_peek_front(peer->msg_queue)));
-            //         List_pop_front(peer->msg_queue);
-            //     }
-            // }
-
             continue;
         }
 
@@ -482,4 +489,49 @@ bool Server_add_peer(Server *serv, const char *name) {
     List_push_back(conn->outgoing_messages, make_string("SERVER %s :\r\n", serv->name));
 
     return true;
+}
+
+char *get_server_passwd(const char *config_filename, const char *name) {
+    // Load server info from file
+    FILE *file = fopen(config_filename, "r");
+
+    if (!file) {
+        log_error("failed to open config file %s", config_filename);
+        return false;
+    }
+
+    char *remote_name = NULL;
+    char *remote_host = NULL;
+    char *remote_port = NULL;
+    char *remote_passwd = NULL;
+
+    char *line = NULL;
+    size_t capacity = 0;
+    ssize_t nread = 0;
+
+    while ((nread = getline(&line, &capacity, file)) > 0) {
+        remote_name = strtok(line, ",");
+        remote_host = strtok(NULL, ",");
+        remote_port = strtok(NULL, ",");
+        remote_passwd = strtok(NULL, "\n");
+
+        assert(remote_name);
+        assert(remote_host);
+        assert(remote_port);
+        assert(remote_passwd);
+
+        if (!strcmp(remote_name, name)) {
+            break;
+        }
+    }
+
+    fclose(file);
+    free(line);
+
+    if (strcmp(remote_name, name) != 0) {
+        log_error("Server not configured in file %s", config_filename);
+        return NULL;
+    }
+
+    return strdup(remote_passwd);
 }
