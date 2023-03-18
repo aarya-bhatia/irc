@@ -120,7 +120,7 @@ Server *Server_create(int port, const char *name) {
 
     serv->passwd = get_server_passwd(serv->config_file, name);
 
-    if(!serv->passwd) {
+    if (!serv->passwd) {
         die("Password not found");
     }
 
@@ -510,6 +510,8 @@ char *get_server_passwd(const char *config_filename, const char *name) {
     ssize_t nread = 0;
 
     while ((nread = getline(&line, &capacity, file)) > 0) {
+        assert(line);
+
         remote_name = strtok(line, ",");
         remote_host = strtok(NULL, ",");
         remote_port = strtok(NULL, ",");
@@ -526,12 +528,16 @@ char *get_server_passwd(const char *config_filename, const char *name) {
     }
 
     fclose(file);
-    free(line);
 
-    if (strcmp(remote_name, name) != 0) {
+    if (!remote_passwd || strcmp(remote_name, name) != 0) {
         log_error("Server not configured in file %s", config_filename);
+        free(line);
         return NULL;
     }
 
-    return strdup(remote_passwd);
+    log_debug("Password found for server %s: %s", name, remote_passwd);
+
+    char *passwd = strdup(remote_passwd);
+    free(line);
+    return passwd;
 }

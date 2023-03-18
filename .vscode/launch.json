@@ -14,7 +14,8 @@
       "request": "launch",
       "program": "${workspaceFolder}/build/server",
       "args": [
-        "5000"
+        "5000",
+        "vm0"
       ],
       "cwd": "${workspaceFolder}",
     }
