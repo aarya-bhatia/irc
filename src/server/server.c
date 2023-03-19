@@ -11,15 +11,27 @@
 /**
  * request handler
  */
-struct rpl_handle_t {
-    const char *name;                             /* the command to be handled */
-    void (*handler)(Server *, User *, Message *); /* handle request from user */
-};
+typedef struct _UserRequestHandler {
+    const char *name;                             /* command name */
+    void (*handler)(Server *, User *, Message *); /* request handler function */
+} UserRequestHandler;
+
+typedef struct _PeerRequestHandler {
+    const char *name;                             /* command name */
+    void (*handler)(Server *, Peer *, Message *); /* request handler function */
+} PeerRequestHandler;
 
 /**
- * Look up table for request handlers for user commands
+ * Look up table for peer request handlers
  */
-static struct rpl_handle_t rpl_handlers[] = {
+static PeerRequestHandler peer_request_handlers[] = {
+    {"SERVER", Server_reply_to_SERVER},
+    {"PASS", Server_reply_to_PASS}};
+
+/**
+ * Look up table for user request handlers
+ */
+static UserRequestHandler user_request_handlers[] = {
     {"NICK", Server_reply_to_NICK},
     {"USER", Server_reply_to_USER},
     {"PRIVMSG", Server_reply_to_PRIVMSG},
@@ -272,8 +284,8 @@ void Server_process_request_from_user(Server *serv, Connection *conn) {
 
         bool found = false;
 
-        for (size_t j = 0; j < sizeof rpl_handlers / sizeof *rpl_handlers; j++) {
-            struct rpl_handle_t handle = rpl_handlers[j];
+        for (size_t j = 0; j < sizeof(user_request_handlers) / sizeof(user_request_handlers[0]); j++) {
+            UserRequestHandler handle = user_request_handlers[j];
             if (!strcmp(handle.name, message->command)) {
                 handle.handler(serv, usr, message);
                 found = true;
@@ -311,30 +323,42 @@ void Server_process_request_from_peer(Server *serv, Connection *conn) {
     assert(peer);
 
     while (List_size(conn->incoming_messages) > 0) {
-        char *msg_str = List_peek_front(conn->incoming_messages);
+        char *message_str = List_peek_front(conn->incoming_messages);
+        assert(message_str);
 
-        if (!strncmp(msg_str, "ERROR", strlen("ERROR"))) {
-            Server_remove_connection(serv, conn);
-            return;
-        }
+        Message message;
+        message_init(&message);
 
-        Message msg;
-        message_init(&msg);
-
-        if (parse_message(msg_str, &msg) == -1) {
-            message_destroy(&msg);
+        if (parse_message(message_str, &message) == -1) {
+            message_destroy(&message);
             continue;
         }
 
-        if (!strcmp(msg.command, "SERVER")) {
-            Server_reply_to_SERVER(serv, peer, &msg);
-        } else if (!strcmp(msg.command, "PASS")) {
-            Server_reply_to_PASS(serv, peer, &msg);
-        } else if (!(msg_str[0] == ':' && !strncmp(serv->hostname, msg_str + 1, strlen(serv->hostname)))) {
-            Server_broadcast_message(serv, msg_str);
+        if (!strcmp(message.command, "ERROR")) {
+            log_error("Server %s error: %s", peer->name, message.body);
+            Server_remove_connection(serv, conn);
+            message_destroy(&message);
+            return;
         }
 
-        message_destroy(&msg);
+        bool found = false;
+
+        // Find and execute request handler for special commands
+        for (size_t i = 0; i < sizeof(peer_request_handlers) / sizeof(peer_request_handlers[0]); i++) {
+            PeerRequestHandler handler = peer_request_handlers[i];
+            if (!strcmp(handler.name, message.command)) {
+                handler.handler(serv, peer, &message);
+                found = true;
+                break;
+            }
+        }
+
+        // Relay other commands to network
+        if (!found && message.origin && strcmp(message.origin, serv->hostname) != 0) {
+            Server_broadcast_message(serv, message_str);
+        }
+
+        message_destroy(&message);
         List_pop_front(conn->incoming_messages);
     }
 

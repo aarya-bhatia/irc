@@ -6,6 +6,7 @@
 - ping timeouts
 - For final report, connect to server from real irc client (LimeChat)
 - stats
+- nicknames <https://datatracker.ietf.org/doc/html/rfc2813#section-5.7>
 
 ## Session log
 
