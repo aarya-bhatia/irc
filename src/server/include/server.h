@@ -167,8 +167,7 @@ void Server_reply_to_PASS(Server *serv, Peer *peer, Message *msg);
 bool Server_registered_middleware(Server *serv, User *usr, Message *msg);
 bool Server_channel_middleware(Server *serv, User *usr, Message *msg);
 
-bool Server_add_user(Server *, User *);
-void Server_remove_user(Server *, User *);
+bool Server_add_peer(Server *serv, const char *name, const char *port);
 
 bool Server_add_connection(Server *serv, Connection *connection);
 void Server_remove_connection(Server *serv, Connection *connection);

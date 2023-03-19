@@ -631,7 +631,48 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
     }
 }
 
+/**
+ * Command: CONNECT
+ * Parameters: <target server> [<port> [<remote server>]]
+ *
+ * The CONNECT command forces a server to try to establish a new connection to another server.
+ * CONNECT is a privileged command and is available only to IRC Operators.
+ * If a remote server is given, the connection is attempted by that remote server to <target server> using <port>.
+ */
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
+    assert(!strcmp(msg->command, "CONNECT"));
+
+    if (msg->n_params == 0) {
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NEEDMOREPARAMS_MSG, serv->hostname, usr->nick, msg->command));
+        return;
+    }
+
+    char *target_server = msg->params[0];
+    assert(target_server);
+
+    if (!strcmp(serv->hostname, target_server)) {
+        return;
+    }
+
+    Peer *peer = ht_get(serv->name_to_peer_map, target_server);
+
+    if (!peer) {
+        List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHSERVER_MSG, serv->hostname, usr->nick, target_server));
+        return;
+    }
+
+    char *target_port = NULL;
+
+    if (msg->n_params > 1) {
+        target_port = msg->params[1];
+        assert(target_port);
+    }
+
+    if (!Server_add_peer(serv, target_server, target_port)) {
+        log_error("Failed to connect to server %s", target_server);
+    } else {
+        log_info("Connected to server %s", target_server);
+    }
 }
 
 /**

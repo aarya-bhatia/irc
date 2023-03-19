@@ -212,11 +212,19 @@ void Server_flush_message_queues(Server *serv) {
             messages = ((Peer *)conn->data)->msg_queue;
         }
 
+        // Move messages from message queue to outbox queue
         if (messages != NULL && List_size(messages) > 0) {
-            while (List_size(messages) > 0) {
-                List_push_back(conn->outgoing_messages, strdup((char *)List_peek_front(messages)));
-                List_pop_front(messages);
+            ListNode *current = messages->head;
+
+            while (current) {
+                ListNode *tmp = current->next;
+                List_push_back(conn->outgoing_messages, current->elem);
+                free(current);
+                current = tmp;
             }
+
+            messages->head = messages->tail = NULL;
+            messages->size = 0;
         }
     }
 }
@@ -298,12 +306,11 @@ void Server_process_request_from_peer(Server *serv, Connection *conn) {
     List_iter_init(&itr, conn->incoming_messages);
     char *msg_str = NULL;
 
-    while (List_iter_next(&itr, &msg_str)) {
+    while (List_iter_next(&itr, (void **)&msg_str)) {
         if (!strncmp(msg_str, "ERROR", strlen("ERROR"))) {
             log_error("Error on server %s %s", conn->hostname, strstr(msg_str, ":"));
             Server_broadcast_message(serv, msg_str);
             Server_remove_connection(serv, conn);
-            Server_flush_message_queues(serv);
             return;
         }
 
@@ -341,12 +348,12 @@ void Server_process_request(Server *serv, Connection *conn) {
         Server_process_request_from_unknown(serv, conn);
     }
 
-    else if (conn->conn_type == PEER_CONNECTION) {
+    if (conn->conn_type == PEER_CONNECTION) {
         Server_process_request_from_peer(serv, conn);
 
     }
 
-    else if (conn->conn_type == USER_CONNECTION) {
+    if (conn->conn_type == USER_CONNECTION) {
         Server_process_request_from_user(serv, conn);
     }
 
@@ -504,7 +511,7 @@ void Server_remove_connection(Server *serv, Connection *connection) {
     Connection_free(connection);
 }
 
-bool Server_add_peer(Server *serv, const char *name) {
+bool Server_add_peer(Server *serv, const char *name, const char *port) {
     // Load server info from file
     FILE *file = fopen(serv->config_file, "r");
 
@@ -519,7 +526,7 @@ bool Server_add_peer(Server *serv, const char *name) {
         return false;
     }
 
-    int fd = connect_to_host(peer_info.peer_host, peer_info.peer_port);
+    int fd = connect_to_host(peer_info.peer_host, port ? port : peer_info.peer_port);
 
     if (fd == -1) {
         return false;
