@@ -6,15 +6,7 @@
 
 typedef struct Client
 {
-    char *serv_hostname;
-    char *serv_port;
-
-    char *client_nick;
-    char *client_username;
-    char *client_realname;
-
     int client_sock;
-
     queue_t *client_inbox;
     queue_t *client_outbox;
 } Client;

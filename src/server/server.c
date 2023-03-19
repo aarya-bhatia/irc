@@ -229,6 +229,9 @@ void Server_flush_message_queues(Server *serv) {
 }
 
 void Server_process_request_from_unknown(Server *serv, Connection *conn) {
+    assert(conn->conn_type == UNKNOWN_CONNECTION);
+    assert(conn->data == NULL);
+
     char *message = List_peek_front(conn->incoming_messages);
     if (strncmp(message, "NICK", 4) == 0 || strncmp(message, "USER", 4) == 0) {
         conn->conn_type = USER_CONNECTION;
@@ -244,7 +247,10 @@ void Server_process_request_from_unknown(Server *serv, Connection *conn) {
 }
 
 void Server_process_request_from_user(Server *serv, Connection *conn) {
+    assert(conn->conn_type == USER_CONNECTION);
+
     User *usr = conn->data;
+    assert(usr);
 
     // Get array of parsed messages
     Vector *messages = parse_message_list(conn->incoming_messages);
@@ -299,16 +305,15 @@ void Server_process_request_from_user(Server *serv, Connection *conn) {
 }
 
 void Server_process_request_from_peer(Server *serv, Connection *conn) {
+    assert(conn->conn_type == PEER_CONNECTION);
+
     Peer *peer = conn->data;
+    assert(peer);
 
-    ListIter itr;
-    List_iter_init(&itr, conn->incoming_messages);
-    char *msg_str = NULL;
+    while (List_size(conn->incoming_messages) > 0) {
+        char *msg_str = List_peek_front(conn->incoming_messages);
 
-    while (List_iter_next(&itr, (void **)&msg_str)) {
         if (!strncmp(msg_str, "ERROR", strlen("ERROR"))) {
-            log_error("Error on server %s %s", conn->hostname, strstr(msg_str, ":"));
-            Server_broadcast_message(serv, msg_str);
             Server_remove_connection(serv, conn);
             return;
         }
@@ -321,15 +326,16 @@ void Server_process_request_from_peer(Server *serv, Connection *conn) {
             continue;
         }
 
-        if (!strncmp(msg_str, "SERVER", strlen("SERVER"))) {
+        if (!strcmp(msg.command, "SERVER")) {
             Server_reply_to_SERVER(serv, peer, &msg);
-        } else if (!strncmp(msg_str, "PASS", strlen("PASS"))) {
-            Server_reply_to_SERVER(serv, peer, &msg);
-        } else if (msg_str[0] == ':' && strncmp(serv->hostname, msg_str + 1, strlen(serv->hostname)) != 0) {
+        } else if (!strcmp(msg.command, "PASS")) {
+            Server_reply_to_PASS(serv, peer, &msg);
+        } else if (!(msg_str[0] == ':' && !strncmp(serv->hostname, msg_str + 1, strlen(serv->hostname)))) {
             Server_broadcast_message(serv, msg_str);
         }
 
         message_destroy(&msg);
+        List_pop_front(conn->incoming_messages);
     }
 
     conn->quit = peer->quit;

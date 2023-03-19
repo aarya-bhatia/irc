@@ -821,7 +821,7 @@ void check_peer_registration(Server *serv, Peer *peer) {
 
     peer->registered = true;
 
-    log_info("Server %s has registrated", peer->name);
+    log_info("Server %s has registered", peer->name);
 
     ht_set(serv->name_to_peer_map, peer->name, peer);
 
@@ -863,6 +863,10 @@ void Server_reply_to_SERVER(Server *serv, Peer *peer, Message *msg) {
     check_peer_registration(serv, peer);
 }
 
+/**
+ * Command: PASS
+ * Parameters: <password>
+*/
 void Server_reply_to_PASS(Server *serv, Peer *peer, Message *msg) {
     assert(!strcmp(msg->command, "PASS"));
 

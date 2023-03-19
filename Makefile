@@ -44,7 +44,7 @@ tags:
 	cd src && ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .
 
 clean:
-	rm -rf obj build
+	rm -rf obj build/*
 
 .PHONY: clean tags
 
