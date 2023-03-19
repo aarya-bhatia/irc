@@ -13,10 +13,7 @@
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build/server",
-      "args": [
-        "5000",
-        "vm0"
-      ],
+      "args": ["erwin"],
       "cwd": "${workspaceFolder}",
     }
   ],

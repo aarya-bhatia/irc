@@ -123,7 +123,7 @@ struct help_t {
 const struct help_t *get_help_text(const char *subject);
 
 // server.c
-Server *Server_create(int port, const char *name);
+Server *Server_create(const char *name);
 void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
 void Server_process_request(Server *serv, Connection *usr);
@@ -180,6 +180,7 @@ bool User_remove_channel(User *usr, const char *channel_name);
 
 Peer *Peer_alloc();
 void Peer_free(Peer *);
+Hashtable *load_peers(const char *config_filename);
 
 Membership *Membership_alloc(const char *channel, const char *username, int mode);
 void Membership_free(Membership *membership);

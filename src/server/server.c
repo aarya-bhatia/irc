@@ -88,11 +88,28 @@ void Server_destroy(Server *serv) {
 /**
  * Create and initialise the server. Bind socket to given port.
  */
-Server *Server_create(int port, const char *name) {
+Server *Server_create(const char *name) {
     assert(name);
 
     Server *serv = calloc(1, sizeof *serv);
     assert(serv);
+
+    serv->motd_file = MOTD_FILENAME;
+    serv->config_file = CONFIG_FILENAME;
+
+    struct peer_info_t serv_info;
+
+    if (!get_peer_info(CONFIG_FILENAME, name, &serv_info)) {
+        log_error("server %s not found in config file %s", name, serv->config_file);
+        exit(1);
+    }
+
+    serv->name = serv_info.peer_name;
+    serv->port = serv_info.peer_port;
+    serv->passwd = serv_info.peer_passwd;
+    serv->hostname = serv_info.peer_host;
+
+    serv->info = strdup(DEFAULT_INFO);
 
     serv->connections = ht_alloc(); /* Map<int, Connection *> */
     serv->connections->key_len = sizeof(int);
@@ -114,18 +131,6 @@ Server *Server_create(int port, const char *name) {
 
     serv->channels_map = load_channels(CHANNELS_FILENAME);
 
-    serv->motd_file = MOTD_FILENAME;
-    serv->config_file = CONFIG_FILENAME;
-
-    serv->name = strdup(name);
-    serv->info = strdup(DEFAULT_INFO);
-
-    serv->passwd = get_server_passwd(serv->config_file, name);
-
-    if (!serv->passwd) {
-        die("Password not found");
-    }
-
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
 
@@ -142,27 +147,21 @@ Server *Server_create(int port, const char *name) {
 
     // Server Address
     serv->servaddr.sin_family = AF_INET;
-    serv->servaddr.sin_port = htons(port);
+    serv->servaddr.sin_port = htons(atoi(serv->port));
     serv->servaddr.sin_addr.s_addr = INADDR_ANY;
-    serv->hostname = strdup(addr_to_string((struct sockaddr *)&serv->servaddr,
-                                           sizeof(serv->servaddr)));
-    serv->port = make_string("%d", port);
 
     int yes = 1;
 
     // Set socket options
-    CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes),
-          "setsockopt");
+    CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
 
     // Bind
-    CHECK(bind(serv->fd, (struct sockaddr *)&serv->servaddr,
-               sizeof(struct sockaddr_in)),
-          "bind");
+    CHECK(bind(serv->fd, (struct sockaddr *)&serv->servaddr, sizeof(struct sockaddr_in)), "bind");
 
     // Listen
     CHECK(listen(serv->fd, MAX_EVENTS), "listen");
 
-    log_info("server running on port %d", port);
+    log_info("server running on port %s", serv->port);
 
     return serv;
 }
@@ -350,7 +349,6 @@ void Server_process_request(Server *serv, Connection *conn) {
 
     if (conn->conn_type == PEER_CONNECTION) {
         Server_process_request_from_peer(serv, conn);
-
     }
 
     if (conn->conn_type == USER_CONNECTION) {
@@ -374,11 +372,6 @@ void Server_broadcast_message(Server *serv, const char *message) {
     Connection *conn = NULL;
 
     while (ht_iter_next(&itr, NULL, (void **)&conn)) {
-        // Do not send same message back to origin server
-        if (conn->conn_type == PEER_CONNECTION && message[0] == ':' && !strncmp(conn->hostname, message + 1, strlen(conn->hostname))) {
-            continue;
-        }
-
         List_push_back(conn->outgoing_messages, strdup(message));
     }
 }

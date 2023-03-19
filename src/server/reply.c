@@ -1,6 +1,6 @@
-#include "include/list.h"
-#include "include/replies.h"
 #include "include/server.h"
+#include "include/replies.h"
+#include "include/list.h"
 
 bool Server_registered_middleware(Server *serv, User *usr, Message *msg) {
     assert(serv);
@@ -640,6 +640,8 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
  * If a remote server is given, the connection is attempted by that remote server to <target server> using <port>.
  */
 void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
+    // TODO
+
     assert(!strcmp(msg->command, "CONNECT"));
 
     if (msg->n_params == 0) {
@@ -654,25 +656,30 @@ void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    Peer *peer = ht_get(serv->name_to_peer_map, target_server);
+    struct peer_info_t target_info;
 
-    if (!peer) {
+    if (!get_peer_info(serv->config_file, target_server, &target_info)) {
         List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHSERVER_MSG, serv->hostname, usr->nick, target_server));
+
+        free(target_info.peer_host);
+        free(target_info.peer_name);
+        free(target_info.peer_passwd);
+        free(target_info.peer_port);
         return;
     }
 
-    char *target_port = NULL;
+    char *target_port = msg->params[1];  // Use default port if NULL
 
-    if (msg->n_params > 1) {
-        target_port = msg->params[1];
-        assert(target_port);
-    }
+    // if (!Server_add_peer(serv, target_server, target_port)) {
+    //     log_error("Failed to connect to server %s", target_server);
+    // } else {
+    //     log_info("Connected to server %s", target_server);
+    // }
 
-    if (!Server_add_peer(serv, target_server, target_port)) {
-        log_error("Failed to connect to server %s", target_server);
-    } else {
-        log_info("Connected to server %s", target_server);
-    }
+    // free(target_info.peer_host);
+    // free(target_info.peer_name);
+    // free(target_info.peer_passwd);
+    // free(target_info.peer_port);
 }
 
 /**
@@ -815,6 +822,8 @@ void check_peer_registration(Server *serv, Peer *peer) {
     peer->registered = true;
 
     log_info("Server %s has registrated", peer->name);
+
+    ht_set(serv->name_to_peer_map, peer->name, peer);
 
     List_push_back(peer->msg_queue, make_reply(":%s PASS %s 0210 |", serv->hostname, other_passwd));
     List_push_back(peer->msg_queue, make_reply(":%s SERVER %s :%s", serv->hostname, serv->hostname, serv->info));
