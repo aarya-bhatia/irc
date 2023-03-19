@@ -6,6 +6,31 @@
 #include <stdlib.h>
 #include <string.h>
 
+void List_iter_init(ListIter *iter, List *list)
+{
+    assert(iter);
+    assert(list);
+
+    iter->current = list->head;
+}
+
+bool List_iter_next(ListIter *iter, void **elem_ptr)
+{
+    assert(iter);
+
+    if(!iter->current) {
+        return false;
+    }
+
+    if(elem_ptr) {
+        *elem_ptr = iter->current->elem;
+    }
+
+    iter->current = iter->current->next;
+
+    return true;
+}
+
 List *List_alloc(void *(*elem_copy)(void *), void (*elem_free)(void *)) {
     List *this = calloc(1, sizeof *this);
     List_init(this, elem_copy, elem_free);

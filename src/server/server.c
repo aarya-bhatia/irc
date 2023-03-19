@@ -1,41 +1,43 @@
+
 #include "include/server.h"
 
 #include <sys/epoll.h>
 #include <sys/stat.h>
 #include <time.h>
 
+#include "include/common.h"
+#include "include/list.h"
+
 /**
  * request handler
  */
 struct rpl_handle_t {
-    const char *name;                                  /* the command to be handled */
-    void (*user_handler)(Server *, User *, Message *); /* handle request for user connection */
-    void (*peer_handler)(Server *, Peer *, Message *); /* handle request for peer connection */
+    const char *name;                             /* the command to be handled */
+    void (*handler)(Server *, User *, Message *); /* handle request from user */
 };
 
 /**
- * Look up table for request handlers for a given command
+ * Look up table for request handlers for user commands
  */
 static struct rpl_handle_t rpl_handlers[] = {
-    {"NICK", Server_reply_to_NICK, NULL},
-    {"USER", Server_reply_to_USER, NULL},
-    {"PRIVMSG", Server_reply_to_PRIVMSG, NULL},
-    {"NOTICE", Server_reply_to_NOTICE, NULL},
-    {"PING", Server_reply_to_PING, NULL},
-    {"QUIT", Server_reply_to_QUIT, NULL},
-    {"MOTD", Server_reply_to_MOTD, NULL},
-    {"INFO", Server_reply_to_INFO, NULL},
-    {"LIST", Server_reply_to_LIST, NULL},
-    {"WHO", Server_reply_to_WHO, NULL},
-    {"WHOIS", Server_reply_to_WHOIS, NULL},
-    {"JOIN", Server_reply_to_JOIN, NULL},
-    {"PART", Server_reply_to_PART, NULL},
-    {"NAMES", Server_reply_to_NAMES, NULL},
-    {"TOPIC", Server_reply_to_TOPIC, NULL},
-    {"LUSERS", Server_reply_to_LUSERS, NULL},
-    {"HELP", Server_reply_to_HELP, NULL},
-    {"CONNECT", Server_reply_to_CONNECT, NULL},
-    {"SERVER", NULL, Server_reply_to_SERVER},
+    {"NICK", Server_reply_to_NICK},
+    {"USER", Server_reply_to_USER},
+    {"PRIVMSG", Server_reply_to_PRIVMSG},
+    {"NOTICE", Server_reply_to_NOTICE},
+    {"PING", Server_reply_to_PING},
+    {"QUIT", Server_reply_to_QUIT},
+    {"MOTD", Server_reply_to_MOTD},
+    {"INFO", Server_reply_to_INFO},
+    {"LIST", Server_reply_to_LIST},
+    {"WHO", Server_reply_to_WHO},
+    {"WHOIS", Server_reply_to_WHOIS},
+    {"JOIN", Server_reply_to_JOIN},
+    {"PART", Server_reply_to_PART},
+    {"NAMES", Server_reply_to_NAMES},
+    {"TOPIC", Server_reply_to_TOPIC},
+    {"LUSERS", Server_reply_to_LUSERS},
+    {"HELP", Server_reply_to_HELP},
+    {"CONNECT", Server_reply_to_CONNECT},
 };
 
 User *Server_get_user_by_nick(Server *serv, const char *nick) {
@@ -191,7 +193,7 @@ void Server_accept_all(Server *serv) {
     }
 }
 
-void flush_message_queues(Server *serv) {
+void Server_flush_message_queues(Server *serv) {
     HashtableIter itr;
     ht_iter_init(&itr, serv->connections);
 
@@ -210,18 +212,32 @@ void flush_message_queues(Server *serv) {
             messages = ((Peer *)conn->data)->msg_queue;
         }
 
-        if (messages && List_size(messages) > 0) {
+        if (messages != NULL && List_size(messages) > 0) {
             while (List_size(messages) > 0) {
-                List_push_back(conn->outgoing_messages, strdup(List_peek_front(messages)));
+                List_push_back(conn->outgoing_messages, strdup((char *)List_peek_front(messages)));
                 List_pop_front(messages);
             }
         }
     }
 }
 
-void Server_process_request(Server *serv, Connection *conn) {
-    assert(serv);
-    assert(conn);
+void Server_process_request_from_unknown(Server *serv, Connection *conn) {
+    char *message = List_peek_front(conn->incoming_messages);
+    if (strncmp(message, "NICK", 4) == 0 || strncmp(message, "USER", 4) == 0) {
+        conn->conn_type = USER_CONNECTION;
+        conn->data = User_alloc();
+        ((User *)conn->data)->hostname = strdup(conn->hostname);
+    } else if (strncmp(message, "PASS", 4) == 0) {
+        conn->conn_type = PEER_CONNECTION;
+        conn->data = Peer_alloc();
+    } else {  // Ignore message
+        List_pop_front(conn->incoming_messages);
+        return;
+    }
+}
+
+void Server_process_request_from_user(Server *serv, Connection *conn) {
+    User *usr = conn->data;
 
     // Get array of parsed messages
     Vector *messages = parse_message_list(conn->incoming_messages);
@@ -232,6 +248,7 @@ void Server_process_request(Server *serv, Connection *conn) {
     // Iterate over the request messages and add response message(s) to user's message queue in the same order.
     for (size_t i = 0; i < Vector_size(messages); i++) {
         Message *message = Vector_get_at(messages, i);
+
         assert(message);
         if (!message->command) {
             log_error("invalid message");
@@ -245,59 +262,129 @@ void Server_process_request(Server *serv, Connection *conn) {
         for (size_t j = 0; j < sizeof rpl_handlers / sizeof *rpl_handlers; j++) {
             struct rpl_handle_t handle = rpl_handlers[j];
             if (!strcmp(handle.name, message->command)) {
-                if (conn->conn_type == USER_CONNECTION) {
-                    handle.user_handler(serv, conn->data, message);
-                } else if (conn->conn_type == PEER_CONNECTION) {
-                    handle.peer_handler(serv, conn->data, message);
-                }
-
+                handle.handler(serv, usr, message);
                 found = true;
                 break;
             }
         }
 
-        // flush user message queues
-        flush_message_queues(serv);
-
         if (found) {
             continue;
         }
 
-        // Handle every other command:
+        // Handle every other command
 
-        if (conn->conn_type == USER_CONNECTION) {
-            User *usr = conn->data;
-
-            if (!usr->registered) {
-                char *reply = make_reply(":%s 451 %s :Connection not registered", serv->hostname, usr->nick);
-                List_push_back(conn->outgoing_messages, reply);
-            } else {
-                char *reply = make_reply(":%s 421 %s %s :Unknown command",
-                                         serv->hostname,
-                                         usr->nick,
-                                         message->command);
-                List_push_back(conn->outgoing_messages, reply);
-            }
+        if (!usr->registered) {
+            char *reply = make_reply(":%s 451 %s :Connection not registered", serv->hostname, usr->nick);
+            List_push_back(conn->outgoing_messages, reply);
         } else {
-            // TODO
+            char *reply = make_reply(":%s 421 %s %s :Unknown command",
+                                     serv->hostname,
+                                     usr->nick,
+                                     message->command);
+            List_push_back(conn->outgoing_messages, reply);
         }
+
+        conn->quit = usr->quit;
     }
 
     Vector_free(messages);
 }
 
+void Server_process_request_from_peer(Server *serv, Connection *conn) {
+    Peer *peer = conn->data;
+
+    ListIter itr;
+    List_iter_init(&itr, conn->incoming_messages);
+    char *msg_str = NULL;
+
+    while (List_iter_next(&itr, &msg_str)) {
+        if (!strncmp(msg_str, "ERROR", strlen("ERROR"))) {
+            log_error("Error on server %s %s", conn->hostname, strstr(msg_str, ":"));
+            Server_broadcast_message(serv, msg_str);
+            Server_remove_connection(serv, conn);
+            Server_flush_message_queues(serv);
+            return;
+        }
+
+        Message msg;
+        message_init(&msg);
+
+        if (parse_message(msg_str, &msg) == -1) {
+            message_destroy(&msg);
+            continue;
+        }
+
+        if (!strncmp(msg_str, "SERVER", strlen("SERVER"))) {
+            Server_reply_to_SERVER(serv, peer, &msg);
+        } else if (!strncmp(msg_str, "PASS", strlen("PASS"))) {
+            Server_reply_to_SERVER(serv, peer, &msg);
+        } else if (msg_str[0] == ':' && strncmp(serv->hostname, msg_str + 1, strlen(serv->hostname)) != 0) {
+            Server_broadcast_message(serv, msg_str);
+        }
+
+        message_destroy(&msg);
+    }
+
+    conn->quit = peer->quit;
+}
+
+void Server_process_request(Server *serv, Connection *conn) {
+    assert(serv);
+    assert(conn);
+
+    if (List_size(conn->incoming_messages) == 0) {
+        return;
+    }
+
+    if (conn->conn_type == UNKNOWN_CONNECTION) {
+        Server_process_request_from_unknown(serv, conn);
+    }
+
+    else if (conn->conn_type == PEER_CONNECTION) {
+        Server_process_request_from_peer(serv, conn);
+
+    }
+
+    else if (conn->conn_type == USER_CONNECTION) {
+        Server_process_request_from_user(serv, conn);
+    }
+
+    Server_flush_message_queues(serv);
+}
+
 void Server_broadcast_message(Server *serv, const char *message) {
+    assert(serv);
+    assert(message);
+
+    if (!strlen(message)) {
+        return;
+    }
+
     HashtableIter itr;
     ht_iter_init(&itr, serv->connections);
 
     Connection *conn = NULL;
 
     while (ht_iter_next(&itr, NULL, (void **)&conn)) {
+        // Do not send same message back to origin server
+        if (conn->conn_type == PEER_CONNECTION && message[0] == ':' && !strncmp(conn->hostname, message + 1, strlen(conn->hostname))) {
+            continue;
+        }
+
         List_push_back(conn->outgoing_messages, strdup(message));
     }
 }
 
 void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message) {
+    assert(serv);
+    assert(channel);
+    assert(message);
+
+    if (!strlen(message)) {
+        return;
+    }
+
     for (size_t i = 0; i < Vector_size(channel->members); i++) {
         Membership *member = Vector_get_at(channel->members, i);
         assert(member);
@@ -426,44 +513,13 @@ bool Server_add_peer(Server *serv, const char *name) {
         return false;
     }
 
-    char *remote_name = NULL;
-    char *remote_host = NULL;
-    char *remote_port = NULL;
-    char *remote_passwd = NULL;
+    struct peer_info_t peer_info;
 
-    char *line = NULL;
-    size_t capacity = 0;
-    ssize_t nread = 0;
-
-    while ((nread = getline(&line, &capacity, file)) > 0) {
-        if (line[nread - 1] == '\n') {
-            line[nread - 1] = 0;
-        }
-
-        remote_name = strtok(line, ",");
-        remote_host = strtok(NULL, ",");
-        remote_port = strtok(NULL, ",");
-        remote_passwd = strtok(NULL, ",");
-
-        assert(remote_name);
-        assert(remote_host);
-        assert(remote_port);
-        assert(remote_passwd);
-
-        if (!strcmp(remote_name, name)) {
-            break;
-        }
-    }
-
-    fclose(file);
-    free(line);
-
-    if (strcmp(remote_name, name) != 0) {
-        log_error("Server not configured in file %s", serv->config_file);
+    if (!get_peer_info(serv->config_file, name, &peer_info)) {
         return false;
     }
 
-    int fd = connect_to_host(remote_host, remote_port);
+    int fd = connect_to_host(peer_info.peer_host, peer_info.peer_port);
 
     if (fd == -1) {
         return false;
@@ -471,73 +527,27 @@ bool Server_add_peer(Server *serv, const char *name) {
 
     Connection *conn = calloc(1, sizeof *conn);
     conn->fd = fd;
-    conn->hostname = strdup(remote_host);
-    conn->port = atoi(remote_port);
+    conn->hostname = strdup(peer_info.peer_host);
+    conn->port = atoi(peer_info.peer_port);
     conn->incoming_messages = List_alloc(NULL, free);
     conn->outgoing_messages = List_alloc(NULL, free);
 
     Peer *peer = Peer_alloc();
-    peer->name = strdup(remote_name);
+    peer->name = strdup(peer_info.peer_name);
 
     conn->conn_type = PEER_CONNECTION;
     conn->data = peer;
 
     ht_set(serv->connections, &fd, conn);
-    ht_set(serv->name_to_peer_map, remote_name, peer);
+    ht_set(serv->name_to_peer_map, peer_info.peer_name, peer);
 
-    List_push_back(conn->outgoing_messages, make_string("PASS %s * *\r\n", remote_passwd));
+    List_push_back(conn->outgoing_messages, make_string("PASS %s * *\r\n", peer_info.peer_passwd));
     List_push_back(conn->outgoing_messages, make_string("SERVER %s :\r\n", serv->name));
 
+    free(peer_info.peer_host);
+    free(peer_info.peer_name);
+    free(peer_info.peer_port);
+    free(peer_info.peer_passwd);
+
     return true;
-}
-
-char *get_server_passwd(const char *config_filename, const char *name) {
-    // Load server info from file
-    FILE *file = fopen(config_filename, "r");
-
-    if (!file) {
-        log_error("failed to open config file %s", config_filename);
-        return false;
-    }
-
-    char *remote_name = NULL;
-    char *remote_host = NULL;
-    char *remote_port = NULL;
-    char *remote_passwd = NULL;
-
-    char *line = NULL;
-    size_t capacity = 0;
-    ssize_t nread = 0;
-
-    while ((nread = getline(&line, &capacity, file)) > 0) {
-        assert(line);
-
-        remote_name = strtok(line, ",");
-        remote_host = strtok(NULL, ",");
-        remote_port = strtok(NULL, ",");
-        remote_passwd = strtok(NULL, "\n");
-
-        assert(remote_name);
-        assert(remote_host);
-        assert(remote_port);
-        assert(remote_passwd);
-
-        if (!strcmp(remote_name, name)) {
-            break;
-        }
-    }
-
-    fclose(file);
-
-    if (!remote_passwd || strcmp(remote_name, name) != 0) {
-        log_error("Server not configured in file %s", config_filename);
-        free(line);
-        return NULL;
-    }
-
-    log_debug("Password found for server %s: %s", name, remote_passwd);
-
-    char *passwd = strdup(remote_passwd);
-    free(line);
-    return passwd;
 }

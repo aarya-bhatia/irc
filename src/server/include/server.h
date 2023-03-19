@@ -25,6 +25,7 @@ typedef struct _Connection {
     conn_type_t conn_type;
     char *hostname;
     int port;
+    bool quit;
     size_t req_len;                 // request buffer length
     size_t res_len;                 // response buffer length
     size_t res_off;                 // num bytes sent from response buffer
@@ -64,6 +65,13 @@ typedef struct _Peer {
     bool quit;  // flag to indicate server leaving
     List *msg_queue;
 } Peer;
+
+typedef struct peer_info_t {
+    char *peer_name;
+    char *peer_host;
+    char *peer_port;
+    char *peer_passwd;
+} peer_info_t;
 
 enum { USER_ONLINE,
        USER_OFFLINE };
@@ -128,6 +136,7 @@ User *Server_get_user_by_username(Server *serv, const char *username);
 
 char *get_motd(char *fname);
 char *get_server_passwd(const char *config_filename, const char *name);
+bool get_peer_info(const char *filename, const char *name, struct peer_info_t *info);
 
 // reply.c
 

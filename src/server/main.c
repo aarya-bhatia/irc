@@ -75,6 +75,8 @@ int main(int argc, char *argv[]) {
                         Server_remove_connection(serv, connection);
                         continue;
                     }
+
+                    Server_process_request(serv, connection);
                 }
 
                 if (e & EPOLLOUT) {
@@ -84,49 +86,9 @@ int main(int argc, char *argv[]) {
                     }
                 }
 
-                if (connection->conn_type == UNKNOWN_CONNECTION) {
-                    if (List_size(connection->incoming_messages) > 0) {
-                        char *message = List_peek_front(connection->incoming_messages);
-                        if (strncmp(message, "NICK", 4) == 0 || strncmp(message, "USER", 4) == 0) {
-                            connection->conn_type = USER_CONNECTION;
-                            connection->data = User_alloc();
-                            ((User *)connection->data)->hostname = strdup(connection->hostname);
-                        } else if (strncmp(message, "PASS", 4) == 0) {
-                            connection->conn_type = PEER_CONNECTION;
-                            connection->data = Peer_alloc();
-                        } else {  // Ignore message
-                            List_pop_front(connection->incoming_messages);
-                            continue;
-                        }
-                    }
-                }
-
-                if (connection->conn_type == USER_CONNECTION) {
-                    if (List_size(connection->incoming_messages) > 0) {
-                        Server_process_request(serv, connection);
-                    }
-
-                    User *usr = connection->data;
-
-                    // User is quitting and all pending messages were sent
-                    if (usr->quit && List_size(connection->outgoing_messages) == 0 && connection->res_len == 0) {
-                        Server_remove_connection(serv, connection);
-                        continue;
-                    }
-                }
-
-                if (connection->conn_type == PEER_CONNECTION) {
-
-                    if (List_size(connection->incoming_messages) > 0) {
-                        Server_process_request(serv, connection);
-                    }
-
-                    Peer *peer = connection->data;
-
-                    if (peer->quit && List_size(connection->outgoing_messages) == 0 && connection->res_len == 0) {
-                        Server_remove_connection(serv, connection);
-                        continue;
-                    }
+                if (connection->quit && List_size(connection->outgoing_messages) == 0 && connection->res_len == 0) {
+                    Server_remove_connection(serv, connection);
+                    continue;
                 }
             }
         }

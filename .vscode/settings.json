@@ -16,7 +16,9 @@
         "vector.h": "c",
         "hashtable.h": "c",
         "message.h": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "string.h": "c",
+        "assert.h": "c"
     },
     "cmake.configureOnOpen": true
 }
