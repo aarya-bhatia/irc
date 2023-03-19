@@ -1,1 +1,0 @@
-build/client localhost 5000 < NICK alice\nUSER _alice_ * * :Alice\n
