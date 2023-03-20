@@ -291,13 +291,10 @@ void Server_process_request_from_user(Server *serv, Connection *conn) {
         // Handle every other command
 
         if (!usr->registered) {
-            char *reply = make_reply(":%s 451 %s :Connection not registered", serv->hostname, usr->nick);
+            char *reply = Server_create_message(serv, "451 %s :Connection not registered", usr->nick);
             List_push_back(conn->outgoing_messages, reply);
         } else {
-            char *reply = make_reply(":%s 421 %s %s :Unknown command",
-                                     serv->hostname,
-                                     usr->nick,
-                                     message->command);
+            char *reply = Server_create_message(serv, "421 %s %s :Unknown command", usr->nick, message->command);
             List_push_back(conn->outgoing_messages, reply);
         }
 

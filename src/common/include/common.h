@@ -2,6 +2,7 @@
 
 // Standard Libraries
 #include <assert.h>
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>
@@ -10,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <ctype.h>
 
 // Networking
 #include <arpa/inet.h>
@@ -34,13 +34,6 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-// #ifndef LOG_DEBUG
-// #ifdef log_debug
-// #undef log_debug
-// #endif
-// #define log_debug(...) (void)0
-// #endif
-
 #define _CHECK(status, msg)                         \
     if (status < 0) {                               \
         log_error("Failed with status %d", status); \
@@ -57,8 +50,6 @@
         perror(msg); \
         exit(1);     \
     }
-
-#define make_reply(format, ...) make_string(format "\r\n", __VA_ARGS__) /* suffix each string with delimiter <cr><lf> */
 
 char *trimwhitespace(char *str);
 
@@ -77,8 +68,8 @@ void *int_copy(void *other_int);                     /* integer copy constructor
 
 // Networking helper functions
 int connect_to_host(char *hostname, char *port);
-int create_and_bind_socket(char *hostname, char *port);     /* creates tcp socket to connect to given host and port  */
-void *get_in_addr(struct sockaddr *sa);                     /* returns the in_addr of ivp4 and ipv6 addresses */
+int create_and_bind_socket(char *hostname, char *port); /* creates tcp socket to connect to given host and port  */
+void *get_in_addr(struct sockaddr *sa);                 /* returns the in_addr of ivp4 and ipv6 addresses */
 int get_port(struct sockaddr *sa, socklen_t len);
 char *addr_to_string(struct sockaddr *addr, socklen_t len); /* get ip address from sockaddr */
 

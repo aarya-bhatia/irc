@@ -13,6 +13,12 @@
 #define CHANNELS_FILENAME "./data/channels.txt"
 #define DEFAULT_INFO "development irc server"
 
+/* Add server prefix and \r\n suffix to messages */
+#define Server_create_message(serv, format, ...) make_string(":%s " format "\r\n", serv->name, __VA_ARGS__)
+
+/* Add user prefix and \r\n suffix to messages */
+#define User_create_message(usr, format, ...) make_string("%s!%s@%s " format "\r\n", usr->nick, usr->username, usr->hostname, __VA_ARGS__)
+
 typedef enum _conn_type_t {
     UNKNOWN_CONNECTION,
     USER_CONNECTION,
@@ -162,7 +168,6 @@ bool Server_registered_middleware(Server *serv, User *usr, Message *msg);
 bool Server_channel_middleware(Server *serv, User *usr, Message *msg);
 
 bool Server_add_peer(Server *serv, const char *name, const char *port);
-
 bool Server_add_connection(Server *serv, Connection *connection);
 void Server_remove_connection(Server *serv, Connection *connection);
 
