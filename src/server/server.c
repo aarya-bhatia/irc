@@ -53,12 +53,7 @@ static UserRequestHandler user_request_handlers[] = {
 };
 
 User *Server_get_user_by_nick(Server *serv, const char *nick) {
-    const char *username = ht_get(serv->online_nick_to_username_map, nick);
-    return username ? ht_get(serv->username_to_user_map, username) : NULL;
-}
-
-User *Server_get_user_by_username(Server *serv, const char *username) {
-    return ht_get(serv->username_to_user_map, username);
+    return ht_get(serv->nick_to_user_map, nick);
 }
 
 void Server_remove_all_connections(Server *serv) {
@@ -74,14 +69,12 @@ void Server_remove_all_connections(Server *serv) {
 void Server_destroy(Server *serv) {
     assert(serv);
 
-    save_channels(serv->channels_map, CHANNELS_FILENAME);
+    save_channels(serv->name_to_channel_map, CHANNELS_FILENAME);
     Server_remove_all_connections(serv);
 
-    ht_free(serv->channels_map);
+    ht_free(serv->name_to_channel_map);
     ht_free(serv->name_to_peer_map);
-    ht_free(serv->username_to_user_map);
-    ht_free(serv->online_nick_to_username_map);
-    ht_free(serv->offline_nick_to_username_map);
+    ht_free(serv->nick_to_user_map);
     ht_free(serv->connections);
 
     close(serv->fd);
@@ -99,7 +92,7 @@ void Server_destroy(Server *serv) {
 
 void _add_channels_to_map(Server *serv) {
     HashtableIter itr;
-    ht_iter_init(&itr, serv->channels_map);
+    ht_iter_init(&itr, serv->name_to_channel_map);
     Channel *chan = NULL;
     while (ht_iter_next(&itr, NULL, (void **)&chan)) {
         ht_set(serv->channel_to_serv_name_map, chan->name, serv->name);
@@ -132,15 +125,13 @@ Server *Server_create(const char *name) {
 
     serv->info = strdup(DEFAULT_INFO);
 
-    serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);                    /* Map<int, Connection *> */
-    serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);            /* Map<string, Peer *> */
-    serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);             /* Map<string, string> */
-    serv->channel_to_serv_name_map = ht_alloc_type(STRING_TYPE, STRING_TYPE);     /* Map<string, string> */
-    serv->username_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);        /* Map<string, User*> */
-    serv->online_nick_to_username_map = ht_alloc_type(STRING_TYPE, STRING_TYPE);  /* Map<string, string>*/
-    serv->offline_nick_to_username_map = ht_alloc_type(STRING_TYPE, STRING_TYPE); /* Map<string, string>*/
+    serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);                /* Map<int, Connection *> */
+    serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);        /* Map<string, Peer *> */
+    serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);         /* Map<string, string> */
+    serv->channel_to_serv_name_map = ht_alloc_type(STRING_TYPE, STRING_TYPE); /* Map<string, string> */
+    serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);        /* Map<string, User*>*/
 
-    serv->channels_map = load_channels(CHANNELS_FILENAME); /* Map<string, Channel *>*/
+    serv->name_to_channel_map = load_channels(CHANNELS_FILENAME); /* Map<string, Channel *>*/
     _add_channels_to_map(serv);
 
     time_t t = time(NULL);
@@ -421,15 +412,11 @@ void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *mes
         return;
     }
 
-    for (size_t i = 0; i < Vector_size(channel->members); i++) {
-        Membership *member = Vector_get_at(channel->members, i);
-        assert(member);
-
-        User *member_user = Server_get_user_by_username(serv, member->username);
-
-        if (member_user) {
-            List_push_back(member_user->msg_queue, strdup(message));
-        }
+    HashtableIter itr;
+    ht_iter_init(&itr, channel->members);
+    User *member = NULL;
+    while (ht_iter_next(&itr, NULL, (void **)&member)) {
+        List_push_back(member->msg_queue, strdup(message));
     }
 }
 
@@ -507,19 +494,16 @@ void Server_remove_connection(Server *serv, Connection *connection) {
 
     if (connection->conn_type == USER_CONNECTION) {
         User *usr = connection->data;
-
         log_info("Closing connection with user %s", usr->nick);
-
-        ht_remove(serv->online_nick_to_username_map, usr->nick, NULL, NULL);
-        ht_remove(serv->offline_nick_to_username_map, usr->nick, NULL, NULL);
-        ht_remove(serv->username_to_user_map, usr->username, NULL, NULL);
+        ht_remove(serv->nick_to_user_map, usr->nick, NULL, NULL);
+        ht_remove(serv->nick_to_serv_name_map, usr->nick, NULL, NULL);
 
         // Remove user from channels
         for (size_t i = 0; i < Vector_size(usr->channels); i++) {
             char *name = Vector_get_at(usr->channels, i);
-            Channel *channel = ht_get(serv->channels_map, name);
+            Channel *channel = ht_get(serv->name_to_channel_map, name);
             if (channel) {
-                Channel_remove_member(channel, usr->username);
+                Channel_remove_member(channel, usr);
             }
         }
 

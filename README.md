@@ -10,7 +10,7 @@ Project in progress...
 - A hashtable `username_to_user_map` to map usernames to user data struct for each registered user.
 - A hashtable `online_nick_to_username_map` to map nick to username for each online user.
 - A hashtable `offline_nick_to_username_map` to map nick to username for each offline user.
-- A hashtable `channels_map` to map each channel name to a channel struct.
+- A hashtable `name_to_channel_map` to map each channel name to a channel struct.
 
 ### Summary
 

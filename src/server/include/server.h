@@ -8,10 +8,9 @@
 
 #define MOTD_FILENAME "./data/motd.txt"
 #define CONFIG_FILENAME "./config.csv"
-#define MAX_CHANNEL_COUNT 10
-#define MAX_CHANNEL_USERS 5
+#define MAX_CHANNEL_COUNT 8
+#define MAX_CHANNEL_USERS 8
 #define CHANNELS_FILENAME "./data/channels.txt"
-#define DEFAULT_PASSWD "Test@123"
 #define DEFAULT_INFO "development irc server"
 
 typedef enum _conn_type_t {
@@ -37,16 +36,12 @@ typedef struct _Connection {
 } Connection;
 
 typedef struct _Server {
-    Hashtable *connections;  // map sock to Connection struct
-
-    Hashtable *name_to_peer_map;              // Map irc server name to IRCNode struct
-    Hashtable *username_to_user_map;          // Map username to user struct for registered users
-    Hashtable *online_nick_to_username_map;   // Map nick to username of online user
-    Hashtable *offline_nick_to_username_map;  // Map nick to username of offline user
-    Hashtable *channels_map;                  // Map channel name to channel struct pointer
-
-    Hashtable *nick_to_serv_name_map;     // Map nick to server which has user
-    Hashtable *channel_to_serv_name_map;  // Map channel name to server which has channel
+    Hashtable *connections;               // map sock to Connection struct
+    Hashtable *nick_to_user_map;          // Map nick to user struct on this server
+    Hashtable *nick_to_serv_name_map;     // Map nick to name of server which has user
+    Hashtable *channel_to_serv_name_map;  // Map channel name to name of server which has channel
+    Hashtable *name_to_peer_map;          // Map server name to peer struct
+    Hashtable *name_to_channel_map;       // Map channel name to channel struct
 
     struct sockaddr_in servaddr;  // address info for server
     int fd;                       // listen socket
@@ -67,9 +62,8 @@ typedef struct _Peer {
     bool registered;
     bool quit;  // flag to indicate server leaving
     List *msg_queue;
-
-    Vector *nicks; // nick of users behind this server
-    Vector *channels; // names of channels behind this server
+    Vector *nicks;     // nick of users behind this server
+    Vector *channels;  // names of channels behind this server
 
 } Peer;
 
@@ -96,25 +90,18 @@ typedef struct _User {
     List *msg_queue;
 } User;
 
-enum MODES {
-    MODE_NORMAL,
-    MODE_AWAY,
-    MODE_OPERATOR
-};
-
-typedef struct _Membership {
-    char *username;  // username of member
-    char *channel;   // channel name
-    int mode;        // member mode
-} Membership;
+// enum MODES {
+//     MODE_NORMAL,
+//     MODE_AWAY,
+//     MODE_OPERATOR
+// };
 
 typedef struct _Channel {
     char *name;           // name of channel
     char *topic;          // channel topic
     int mode;             // channel mode
     time_t time_created;  // time channel was created
-    Vector *members;      // usernames of members in the channel
-    Vector *connections;
+    Hashtable *members;   // map username to User struct
 
     // time_t topic_changed_at;
     // char *topic_changed_by;
@@ -139,7 +126,6 @@ void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *mes
 
 User *Server_get_user_by_socket(Server *serv, int sock);
 User *Server_get_user_by_nick(Server *serv, const char *nick);
-User *Server_get_user_by_username(Server *serv, const char *username);
 
 char *get_motd(char *fname);
 char *get_server_passwd(const char *config_filename, const char *name);
@@ -190,9 +176,6 @@ Peer *Peer_alloc();
 void Peer_free(Peer *);
 Hashtable *load_peers(const char *config_filename);
 
-Membership *Membership_alloc(const char *channel, const char *username, int mode);
-void Membership_free(Membership *membership);
-
 Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen);
 void Connection_free(Connection *this);
 ssize_t Connection_read(Connection *);
@@ -202,6 +185,6 @@ Hashtable *load_channels(const char *filename);
 void save_channels(Hashtable *hashtable, const char *filename);
 Channel *Channel_alloc(const char *name);
 void Channel_free(Channel *this);
-void Channel_add_member(Channel *this, const char *username);
-bool Channel_remove_member(Channel *this, const char *username);
-bool Channel_has_member(Channel *this, const char *username);
+void Channel_add_member(Channel *this, User *);
+bool Channel_remove_member(Channel *this, User *);
+bool Channel_has_member(Channel *this, User *);

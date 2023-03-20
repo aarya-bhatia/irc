@@ -5,6 +5,7 @@
 
 typedef struct _Message
 {
+	// char *buffer; // TODO: Add original message string
 	char *origin;
 	char *command;
 	char *params[MAX_MSG_PARAM];

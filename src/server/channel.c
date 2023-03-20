@@ -1,28 +1,6 @@
-#include "include/server.h"
-
 #include <time.h>
 
-Membership *Membership_alloc(const char *channel, const char *username, int mode)
-{
-	Membership *m = calloc(1, sizeof *m);
-	m->channel = strdup(channel);
-	m->username = strdup(username);
-	m->mode = mode;
-
-	return m;
-}
-
-void Membership_free(Membership *membership)
-{
-	if(!membership)
-	{
-		return;
-	}
-
-	free(membership->channel);
-	free(membership->username);
-	free(membership);
-}
+#include "include/server.h"
 
 /**
  * Create and initialise new channel with given values and returns it.
@@ -31,7 +9,7 @@ Channel *Channel_alloc(const char *name) {
     Channel *channel = calloc(1, sizeof *channel);
     channel->name = strdup(name);
     channel->time_created = time(NULL);
-    channel->members = Vector_alloc(10, NULL, (elem_free_type)Membership_free);
+    channel->members = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string,User*>*/
     return channel;
 }
 
@@ -39,64 +17,33 @@ Channel *Channel_alloc(const char *name) {
  * Destroy all memory associated with channel
  */
 void Channel_free(Channel *this) {
-    Vector_free(this->members);
+    ht_free(this->members);
     free(this->topic);
     free(this->name);
     free(this);
 }
 
-bool _find_member(void *elem, const void *arg) {
-    Membership *m = elem;
-    const char *username = arg;
-    return m && m->username && strcmp(m->username, username) == 0;
-}
-
 /**
  * Check if given user is part of channel.
  */
-bool Channel_has_member(Channel *this, const char *username) {
-    assert(this);
-    assert(username);
-
-    return Vector_find(this->members, _find_member, username) != NULL;
+bool Channel_has_member(Channel *this, User *user) {
+    return ht_contains(this->members, user->username);
 }
 
 /**
  * Create membership for given user and add them to channel.
  */
-void Channel_add_member(Channel *this, const char *username) {
-    assert(this);
-    assert(username);
-
-    if (!Channel_has_member(this, username)) {
-        Vector_push(this->members, Membership_alloc(this->name, username, 0));
-        log_info("User %s added to channel %s", username, this->name);
-    }
+void Channel_add_member(Channel *this, User *user) {
+    ht_set(this->members, user->username, user);
 }
 
 /**
  * Removes member from channel if they exist.
  * Returns true on success, false if they did not exist.
  */
-bool Channel_remove_member(Channel *this, const char *username) {
-    assert(this);
-    assert(username);
-
-    for (size_t i = 0; i < Vector_size(this->members); i++) {
-        Membership *m = Vector_get_at(this->members, i);
-        assert(!strcmp(m->channel, this->name));
-        if (!strcmp(m->username, username)) {
-            Vector_remove(this->members, i, NULL);
-            log_info("Removed user %s from channel %s", username, this->name);
-            return true;
-        }
-    }
-
-    log_error("User %s not found in channel %s", username, this->name);
-    return false;
+bool Channel_remove_member(Channel *this, User *user) {
+    return ht_remove(this->members, user->username, NULL, NULL);
 }
-
-
 
 /**
  * Loads channels from file into hashtable which maps channel name as string to Channel*.
@@ -166,11 +113,11 @@ void save_channels(Hashtable *hashtable, const char *filename) {
     while (ht_iter_next(&itr, NULL, (void **)&channel)) {
         fprintf(file, "%s %ld %d", channel->name, (long)channel->time_created, channel->mode);
 
-		if(channel->topic) {
-			fprintf(file, " :%s", channel->topic);
-		}
+        if (channel->topic) {
+            fprintf(file, " :%s", channel->topic);
+        }
 
-		fprintf(file, "\n");
+        fprintf(file, "\n");
     }
 
     fclose(file);
