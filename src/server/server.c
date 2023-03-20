@@ -97,6 +97,15 @@ void Server_destroy(Server *serv) {
     exit(0);
 }
 
+void _add_channels_to_map(Server *serv) {
+    HashtableIter itr;
+    ht_iter_init(&itr, serv->channels_map);
+    Channel *chan = NULL;
+    while (ht_iter_next(&itr, NULL, (void **)&chan)) {
+        ht_set(serv->channel_to_serv_name_map, chan->name, serv->name);
+    }
+}
+
 /**
  * Create and initialise the server. Bind socket to given port.
  */
@@ -120,7 +129,9 @@ Server *Server_create(const char *name) {
     serv->port = serv_info.peer_port;
     serv->passwd = serv_info.peer_passwd;
     serv->hostname = serv_info.peer_host;
+
     serv->info = strdup(DEFAULT_INFO);
+
     serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);                    /* Map<int, Connection *> */
     serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);            /* Map<string, Peer *> */
     serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);             /* Map<string, string> */
@@ -128,7 +139,9 @@ Server *Server_create(const char *name) {
     serv->username_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);        /* Map<string, User*> */
     serv->online_nick_to_username_map = ht_alloc_type(STRING_TYPE, STRING_TYPE);  /* Map<string, string>*/
     serv->offline_nick_to_username_map = ht_alloc_type(STRING_TYPE, STRING_TYPE); /* Map<string, string>*/
-    serv->channels_map = load_channels(CHANNELS_FILENAME);                        /* Map<string, Channel *>*/
+
+    serv->channels_map = load_channels(CHANNELS_FILENAME); /* Map<string, Channel *>*/
+    _add_channels_to_map(serv);
 
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);

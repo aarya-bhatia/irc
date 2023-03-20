@@ -318,36 +318,44 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
     // Message target is channel
     if (target_nick[0] == '#') {
         char *channel_name = target_nick + 1;
-        Channel *channel = ht_get(serv->channels_map, channel_name);
 
-        if (!channel) {
+        char *serv_name = ht_get(serv->channel_to_serv_name_map, channel_name);
+
+        if (!serv_name) {
             List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, channel_name));
             return;
         }
 
-        if (!Channel_has_member(channel, usr->username)) {
-            List_push_back(usr->msg_queue, make_reply(":%s " ERR_CANNOTSENDTOCHAN_MSG, serv->hostname, usr->nick, channel_name));
-            return;
+        char *message = make_reply("%s!%s@%s PRIVMSG #%s :%s", usr->nick, usr->username, usr->hostname, channel_name, msg->body);
+
+        // channel is on current server
+        if (!strcmp(serv_name, serv->name)) {
+            Channel *channel = ht_get(serv->channels_map, channel_name);
+            assert(channel);
+
+            if (!Channel_has_member(channel, usr->username)) {
+                List_push_back(usr->msg_queue, make_reply(":%s " ERR_CANNOTSENDTOCHAN_MSG, serv->hostname, usr->nick, channel_name));
+                return;
+            }
+
+            Server_broadcast_to_channel(serv, channel, message);
+            free(message);
+
+            log_debug("user %s sent message to channel %s", usr->nick, channel->name);
+
+        } else {
+            Peer *peer = ht_get(serv->name_to_peer_map, serv_name);
+            assert(peer);
+            List_push_back(peer->msg_queue, message);
+            log_info("PRIVMSG from user %s was relayed to server %s", usr->nick, serv_name);
         }
-
-        char *message = make_reply("%s!%s@%s PRIVMSG #%s :%s", usr->nick, usr->username, usr->hostname, channel->name, msg->body);
-        Server_broadcast_to_channel(serv, channel, message);
-        free(message);
-
-        log_debug("user %s sent message to channel %s", usr->nick, channel->name);
 
     } else {
         // Message target is user
-        if (ht_contains(serv->offline_nick_to_username_map, target_nick)) {
-            List_push_back(usr->msg_queue,
-                           make_reply(":%s " RPL_AWAY_MSG, serv->hostname,
-                                      usr->nick, target_nick));
-            return;
-        }
 
-        User *target_user = Server_get_user_by_nick(serv, target_nick);
+        char *serv_name = ht_get(serv->nick_to_serv_name_map, target_nick);
 
-        if (!target_user) {
+        if (!serv_name) {
             List_push_back(usr->msg_queue,
                            make_reply(":%s " ERR_NOSUCHNICK_MSG,
                                       serv->hostname, usr->nick,
@@ -355,13 +363,23 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
             return;
         }
 
-        // Add message to target user's queue
-        List_push_back(target_user->msg_queue,
-                       make_reply(":%s!%s@%s PRIVMSG %s :%s", usr->nick,
-                                  usr->username, usr->hostname,
-                                  target_nick, msg->body));
+        char *message = make_reply(":%s!%s@%s PRIVMSG %s :%s", usr->nick, usr->username, usr->hostname, target_nick, msg->body);
 
-        log_info("PRIVMSG sent from user %s to user %s", usr->nick, target_nick);
+        if (!strcmp(serv_name, serv->name)) {
+            User *target_user = Server_get_user_by_nick(serv, target_nick);
+            assert(target_user);
+
+            // Add message to target user's queue
+            List_push_back(target_user->msg_queue, message);
+            log_info("PRIVMSG sent from user %s to user %s", usr->nick, target_nick);
+
+        } else {
+            Peer *peer = ht_get(serv->name_to_peer_map, serv_name);
+            assert(peer);
+
+            List_push_back(peer->msg_queue, message);
+            log_info("PRIVMSG from user %s was relayed to server %s", usr->nick, serv_name);
+        }
     }
 }
 
@@ -456,6 +474,7 @@ void Server_handle_JOIN(Server *serv, User *usr, Message *msg) {
         // Create channel
         channel = Channel_alloc(channel_name);
         ht_set(serv->channels_map, channel_name, channel);
+        ht_set(serv->channel_to_serv_name_map, channel_name, serv->name);
         log_info("New channel %s created by user %s", channel_name, usr->nick);
     }
 
@@ -668,7 +687,6 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg) {
     }
 
     char *target_port = msg->params[1];  // Use default port if NULL
-
 }
 
 /**
