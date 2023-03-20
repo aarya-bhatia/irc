@@ -1,6 +1,6 @@
-#include "include/server.h"
-#include "include/replies.h"
 #include "include/list.h"
+#include "include/replies.h"
+#include "include/server.h"
 
 bool Server_registered_middleware(Server *serv, User *usr, Message *msg) {
     assert(serv);
@@ -111,6 +111,9 @@ bool check_user_registration(Server *serv, User *usr) {
         send_motd_reply(serv, usr);
 
         log_info("registration completed for user %s", usr->nick);
+
+        // <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>
+        Server_broadcast_message(serv, make_reply(":%s 1 %s %s 1 + :%s", serv->hostname, usr->nick, usr->username, usr->hostname, usr->realname));
 
         return true;
     }
@@ -306,21 +309,15 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    assert(msg->params[0]);
-
-    if (msg->n_params > 1) {
-        List_push_back(usr->msg_queue,
-                       make_reply(":%s " ERR_TOOMANYTARGETS_MSG,
-                                  serv->hostname, usr->nick));
-        return;
-    }
     // The nick to send message to
     const char *target_nick = msg->params[0];
+    assert(target_nick);
 
     // Message target is channel
     if (target_nick[0] == '#') {
         char *channel_name = target_nick + 1;
         Channel *channel = ht_get(serv->channels_map, channel_name);
+
         if (!channel) {
             List_push_back(usr->msg_queue, make_reply(":%s " ERR_NOSUCHCHANNEL_MSG, serv->hostname, usr->nick, channel_name));
             return;
@@ -866,7 +863,7 @@ void Server_reply_to_SERVER(Server *serv, Peer *peer, Message *msg) {
 /**
  * Command: PASS
  * Parameters: <password>
-*/
+ */
 void Server_reply_to_PASS(Server *serv, Peer *peer, Message *msg) {
     assert(!strcmp(msg->command, "PASS"));
 

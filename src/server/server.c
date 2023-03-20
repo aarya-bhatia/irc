@@ -173,7 +173,7 @@ Server *Server_create(const char *name) {
     // Listen
     CHECK(listen(serv->fd, MAX_EVENTS), "listen");
 
-    log_info("server running on port %s", serv->port);
+    log_info("Server %s is running at %s:%s", serv->name, serv->hostname, serv->port);
 
     return serv;
 }

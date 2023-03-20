@@ -6,6 +6,10 @@
 
 extern pthread_mutex_t mutex_stdout;  // use this lock before printing to stdout
 
+void display_message(const char *message) {
+    SAFE(mutex_stdout, { puts(message); });
+}
+
 /* This thread will process messages from the inbox queue and display them to stdout */
 void *inbox_thread_routine(void *args) {
     Client *client = (Client *)args;
@@ -31,7 +35,7 @@ void *inbox_thread_routine(void *args) {
                 SAFE(mutex_stdout, { printf("%s: %s\n", msg_info.origin,
                                             msg_info.body); });
             } else {
-                SAFE(mutex_stdout, { printf("Server: %s\n", message); });
+                display_message(message);
             }
         }
 
@@ -76,8 +80,6 @@ void *reader_thread_routine(void *args) {
             perror("epoll_wait");
             break;
         }
-
-        // SAFE(mutex_stdout, { log_debug("polled %d events", nfd); });
 
         // No events polled
         if (nfd == 0) {
