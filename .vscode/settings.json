@@ -18,7 +18,8 @@
         "message.h": "c",
         "errno.h": "c",
         "string.h": "c",
-        "assert.h": "c"
+        "assert.h": "c",
+        "list.h": "c"
     },
     "cmake.configureOnOpen": true
 }

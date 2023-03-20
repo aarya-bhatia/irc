@@ -112,6 +112,8 @@ bool check_user_registration(Server *serv, User *usr) {
 
         log_info("registration completed for user %s", usr->nick);
 
+        ht_set(serv->nick_to_serv_name_map, usr->nick, serv->name);
+
         // <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>
         Server_broadcast_message(serv, make_reply(":%s 1 %s %s 1 + :%s", serv->hostname, usr->nick, usr->username, usr->hostname, usr->realname));
 
@@ -174,7 +176,7 @@ void send_names_reply(Server *serv, User *usr, Channel *channel) {
  * - ERR_NONICKNAMEGIVEN
  * - ERR_NICKNAMEINUSE
  */
-void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
+void Server_handle_NICK(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NICK"));
 
     if (msg->n_params < 1) {
@@ -224,7 +226,7 @@ void Server_reply_to_NICK(Server *serv, User *usr, Message *msg) {
  * - A client will become registered after both USER and NICK have been received.
  * - Realname can contain spaces.
  */
-void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {
+void Server_handle_USER(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "USER"));
 
     if (msg->n_params < 3 || !msg->body) {
@@ -257,7 +259,7 @@ void Server_reply_to_USER(Server *serv, User *usr, Message *msg) {
     check_user_registration(serv, usr);
 }
 
-void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {
+void Server_handle_MOTD(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "MOTD"));
 
     List_push_back(usr->msg_queue, make_reply(":%s 375 %s :- %s Message of the day - ", serv->hostname, usr->nick, serv->name));
@@ -275,7 +277,7 @@ void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg) {
     }
 }
 
-void Server_reply_to_PING(Server *serv, User *usr, Message *msg) {
+void Server_handle_PING(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "PING"));
     List_push_back(usr->msg_queue, make_reply(":%s "
                                               "PONG %s",
@@ -295,7 +297,7 @@ void Server_reply_to_PING(Server *serv, User *usr, Message *msg) {
  * - ERR_NOSUCHNICK
  * - ERR_TOOMANYTARGETS
  */
-void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
+void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "PRIVMSG"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -373,7 +375,7 @@ void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg) {
  *
  * - ERROR
  */
-void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg) {
+void Server_handle_QUIT(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "QUIT"));
 
     char *reason = (msg->body ? msg->body : "Client Quit");
@@ -389,7 +391,7 @@ void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg) {
  * This command is used to query a list of users who match the provided mask.
  * The server will answer this command with zero, one or more RPL_WHOREPLY, and end the list with RPL_ENDOFWHO.
  */
-void Server_reply_to_WHO(Server *serv, User *usr, Message *msg) {
+void Server_handle_WHO(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "WHO"));
 
     if (msg->n_params == 0) {
@@ -428,13 +430,13 @@ void Server_reply_to_WHO(Server *serv, User *usr, Message *msg) {
     List_push_back(usr->msg_queue, make_reply(":%s " RPL_ENDOFWHO_MSG, serv->hostname, usr->nick, ""));
 }
 
-void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg) {
+void Server_handle_WHOIS(Server *serv, User *usr, Message *msg) {
 }
 
 /**
  * Join a channel
  */
-void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
+void Server_handle_JOIN(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "JOIN"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -479,7 +481,7 @@ void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg) {
  * The LIST command is used to get a list of channels along with some information about each channel.
  * Both parameters to this command are optional as they have different syntaxes.
  */
-void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
+void Server_handle_LIST(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "LIST"));
 
     // Reply start
@@ -521,7 +523,7 @@ void Server_reply_to_LIST(Server *serv, User *usr, Message *msg) {
  * The NAMES command is used to view the nicknames joined to a channel and their channel membership prefixes.
  * The param of this command is a list of channel names, delimited by a comma.
  */
-void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {
+void Server_handle_NAMES(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NAMES"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -561,7 +563,7 @@ void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg) {
     }
 }
 
-void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg) {
+void Server_handle_TOPIC(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "TOPIC"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -586,7 +588,7 @@ void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg) {
     }
 }
 
-void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
+void Server_handle_PART(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "PART"));
 
     if (!Server_registered_middleware(serv, usr, msg)) {
@@ -636,7 +638,7 @@ void Server_reply_to_PART(Server *serv, User *usr, Message *msg) {
  * CONNECT is a privileged command and is available only to IRC Operators.
  * If a remote server is given, the connection is attempted by that remote server to <target server> using <port>.
  */
-void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
+void Server_handle_CONNECT(Server *serv, User *usr, Message *msg) {
     // TODO
 
     assert(!strcmp(msg->command, "CONNECT"));
@@ -667,16 +669,6 @@ void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
 
     char *target_port = msg->params[1];  // Use default port if NULL
 
-    // if (!Server_add_peer(serv, target_server, target_port)) {
-    //     log_error("Failed to connect to server %s", target_server);
-    // } else {
-    //     log_info("Connected to server %s", target_server);
-    // }
-
-    // free(target_info.peer_host);
-    // free(target_info.peer_name);
-    // free(target_info.peer_passwd);
-    // free(target_info.peer_port);
 }
 
 /**
@@ -684,7 +676,7 @@ void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg) {
  *
  * TODO
  */
-void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg) {
+void Server_handle_LUSERS(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "LUSERS"));
 
     List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERCLIENT_MSG, serv->hostname,
@@ -706,7 +698,7 @@ void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg) {
 /**
  * The HELP command is used to return documentation about the IRC server and the IRC commands it implements.
  */
-void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
+void Server_handle_HELP(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "HELP"));
 
     const struct help_t *help = NULL;
@@ -749,7 +741,7 @@ void Server_reply_to_HELP(Server *serv, User *usr, Message *msg) {
  * <target> is interpreted the same way as it is for the PRIVMSG command.
  * The difference between NOTICE and PRIVMSG is that automatic replies must never be sent in response to a NOTICE message.
  */
-void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg) {
+void Server_handle_NOTICE(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NOTICE"));
 
     if (msg->n_params == 0) {
@@ -828,7 +820,7 @@ void check_peer_registration(Server *serv, Peer *peer) {
     free(other_passwd);
 }
 
-void Server_reply_to_INFO(Server *serv, User *usr, Message *msg) {
+void Server_handle_INFO(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "INFO"));
     List_push_back(usr->msg_queue, make_reply(":%s 371 %s :%s", serv->hostname, usr->nick, serv->info));
     List_push_back(usr->msg_queue, make_reply(":%s 374 %s :End of INFO list", serv->hostname, usr->nick));
@@ -837,7 +829,7 @@ void Server_reply_to_INFO(Server *serv, User *usr, Message *msg) {
 /**
  *  The SERVER command is used to register a new server.
  */
-void Server_reply_to_SERVER(Server *serv, Peer *peer, Message *msg) {
+void Server_handle_SERVER(Server *serv, Peer *peer, Message *msg) {
     assert(!strcmp(msg->command, "SERVER"));
 
     if (peer->registered) {
@@ -864,7 +856,7 @@ void Server_reply_to_SERVER(Server *serv, Peer *peer, Message *msg) {
  * Command: PASS
  * Parameters: <password>
  */
-void Server_reply_to_PASS(Server *serv, Peer *peer, Message *msg) {
+void Server_handle_PASS(Server *serv, Peer *peer, Message *msg) {
     assert(!strcmp(msg->command, "PASS"));
 
     if (peer->registered) {

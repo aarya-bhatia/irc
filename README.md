@@ -24,7 +24,7 @@ Project in progress...
 The main logic is that the epoll listens for Read/Write events on all the available client sock_to_user_map as well as the server listening socket. If the event is on the listening socket, that implies the server can connect to new clients and initialise their user data. This is done through the `Server_process_request()` function.
 In the case the event is on a client socket, I handle three cases: read, write and error. On error, I disconnect the client. On write, we send any pending messages from that user's message queue. Lastly, on read, we receive any data and parse the message if it is complete. Otherwise, we store the bytes in the user's buffer for later.
 
-There are various functions to handle the commands in the form of `Server_reply_to_XXXX()`.
+There are various functions to handle the commands in the form of `Server_handle_XXXX()`.
 These functions use the predefined message reply strings in `reply.h` and substitute the reply parameters such as user's nick.
 The message parser in `message.h` is used to parse message details safely.
 

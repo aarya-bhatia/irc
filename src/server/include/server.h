@@ -45,6 +45,9 @@ typedef struct _Server {
     Hashtable *offline_nick_to_username_map;  // Map nick to username of offline user
     Hashtable *channels_map;                  // Map channel name to channel struct pointer
 
+    Hashtable *nick_to_serv_name_map;     // Map nick to server which has user
+    Hashtable *channel_to_serv_name_map;  // Map channel name to server which has channel
+
     struct sockaddr_in servaddr;  // address info for server
     int fd;                       // listen socket
     int epollfd;                  // epoll fd
@@ -143,26 +146,27 @@ bool get_peer_info(const char *filename, const char *name, struct peer_info_t *i
 bool check_registration_complete(Server *serv, User *usr);
 void check_peer_registration(Server *serv, Peer *peer);
 
-void Server_reply_to_NICK(Server *serv, User *usr, Message *msg);
-void Server_reply_to_USER(Server *serv, User *usr, Message *msg);
-void Server_reply_to_PRIVMSG(Server *serv, User *usr, Message *msg);
-void Server_reply_to_NOTICE(Server *serv, User *usr, Message *msg);
-void Server_reply_to_PING(Server *serv, User *usr, Message *msg);
-void Server_reply_to_QUIT(Server *serv, User *usr, Message *msg);
-void Server_reply_to_MOTD(Server *serv, User *usr, Message *msg);
-void Server_reply_to_INFO(Server *serv, User *usr, Message *msg);
-void Server_reply_to_WHO(Server *serv, User *usr, Message *msg);
-void Server_reply_to_WHOIS(Server *serv, User *usr, Message *msg);
-void Server_reply_to_JOIN(Server *serv, User *usr, Message *msg);
-void Server_reply_to_PART(Server *serv, User *usr, Message *msg);
-void Server_reply_to_TOPIC(Server *serv, User *usr, Message *msg);
-void Server_reply_to_LIST(Server *serv, User *usr, Message *msg);
-void Server_reply_to_NAMES(Server *serv, User *usr, Message *msg);
-void Server_reply_to_CONNECT(Server *serv, User *usr, Message *msg);
-void Server_reply_to_LUSERS(Server *serv, User *usr, Message *msg);
-void Server_reply_to_HELP(Server *serv, User *usr, Message *msg);
-void Server_reply_to_SERVER(Server *serv, Peer *peer, Message *msg);
-void Server_reply_to_PASS(Server *serv, Peer *peer, Message *msg);
+void Server_handle_NICK(Server *serv, User *usr, Message *msg);
+void Server_handle_USER(Server *serv, User *usr, Message *msg);
+void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg);
+void Server_handle_NOTICE(Server *serv, User *usr, Message *msg);
+void Server_handle_PING(Server *serv, User *usr, Message *msg);
+void Server_handle_QUIT(Server *serv, User *usr, Message *msg);
+void Server_handle_MOTD(Server *serv, User *usr, Message *msg);
+void Server_handle_INFO(Server *serv, User *usr, Message *msg);
+void Server_handle_WHO(Server *serv, User *usr, Message *msg);
+void Server_handle_WHOIS(Server *serv, User *usr, Message *msg);
+void Server_handle_JOIN(Server *serv, User *usr, Message *msg);
+void Server_handle_PART(Server *serv, User *usr, Message *msg);
+void Server_handle_TOPIC(Server *serv, User *usr, Message *msg);
+void Server_handle_LIST(Server *serv, User *usr, Message *msg);
+void Server_handle_NAMES(Server *serv, User *usr, Message *msg);
+void Server_handle_CONNECT(Server *serv, User *usr, Message *msg);
+void Server_handle_LUSERS(Server *serv, User *usr, Message *msg);
+void Server_handle_HELP(Server *serv, User *usr, Message *msg);
+
+void Server_handle_SERVER(Server *serv, Peer *peer, Message *msg);
+void Server_handle_PASS(Server *serv, Peer *peer, Message *msg);
 
 bool Server_registered_middleware(Server *serv, User *usr, Message *msg);
 bool Server_channel_middleware(Server *serv, User *usr, Message *msg);

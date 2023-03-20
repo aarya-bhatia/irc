@@ -18,15 +18,13 @@ size_t ht_capacity(Hashtable *this) {
     return this->capacity;
 }
 
-Hashtable *ht_alloc()
-{
+Hashtable *ht_alloc() {
     Hashtable *this = calloc(1, sizeof *this);
     ht_init(this);
     return this;
 }
 
-void ht_free(Hashtable *this)
-{
+void ht_free(Hashtable *this) {
     ht_destroy(this);
     free(this);
 }
@@ -60,7 +58,7 @@ void ht_print(Hashtable *this, char *(*key_to_string)(void *), char *(*value_to_
 
 /**
  * By default hashtable uses string keys and shallow copy and free for values
-*/
+ */
 void ht_init(Hashtable *this) {
     memset(this, 0, sizeof *this);
 
@@ -307,4 +305,23 @@ size_t djb2hash(const void *key, int len, uint32_t seed) {
         hash = ((hash << 5) + hash) ^ c;
 
     return hash;
+}
+
+Hashtable *ht_alloc_type(struct elem_type_info_t key_type, struct elem_type_info_t value_type) {
+    Hashtable *this = ht_alloc();
+    Hashtable_set_key_type(this, key_type);
+    Hashtable_set_value_type(this, value_type);
+    return this;
+}
+
+void Hashtable_set_value_type(Hashtable *this, struct elem_type_info_t info) {
+    this->value_copy = info.copy_type;
+    this->value_free = info.free_type;
+}
+
+void Hashtable_set_key_type(Hashtable *this, struct elem_type_info_t info) {
+    this->key_compare = info.comapre_type;
+    this->key_copy = info.copy_type;
+    this->key_free = info.free_type;
+    this->key_len = info.elem_len;
 }

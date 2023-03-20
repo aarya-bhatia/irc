@@ -25,31 +25,31 @@ typedef struct _PeerRequestHandler {
  * Look up table for peer request handlers
  */
 static PeerRequestHandler peer_request_handlers[] = {
-    {"SERVER", Server_reply_to_SERVER},
-    {"PASS", Server_reply_to_PASS}};
+    {"SERVER", Server_handle_SERVER},
+    {"PASS", Server_handle_PASS}};
 
 /**
  * Look up table for user request handlers
  */
 static UserRequestHandler user_request_handlers[] = {
-    {"NICK", Server_reply_to_NICK},
-    {"USER", Server_reply_to_USER},
-    {"PRIVMSG", Server_reply_to_PRIVMSG},
-    {"NOTICE", Server_reply_to_NOTICE},
-    {"PING", Server_reply_to_PING},
-    {"QUIT", Server_reply_to_QUIT},
-    {"MOTD", Server_reply_to_MOTD},
-    {"INFO", Server_reply_to_INFO},
-    {"LIST", Server_reply_to_LIST},
-    {"WHO", Server_reply_to_WHO},
-    {"WHOIS", Server_reply_to_WHOIS},
-    {"JOIN", Server_reply_to_JOIN},
-    {"PART", Server_reply_to_PART},
-    {"NAMES", Server_reply_to_NAMES},
-    {"TOPIC", Server_reply_to_TOPIC},
-    {"LUSERS", Server_reply_to_LUSERS},
-    {"HELP", Server_reply_to_HELP},
-    {"CONNECT", Server_reply_to_CONNECT},
+    {"NICK", Server_handle_NICK},
+    {"USER", Server_handle_USER},
+    {"PRIVMSG", Server_handle_PRIVMSG},
+    {"NOTICE", Server_handle_NOTICE},
+    {"PING", Server_handle_PING},
+    {"QUIT", Server_handle_QUIT},
+    {"MOTD", Server_handle_MOTD},
+    {"INFO", Server_handle_INFO},
+    {"LIST", Server_handle_LIST},
+    {"WHO", Server_handle_WHO},
+    {"WHOIS", Server_handle_WHOIS},
+    {"JOIN", Server_handle_JOIN},
+    {"PART", Server_handle_PART},
+    {"NAMES", Server_handle_NAMES},
+    {"TOPIC", Server_handle_TOPIC},
+    {"LUSERS", Server_handle_LUSERS},
+    {"HELP", Server_handle_HELP},
+    {"CONNECT", Server_handle_CONNECT},
 };
 
 User *Server_get_user_by_nick(Server *serv, const char *nick) {
@@ -61,19 +61,7 @@ User *Server_get_user_by_username(Server *serv, const char *username) {
     return ht_get(serv->username_to_user_map, username);
 }
 
-void Server_destroy(Server *serv) {
-    assert(serv);
-
-    save_channels(serv->channels_map, CHANNELS_FILENAME);
-
-    ht_free(serv->channels_map);
-
-    ht_free(serv->name_to_peer_map);
-    ht_free(serv->username_to_user_map);
-    ht_free(serv->online_nick_to_username_map);
-    ht_free(serv->offline_nick_to_username_map);
-
-    // close all connections
+void Server_remove_all_connections(Server *serv) {
     HashtableIter conn_itr;
     ht_iter_init(&conn_itr, serv->connections);
     Connection *conn = NULL;
@@ -81,7 +69,19 @@ void Server_destroy(Server *serv) {
     while (ht_iter_next(&conn_itr, NULL, (void **)&conn)) {
         Server_remove_connection(serv, conn);
     }
+}
 
+void Server_destroy(Server *serv) {
+    assert(serv);
+
+    save_channels(serv->channels_map, CHANNELS_FILENAME);
+    Server_remove_all_connections(serv);
+
+    ht_free(serv->channels_map);
+    ht_free(serv->name_to_peer_map);
+    ht_free(serv->username_to_user_map);
+    ht_free(serv->online_nick_to_username_map);
+    ht_free(serv->offline_nick_to_username_map);
     ht_free(serv->connections);
 
     close(serv->fd);
@@ -120,28 +120,15 @@ Server *Server_create(const char *name) {
     serv->port = serv_info.peer_port;
     serv->passwd = serv_info.peer_passwd;
     serv->hostname = serv_info.peer_host;
-
     serv->info = strdup(DEFAULT_INFO);
-
-    serv->connections = ht_alloc(); /* Map<int, Connection *> */
-    serv->connections->key_len = sizeof(int);
-    serv->connections->key_compare = (compare_type)int_compare;
-    serv->connections->key_copy = (elem_copy_type)int_copy;
-    serv->connections->key_free = free;
-
-    serv->name_to_peer_map = ht_alloc(); /* Map<string, Peer *> */
-
-    serv->username_to_user_map = ht_alloc(); /* Map<string, User*> */
-
-    serv->online_nick_to_username_map = ht_alloc(); /* Map<string, string>*/
-    serv->online_nick_to_username_map->value_copy = (elem_copy_type)strdup;
-    serv->online_nick_to_username_map->value_free = free;
-
-    serv->offline_nick_to_username_map = ht_alloc(); /* Map<string, string>*/
-    serv->offline_nick_to_username_map->value_copy = (elem_copy_type)strdup;
-    serv->offline_nick_to_username_map->value_free = free;
-
-    serv->channels_map = load_channels(CHANNELS_FILENAME);
+    serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);                    /* Map<int, Connection *> */
+    serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);            /* Map<string, Peer *> */
+    serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);             /* Map<string, string> */
+    serv->channel_to_serv_name_map = ht_alloc_type(STRING_TYPE, STRING_TYPE);     /* Map<string, string> */
+    serv->username_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);        /* Map<string, User*> */
+    serv->online_nick_to_username_map = ht_alloc_type(STRING_TYPE, STRING_TYPE);  /* Map<string, string>*/
+    serv->offline_nick_to_username_map = ht_alloc_type(STRING_TYPE, STRING_TYPE); /* Map<string, string>*/
+    serv->channels_map = load_channels(CHANNELS_FILENAME);                        /* Map<string, Channel *>*/
 
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
@@ -354,8 +341,14 @@ void Server_process_request_from_peer(Server *serv, Connection *conn) {
         }
 
         // Relay other commands to network
-        if (!found && message.origin && strcmp(message.origin, serv->hostname) != 0) {
-            Server_broadcast_message(serv, message_str);
+        if (!found) {
+            if (message.origin && strcmp(message.origin, serv->hostname) != 0) {
+                Server_broadcast_message(serv, message_str);
+            }
+
+            if (!strcmp(message.command, "NICK")) {
+                ht_set(serv->nick_to_serv_name_map, message.params[0], peer->name);
+            }
         }
 
         message_destroy(&message);

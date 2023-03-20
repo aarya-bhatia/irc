@@ -1,5 +1,7 @@
 #pragma once
 
+#include "include/common_types.h"
+
 #include <sys/types.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -34,6 +36,11 @@ typedef struct HashtableIter
 	size_t index;
 	HTNode *node;
 } HashtableIter;
+
+void Hashtable_set_value_type(Hashtable *this, struct elem_type_info_t info);
+void Hashtable_set_key_type(Hashtable *this, struct elem_type_info_t info);
+
+Hashtable *ht_alloc_type(struct elem_type_info_t key_type, struct elem_type_info_t value_type);
 
 void ht_print(Hashtable *this, char *(*key_to_string)(void *), char *(*value_to_string)(void *));
 
