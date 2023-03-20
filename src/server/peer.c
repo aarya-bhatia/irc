@@ -3,11 +3,15 @@
 Peer *Peer_alloc() {
     Peer *this = calloc(1, sizeof *this);
     this->msg_queue = List_alloc(NULL, free);
+    this->nicks = Vector_alloc(1, (elem_copy_type) strcpy, free);
+    this->channels = Vector_alloc(1, (elem_copy_type) strcpy, free);
     return this;
 }
 
 void Peer_free(Peer *this) {
     List_free(this->msg_queue);
+    Vector_free(this->nicks);
+    Vector_free(this->channels);
     free(this->name);
     free(this->passwd);
     free(this);

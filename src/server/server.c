@@ -521,6 +521,16 @@ void Server_remove_connection(Server *serv, Connection *connection) {
             ht_remove(serv->name_to_peer_map, peer->name, NULL, NULL);
         }
 
+        for (size_t i = 0; i < Vector_size(peer->nicks); i++) {
+            char *nick = Vector_get_at(peer->nicks, i);
+            ht_remove(serv->nick_to_serv_name_map, nick, NULL, NULL);
+        }
+
+        for (size_t i = 0; i < Vector_size(peer->channels); i++) {
+            char *channel = Vector_get_at(peer->channels, i);
+            ht_remove(serv->channel_to_serv_name_map, channel, NULL, NULL);
+        }
+
         Peer_free(peer);
     }
 
