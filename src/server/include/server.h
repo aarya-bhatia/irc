@@ -17,7 +17,7 @@
 #define Server_create_message(serv, format, ...) make_string(":%s " format "\r\n", serv->name, __VA_ARGS__)
 
 /* Add user prefix and \r\n suffix to messages */
-#define User_create_message(usr, format, ...) make_string("%s!%s@%s " format "\r\n", usr->nick, usr->username, usr->hostname, __VA_ARGS__)
+#define User_create_message(usr, format, ...) make_string(":%s!%s@%s " format "\r\n", usr->nick, usr->username, usr->hostname, __VA_ARGS__)
 
 typedef enum _conn_type_t {
     UNKNOWN_CONNECTION,

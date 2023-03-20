@@ -90,7 +90,7 @@ bool check_user_registration(Server *serv, User *usr) {
  * Send RPL_NAMES as multipart message
  */
 void send_names_reply(Server *serv, User *usr, Channel *channel) {
-    char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->hostname, usr->nick, "=",
+    char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->name, usr->nick, "=",
                                 channel->name);
 
     char message[MAX_MSG_LEN + 1];
@@ -552,14 +552,13 @@ void Server_handle_TOPIC(Server *serv, User *usr, Message *msg) {
 
     // check if channel exists
     Channel *channel = NULL;
+    char *channel_name = msg->params[0] + 1;
 
-    if (*msg->params[0] != '#' || (channel = ht_get(serv->name_to_channel_map, msg->params[0] + 1)) == NULL) {
+    if (*msg->params[0] != '#' || !(channel = ht_get(serv->name_to_channel_map, channel_name))) {
         List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG, usr->nick, msg->params[0]));
         return;
     }
 
-    char *channel_name = msg->params[0] + 1;
-    Channel *channel = ht_get(serv->name_to_channel_map, channel_name);
     assert(channel);
 
     // update or view topic
@@ -584,18 +583,14 @@ void Server_handle_PART(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    assert(msg->params[0]);
-
     // check if channel exists
     Channel *channel = NULL;
+    char *channel_name = msg->params[0] + 1;
 
-    if (*msg->params[0] != '#' || (channel = ht_get(serv->name_to_channel_map, msg->params[0] + 1)) == NULL) {
+    if (*msg->params[0] != '#' || !(channel = ht_get(serv->name_to_channel_map, channel_name))) {
         List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG, usr->nick, msg->params[0]));
         return;
     }
-
-    char *channel_name = msg->params[0] + 1;
-    Channel *channel = ht_get(serv->name_to_channel_map, channel_name);
 
     if (!Channel_has_member(channel, usr)) {
         List_push_back(usr->msg_queue,

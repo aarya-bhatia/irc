@@ -1,2 +1,1 @@
-hi 1678242889 0 :cotton
-testchannel 0 0 :Hello
+hello 1678242889 0 :Hello

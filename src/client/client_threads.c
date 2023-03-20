@@ -24,7 +24,7 @@ void *inbox_thread_routine(void *args) {
 
         if (parse_message(msgcopy, &msg_info) == -1) {
             SAFE(mutex_stdout, {
-                log_error("Failed to parse message");
+                log_error("Failed to parse message: %s", msgcopy);
             });
         } else {
             // Display message to stdout
