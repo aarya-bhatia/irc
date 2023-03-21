@@ -4,12 +4,12 @@
 #include "vector.h"
 
 typedef struct _Message {
-    char *message;		//Add original message string
-    char *origin;
-    char *command;
-    char *params[MAX_MSG_PARAM];
-    char *body;
-    size_t n_params;
+	char *message;		//Add original message string
+	char *origin;
+	char *command;
+	char *params[MAX_MSG_PARAM];
+	char *body;
+	size_t n_params;
 } Message;
 
 void message_init(Message * msg);

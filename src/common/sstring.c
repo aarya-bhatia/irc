@@ -4,36 +4,36 @@
 
 size_t _align_capacity(size_t n)
 {
-    size_t c = 1;
-    while (c < n) {
-	c = c << 1;
-    }
-    return c;
+	size_t c = 1;
+	while (c < n) {
+		c = c << 1;
+	}
+	return c;
 }
 
 sstring *sstring_create1(size_t n)
 {
-    sstring *this = malloc(sizeof *this);
-    this->size = 0;
-    this->capacity = MAX(_align_capacity(n), INITIAL_CAPACITY);
-    this->buffer = calloc(this->capacity, 1);
+	sstring *this = malloc(sizeof *this);
+	this->size = 0;
+	this->capacity = MAX(_align_capacity(n), INITIAL_CAPACITY);
+	this->buffer = calloc(this->capacity, 1);
 
-    return this;
+	return this;
 }
 
 sstring *sstring_create()
 {
-    return sstring_create1(INITIAL_CAPACITY);
+	return sstring_create1(INITIAL_CAPACITY);
 }
 
 size_t sstring_size(const sstring * this)
 {
-    return this->size;
+	return this->size;
 }
 
 size_t sstring_capacity(const sstring * this)
 {
-    return this->capacity;
+	return this->capacity;
 }
 
 /**
@@ -41,8 +41,8 @@ size_t sstring_capacity(const sstring * this)
  */
 void sstring_add_char(sstring * this, char c)
 {
-    sstring_reserve(this, this->size + 1);
-    this->buffer[this->size++] = c;
+	sstring_reserve(this, this->size + 1);
+	this->buffer[this->size++] = c;
 }
 
 /**
@@ -50,12 +50,12 @@ void sstring_add_char(sstring * this, char c)
  */
 void sstring_add_string(sstring * this, char *cstr)
 {
-    assert(this);
-    assert(cstr);
-    size_t length = strlen(cstr);
-    sstring_reserve(this, this->size + length);
-    memcpy(this->buffer + this->size, cstr, length);
-    this->size += length;
+	assert(this);
+	assert(cstr);
+	size_t length = strlen(cstr);
+	sstring_reserve(this, this->size + length);
+	memcpy(this->buffer + this->size, cstr, length);
+	this->size += length;
 }
 
 /**
@@ -63,9 +63,9 @@ void sstring_add_string(sstring * this, char *cstr)
  */
 void sstring_append(sstring * this, const sstring * other)
 {
-    sstring_reserve(this, this->size + other->size);
-    memcpy(this->buffer + this->size, other->buffer, other->size);
-    this->size += other->size;
+	sstring_reserve(this, this->size + other->size);
+	memcpy(this->buffer + this->size, other->buffer, other->size);
+	this->size += other->size;
 }
 
 /**
@@ -73,10 +73,10 @@ void sstring_append(sstring * this, const sstring * other)
  */
 char *sstring_to_cstring(sstring * this)
 {
-    char *cstr = malloc(this->size + 1);
-    memcpy(cstr, this->buffer, this->size);
-    cstr[this->size] = 0;
-    return cstr;
+	char *cstr = malloc(this->size + 1);
+	memcpy(cstr, this->buffer, this->size);
+	cstr[this->size] = 0;
+	return cstr;
 }
 
 /**
@@ -84,11 +84,11 @@ char *sstring_to_cstring(sstring * this)
  */
 sstring *cstring_to_sstring(char *cstr)
 {
-    size_t length = strlen(cstr);
-    sstring *this = sstring_create1(length);
-    memcpy(this->buffer, cstr, length);
-    this->size = length;
-    return this;
+	size_t length = strlen(cstr);
+	sstring *this = sstring_create1(length);
+	memcpy(this->buffer, cstr, length);
+	this->size = length;
+	return this;
 }
 
 /**
@@ -96,12 +96,12 @@ sstring *cstring_to_sstring(char *cstr)
  */
 void sstring_destroy(sstring * this)
 {
-    if (!this) {
-	return;
-    }
+	if (!this) {
+		return;
+	}
 
-    free(this->buffer);
-    free(this);
+	free(this->buffer);
+	free(this);
 }
 
 /**
@@ -110,14 +110,14 @@ void sstring_destroy(sstring * this)
  */
 char *sstring_slice(sstring * this, size_t start, size_t end)
 {
-    if (end < start || start >= this->size || end > this->size) {
-	return NULL;
-    }
+	if (end < start || start >= this->size || end > this->size) {
+		return NULL;
+	}
 
-    size_t length = end - start;
-    char *str = calloc(length + 1, 1);
-    memcpy(str, this->buffer + start, length);
-    return str;
+	size_t length = end - start;
+	char *str = calloc(length + 1, 1);
+	memcpy(str, this->buffer + start, length);
+	return str;
 }
 
 /**
@@ -129,22 +129,22 @@ char *sstring_slice(sstring * this, size_t start, size_t end)
  */
 void sstring_resize(sstring * this, size_t size)
 {
-    if (size == this->size) {
-	return;
-    }
+	if (size == this->size) {
+		return;
+	}
 
-    this->capacity = _align_capacity(size);
-    this->buffer = realloc(this->buffer, this->capacity);
+	this->capacity = _align_capacity(size);
+	this->buffer = realloc(this->buffer, this->capacity);
 
-    if (size > this->size) {
-	// zero out the new bytes
-	memset(this->buffer + this->size, 0, size - this->size);
-    } else {
-	// zero out the extra bytes
-	memset(this->buffer + size, 0, this->size - size);
-    }
+	if (size > this->size) {
+		// zero out the new bytes
+		memset(this->buffer + this->size, 0, size - this->size);
+	} else {
+		// zero out the extra bytes
+		memset(this->buffer + size, 0, this->size - size);
+	}
 
-    this->size = size;
+	this->size = size;
 }
 
 /**
@@ -154,8 +154,8 @@ void sstring_resize(sstring * this, size_t size)
  */
 void sstring_reserve(sstring * this, size_t capacity)
 {
-    if (capacity > this->capacity) {
-	this->capacity = _align_capacity(capacity);
-	this->buffer = realloc(this->buffer, this->capacity);
-    }
+	if (capacity > this->capacity) {
+		this->capacity = _align_capacity(capacity);
+		this->buffer = realloc(this->buffer, this->capacity);
+	}
 }

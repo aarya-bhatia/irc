@@ -13,39 +13,36 @@ const char help_privmsg[] =
     "PRIVMSG #bunny :Hi! I have a problem! ; Command to send a message to channel #bunny.";
 
 const struct help_t help[] = {
-    { "HELP", "** Help system **",
-     "Try /HELP <command> for specific help or type /USERCMDS for a complete list of IRC commands supported on this server."
-     },
-    { "PRIVMSG", "** The PRIVMSG Command **", help_privmsg },
-    { "NOTICE", "** The NOTICE Command **",
-     "The /NOTICE command is used to send messages to a client. This command does not send back automatic replies to the user."
-     },
-    { "NICK", "** The NICK Command **",
-     "The /NICK command is used to change your nick." },
-    { "USER", "** The USER Command **",
-     "The /USER command is used to register a new client. It sets the username and realname of the client."
-     },
-    { "QUIT", "** The QUIT Command **",
-     "The /QUIT command is used to close the connection with a client." },
-    { "WHO", "** The WHO Command **", help_who },
-    { "JOIN", "** The JOIN Command **", "" },
-    { "PART", "** The PART Command **", "" },
-    { "TOPIC", "** The TOPIC Command **", "" },
-    { "LIST", "** The LIST Command **", "" },
-    { "NAMES", "** The NAMES Command **", "" },
-    { "LUSERS", "** The LUSERS Command **", "" },
-    { "PING", "** The PING Command **", "" },
+	{"HELP", "** Help system **",
+	 "Try /HELP <command> for specific help or type /USERCMDS for a complete list of IRC commands supported on this server."},
+	{"PRIVMSG", "** The PRIVMSG Command **", help_privmsg},
+	{"NOTICE", "** The NOTICE Command **",
+	 "The /NOTICE command is used to send messages to a client. This command does not send back automatic replies to the user."},
+	{"NICK", "** The NICK Command **",
+	 "The /NICK command is used to change your nick."},
+	{"USER", "** The USER Command **",
+	 "The /USER command is used to register a new client. It sets the username and realname of the client."},
+	{"QUIT", "** The QUIT Command **",
+	 "The /QUIT command is used to close the connection with a client."},
+	{"WHO", "** The WHO Command **", help_who},
+	{"JOIN", "** The JOIN Command **", ""},
+	{"PART", "** The PART Command **", ""},
+	{"TOPIC", "** The TOPIC Command **", ""},
+	{"LIST", "** The LIST Command **", ""},
+	{"NAMES", "** The NAMES Command **", ""},
+	{"LUSERS", "** The LUSERS Command **", ""},
+	{"PING", "** The PING Command **", ""},
 };
 
 const struct help_t *get_help_text(const char *subject)
 {
-    static size_t n_help = sizeof help / sizeof *help;
+	static size_t n_help = sizeof help / sizeof *help;
 
-    for (size_t i = 0; i < n_help; i++) {
-	if (!strcmp(help[i].subject, subject)) {
-	    return help + i;
+	for (size_t i = 0; i < n_help; i++) {
+		if (!strcmp(help[i].subject, subject)) {
+			return help + i;
+		}
 	}
-    }
 
-    return NULL;
+	return NULL;
 }

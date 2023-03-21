@@ -416,9 +416,9 @@ void Server_handle_WHO(Server * serv, User * usr, Message * msg)
 	if (other_user) {
 	    for (size_t i = 0; i < Vector_size(other_user->channels); i++) {
 		Channel *channel = ht_get(serv->name_to_channel_map,
-					  Vector_get_at(other_user->
-							channels,
-							i));
+					  Vector_get_at
+					  (other_user->channels,
+					   i));
 		if (channel) {
 		    send_who_reply(serv, usr, channel, other_user);
 		}
@@ -530,8 +530,8 @@ void Server_handle_LIST(Server * serv, User * usr, Message * msg)
 			       Server_create_message(serv, RPL_LIST_MSG,
 						     usr->nick,
 						     channel->name,
-						     ht_size(channel->
-							     members),
+						     ht_size
+						     (channel->members),
 						     channel->topic));
 	    }
 	    tok = strtok(NULL, ",");

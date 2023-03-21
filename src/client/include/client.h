@@ -5,9 +5,9 @@
 #include <pthread.h>
 
 typedef struct Client {
-    int client_sock;
-    queue_t *client_inbox;
-    queue_t *client_outbox;
+	int client_sock;
+	queue_t *client_inbox;
+	queue_t *client_outbox;
 } Client;
 
 void *reader_thread_routine(void *args);

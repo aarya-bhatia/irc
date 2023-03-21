@@ -9,15 +9,15 @@
 #include "common_types.h"
 
 typedef struct Vector {
-    void **elems;
-    size_t size;
-    size_t capacity;
-    void *(*elem_copy)(void *);
-    void (*elem_free)(void *);
+	void **elems;
+	size_t size;
+	size_t capacity;
+	void *(*elem_copy)(void *);
+	void (*elem_free)(void *);
 } Vector;
 
 Vector *Vector_alloc(size_t capacity, void *(*elem_copy)(void *),
-		     void(*elem_free)(void *));
+		     void (*elem_free)(void *));
 void Vector_free(Vector * this);
 void Vector_reserve(Vector * this, size_t capacity);
 void *Vector_find(Vector * this, bool (*cb)(void *, const void *),

@@ -5,9 +5,9 @@
 #include "list.h"
 
 typedef struct queue_t {
-    List *l;
-    pthread_mutex_t m;
-    pthread_cond_t cv;
+	List *l;
+	pthread_mutex_t m;
+	pthread_cond_t cv;
 } queue_t;
 
 queue_t *queue_alloc();

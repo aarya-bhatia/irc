@@ -8,9 +8,9 @@
  * Represents a String object as an array of characters
  */
 typedef struct _sstring {
-    char *buffer;
-    size_t size;
-    size_t capacity;
+	char *buffer;
+	size_t size;
+	size_t capacity;
 } sstring;
 
 /**
