@@ -25,9 +25,8 @@ typedef struct _PeerRequestHandler {
 /**
  * Look up table for peer request handlers
  */
-static PeerRequestHandler peer_request_handlers[] = {
-	{"SERVER", Server_handle_SERVER}, {"PASS", Server_handle_PASS}
-};
+static PeerRequestHandler peer_request_handlers[] =
+    { {"SERVER", Server_handle_SERVER}, {"PASS", Server_handle_PASS} };
 
 /**
  * Look up table for user request handlers
@@ -95,19 +94,6 @@ void Server_destroy(Server * serv)
 }
 
 /**
- * helper function used to initialise channels in server
- */
-void _add_channels_to_map(Server * serv)
-{
-	HashtableIter itr;
-	ht_iter_init(&itr, serv->name_to_channel_map);
-	Channel *chan = NULL;
-	while (ht_iter_next(&itr, NULL, (void **)&chan)) {
-		ht_set(serv->channel_to_serv_name_map, chan->name, serv->name);
-	}
-}
-
-/**
  * Create and initialise the server with given name.
  * Reads server info from config file.
  */
@@ -139,11 +125,9 @@ Server *Server_create(const char *name)
 	serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);	/* Map<int, Connection *> */
 	serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);	/* Map<string, Peer *> */
 	serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);	/* Map<string, string> */
-	serv->channel_to_serv_name_map = ht_alloc_type(STRING_TYPE, STRING_TYPE);	/* Map<string, string> */
 	serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);	/* Map<string, User*> */
 
 	serv->name_to_channel_map = load_channels(CHANNELS_FILENAME);	/* Map<string, Channel *> */
-	_add_channels_to_map(serv);
 
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
@@ -348,10 +332,10 @@ void Server_process_request_from_user(Server * serv, Connection * conn)
 							    usr->nick);
 			List_push_back(conn->outgoing_messages, reply);
 		} else {
-			char *reply =
-			    Server_create_message(serv,
-						  "421 %s %s :Unknown command",
-						  usr->nick, message->command);
+			char *reply = Server_create_message(serv,
+							    "421 %s %s :Unknown command",
+							    usr->nick,
+							    message->command);
 			List_push_back(conn->outgoing_messages, reply);
 		}
 
@@ -365,9 +349,7 @@ void Server_process_request_from_user(Server * serv, Connection * conn)
  * This will send a message to all known members of channel on given server and
  * forward the message to its peers to reach other channel members in the network.
  */
-void
-Server_message_channel(Server * serv, const char *origin,
-		       const char *target, const char *message)
+void Server_message_channel(Server * serv, const char *origin, const char *target, const char *message)
 {
 	Channel *channel = ht_get(serv->name_to_channel_map, target);
 
@@ -392,9 +374,8 @@ Server_message_channel(Server * serv, const char *origin,
  * Attemps to send a message to user with given nick.
  * If user is not on this server, message is relayed to its peers.
  */
-void
-Server_message_user(Server * serv, const char *origin, const char *target,
-		    const char *message)
+void Server_message_user(Server * serv, const char *origin, const char *target,
+			 const char *message)
 {
 	User *user = ht_get(serv->nick_to_user_map, target);
 
@@ -410,8 +391,8 @@ Server_message_user(Server * serv, const char *origin, const char *target,
 /**
  * Send given message to all known peers on this server except origin server.
  */
-void
-Server_relay_message(Server * serv, const char *origin, const char *message)
+void Server_relay_message(Server * serv, const char *origin,
+			  const char *message)
 {
 	HashtableIter itr;
 	ht_iter_init(&itr, serv->name_to_peer_map);
@@ -482,8 +463,8 @@ void Server_process_request_from_peer(Server * serv, Connection * conn)
 
 				if (*message.params[0] == '#') {
 					Server_message_channel(serv, peer->name,
-							       message.
-							       params[0] + 1,
+							       message.params[0]
+							       + 1,
 							       message_str);
 				} else {
 					Server_message_user(serv, peer->name,
@@ -547,8 +528,9 @@ bool Server_add_connection(Server * serv, Connection * connection)
 	ht_set(serv->connections, &connection->fd, connection);
 
 	// Make user socket non-blocking
-	if (fcntl(connection->fd, F_SETFL,
-		  fcntl(connection->fd, F_GETFL) | O_NONBLOCK) != 0) {
+	if (fcntl
+	    (connection->fd, F_SETFL,
+	     fcntl(connection->fd, F_GETFL) | O_NONBLOCK) != 0) {
 		perror("fcntl");
 		return false;
 	}
@@ -612,12 +594,6 @@ void Server_remove_connection(Server * serv, Connection * connection)
 		for (size_t i = 0; i < Vector_size(peer->nicks); i++) {
 			char *nick = Vector_get_at(peer->nicks, i);
 			ht_remove(serv->nick_to_serv_name_map, nick, NULL,
-				  NULL);
-		}
-
-		for (size_t i = 0; i < Vector_size(peer->channels); i++) {
-			char *channel = Vector_get_at(peer->channels, i);
-			ht_remove(serv->channel_to_serv_name_map, channel, NULL,
 				  NULL);
 		}
 

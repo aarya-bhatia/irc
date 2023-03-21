@@ -472,17 +472,14 @@ void Server_handle_JOIN(Server * serv, User * usr, Message * msg)
 		// Create channel
 		channel = Channel_alloc(channel_name);
 		ht_set(serv->name_to_channel_map, channel_name, channel);
-		ht_set(serv->channel_to_serv_name_map, channel_name,
-		       serv->name);
-		log_info("New channel %s created by user %s", channel_name,
-			 usr->nick);
+		log_info("New channel %s created by user %s", channel_name, usr->nick);
 	}
 	// Add user to channel
 	Channel_add_member(channel, usr);
 	User_add_channel(usr, channel->name);
 
 	// Broadcast JOIN to every client on channel
-	char *join_message = User_create_message(usr, "JOIN #%s", channel_name);
+	char *join_message = User_create_message(usr, "%s", msg->message);
 
 	Server_message_channel(serv, serv->name, channel_name, join_message);
 
