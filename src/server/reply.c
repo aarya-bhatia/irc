@@ -300,8 +300,17 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
         } else {
             Peer *peer = ht_get(serv->name_to_peer_map, serv_name);
             assert(peer);
-            List_push_back(peer->msg_queue, message);
-            log_info("PRIVMSG from user %s was relayed to server %s", usr->nick, serv_name);
+
+            // check if peer is able to receive message
+            if (peer->registered && !peer->quit) {
+                List_push_back(peer->msg_queue, message);
+                log_info("PRIVMSG from user %s was relayed to server %s", usr->nick, serv_name);
+            } else {
+                log_warn("Failed to send message to user %s", target_nick);
+                List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG,
+                                                                     usr->nick, channel_name));
+                return;
+            }
         }
     } else {
         // Message target is user
@@ -320,9 +329,18 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
             User *target_user = Server_get_user_by_nick(serv, target_nick);
             assert(target_user);
 
-            // Add message to target user's queue
-            List_push_back(target_user->msg_queue, message);
-            log_info("PRIVMSG sent from user %s to user %s", usr->nick, target_nick);
+            // check if user is able to receive message
+            if (target_user->registered && !target_user->quit) {
+                // Add message to target user's queue
+                List_push_back(target_user->msg_queue, message);
+                log_info("PRIVMSG sent from user %s to user %s", usr->nick, target_nick);
+            } else {
+                log_warn("Failed to send message to user %s", target_nick);
+                List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHNICK_MSG,
+                                                                     usr->nick, target_nick));
+                return;
+            }
+
         } else {
             Peer *peer = ht_get(serv->name_to_peer_map, serv_name);
             assert(peer);
