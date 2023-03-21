@@ -14,16 +14,14 @@
 #define DEFAULT_INFO "development irc server"
 
 /* Add server prefix and \r\n suffix to messages */
-#define Server_create_message(serv, format, ...) make_string(":%s " format "\r\n", serv->name, __VA_ARGS__)
+#define Server_create_message(serv, format, ...)                                                   \
+    make_string(":%s " format "\r\n", serv->name, __VA_ARGS__)
 
 /* Add user prefix and \r\n suffix to messages */
-#define User_create_message(usr, format, ...) make_string(":%s!%s@%s " format "\r\n", usr->nick, usr->username, usr->hostname, __VA_ARGS__)
+#define User_create_message(usr, format, ...)                                                      \
+    make_string(":%s!%s@%s " format "\r\n", usr->nick, usr->username, usr->hostname, __VA_ARGS__)
 
-typedef enum _conn_type_t {
-    UNKNOWN_CONNECTION,
-    USER_CONNECTION,
-    PEER_CONNECTION
-} conn_type_t;
+typedef enum _conn_type_t { UNKNOWN_CONNECTION, USER_CONNECTION, PEER_CONNECTION } conn_type_t;
 
 typedef struct _Connection {
     int fd;
@@ -31,33 +29,33 @@ typedef struct _Connection {
     char *hostname;
     int port;
     bool quit;
-    size_t req_len;                 // request buffer length
-    size_t res_len;                 // response buffer length
-    size_t res_off;                 // num bytes sent from response buffer
-    char req_buf[MAX_MSG_LEN + 1];  // request buffer
-    char res_buf[MAX_MSG_LEN + 1];  // response buffer
-    List *incoming_messages;        // queue of received messages
-    List *outgoing_messages;        // queue of messages to deliver
-    void *data;                     // additional data for users and peers
+    size_t req_len;                  // request buffer length
+    size_t res_len;                  // response buffer length
+    size_t res_off;                  // num bytes sent from response buffer
+    char req_buf[MAX_MSG_LEN + 1];   // request buffer
+    char res_buf[MAX_MSG_LEN + 1];   // response buffer
+    List *incoming_messages;         // queue of received messages
+    List *outgoing_messages;         // queue of messages to deliver
+    void *data;                      // additional data for users and peers
 } Connection;
 
 typedef struct _Server {
-    Hashtable *connections;               // map sock to Connection struct
-    Hashtable *nick_to_user_map;          // Map nick to user struct on this server
-    Hashtable *nick_to_serv_name_map;     // Map nick to name of server which has user
-    Hashtable *channel_to_serv_name_map;  // Map channel name to name of server which has channel
-    Hashtable *name_to_peer_map;          // Map server name to peer struct
-    Hashtable *name_to_channel_map;       // Map channel name to channel struct
+    Hashtable *connections;                // map sock to Connection struct
+    Hashtable *nick_to_user_map;           // Map nick to user struct on this server
+    Hashtable *nick_to_serv_name_map;      // Map nick to name of server which has user
+    Hashtable *channel_to_serv_name_map;   // Map channel name to name of server which has channel
+    Hashtable *name_to_peer_map;           // Map server name to peer struct
+    Hashtable *name_to_channel_map;        // Map channel name to channel struct
 
-    struct sockaddr_in servaddr;  // address info for server
-    int fd;                       // listen socket
-    int epollfd;                  // epoll fd
-    char *name;                   // name of this server
-    char *hostname;               // server hostname
-    char *port;                   // server port
-    char created_at[64];          // server time created at as string
-    char *motd_file;              // file to use for message of the day greetings
-    char *config_file;            // name of config file with irc server address and passwords
+    struct sockaddr_in servaddr;   // address info for server
+    int fd;                        // listen socket
+    int epollfd;                   // epoll fd
+    char *name;                    // name of this server
+    char *hostname;                // server hostname
+    char *port;                    // server port
+    char created_at[64];           // server time created at as string
+    char *motd_file;               // file to use for message of the day greetings
+    char *config_file;             // name of config file with irc server address and passwords
     char *passwd;
     char *info;
 } Server;
@@ -66,10 +64,10 @@ typedef struct _Peer {
     char *name;
     char *passwd;
     bool registered;
-    bool quit;  // flag to indicate server leaving
+    bool quit;   // flag to indicate server leaving
     List *msg_queue;
-    Vector *nicks;     // nick of users behind this server
-    Vector *channels;  // names of channels behind this server
+    Vector *nicks;      // nick of users behind this server
+    Vector *channels;   // names of channels behind this server
 
 } Peer;
 
@@ -80,19 +78,18 @@ typedef struct peer_info_t {
     char *peer_passwd;
 } peer_info_t;
 
-enum { USER_ONLINE,
-       USER_OFFLINE };
+enum { USER_ONLINE, USER_OFFLINE };
 
 typedef struct _User {
-    char *nick;         // display name
-    char *username;     // unique identifier
-    char *realname;     // full name
-    char *hostname;     // client ip
-    Vector *channels;   // list of channels joined by user
-    bool registered;    // flag to indicate user has registered with username, realname and nick
-    bool nick_changed;  // flag to indicate user has set a nick
-    bool quit;          // flag to indicate user is leaving server
-    int status;         // to indicate if user online or offline
+    char *nick;          // display name
+    char *username;      // unique identifier
+    char *realname;      // full name
+    char *hostname;      // client ip
+    Vector *channels;    // list of channels joined by user
+    bool registered;     // flag to indicate user has registered with username, realname and nick
+    bool nick_changed;   // flag to indicate user has set a nick
+    bool quit;           // flag to indicate user is leaving server
+    int status;          // to indicate if user online or offline
     List *msg_queue;
 } User;
 
@@ -103,11 +100,11 @@ typedef struct _User {
 // };
 
 typedef struct _Channel {
-    char *name;           // name of channel
-    char *topic;          // channel topic
-    int mode;             // channel mode
-    time_t time_created;  // time channel was created
-    Hashtable *members;   // map username to User struct
+    char *name;            // name of channel
+    char *topic;           // channel topic
+    int mode;              // channel mode
+    time_t time_created;   // time channel was created
+    Hashtable *members;    // map username to User struct
 
     // time_t topic_changed_at;
     // char *topic_changed_by;
@@ -128,7 +125,8 @@ void Server_destroy(Server *serv);
 void Server_accept_all(Server *serv);
 void Server_process_request(Server *serv, Connection *usr);
 void Server_broadcast_message(Server *serv, const char *message);
-void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message);
+void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *username,
+                                 const char *message);
 
 User *Server_get_user_by_socket(Server *serv, int sock);
 User *Server_get_user_by_nick(Server *serv, const char *nick);

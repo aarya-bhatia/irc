@@ -293,7 +293,7 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
                 return;
             }
 
-            Server_broadcast_to_channel(serv, channel, message);
+            Server_broadcast_to_channel(serv, channel, usr->username, message);
             free(message);
 
             log_debug("user %s sent message to channel %s", usr->nick, channel->name);
@@ -422,6 +422,7 @@ void Server_handle_JOIN(Server *serv, User *usr, Message *msg) {
 
     Channel *channel = ht_get(serv->name_to_channel_map, channel_name);
 
+    // TODO: check user permissions
     if (!channel) {
         // Create channel
         channel = Channel_alloc(channel_name);
@@ -434,9 +435,12 @@ void Server_handle_JOIN(Server *serv, User *usr, Message *msg) {
     Channel_add_member(channel, usr);
     User_add_channel(usr, channel->name);
 
-    // Broadcast JOIN to every client including current user
+    // Broadcast JOIN to every client on channel
     char *join_message = User_create_message(usr, "JOIN #%s", channel_name);
-    Server_broadcast_message(serv, join_message);
+
+    Server_broadcast_to_channel(serv, channel, usr->username, join_message);
+    List_push_back(usr->msg_queue, strdup(join_message));
+
     free(join_message);
 
     // Send channel topic
@@ -609,7 +613,7 @@ void Server_handle_PART(Server *serv, User *usr, Message *msg) {
                              : make_string("%s is leaving channel %s", usr->nick, channel->name);
     char *broadcast_message = User_create_message(usr, "PART #%s :%s", channel->name, reason);
 
-    Server_broadcast_to_channel(serv, channel, broadcast_message);
+    Server_broadcast_to_channel(serv, channel, usr->username, broadcast_message);
     Channel_remove_member(channel, usr);   // Remove user from channel's list
 
     // remove channel from user's personal list
@@ -771,7 +775,7 @@ void Server_handle_NOTICE(Server *serv, User *usr, Message *msg) {
                 return;
             }
 
-            Server_broadcast_to_channel(serv, channel, msg->body);
+            Server_broadcast_to_channel(serv, channel, usr->username, msg->body);
         } else {
             User *other_user = Server_get_user_by_nick(serv, target);
             if (!other_user) {

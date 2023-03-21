@@ -24,48 +24,47 @@ typedef struct _PeerRequestHandler {
 /**
  * Look up table for peer request handlers
  */
-static PeerRequestHandler peer_request_handlers[] = {
-    {"SERVER", Server_handle_SERVER},
-    {"PASS", Server_handle_PASS}};
+static PeerRequestHandler peer_request_handlers[] = {{"SERVER", Server_handle_SERVER},
+                                                     {"PASS", Server_handle_PASS}};
 
 /**
  * Look up table for user request handlers
  */
 static UserRequestHandler user_request_handlers[] = {
-    {"NICK", Server_handle_NICK},
-    {"USER", Server_handle_USER},
-    {"PRIVMSG", Server_handle_PRIVMSG},
-    {"NOTICE", Server_handle_NOTICE},
-    {"PING", Server_handle_PING},
-    {"QUIT", Server_handle_QUIT},
-    {"MOTD", Server_handle_MOTD},
-    {"INFO", Server_handle_INFO},
-    {"LIST", Server_handle_LIST},
-    {"WHO", Server_handle_WHO},
-    {"WHOIS", Server_handle_WHOIS},
-    {"JOIN", Server_handle_JOIN},
-    {"PART", Server_handle_PART},
-    {"NAMES", Server_handle_NAMES},
-    {"TOPIC", Server_handle_TOPIC},
-    {"LUSERS", Server_handle_LUSERS},
-    {"HELP", Server_handle_HELP},
-    {"CONNECT", Server_handle_CONNECT},
+    {"NICK", Server_handle_NICK},       {"USER", Server_handle_USER},
+    {"PRIVMSG", Server_handle_PRIVMSG}, {"NOTICE", Server_handle_NOTICE},
+    {"PING", Server_handle_PING},       {"QUIT", Server_handle_QUIT},
+    {"MOTD", Server_handle_MOTD},       {"INFO", Server_handle_INFO},
+    {"LIST", Server_handle_LIST},       {"WHO", Server_handle_WHO},
+    {"WHOIS", Server_handle_WHOIS},     {"JOIN", Server_handle_JOIN},
+    {"PART", Server_handle_PART},       {"NAMES", Server_handle_NAMES},
+    {"TOPIC", Server_handle_TOPIC},     {"LUSERS", Server_handle_LUSERS},
+    {"HELP", Server_handle_HELP},       {"CONNECT", Server_handle_CONNECT},
 };
 
+/**
+ * Gets user struct from provided nick.
+ */
 User *Server_get_user_by_nick(Server *serv, const char *nick) {
     return ht_get(serv->nick_to_user_map, nick);
 }
 
+/**
+ * Remove any open connections from server.
+ */
 void Server_remove_all_connections(Server *serv) {
     HashtableIter conn_itr;
     ht_iter_init(&conn_itr, serv->connections);
     Connection *conn = NULL;
 
-    while (ht_iter_next(&conn_itr, NULL, (void **)&conn)) {
+    while (ht_iter_next(&conn_itr, NULL, (void **) &conn)) {
         Server_remove_connection(serv, conn);
     }
 }
 
+/**
+ * Destroy server and close all connections.
+ */
 void Server_destroy(Server *serv) {
     assert(serv);
 
@@ -90,17 +89,21 @@ void Server_destroy(Server *serv) {
     exit(0);
 }
 
+/**
+ * helper function used to initialise channels in server
+ */
 void _add_channels_to_map(Server *serv) {
     HashtableIter itr;
     ht_iter_init(&itr, serv->name_to_channel_map);
     Channel *chan = NULL;
-    while (ht_iter_next(&itr, NULL, (void **)&chan)) {
+    while (ht_iter_next(&itr, NULL, (void **) &chan)) {
         ht_set(serv->channel_to_serv_name_map, chan->name, serv->name);
     }
 }
 
 /**
- * Create and initialise the server. Bind socket to given port.
+ * Create and initialise the server with given name.
+ * Reads server info from config file.
  */
 Server *Server_create(const char *name) {
     assert(name);
@@ -125,11 +128,12 @@ Server *Server_create(const char *name) {
 
     serv->info = strdup(DEFAULT_INFO);
 
-    serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);                /* Map<int, Connection *> */
-    serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);        /* Map<string, Peer *> */
-    serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);         /* Map<string, string> */
-    serv->channel_to_serv_name_map = ht_alloc_type(STRING_TYPE, STRING_TYPE); /* Map<string, string> */
-    serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);        /* Map<string, User*>*/
+    serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);         /* Map<int, Connection *> */
+    serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, Peer *> */
+    serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);  /* Map<string, string> */
+    serv->channel_to_serv_name_map =
+        ht_alloc_type(STRING_TYPE, STRING_TYPE);                       /* Map<string, string> */
+    serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, User*>*/
 
     serv->name_to_channel_map = load_channels(CHANNELS_FILENAME); /* Map<string, Channel *>*/
     _add_channels_to_map(serv);
@@ -159,7 +163,7 @@ Server *Server_create(const char *name) {
     CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
 
     // Bind
-    CHECK(bind(serv->fd, (struct sockaddr *)&serv->servaddr, sizeof(struct sockaddr_in)), "bind");
+    CHECK(bind(serv->fd, (struct sockaddr *) &serv->servaddr, sizeof(struct sockaddr_in)), "bind");
 
     // Listen
     CHECK(listen(serv->fd, MAX_EVENTS), "listen");
@@ -170,14 +174,14 @@ Server *Server_create(const char *name) {
 }
 
 /**
- * There are new sock_to_user_map available
+ * There are new connections available.
  */
 void Server_accept_all(Server *serv) {
     struct sockaddr_storage client_addr;
     socklen_t addrlen = sizeof(client_addr);
 
     while (1) {
-        int conn_sock = accept(serv->fd, (struct sockaddr *)&client_addr, &addrlen);
+        int conn_sock = accept(serv->fd, (struct sockaddr *) &client_addr, &addrlen);
 
         if (conn_sock == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -187,7 +191,7 @@ void Server_accept_all(Server *serv) {
             die("accept");
         }
 
-        Connection *conn = Connection_alloc(conn_sock, (struct sockaddr *)&client_addr, addrlen);
+        Connection *conn = Connection_alloc(conn_sock, (struct sockaddr *) &client_addr, addrlen);
 
         if (!Server_add_connection(serv, conn)) {
             Server_remove_connection(serv, conn);
@@ -195,13 +199,18 @@ void Server_accept_all(Server *serv) {
     }
 }
 
+/**
+ * Call this function after processing messages from any request.
+ * This will move messages from internal user/peer message queues to
+ * the outbox queue of that connection.
+ */
 void Server_flush_message_queues(Server *serv) {
     HashtableIter itr;
     ht_iter_init(&itr, serv->connections);
 
     Connection *conn = NULL;
 
-    while (ht_iter_next(&itr, NULL, (void **)&conn)) {
+    while (ht_iter_next(&itr, NULL, (void **) &conn)) {
         if (conn->conn_type == UNKNOWN_CONNECTION) {
             continue;
         }
@@ -209,9 +218,9 @@ void Server_flush_message_queues(Server *serv) {
         List *messages = NULL;
 
         if (conn->conn_type == USER_CONNECTION) {
-            messages = ((User *)conn->data)->msg_queue;
+            messages = ((User *) conn->data)->msg_queue;
         } else if (conn->conn_type == PEER_CONNECTION) {
-            messages = ((Peer *)conn->data)->msg_queue;
+            messages = ((Peer *) conn->data)->msg_queue;
         }
 
         // Move messages from message queue to outbox queue
@@ -231,6 +240,10 @@ void Server_flush_message_queues(Server *serv) {
     }
 }
 
+/**
+ * Process request from unknown connection and promote it to either
+ * user or peer connection based on the initial messages.
+ */
 void Server_process_request_from_unknown(Server *serv, Connection *conn) {
     assert(conn->conn_type == UNKNOWN_CONNECTION);
     assert(conn->data == NULL);
@@ -239,16 +252,19 @@ void Server_process_request_from_unknown(Server *serv, Connection *conn) {
     if (strncmp(message, "NICK", 4) == 0 || strncmp(message, "USER", 4) == 0) {
         conn->conn_type = USER_CONNECTION;
         conn->data = User_alloc();
-        ((User *)conn->data)->hostname = strdup(conn->hostname);
+        ((User *) conn->data)->hostname = strdup(conn->hostname);
     } else if (strncmp(message, "PASS", 4) == 0) {
         conn->conn_type = PEER_CONNECTION;
         conn->data = Peer_alloc();
-    } else {  // Ignore message
+    } else {   // Ignore message
         List_pop_front(conn->incoming_messages);
         return;
     }
 }
 
+/**
+ * Process request from user connection
+ */
 void Server_process_request_from_user(Server *serv, Connection *conn) {
     assert(conn->conn_type == USER_CONNECTION);
 
@@ -261,7 +277,8 @@ void Server_process_request_from_user(Server *serv, Connection *conn) {
 
     log_debug("Processing %zu messages from connection %d", Vector_size(messages), conn->fd);
 
-    // Iterate over the request messages and add response message(s) to user's message queue in the same order.
+    // Iterate over the request messages and add response message(s) to user's message queue in the
+    // same order.
     for (size_t i = 0; i < Vector_size(messages); i++) {
         Message *message = Vector_get_at(messages, i);
 
@@ -275,7 +292,8 @@ void Server_process_request_from_user(Server *serv, Connection *conn) {
 
         bool found = false;
 
-        for (size_t j = 0; j < sizeof(user_request_handlers) / sizeof(user_request_handlers[0]); j++) {
+        for (size_t j = 0; j < sizeof(user_request_handlers) / sizeof(user_request_handlers[0]);
+             j++) {
             UserRequestHandler handle = user_request_handlers[j];
             if (!strcmp(handle.name, message->command)) {
                 handle.handler(serv, usr, message);
@@ -291,10 +309,12 @@ void Server_process_request_from_user(Server *serv, Connection *conn) {
         // Handle every other command
 
         if (!usr->registered) {
-            char *reply = Server_create_message(serv, "451 %s :Connection not registered", usr->nick);
+            char *reply =
+                Server_create_message(serv, "451 %s :Connection not registered", usr->nick);
             List_push_back(conn->outgoing_messages, reply);
         } else {
-            char *reply = Server_create_message(serv, "421 %s %s :Unknown command", usr->nick, message->command);
+            char *reply = Server_create_message(serv, "421 %s %s :Unknown command", usr->nick,
+                                                message->command);
             List_push_back(conn->outgoing_messages, reply);
         }
 
@@ -304,6 +324,9 @@ void Server_process_request_from_user(Server *serv, Connection *conn) {
     Vector_free(messages);
 }
 
+/**
+ * Process request from peer connection
+ */
 void Server_process_request_from_peer(Server *serv, Connection *conn) {
     assert(conn->conn_type == PEER_CONNECTION);
 
@@ -332,7 +355,8 @@ void Server_process_request_from_peer(Server *serv, Connection *conn) {
         bool found = false;
 
         // Find and execute request handler for special commands
-        for (size_t i = 0; i < sizeof(peer_request_handlers) / sizeof(peer_request_handlers[0]); i++) {
+        for (size_t i = 0; i < sizeof(peer_request_handlers) / sizeof(peer_request_handlers[0]);
+             i++) {
             PeerRequestHandler handler = peer_request_handlers[i];
             if (!strcmp(handler.name, message.command)) {
                 handler.handler(serv, peer, &message);
@@ -359,6 +383,9 @@ void Server_process_request_from_peer(Server *serv, Connection *conn) {
     conn->quit = peer->quit;
 }
 
+/**
+ * Process incoming messages sent by connection.
+ */
 void Server_process_request(Server *serv, Connection *conn) {
     assert(serv);
     assert(conn);
@@ -382,6 +409,9 @@ void Server_process_request(Server *serv, Connection *conn) {
     Server_flush_message_queues(serv);
 }
 
+/**
+ * Send message to every user and peer on this server
+ */
 void Server_broadcast_message(Server *serv, const char *message) {
     assert(serv);
     assert(message);
@@ -395,12 +425,28 @@ void Server_broadcast_message(Server *serv, const char *message) {
 
     Connection *conn = NULL;
 
-    while (ht_iter_next(&itr, NULL, (void **)&conn)) {
-        List_push_back(conn->outgoing_messages, strdup(message));
+    while (ht_iter_next(&itr, NULL, (void **) &conn)) {
+        if (!conn->quit && conn->conn_type != UNKNOWN_CONNECTION) {
+            if (conn->conn_type == USER_CONNECTION) {
+                User *user = conn->data;
+                if (user->registered && !user->quit) {
+                    List_push_back(conn->outgoing_messages, strdup(message));
+                }
+            } else if (conn->conn_type == PEER_CONNECTION) {
+                Peer *peer = conn->data;
+                if (peer->registered && !peer->quit) {
+                    List_push_back(conn->outgoing_messages, strdup(message));
+                }
+            }
+        }
     }
 }
 
-void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *message) {
+/**
+ * Send given message to all members in channel except the author (given by the username).
+ */
+void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *username,
+                                 const char *message) {
     assert(serv);
     assert(channel);
     assert(message);
@@ -412,11 +458,18 @@ void Server_broadcast_to_channel(Server *serv, Channel *channel, const char *mes
     HashtableIter itr;
     ht_iter_init(&itr, channel->members);
     User *member = NULL;
-    while (ht_iter_next(&itr, NULL, (void **)&member)) {
-        List_push_back(member->msg_queue, strdup(message));
+    while (ht_iter_next(&itr, NULL, (void **) &member)) {
+        if (member->registered && !member->quit && strcmp(member->username, username) != 0) {
+            List_push_back(member->msg_queue, strdup(message));
+        }
     }
 }
 
+/**
+ * Reads motd from given file
+ *
+ * Selects the (day of year % total lines) line.
+ */
 char *get_motd(char *fname) {
     FILE *file = fopen(fname, "r");
 
@@ -436,11 +489,11 @@ char *get_motd(char *fname) {
         }
     }
 
-    fseek(file, 0, SEEK_SET);  // go to beginning
+    fseek(file, 0, SEEK_SET);   // go to beginning
 
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    size_t line_no = tm.tm_yday % num_lines;  // select a line from file to use
+    size_t line_no = tm.tm_yday % num_lines;   // select a line from file to use
 
     for (size_t i = 0; i < line_no + 1; i++) {
         if (getline(&res, &res_len, file) == -1) {
@@ -461,7 +514,14 @@ char *get_motd(char *fname) {
     return res;
 }
 
+/**
+ * Add new connection to server and listen for read/write events on that connection.
+ */
 bool Server_add_connection(Server *serv, Connection *connection) {
+    assert(serv);
+    assert(connection);
+    assert(connection->conn_type == UNKNOWN_CONNECTION);
+
     ht_set(serv->connections, &connection->fd, connection);
 
     // Make user socket non-blocking
@@ -474,8 +534,7 @@ bool Server_add_connection(Server *serv, Connection *connection) {
     struct epoll_event ev = {.data.fd = connection->fd, .events = EPOLLIN | EPOLLOUT};
 
     // Add user socket to epoll set
-    if (epoll_ctl(serv->epollfd, EPOLL_CTL_ADD, connection->fd, &ev) !=
-        0) {
+    if (epoll_ctl(serv->epollfd, EPOLL_CTL_ADD, connection->fd, &ev) != 0) {
         perror("epoll_ctl");
         return false;
     }
@@ -485,7 +544,13 @@ bool Server_add_connection(Server *serv, Connection *connection) {
     return true;
 }
 
+/**
+ * Remove connection from server and free all its memory.
+ */
 void Server_remove_connection(Server *serv, Connection *connection) {
+    assert(serv);
+    assert(connection);
+
     ht_remove(serv->connections, &connection->fd, NULL, NULL);
     epoll_ctl(serv->epollfd, EPOLL_CTL_DEL, connection->fd, NULL);
 
@@ -531,6 +596,9 @@ void Server_remove_connection(Server *serv, Connection *connection) {
     Connection_free(connection);
 }
 
+/**
+ * TODO
+ */
 bool Server_add_peer(Server *serv, const char *name, const char *port) {
     // Load server info from file
     FILE *file = fopen(serv->config_file, "r");
