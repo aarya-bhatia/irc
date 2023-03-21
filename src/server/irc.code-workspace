@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"server.h": "c",
+			"common.h": "c",
+			"queue.h": "c",
+			"replies.h": "c",
+			"register.h": "c",
+			"epoll.h": "c",
+			"time.h": "c",
+			"channel.h": "c",
+			"types.h": "c",
+			"user.h": "c",
+			"stat.h": "c",
+			"membership.h": "c",
+			"signal.h": "c",
+			"vector.h": "c",
+			"hashtable.h": "c",
+			"message.h": "c",
+			"errno.h": "c",
+			"string.h": "c",
+			"assert.h": "c",
+			"list.h": "c"
+		}
+	}
+}

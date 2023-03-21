@@ -1,7 +1,30 @@
 {
   "configurations": [
     {
-      "name": "(gdb) Test",
+      "name": "(gdb) Launch server",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/server",
+      "args": ["erwin"],
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+          {
+              "description": "Enable pretty-printing for gdb",
+              "text": "-enable-pretty-printing",
+              "ignoreFailures": true
+          },
+          {
+              "description": "Set Disassembly Flavor to Intel",
+              "text": "-gdb-set disassembly-flavor intel",
+              "ignoreFailures": true
+          }
+      ]
+    },
+    {
+      "name": "(lldb) Test",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build/test",
@@ -9,7 +32,7 @@
       "cwd": "${workspaceFolder}",
     },
     {
-      "name": "(gdb) Launch Server",
+      "name": "(lldb) Launch Server",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build/server",

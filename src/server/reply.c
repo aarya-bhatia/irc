@@ -4,7 +4,8 @@
 
 bool check_registered(Server *serv, User *usr) {
     if (!usr->registered) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOTREGISTERED_MSG, usr->nick));
+        List_push_back(usr->msg_queue,
+                       Server_create_message(serv, ERR_NOTREGISTERED_MSG, usr->nick));
         return false;
     }
 
@@ -15,50 +16,42 @@ bool check_registered(Server *serv, User *usr) {
  * <client> <channel> <username> <host> <server> <nick> <flags> :<hopcount> <realname>
  */
 void send_who_reply(Server *serv, User *usr, Channel *target_channel, User *target_usr) {
-    List_push_back(usr->msg_queue, Server_create_message(serv, RPL_WHOREPLY_MSG,
-                                                         usr->nick,
-                                                         target_channel->name,
-                                                         target_usr->username,
-                                                         target_usr->hostname,
-                                                         serv->hostname,
-                                                         target_usr->nick,
-                                                         "H",
-                                                         0,
-                                                         target_usr->realname));
+    List_push_back(usr->msg_queue,
+                   Server_create_message(serv, RPL_WHOREPLY_MSG, usr->nick, target_channel->name,
+                                         target_usr->username, target_usr->hostname, serv->hostname,
+                                         target_usr->nick, "H", 0, target_usr->realname));
 }
 
 void send_motd_reply(Server *serv, User *usr) {
     char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
     if (motd) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_MOTD_MSG,
-                                                             usr->nick,
-                                                             motd));
+        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_MOTD_MSG, usr->nick, motd));
     } else {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOMOTD_MSG,
-                                                             usr->nick));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOMOTD_MSG, usr->nick));
     }
 
     free(motd);
 }
 
 void send_welcome_reply(Server *serv, User *usr) {
-    List_push_back(usr->msg_queue, Server_create_message(serv, RPL_WELCOME_MSG,
-                                                         usr->nick, usr->nick));
-    List_push_back(usr->msg_queue, Server_create_message(serv, RPL_YOURHOST_MSG,
-                                                         usr->nick, usr->hostname));
-    List_push_back(usr->msg_queue, Server_create_message(serv, RPL_CREATED_MSG,
-                                                         usr->nick, serv->created_at));
-    List_push_back(usr->msg_queue, Server_create_message(serv, RPL_MYINFO_MSG,
-                                                         usr->nick, serv->hostname, "*", "*",
-                                                         "*"));
+    List_push_back(usr->msg_queue,
+                   Server_create_message(serv, RPL_WELCOME_MSG, usr->nick, usr->nick));
+    List_push_back(usr->msg_queue,
+                   Server_create_message(serv, RPL_YOURHOST_MSG, usr->nick, usr->hostname));
+    List_push_back(usr->msg_queue,
+                   Server_create_message(serv, RPL_CREATED_MSG, usr->nick, serv->created_at));
+    List_push_back(usr->msg_queue, Server_create_message(serv, RPL_MYINFO_MSG, usr->nick,
+                                                         serv->hostname, "*", "*", "*"));
 }
 
 void send_topic_reply(Server *serv, User *usr, Channel *channel) {
     if (channel->topic) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_TOPIC_MSG, usr->nick, channel->name, channel->topic));
+        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_TOPIC_MSG, usr->nick,
+                                                             channel->name, channel->topic));
     } else {
-        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_NOTOPIC_MSG, usr->nick, channel->name));
+        List_push_back(usr->msg_queue,
+                       Server_create_message(serv, RPL_NOTOPIC_MSG, usr->nick, channel->name));
     }
 }
 
@@ -78,7 +71,9 @@ bool check_user_registration(Server *serv, User *usr) {
         log_info("registration completed for user %s", usr->nick);
 
         // <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>
-        Server_broadcast_message(serv, Server_create_message(serv, ":%s 1 %s %s 1 + :%s", usr->nick, usr->username, usr->hostname, usr->realname));
+        Server_broadcast_message(serv, Server_create_message(serv, "%s 1 %s %s 1 + :%s", usr->nick,
+                                                             usr->username, usr->hostname,
+                                                             usr->realname));
 
         return true;
     }
@@ -90,8 +85,7 @@ bool check_user_registration(Server *serv, User *usr) {
  * Send RPL_NAMES as multipart message
  */
 void send_names_reply(Server *serv, User *usr, Channel *channel) {
-    char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->name, usr->nick, "=",
-                                channel->name);
+    char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->name, usr->nick, "=", channel->name);
 
     char message[MAX_MSG_LEN + 1];
     memset(message, 0, sizeof message);
@@ -102,9 +96,9 @@ void send_names_reply(Server *serv, User *usr, Channel *channel) {
     HashtableIter itr;
     ht_iter_init(&itr, channel->members);
     User *member = NULL;
-    while (ht_iter_next(&itr, NULL, (void **)&member)) {
+    while (ht_iter_next(&itr, NULL, (void **) &member)) {
         const char *username = member->username;
-        size_t len = strlen(username) + 1;  // Length for name and space
+        size_t len = strlen(username) + 1;   // Length for name and space
 
         if (strlen(message) + len > MAX_MSG_LEN) {
             // End current message
@@ -124,11 +118,13 @@ void send_names_reply(Server *serv, User *usr, Channel *channel) {
 
     free(subject);
 
-    List_push_back(usr->msg_queue, Server_create_message(serv, RPL_ENDOFNAMES_MSG, usr->nick, channel->name));
+    List_push_back(usr->msg_queue,
+                   Server_create_message(serv, RPL_ENDOFNAMES_MSG, usr->nick, channel->name));
 }
 
 /**
- * The USER and NICK command should be the first messages sent by a new client to complete registration.
+ * The USER and NICK command should be the first messages sent by a new client to complete
+ * registration.
  *
  * Syntax: `NICK <nickname> [<hopcount>]`
  * Example: `NICK aarya\r\n`
@@ -143,7 +139,8 @@ void Server_handle_NICK(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NICK"));
 
     if (msg->n_params < 1) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG, usr->nick, msg->command));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG,
+                                                             usr->nick, msg->command));
         return;
     }
 
@@ -151,7 +148,8 @@ void Server_handle_NICK(Server *serv, User *usr, Message *msg) {
     char *new_nick = msg->params[0];
 
     if (ht_contains(serv->nick_to_user_map, new_nick)) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NICKNAMEINUSE_MSG, msg->params[0]));
+        List_push_back(usr->msg_queue,
+                       Server_create_message(serv, ERR_NICKNAMEINUSE_MSG, msg->params[0]));
         return;
     }
 
@@ -176,10 +174,12 @@ void Server_handle_NICK(Server *serv, User *usr, Message *msg) {
 }
 
 /**
- * The USER and NICK command should be the first messages sent by a new client to complete registration.
+ * The USER and NICK command should be the first messages sent by a new client to complete
+ * registration.
  * - Syntax: `USER <username> * * :<realname>`
  *
- * - Description: USER message is used at the beginning to specify the username and realname of new user.
+ * - Description: USER message is used at the beginning to specify the username and realname of new
+ * user.
  * - It is used in communication between servers to indicate new user
  * - A client will become registered after both USER and NICK have been received.
  * - Realname can contain spaces.
@@ -189,15 +189,14 @@ void Server_handle_USER(Server *serv, User *usr, Message *msg) {
 
     if (msg->n_params < 3 || !msg->body) {
         List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG,
-                                                             usr->nick,
-                                                             msg->command));
+                                                             usr->nick, msg->command));
         return;
     }
 
     // User cannot change username after registration
     if (usr->registered) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_ALREADYREGISTRED_MSG,
-                                                             usr->nick));
+        List_push_back(usr->msg_queue,
+                       Server_create_message(serv, ERR_ALREADYREGISTRED_MSG, usr->nick));
         return;
     }
 
@@ -220,18 +219,17 @@ void Server_handle_USER(Server *serv, User *usr, Message *msg) {
 void Server_handle_MOTD(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "MOTD"));
 
-    List_push_back(usr->msg_queue, Server_create_message(serv, "375 %s :- %s Message of the day - ", usr->nick, serv->name));
+    List_push_back(usr->msg_queue, Server_create_message(serv, "375 %s :- %s Message of the day - ",
+                                                         usr->nick, serv->name));
 
     char *motd = serv->motd_file ? get_motd(serv->motd_file) : NULL;
 
     if (motd) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_MOTD_MSG,
-                                                             usr->nick, motd));
+        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_MOTD_MSG, usr->nick, motd));
 
         free(motd);
     } else {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOMOTD_MSG,
-                                                             usr->nick));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOMOTD_MSG, usr->nick));
     }
 }
 
@@ -241,7 +239,8 @@ void Server_handle_PING(Server *serv, User *usr, Message *msg) {
 }
 
 /**
- * The PRIVMSG command is used to deliver a message to from one client to another within an IRC network.
+ * The PRIVMSG command is used to deliver a message to from one client to another within an IRC
+ * network.
  *
  * - Sytnax: `[:prefix] PRIVMSG <receiver> :<text>`
  * - Example: `PRIVMSG Aarya :hello, how are you?`
@@ -261,9 +260,7 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
     }
 
     if (msg->n_params == 0) {
-        List_push_back(usr->msg_queue,
-                       Server_create_message(serv, ERR_NORECIPIENT_MSG,
-                                             usr->nick));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NORECIPIENT_MSG, usr->nick));
         return;
     }
 
@@ -278,11 +275,12 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
         char *serv_name = ht_get(serv->channel_to_serv_name_map, channel_name);
 
         if (!serv_name) {
-            List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG, usr->nick, channel_name));
+            List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG,
+                                                                 usr->nick, channel_name));
             return;
         }
 
-        char *message = Server_create_message(serv, "%s!%s@%s PRIVMSG #%s :%s", usr->username, usr->hostname, channel_name, msg->body);
+        char *message = User_create_message(usr, "PRIVMSG #%s :%s", usr->nick, msg->body);
 
         // channel is on current server
         if (!strcmp(serv_name, serv->name)) {
@@ -290,7 +288,8 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
             assert(channel);
 
             if (!Channel_has_member(channel, usr)) {
-                List_push_back(usr->msg_queue, Server_create_message(serv, ERR_CANNOTSENDTOCHAN_MSG, usr->nick, channel_name));
+                List_push_back(usr->msg_queue, Server_create_message(serv, ERR_CANNOTSENDTOCHAN_MSG,
+                                                                     usr->nick, channel_name));
                 return;
             }
 
@@ -298,14 +297,12 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
             free(message);
 
             log_debug("user %s sent message to channel %s", usr->nick, channel->name);
-
         } else {
             Peer *peer = ht_get(serv->name_to_peer_map, serv_name);
             assert(peer);
             List_push_back(peer->msg_queue, message);
             log_info("PRIVMSG from user %s was relayed to server %s", usr->nick, serv_name);
         }
-
     } else {
         // Message target is user
 
@@ -313,9 +310,7 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
 
         if (!serv_name) {
             List_push_back(usr->msg_queue,
-                           Server_create_message(serv, ERR_NOSUCHNICK_MSG,
-                                                 usr->nick,
-                                                 target_nick));
+                           Server_create_message(serv, ERR_NOSUCHNICK_MSG, usr->nick, target_nick));
             return;
         }
 
@@ -328,7 +323,6 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg) {
             // Add message to target user's queue
             List_push_back(target_user->msg_queue, message);
             log_info("PRIVMSG sent from user %s to user %s", usr->nick, target_nick);
-
         } else {
             Peer *peer = ht_get(serv->name_to_peer_map, serv_name);
             assert(peer);
@@ -354,20 +348,23 @@ void Server_handle_QUIT(Server *serv, User *usr, Message *msg) {
 
     char *reason = (msg->body ? msg->body : "Client Quit");
 
-    List_push_back(usr->msg_queue, Server_create_message(serv, "ERROR :Closing Link: %s (%s)", usr->hostname, reason));
+    List_push_back(usr->msg_queue, Server_create_message(serv, "ERROR :Closing Link: %s (%s)",
+                                                         usr->hostname, reason));
     assert(List_size(usr->msg_queue) > 0);
     usr->quit = true;
 }
 
 /**
  * This command is used to query a list of users who match the provided mask.
- * The server will answer this command with zero, one or more RPL_WHOREPLY, and end the list with RPL_ENDOFWHO.
+ * The server will answer this command with zero, one or more RPL_WHOREPLY, and end the list with
+ * RPL_ENDOFWHO.
  */
 void Server_handle_WHO(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "WHO"));
 
     if (msg->n_params == 0) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_ENDOFWHO_MSG, usr->nick, ""));
+        List_push_back(usr->msg_queue,
+                       Server_create_message(serv, RPL_ENDOFWHO_MSG, usr->nick, ""));
         return;
     }
 
@@ -381,7 +378,7 @@ void Server_handle_WHO(Server *serv, User *usr, Message *msg) {
             HashtableIter itr;
             ht_iter_init(&itr, channel->members);
             User *member = NULL;
-            while (ht_iter_next(&itr, NULL, (void **)&member)) {
+            while (ht_iter_next(&itr, NULL, (void **) &member)) {
                 send_who_reply(serv, usr, channel, member);
             }
         }
@@ -391,7 +388,8 @@ void Server_handle_WHO(Server *serv, User *usr, Message *msg) {
         // Return who reply for channel given user is member of
         if (other_user) {
             for (size_t i = 0; i < Vector_size(other_user->channels); i++) {
-                Channel *channel = ht_get(serv->name_to_channel_map, Vector_get_at(other_user->channels, i));
+                Channel *channel =
+                    ht_get(serv->name_to_channel_map, Vector_get_at(other_user->channels, i));
                 if (channel) {
                     send_who_reply(serv, usr, channel, other_user);
                 }
@@ -402,8 +400,7 @@ void Server_handle_WHO(Server *serv, User *usr, Message *msg) {
     List_push_back(usr->msg_queue, Server_create_message(serv, RPL_ENDOFWHO_MSG, usr->nick, ""));
 }
 
-void Server_handle_WHOIS(Server *serv, User *usr, Message *msg) {
-}
+void Server_handle_WHOIS(Server *serv, User *usr, Message *msg) {}
 
 /**
  * Join a channel
@@ -415,10 +412,11 @@ void Server_handle_JOIN(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    char *channel_name = msg->params[0] + 1;  // skip #
+    char *channel_name = msg->params[0] + 1;   // skip #
 
     if (Vector_size(usr->channels) > MAX_CHANNEL_COUNT) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_TOOMANYCHANNELS_MSG, usr->nick, channel_name));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_TOOMANYCHANNELS_MSG,
+                                                             usr->nick, channel_name));
         return;
     }
 
@@ -443,7 +441,8 @@ void Server_handle_JOIN(Server *serv, User *usr, Message *msg) {
 
     // Send channel topic
     if (channel->topic) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_TOPIC_MSG, usr->nick, channel_name, channel->topic));
+        List_push_back(usr->msg_queue, Server_create_message(serv, RPL_TOPIC_MSG, usr->nick,
+                                                             channel_name, channel->topic));
     }
 
     // Send NAMES reply
@@ -451,8 +450,8 @@ void Server_handle_JOIN(Server *serv, User *usr, Message *msg) {
 }
 
 /**
- * The LIST command is used to get a list of channels along with some information about each channel.
- * Both parameters to this command are optional as they have different syntaxes.
+ * The LIST command is used to get a list of channels along with some information about each
+ * channel. Both parameters to this command are optional as they have different syntaxes.
  */
 void Server_handle_LIST(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "LIST"));
@@ -465,11 +464,13 @@ void Server_handle_LIST(Server *serv, User *usr, Message *msg) {
         HashtableIter itr;
         ht_iter_init(&itr, serv->name_to_channel_map);
         Channel *channel = NULL;
-        while (ht_iter_next(&itr, NULL, (void **)&channel)) {
+        while (ht_iter_next(&itr, NULL, (void **) &channel)) {
             assert(channel);
-            List_push_back(usr->msg_queue, Server_create_message(serv, RPL_LIST_MSG, usr->nick, channel->name, ht_size(channel->members), channel->topic));
+            List_push_back(usr->msg_queue,
+                           Server_create_message(serv, RPL_LIST_MSG, usr->nick, channel->name,
+                                                 ht_size(channel->members), channel->topic));
         }
-    } else {  // List specified channels
+    } else {   // List specified channels
         char *targets = msg->params[0];
         assert(targets);
         // get channel names separated by commas
@@ -482,7 +483,9 @@ void Server_handle_LIST(Server *serv, User *usr, Message *msg) {
             if (ht_contains(serv->name_to_channel_map, target)) {
                 Channel *channel = ht_get(serv->name_to_channel_map, target);
                 assert(channel);
-                List_push_back(usr->msg_queue, Server_create_message(serv, RPL_LIST_MSG, usr->nick, channel->name, ht_size(channel->members), channel->topic));
+                List_push_back(usr->msg_queue,
+                               Server_create_message(serv, RPL_LIST_MSG, usr->nick, channel->name,
+                                                     ht_size(channel->members), channel->topic));
             }
             tok = strtok(NULL, ",");
         }
@@ -493,8 +496,8 @@ void Server_handle_LIST(Server *serv, User *usr, Message *msg) {
 }
 
 /**
- * The NAMES command is used to view the nicknames joined to a channel and their channel membership prefixes.
- * The param of this command is a list of channel names, delimited by a comma.
+ * The NAMES command is used to view the nicknames joined to a channel and their channel membership
+ * prefixes. The param of this command is a list of channel names, delimited by a comma.
  */
 void Server_handle_NAMES(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NAMES"));
@@ -508,7 +511,7 @@ void Server_handle_NAMES(Server *serv, User *usr, Message *msg) {
         HashtableIter itr;
         ht_iter_init(&itr, serv->name_to_channel_map);
         Channel *channel = NULL;
-        while (ht_iter_next(&itr, NULL, (void **)&channel)) {
+        while (ht_iter_next(&itr, NULL, (void **) &channel)) {
             send_names_reply(serv, usr, channel);
         }
 
@@ -544,7 +547,8 @@ void Server_handle_TOPIC(Server *serv, User *usr, Message *msg) {
     }
 
     if (msg->n_params == 0) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG, usr->nick, msg->command));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG,
+                                                             usr->nick, msg->command));
         return;
     }
 
@@ -555,7 +559,8 @@ void Server_handle_TOPIC(Server *serv, User *usr, Message *msg) {
     char *channel_name = msg->params[0] + 1;
 
     if (*msg->params[0] != '#' || !(channel = ht_get(serv->name_to_channel_map, channel_name))) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG, usr->nick, msg->params[0]));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG, usr->nick,
+                                                             msg->params[0]));
         return;
     }
 
@@ -579,7 +584,8 @@ void Server_handle_PART(Server *serv, User *usr, Message *msg) {
     }
 
     if (msg->n_params == 0) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG, usr->nick, msg->command));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG,
+                                                             usr->nick, msg->command));
         return;
     }
 
@@ -588,22 +594,23 @@ void Server_handle_PART(Server *serv, User *usr, Message *msg) {
     char *channel_name = msg->params[0] + 1;
 
     if (*msg->params[0] != '#' || !(channel = ht_get(serv->name_to_channel_map, channel_name))) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG, usr->nick, msg->params[0]));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG, usr->nick,
+                                                             msg->params[0]));
         return;
     }
 
     if (!Channel_has_member(channel, usr)) {
         List_push_back(usr->msg_queue,
-                       Server_create_message(serv, ERR_NOTONCHANNEL_MSG,
-                                             usr->nick, channel->name));
+                       Server_create_message(serv, ERR_NOTONCHANNEL_MSG, usr->nick, channel->name));
         return;
     }
 
-    char *reason = msg->body ? strdup(msg->body) : make_string("%s is leaving channel %s", usr->nick, channel->name);
+    char *reason = msg->body ? strdup(msg->body)
+                             : make_string("%s is leaving channel %s", usr->nick, channel->name);
     char *broadcast_message = User_create_message(usr, "PART #%s :%s", channel->name, reason);
 
     Server_broadcast_to_channel(serv, channel, broadcast_message);
-    Channel_remove_member(channel, usr);  // Remove user from channel's list
+    Channel_remove_member(channel, usr);   // Remove user from channel's list
 
     // remove channel from user's personal list
     User_remove_channel(usr, channel->name);
@@ -625,7 +632,8 @@ void Server_handle_PART(Server *serv, User *usr, Message *msg) {
  *
  * The CONNECT command forces a server to try to establish a new connection to another server.
  * CONNECT is a privileged command and is available only to IRC Operators.
- * If a remote server is given, the connection is attempted by that remote server to <target server> using <port>.
+ * If a remote server is given, the connection is attempted by that remote server to <target server>
+ * using <port>.
  */
 void Server_handle_CONNECT(Server *serv, User *usr, Message *msg) {
     // TODO
@@ -633,7 +641,8 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "CONNECT"));
 
     if (msg->n_params == 0) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG, usr->nick, msg->command));
+        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG,
+                                                             usr->nick, msg->command));
         return;
     }
 
@@ -647,7 +656,8 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg) {
     struct peer_info_t target_info;
 
     if (!get_peer_info(serv->config_file, target_server, &target_info)) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHSERVER_MSG, usr->nick, target_server));
+        List_push_back(usr->msg_queue,
+                       Server_create_message(serv, ERR_NOSUCHSERVER_MSG, usr->nick, target_server));
 
         free(target_info.peer_host);
         free(target_info.peer_name);
@@ -656,7 +666,7 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg) {
         return;
     }
 
-    char *target_port = msg->params[1];  // Use default port if NULL
+    char *target_port = msg->params[1];   // Use default port if NULL
 }
 
 /**
@@ -668,7 +678,8 @@ void Server_handle_LUSERS(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "LUSERS"));
 
     // List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERCLIENT_MSG, serv->hostname,
-    //                                           usr->nick, ht_size(serv->username_to_user_map), 0, 1));
+    //                                           usr->nick, ht_size(serv->username_to_user_map), 0,
+    //                                           1));
 
     // List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSEROP_MSG, serv->hostname,
     //                                           usr->nick, 0));
@@ -680,11 +691,13 @@ void Server_handle_LUSERS(Server *serv, User *usr, Message *msg) {
     //                                           usr->nick, ht_size(serv->name_to_channel_map)));
 
     // List_push_back(usr->msg_queue, make_reply(":%s " RPL_LUSERME_MSG, serv->hostname,
-    //                                           usr->nick, ht_size(serv->username_to_user_map), 0, 0));
+    //                                           usr->nick, ht_size(serv->username_to_user_map), 0,
+    //                                           0));
 }
 
 /**
- * The HELP command is used to return documentation about the IRC server and the IRC commands it implements.
+ * The HELP command is used to return documentation about the IRC server and the IRC commands it
+ * implements.
  */
 void Server_handle_HELP(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "HELP"));
@@ -701,23 +714,29 @@ void Server_handle_HELP(Server *serv, User *usr, Message *msg) {
     }
 
     if (help) {
-        List_push_back(usr->msg_queue, Server_create_message(serv, "704 %s %s :%s", usr->nick, subject, help->title));
-        List_push_back(usr->msg_queue, Server_create_message(serv, "705 %s %s :", usr->nick, subject));
+        List_push_back(usr->msg_queue, Server_create_message(serv, "704 %s %s :%s", usr->nick,
+                                                             subject, help->title));
+        List_push_back(usr->msg_queue,
+                       Server_create_message(serv, "705 %s %s :", usr->nick, subject));
 
         // Send help text as multipart messages and break long lines into multiple messages.
         Vector *lines = text_wrap(help->body, 200);
 
         for (size_t i = 0; i < Vector_size(lines); i++) {
-            List_push_back(usr->msg_queue, Server_create_message(serv, "705 %s %s :%s", usr->nick, subject, Vector_get_at(lines, i)));
+            List_push_back(usr->msg_queue, Server_create_message(serv, "705 %s %s :%s", usr->nick,
+                                                                 subject, Vector_get_at(lines, i)));
         }
 
         Vector_free(lines);
 
-        List_push_back(usr->msg_queue, Server_create_message(serv, "706 %s %s :End of help", usr->nick, subject));
+        List_push_back(usr->msg_queue,
+                       Server_create_message(serv, "706 %s %s :End of help", usr->nick, subject));
         return;
     }
 
-    List_push_back(usr->msg_queue, Server_create_message(serv, "524 %s %s :No help available on this topic", usr->nick, subject));
+    List_push_back(usr->msg_queue,
+                   Server_create_message(serv, "524 %s %s :No help available on this topic",
+                                         usr->nick, subject));
 }
 
 /**
@@ -726,7 +745,8 @@ void Server_handle_HELP(Server *serv, User *usr, Message *msg) {
  *
  * The NOTICE command is used to send notices between users, as well as to send notices to channels.
  * <target> is interpreted the same way as it is for the PRIVMSG command.
- * The difference between NOTICE and PRIVMSG is that automatic replies must never be sent in response to a NOTICE message.
+ * The difference between NOTICE and PRIVMSG is that automatic replies must never be sent in
+ * response to a NOTICE message.
  */
 void Server_handle_NOTICE(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "NOTICE"));
@@ -752,14 +772,14 @@ void Server_handle_NOTICE(Server *serv, User *usr, Message *msg) {
             }
 
             Server_broadcast_to_channel(serv, channel, msg->body);
-
         } else {
             User *other_user = Server_get_user_by_nick(serv, target);
             if (!other_user) {
                 return;
             }
 
-            List_push_back(other_user->msg_queue, User_create_message(usr, "NOTICE %s :%s", target, msg->body));
+            List_push_back(other_user->msg_queue,
+                           User_create_message(usr, "NOTICE %s :%s", target, msg->body));
         }
         target = strtok_r(NULL, ",", &save);
     }
@@ -775,7 +795,8 @@ void check_peer_registration(Server *serv, Peer *peer) {
     }
 
     if (ht_contains(serv->name_to_peer_map, peer->name)) {
-        List_push_back(peer->msg_queue, make_string("ERROR :ID \"%s\" already registered\r\n", peer->name));
+        List_push_back(peer->msg_queue,
+                       make_string("ERROR :ID \"%s\" already registered\r\n", peer->name));
         peer->quit = true;
         return;
     }
@@ -801,15 +822,18 @@ void check_peer_registration(Server *serv, Peer *peer) {
     ht_set(serv->name_to_peer_map, peer->name, peer);
 
     List_push_back(peer->msg_queue, Server_create_message(serv, "PASS %s 0210 |", other_passwd));
-    List_push_back(peer->msg_queue, Server_create_message(serv, "SERVER %s :%s", serv->hostname, serv->info));
+    List_push_back(peer->msg_queue,
+                   Server_create_message(serv, "SERVER %s :%s", serv->hostname, serv->info));
 
     free(other_passwd);
 }
 
 void Server_handle_INFO(Server *serv, User *usr, Message *msg) {
     assert(!strcmp(msg->command, "INFO"));
-    List_push_back(usr->msg_queue, Server_create_message(serv, "371 %s :%s", usr->nick, serv->info));
-    List_push_back(usr->msg_queue, Server_create_message(serv, "374 %s :End of INFO list", usr->nick));
+    List_push_back(usr->msg_queue,
+                   Server_create_message(serv, "371 %s :%s", usr->nick, serv->info));
+    List_push_back(usr->msg_queue,
+                   Server_create_message(serv, "374 %s :End of INFO list", usr->nick));
 }
 
 /**
@@ -819,12 +843,15 @@ void Server_handle_SERVER(Server *serv, Peer *peer, Message *msg) {
     assert(!strcmp(msg->command, "SERVER"));
 
     if (peer->registered) {
-        List_push_back(peer->msg_queue, Server_create_message(serv, "462 %s :You may not reregister", peer->name));
+        List_push_back(peer->msg_queue,
+                       Server_create_message(serv, "462 %s :You may not reregister", peer->name));
         return;
     }
 
     if (msg->n_params < 1) {
-        List_push_back(peer->msg_queue, Server_create_message(serv, "461 %s %s :Not enough parameters", peer->name, msg->command));
+        List_push_back(peer->msg_queue,
+                       Server_create_message(serv, "461 %s %s :Not enough parameters", peer->name,
+                                             msg->command));
         return;
     }
 
@@ -846,12 +873,15 @@ void Server_handle_PASS(Server *serv, Peer *peer, Message *msg) {
     assert(!strcmp(msg->command, "PASS"));
 
     if (peer->registered) {
-        List_push_back(peer->msg_queue, Server_create_message(serv, "462 %s :You may not reregister", peer->name));
+        List_push_back(peer->msg_queue,
+                       Server_create_message(serv, "462 %s :You may not reregister", peer->name));
         return;
     }
 
     if (msg->n_params == 0) {
-        List_push_back(peer->msg_queue, Server_create_message(serv, "461 %s %s :Not enough parameters", peer->name, msg->command));
+        List_push_back(peer->msg_queue,
+                       Server_create_message(serv, "461 %s %s :Not enough parameters", peer->name,
+                                             msg->command));
         return;
     }
 
