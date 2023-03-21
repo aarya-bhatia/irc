@@ -6,7 +6,7 @@ void *shallow_copy(void *elem) {
     return elem;
 }
 
-void *shallow_free(void *elem) {
+void shallow_free(void *elem) {
     (void)elem;
 }
 

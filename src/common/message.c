@@ -12,6 +12,7 @@ void message_destroy(Message *msg) {
         return;
     }
 
+    free(msg->message);
     free(msg->origin);
     free(msg->command);
     free(msg->body);
@@ -81,6 +82,8 @@ Vector *parse_all_messages(char *str) {
 
 int parse_message(char *str, Message *msg) {
     assert(str);
+
+    msg->message = strdup(str);
 
     char *ptr = strstr(str, ":");
 
