@@ -1,0 +1,823 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CHANNELS_FILENAME	server/include/server.h	13;"	d
+CHECK	common/include/common.h	45;"	d
+CONFIG_FILENAME	server/include/server.h	10;"	d
+CRLF	common/include/common.h	32;"	d
+Channel	server/include/server.h	/^} Channel;$/;"	t	typeref:struct:_Channel
+Channel_add_member	server/channel.c	/^void Channel_add_member(Channel * this, User * user)$/;"	f	signature:(Channel * this, User * user)
+Channel_add_member	server/include/server.h	/^void Channel_add_member(Channel * this, User *);$/;"	p	signature:(Channel * this, User *)
+Channel_alloc	server/channel.c	/^Channel *Channel_alloc(const char *name)$/;"	f	signature:(const char *name)
+Channel_alloc	server/include/server.h	/^Channel *Channel_alloc(const char *name);$/;"	p	signature:(const char *name)
+Channel_free	server/channel.c	/^void Channel_free(Channel * this)$/;"	f	signature:(Channel * this)
+Channel_free	server/include/server.h	/^void Channel_free(Channel * this);$/;"	p	signature:(Channel * this)
+Channel_has_member	server/channel.c	/^bool Channel_has_member(Channel * this, User * user)$/;"	f	signature:(Channel * this, User * user)
+Channel_has_member	server/include/server.h	/^bool Channel_has_member(Channel * this, User *);$/;"	p	signature:(Channel * this, User *)
+Channel_remove_member	server/channel.c	/^bool Channel_remove_member(Channel * this, User * user)$/;"	f	signature:(Channel * this, User * user)
+Channel_remove_member	server/include/server.h	/^bool Channel_remove_member(Channel * this, User *);$/;"	p	signature:(Channel * this, User *)
+Client	client/include/client.h	/^typedef struct Client$/;"	s
+Client	client/include/client.h	/^} Client;$/;"	t	typeref:struct:Client
+Client::client_inbox	client/include/client.h	/^    queue_t *client_inbox;$/;"	m	struct:Client	access:public
+Client::client_outbox	client/include/client.h	/^    queue_t *client_outbox;$/;"	m	struct:Client	access:public
+Client::client_sock	client/include/client.h	/^    int client_sock;$/;"	m	struct:Client	access:public
+Client_destroy	client/include/client.h	/^void Client_destroy(Client *client);$/;"	p	signature:(Client *client)
+Client_init	client/include/client.h	/^void Client_init(Client *client);$/;"	p	signature:(Client *client)
+Connection	server/include/server.h	/^} Connection;$/;"	t	typeref:struct:_Connection
+Connection_alloc	server/connection.c	/^Connection *Connection_alloc(int fd, struct sockaddr *addr,$/;"	f	signature:(int fd, struct sockaddr *addr, socklen_t addrlen)
+Connection_alloc	server/include/server.h	/^Connection *Connection_alloc(int fd, struct sockaddr *addr,$/;"	p	signature:(int fd, struct sockaddr *addr, socklen_t addrlen)
+Connection_free	server/connection.c	/^void Connection_free(Connection * this)$/;"	f	signature:(Connection * this)
+Connection_free	server/include/server.h	/^void Connection_free(Connection * this);$/;"	p	signature:(Connection * this)
+Connection_read	server/connection.c	/^ssize_t Connection_read(Connection * this)$/;"	f	signature:(Connection * this)
+Connection_read	server/include/server.h	/^ssize_t Connection_read(Connection *);$/;"	p	signature:(Connection *)
+Connection_write	server/connection.c	/^ssize_t Connection_write(Connection * this)$/;"	f	signature:(Connection * this)
+Connection_write	server/include/server.h	/^ssize_t Connection_write(Connection *);$/;"	p	signature:(Connection *)
+DEBUG	client/client.c	4;"	d	file:
+DEFAULT_INFO	server/include/server.h	14;"	d
+EPOLL_TIMEOUT	client/client_threads.c	5;"	d	file:
+ERR_ALREADYREGISTRED_MSG	server/include/replies.h	118;"	d
+ERR_BADCHANNELKEY_MSG	server/include/replies.h	127;"	d
+ERR_BANNEDFROMCHAN_MSG	server/include/replies.h	126;"	d
+ERR_CANNOTSENDTOCHAN_MSG	server/include/replies.h	93;"	d
+ERR_CANTKILLSERVER_MSG	server/include/replies.h	135;"	d
+ERR_CHANNELISFULL_MSG	server/include/replies.h	120;"	d
+ERR_CHANOPPRIVTOOLOW_MSG	server/include/replies.h	133;"	d
+ERR_CHANOPRIVSNEEDED_MSG	server/include/replies.h	132;"	d
+ERR_ERRONEUSNICKNAME_MSG	server/include/replies.h	105;"	d
+ERR_FORBIDDENNICKNAME_MSG	server/include/replies.h	107;"	d
+ERR_INVALIDCAP_MSG	server/include/replies.h	98;"	d
+ERR_INVALIDMODEPARAM_MSG	server/include/replies.h	148;"	d
+ERR_INVITEONLYCHAN_MSG	server/include/replies.h	125;"	d
+ERR_KICKDENY_MSG	server/include/replies.h	134;"	d
+ERR_LISTFULL_MSG	server/include/replies.h	130;"	d
+ERR_NEEDMOREPARAMS_MSG	server/include/replies.h	117;"	d
+ERR_NEEDREGGEDNICK_MSG	server/include/replies.h	129;"	d
+ERR_NICKNAMEINUSE_MSG	server/include/replies.h	108;"	d
+ERR_NICKNAMETOOLONG_MSG	server/include/replies.h	106;"	d
+ERR_NICKREGISTER_MSG	server/include/replies.h	137;"	d
+ERR_NOCHANMODES_MSG	server/include/replies.h	128;"	d
+ERR_NOINVITE_MSG	server/include/replies.h	146;"	d
+ERR_NOMOTD_MSG	server/include/replies.h	103;"	d
+ERR_NONICKCHANGE_MSG	server/include/replies.h	114;"	d
+ERR_NONICKNAMEGIVEN_MSG	server/include/replies.h	104;"	d
+ERR_NONONREG_MSG	server/include/replies.h	138;"	d
+ERR_NOOPERHOST_MSG	server/include/replies.h	139;"	d
+ERR_NOORIGIN_MSG	server/include/replies.h	97;"	d
+ERR_NOPRIVILEGES_MSG	server/include/replies.h	131;"	d
+ERR_NORECIPIENT_MSG	server/include/replies.h	99;"	d
+ERR_NOSUCHCHANNEL_MSG	server/include/replies.h	92;"	d
+ERR_NOSUCHNICK_MSG	server/include/replies.h	90;"	d
+ERR_NOSUCHSERVER_MSG	server/include/replies.h	91;"	d
+ERR_NOTEXTTOSEND_MSG	server/include/replies.h	100;"	d
+ERR_NOTONCHANNEL_MSG	server/include/replies.h	110;"	d
+ERR_NOTONSAMECHANNEL_MSG	server/include/replies.h	140;"	d
+ERR_NOTREGISTEREDSERVER_MSG	server/include/replies.h	116;"	d
+ERR_NOTREGISTERED_MSG	server/include/replies.h	115;"	d
+ERR_OPONLYCHANNEL_MSG	server/include/replies.h	122;"	d
+ERR_PASSWDMISMATCH_MSG	server/include/replies.h	119;"	d
+ERR_REGONLYCHANNEL_MSG	server/include/replies.h	123;"	d
+ERR_RESTRICTED_MSG	server/include/replies.h	136;"	d
+ERR_SECURECHANNEL_MSG	server/include/replies.h	121;"	d
+ERR_SUMMONDISABLED_MSG	server/include/replies.h	112;"	d
+ERR_TOOMANYCHANNELS_MSG	server/include/replies.h	94;"	d
+ERR_TOOMANYTARGETS_MSG	server/include/replies.h	96;"	d
+ERR_UMODEUNKNOWNFLAG2_MSG	server/include/replies.h	143;"	d
+ERR_UMODEUNKNOWNFLAG_MSG	server/include/replies.h	142;"	d
+ERR_UNKNOWNCOMMAND_MSG	server/include/replies.h	102;"	d
+ERR_UNKNOWNMODE_MSG	server/include/replies.h	124;"	d
+ERR_USERNOTINCHANNEL_MSG	server/include/replies.h	109;"	d
+ERR_USERNOTONSERV_MSG	server/include/replies.h	145;"	d
+ERR_USERONCHANNEL_MSG	server/include/replies.h	111;"	d
+ERR_USERSDISABLED_MSG	server/include/replies.h	113;"	d
+ERR_USERSDONTMATCH_MSG	server/include/replies.h	144;"	d
+ERR_WASNOSUCHNICK_MSG	server/include/replies.h	95;"	d
+ERR_WILDTOPLEVEL_MSG	server/include/replies.h	101;"	d
+HTNode	common/include/hashtable.h	/^typedef struct HTNode$/;"	s
+HTNode	common/include/hashtable.h	/^} HTNode;$/;"	t	typeref:struct:HTNode
+HTNode::key	common/include/hashtable.h	/^	void *key;$/;"	m	struct:HTNode	access:public
+HTNode::next	common/include/hashtable.h	/^	struct HTNode *next;$/;"	m	struct:HTNode	typeref:struct:HTNode::HTNode	access:public
+HTNode::value	common/include/hashtable.h	/^	void *value;$/;"	m	struct:HTNode	access:public
+HT_DENSITY	common/include/hashtable.h	9;"	d
+HT_INITIAL_CAPACITY	common/include/hashtable.h	10;"	d
+Hashtable	common/include/hashtable.h	/^typedef struct Hashtable$/;"	s
+Hashtable	common/include/hashtable.h	/^} Hashtable;$/;"	t	typeref:struct:Hashtable
+Hashtable::capacity	common/include/hashtable.h	/^	size_t capacity;$/;"	m	struct:Hashtable	access:public
+Hashtable::key_compare	common/include/hashtable.h	/^	int (*key_compare)(const void *, const void *);$/;"	m	struct:Hashtable	access:public
+Hashtable::key_copy	common/include/hashtable.h	/^	void *(*key_copy)(void *);$/;"	m	struct:Hashtable	access:public
+Hashtable::key_free	common/include/hashtable.h	/^	void (*key_free)(void *);$/;"	m	struct:Hashtable	access:public
+Hashtable::key_len	common/include/hashtable.h	/^	int key_len;$/;"	m	struct:Hashtable	access:public
+Hashtable::seed	common/include/hashtable.h	/^	int seed;$/;"	m	struct:Hashtable	access:public
+Hashtable::size	common/include/hashtable.h	/^	size_t size;$/;"	m	struct:Hashtable	access:public
+Hashtable::table	common/include/hashtable.h	/^	HTNode **table;$/;"	m	struct:Hashtable	access:public
+Hashtable::value_copy	common/include/hashtable.h	/^	void *(*value_copy)(void *);$/;"	m	struct:Hashtable	access:public
+Hashtable::value_free	common/include/hashtable.h	/^	void (*value_free)(void *);$/;"	m	struct:Hashtable	access:public
+HashtableIter	common/include/hashtable.h	/^typedef struct HashtableIter$/;"	s
+HashtableIter	common/include/hashtable.h	/^} HashtableIter;$/;"	t	typeref:struct:HashtableIter
+HashtableIter::hashtable	common/include/hashtable.h	/^	Hashtable *hashtable;$/;"	m	struct:HashtableIter	access:public
+HashtableIter::index	common/include/hashtable.h	/^	size_t index;$/;"	m	struct:HashtableIter	access:public
+HashtableIter::node	common/include/hashtable.h	/^	HTNode *node;$/;"	m	struct:HashtableIter	access:public
+Hashtable_set_key_type	common/hashtable.c	/^Hashtable_set_key_type (Hashtable * this, struct elem_type_info_t info)$/;"	f	signature:(Hashtable * this, struct elem_type_info_t info)
+Hashtable_set_key_type	common/include/hashtable.h	/^void Hashtable_set_key_type(Hashtable *this, struct elem_type_info_t info);$/;"	p	signature:(Hashtable *this, struct elem_type_info_t info)
+Hashtable_set_value_type	common/hashtable.c	/^Hashtable_set_value_type (Hashtable * this, struct elem_type_info_t info)$/;"	f	signature:(Hashtable * this, struct elem_type_info_t info)
+Hashtable_set_value_type	common/include/hashtable.h	/^void Hashtable_set_value_type(Hashtable *this, struct elem_type_info_t info);$/;"	p	signature:(Hashtable *this, struct elem_type_info_t info)
+INITIAL_CAPACITY	common/include/sstring.h	5;"	d
+INT_TYPE	common/common_types.c	/^const struct elem_type_info_t INT_TYPE =$/;"	v	typeref:struct:elem_type_info_t
+LOG_DEBUG	common/include/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_ERROR	common/include/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_FATAL	common/include/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_H	common/include/log.h	9;"	d
+LOG_INFO	common/include/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_TRACE	common/include/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+LOG_VERSION	common/include/log.h	16;"	d
+LOG_WARN	common/include/log.h	/^enum { LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL };$/;"	e	enum:__anon2
+List	common/include/list.h	/^typedef struct List$/;"	s
+List	common/include/list.h	/^} List;$/;"	t	typeref:struct:List
+List::elem_copy	common/include/list.h	/^	void *(*elem_copy)(void *);$/;"	m	struct:List	access:public
+List::elem_free	common/include/list.h	/^	void (*elem_free)(void *);$/;"	m	struct:List	access:public
+List::head	common/include/list.h	/^	ListNode *head;$/;"	m	struct:List	access:public
+List::size	common/include/list.h	/^	size_t size;$/;"	m	struct:List	access:public
+List::tail	common/include/list.h	/^	ListNode *tail;$/;"	m	struct:List	access:public
+ListIter	common/include/list.h	/^typedef struct ListIter $/;"	s
+ListIter	common/include/list.h	/^} ListIter;$/;"	t	typeref:struct:ListIter
+ListIter::current	common/include/list.h	/^	ListNode *current;$/;"	m	struct:ListIter	access:public
+ListNode	common/include/list.h	/^typedef struct ListNode$/;"	s
+ListNode	common/include/list.h	/^} ListNode;$/;"	t	typeref:struct:ListNode
+ListNode::elem	common/include/list.h	/^	void *elem;$/;"	m	struct:ListNode	access:public
+ListNode::next	common/include/list.h	/^	struct ListNode *next;$/;"	m	struct:ListNode	typeref:struct:ListNode::ListNode	access:public
+ListNode::prev	common/include/list.h	/^	struct ListNode *prev;$/;"	m	struct:ListNode	typeref:struct:ListNode::ListNode	access:public
+List_alloc	common/include/list.h	/^List *List_alloc(void *(*elem_copy)(void *), void (*elem_free)(void *));$/;"	p	signature:(void *(*elem_copy)(void *), void (*elem_free)(void *))
+List_alloc	common/list.c	/^List_alloc (void *(*elem_copy) (void *), void (*elem_free) (void *))$/;"	f	signature:(void *(*elem_copy) (void *), void (*elem_free) (void *))
+List_destroy	common/include/list.h	/^void List_destroy(List *this);$/;"	p	signature:(List *this)
+List_destroy	common/list.c	/^List_destroy (List * this)$/;"	f	signature:(List * this)
+List_free	common/include/list.h	/^void List_free(List *this);$/;"	p	signature:(List *this)
+List_free	common/list.c	/^List_free (List * this)$/;"	f	signature:(List * this)
+List_init	common/include/list.h	/^void List_init(List *this, void *(*elem_copy)(void *), void (*elem_free)(void *));$/;"	p	signature:(List *this, void *(*elem_copy)(void *), void (*elem_free)(void *))
+List_init	common/list.c	/^List_init (List * this, void *(*elem_copy) (void *),$/;"	f	signature:(List * this, void *(*elem_copy) (void *), void (*elem_free) (void *))
+List_iter_init	common/include/list.h	/^void List_iter_init(ListIter *iter, List *list);$/;"	p	signature:(ListIter *iter, List *list)
+List_iter_init	common/list.c	/^List_iter_init (ListIter * iter, List * list)$/;"	f	signature:(ListIter * iter, List * list)
+List_iter_next	common/include/list.h	/^bool List_iter_next(ListIter *iter, void **elem_ptr);$/;"	p	signature:(ListIter *iter, void **elem_ptr)
+List_iter_next	common/list.c	/^List_iter_next (ListIter * iter, void **elem_ptr)$/;"	f	signature:(ListIter * iter, void **elem_ptr)
+List_peek_back	common/include/list.h	/^void *List_peek_back(List *this);$/;"	p	signature:(List *this)
+List_peek_back	common/list.c	/^List_peek_back (List * this)$/;"	f	signature:(List * this)
+List_peek_front	common/include/list.h	/^void *List_peek_front(List *this);$/;"	p	signature:(List *this)
+List_peek_front	common/list.c	/^List_peek_front (List * this)$/;"	f	signature:(List * this)
+List_pop_back	common/include/list.h	/^void List_pop_back(List *this);$/;"	p	signature:(List *this)
+List_pop_back	common/list.c	/^List_pop_back (List * this)$/;"	f	signature:(List * this)
+List_pop_front	common/include/list.h	/^void List_pop_front(List *this);$/;"	p	signature:(List *this)
+List_pop_front	common/list.c	/^List_pop_front (List * this)$/;"	f	signature:(List * this)
+List_push_back	common/include/list.h	/^void List_push_back(List *this, void *elem);$/;"	p	signature:(List *this, void *elem)
+List_push_back	common/list.c	/^List_push_back (List * this, void *elem)$/;"	f	signature:(List * this, void *elem)
+List_push_front	common/include/list.h	/^void List_push_front(List *this, void *elem);$/;"	p	signature:(List *this, void *elem)
+List_push_front	common/list.c	/^List_push_front (List * this, void *elem)$/;"	f	signature:(List * this, void *elem)
+List_size	common/include/list.h	/^size_t List_size(List *this);/;"	p	signature:(List *this)
+List_size	common/list.c	/^List_size (List * this)$/;"	f	signature:(List * this)
+MAX	common/include/common.h	34;"	d
+MAX_CHANNEL_COUNT	server/include/server.h	11;"	d
+MAX_CHANNEL_USERS	server/include/server.h	12;"	d
+MAX_EPOLL_EVENTS	client/client.c	6;"	d	file:
+MAX_EVENTS	common/include/common.h	29;"	d
+MAX_MSG_LEN	common/include/common.h	30;"	d
+MAX_MSG_PARAM	common/include/common.h	31;"	d
+MIN	common/include/common.h	35;"	d
+MOTD_FILENAME	server/include/server.h	9;"	d
+Message	common/include/message.h	/^} Message;$/;"	t	typeref:struct:_Message
+PEER_CONNECTION	server/include/server.h	/^    PEER_CONNECTION$/;"	e	enum:_conn_type_t
+PING_INTERVAL_SEC	client/client.c	5;"	d	file:
+Peer	server/include/server.h	/^} Peer;$/;"	t	typeref:struct:_Peer
+PeerRequestHandler	server/server.c	/^} PeerRequestHandler;$/;"	t	typeref:struct:_PeerRequestHandler	file:
+Peer_alloc	server/include/server.h	/^Peer *Peer_alloc();$/;"	p	signature:()
+Peer_alloc	server/peer.c	/^Peer *Peer_alloc()$/;"	f
+Peer_free	server/include/server.h	/^void Peer_free(Peer *);$/;"	p	signature:(Peer *)
+Peer_free	server/peer.c	/^void Peer_free(Peer * this)$/;"	f	signature:(Peer * this)
+RPL_ADMINEMAIL_MSG	server/include/replies.h	30;"	d
+RPL_ADMINLOC1_MSG	server/include/replies.h	28;"	d
+RPL_ADMINLOC2_MSG	server/include/replies.h	29;"	d
+RPL_ADMINME_MSG	server/include/replies.h	27;"	d
+RPL_AWAY_MSG	server/include/replies.h	38;"	d
+RPL_BANLIST_MSG	server/include/replies.h	74;"	d
+RPL_CHANNELMODEIS_MSG	server/include/replies.h	56;"	d
+RPL_CREATED_MSG	server/include/replies.h	5;"	d
+RPL_CREATIONTIME_MSG	server/include/replies.h	57;"	d
+RPL_ENDOFBANLIST_MSG	server/include/replies.h	75;"	d
+RPL_ENDOFEXCEPTLIST_MSG	server/include/replies.h	67;"	d
+RPL_ENDOFINFO_MSG	server/include/replies.h	78;"	d
+RPL_ENDOFINVITELIST_MSG	server/include/replies.h	65;"	d
+RPL_ENDOFLINKS_MSG	server/include/replies.h	72;"	d
+RPL_ENDOFMOTD_MSG	server/include/replies.h	81;"	d
+RPL_ENDOFNAMES_MSG	server/include/replies.h	73;"	d
+RPL_ENDOFSTATS_MSG	server/include/replies.h	17;"	d
+RPL_ENDOFWHOIS_MSG	server/include/replies.h	51;"	d
+RPL_ENDOFWHOWAS_MSG	server/include/replies.h	76;"	d
+RPL_ENDOFWHO_MSG	server/include/replies.h	49;"	d
+RPL_EXCEPTLIST_MSG	server/include/replies.h	66;"	d
+RPL_HOSTHIDDEN_MSG	server/include/replies.h	88;"	d
+RPL_INFO_MSG	server/include/replies.h	77;"	d
+RPL_INVITELIST_MSG	server/include/replies.h	64;"	d
+RPL_INVITING_MSG	server/include/replies.h	63;"	d
+RPL_ISON_MSG	server/include/replies.h	40;"	d
+RPL_ISUPPORT1_MSG	server/include/replies.h	8;"	d
+RPL_ISUPPORT2_MSG	server/include/replies.h	9;"	d
+RPL_ISUPPORTNET_MSG	server/include/replies.h	7;"	d
+RPL_LINKS_MSG	server/include/replies.h	71;"	d
+RPL_LISTEND_MSG	server/include/replies.h	55;"	d
+RPL_LISTSTART_MSG	server/include/replies.h	53;"	d
+RPL_LIST_MSG	server/include/replies.h	54;"	d
+RPL_LOCALUSERS_MSG	server/include/replies.h	32;"	d
+RPL_LUSERCHANNELS_MSG	server/include/replies.h	25;"	d
+RPL_LUSERCLIENT_MSG	server/include/replies.h	22;"	d
+RPL_LUSERME_MSG	server/include/replies.h	26;"	d
+RPL_LUSEROP_MSG	server/include/replies.h	23;"	d
+RPL_LUSERUNKNOWN_MSG	server/include/replies.h	24;"	d
+RPL_MOTDSTART_MSG	server/include/replies.h	80;"	d
+RPL_MOTD_MSG	server/include/replies.h	79;"	d
+RPL_MYINFO_MSG	server/include/replies.h	6;"	d
+RPL_NAMREPLY_MSG	server/include/replies.h	70;"	d
+RPL_NETUSERS_MSG	server/include/replies.h	33;"	d
+RPL_NOTOPIC_MSG	server/include/replies.h	59;"	d
+RPL_NOWAWAY_MSG	server/include/replies.h	42;"	d
+RPL_REHASHING_MSG	server/include/replies.h	85;"	d
+RPL_SERVLISTEND_MSG	server/include/replies.h	20;"	d
+RPL_SERVLIST_MSG	server/include/replies.h	19;"	d
+RPL_STATSCOMMANDS_MSG	server/include/replies.h	15;"	d
+RPL_STATSCONN_MSG	server/include/replies.h	34;"	d
+RPL_STATSLINKINFO_MSG	server/include/replies.h	14;"	d
+RPL_STATSUPTIME	server/include/replies.h	21;"	d
+RPL_STATSXLINE_MSG	server/include/replies.h	16;"	d
+RPL_TIME_MSG	server/include/replies.h	87;"	d
+RPL_TOPICSETBY_MSG	server/include/replies.h	61;"	d
+RPL_TOPIC_MSG	server/include/replies.h	60;"	d
+RPL_TRACEEND_MSG	server/include/replies.h	31;"	d
+RPL_TRACELINK_MSG	server/include/replies.h	11;"	d
+RPL_TRACEOPERATOR_MSG	server/include/replies.h	12;"	d
+RPL_TRACESERVER_MSG	server/include/replies.h	13;"	d
+RPL_UMODEIS_MSG	server/include/replies.h	18;"	d
+RPL_UNAWAY_MSG	server/include/replies.h	41;"	d
+RPL_USERHOST_MSG	server/include/replies.h	39;"	d
+RPL_VERSION_MSG	server/include/replies.h	68;"	d
+RPL_WELCOME_MSG	server/include/replies.h	3;"	d
+RPL_WHOISBOT_MSG	server/include/replies.h	62;"	d
+RPL_WHOISCERTFP_MSG	server/include/replies.h	36;"	d
+RPL_WHOISCHANNELS_MSG	server/include/replies.h	52;"	d
+RPL_WHOISHOST_MSG	server/include/replies.h	82;"	d
+RPL_WHOISIDLE_MSG	server/include/replies.h	50;"	d
+RPL_WHOISLOGGEDIN_MSG	server/include/replies.h	58;"	d
+RPL_WHOISMODES_MSG	server/include/replies.h	83;"	d
+RPL_WHOISOPERATOR_MSG	server/include/replies.h	47;"	d
+RPL_WHOISREGNICK_MSG	server/include/replies.h	43;"	d
+RPL_WHOISSERVER_MSG	server/include/replies.h	46;"	d
+RPL_WHOISSERVICE_MSG	server/include/replies.h	44;"	d
+RPL_WHOISSSL_MSG	server/include/replies.h	35;"	d
+RPL_WHOISUSER_MSG	server/include/replies.h	45;"	d
+RPL_WHOREPLY_MSG	server/include/replies.h	69;"	d
+RPL_WHOWASUSER_MSG	server/include/replies.h	48;"	d
+RPL_YOUREOPER_MSG	server/include/replies.h	84;"	d
+RPL_YOURESERVICE_MSG	server/include/replies.h	86;"	d
+RPL_YOURHOST_MSG	server/include/replies.h	4;"	d
+SAFE	common/include/common.h	61;"	d
+SHALLOW_TYPE	common/common_types.c	/^const struct elem_type_info_t SHALLOW_TYPE =$/;"	v	typeref:struct:elem_type_info_t
+STRING_TYPE	common/common_types.c	/^const struct elem_type_info_t STRING_TYPE = { strcmp, strdup, free, -1 };$/;"	v	typeref:struct:elem_type_info_t
+Server	server/include/server.h	/^} Server;$/;"	t	typeref:struct:_Server
+Server_accept_all	server/include/server.h	/^void Server_accept_all(Server * serv);$/;"	p	signature:(Server * serv)
+Server_accept_all	server/server.c	/^void Server_accept_all(Server * serv)$/;"	f	signature:(Server * serv)
+Server_add_connection	server/include/server.h	/^bool Server_add_connection(Server * serv, Connection * connection);$/;"	p	signature:(Server * serv, Connection * connection)
+Server_add_connection	server/server.c	/^bool Server_add_connection(Server * serv, Connection * connection)$/;"	f	signature:(Server * serv, Connection * connection)
+Server_add_peer	server/include/server.h	/^bool Server_add_peer(Server * serv, const char *name, const char *port);$/;"	p	signature:(Server * serv, const char *name, const char *port)
+Server_add_peer	server/server.c	/^bool Server_add_peer(Server * serv, const char *name, const char *port)$/;"	f	signature:(Server * serv, const char *name, const char *port)
+Server_create	server/include/server.h	/^Server *Server_create(const char *name);$/;"	p	signature:(const char *name)
+Server_create	server/server.c	/^Server *Server_create(const char *name)$/;"	f	signature:(const char *name)
+Server_create_message	server/include/server.h	17;"	d
+Server_destroy	server/include/server.h	/^void Server_destroy(Server * serv);$/;"	p	signature:(Server * serv)
+Server_destroy	server/server.c	/^void Server_destroy(Server * serv)$/;"	f	signature:(Server * serv)
+Server_flush_message_queues	server/include/server.h	/^void Server_flush_message_queues(Server * serv);$/;"	p	signature:(Server * serv)
+Server_flush_message_queues	server/server.c	/^void Server_flush_message_queues(Server * serv)$/;"	f	signature:(Server * serv)
+Server_handle_CONNECT	server/include/server.h	/^void Server_handle_CONNECT(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_CONNECT	server/reply.c	/^void Server_handle_CONNECT(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_HELP	server/include/server.h	/^void Server_handle_HELP(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_HELP	server/reply.c	/^void Server_handle_HELP(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_INFO	server/include/server.h	/^void Server_handle_INFO(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_INFO	server/reply.c	/^void Server_handle_INFO(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_JOIN	server/include/server.h	/^void Server_handle_JOIN(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_JOIN	server/reply.c	/^void Server_handle_JOIN(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_LIST	server/include/server.h	/^void Server_handle_LIST(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_LIST	server/reply.c	/^void Server_handle_LIST(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_LUSERS	server/include/server.h	/^void Server_handle_LUSERS(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_LUSERS	server/reply.c	/^void Server_handle_LUSERS(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_MOTD	server/include/server.h	/^void Server_handle_MOTD(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_MOTD	server/reply.c	/^void Server_handle_MOTD(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_NAMES	server/include/server.h	/^void Server_handle_NAMES(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_NAMES	server/reply.c	/^void Server_handle_NAMES(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_NICK	server/include/server.h	/^void Server_handle_NICK(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_NICK	server/reply.c	/^void Server_handle_NICK(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_NOTICE	server/include/server.h	/^void Server_handle_NOTICE(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_NOTICE	server/reply.c	/^void Server_handle_NOTICE(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_PART	server/include/server.h	/^void Server_handle_PART(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_PART	server/reply.c	/^void Server_handle_PART(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_PASS	server/include/server.h	/^void Server_handle_PASS(Server * serv, Peer * peer, Message * msg);$/;"	p	signature:(Server * serv, Peer * peer, Message * msg)
+Server_handle_PASS	server/reply.c	/^void Server_handle_PASS(Server * serv, Peer * peer, Message * msg)$/;"	f	signature:(Server * serv, Peer * peer, Message * msg)
+Server_handle_PING	server/include/server.h	/^void Server_handle_PING(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_PING	server/reply.c	/^void Server_handle_PING(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_PRIVMSG	server/include/server.h	/^void Server_handle_PRIVMSG(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_PRIVMSG	server/reply.c	/^void Server_handle_PRIVMSG(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_QUIT	server/include/server.h	/^void Server_handle_QUIT(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_QUIT	server/reply.c	/^void Server_handle_QUIT(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_SERVER	server/include/server.h	/^void Server_handle_SERVER(Server * serv, Peer * peer, Message * msg);$/;"	p	signature:(Server * serv, Peer * peer, Message * msg)
+Server_handle_SERVER	server/reply.c	/^void Server_handle_SERVER(Server * serv, Peer * peer, Message * msg)$/;"	f	signature:(Server * serv, Peer * peer, Message * msg)
+Server_handle_TOPIC	server/include/server.h	/^void Server_handle_TOPIC(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_TOPIC	server/reply.c	/^void Server_handle_TOPIC(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_USER	server/include/server.h	/^void Server_handle_USER(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_USER	server/reply.c	/^void Server_handle_USER(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_WHO	server/include/server.h	/^void Server_handle_WHO(Server * serv, User * usr, Message * msg);$/;"	p	signature:(Server * serv, User * usr, Message * msg)
+Server_handle_WHO	server/reply.c	/^void Server_handle_WHO(Server * serv, User * usr, Message * msg)$/;"	f	signature:(Server * serv, User * usr, Message * msg)
+Server_message_channel	server/include/server.h	/^void Server_message_channel(Server * serv, const char *origin,$/;"	p	signature:(Server * serv, const char *origin, const char *target, const char *message)
+Server_message_channel	server/server.c	/^Server_message_channel(Server * serv, const char *origin,$/;"	f	signature:(Server * serv, const char *origin, const char *target, const char *message)
+Server_message_user	server/include/server.h	/^void Server_message_user(Server * serv, const char *origin,$/;"	p	signature:(Server * serv, const char *origin, const char *target, const char *message)
+Server_message_user	server/server.c	/^Server_message_user(Server * serv, const char *origin, const char *target,$/;"	f	signature:(Server * serv, const char *origin, const char *target, const char *message)
+Server_process_request	server/include/server.h	/^void Server_process_request(Server * serv, Connection * usr);$/;"	p	signature:(Server * serv, Connection * usr)
+Server_process_request	server/server.c	/^void Server_process_request(Server * serv, Connection * conn)$/;"	f	signature:(Server * serv, Connection * conn)
+Server_process_request_from_peer	server/include/server.h	/^void Server_process_request_from_peer(Server * serv, Connection * conn);$/;"	p	signature:(Server * serv, Connection * conn)
+Server_process_request_from_peer	server/server.c	/^void Server_process_request_from_peer(Server * serv, Connection * conn)$/;"	f	signature:(Server * serv, Connection * conn)
+Server_process_request_from_unknown	server/include/server.h	/^void Server_process_request_from_unknown(Server * serv, Connection * conn);$/;"	p	signature:(Server * serv, Connection * conn)
+Server_process_request_from_unknown	server/server.c	/^void Server_process_request_from_unknown(Server * serv, Connection * conn)$/;"	f	signature:(Server * serv, Connection * conn)
+Server_process_request_from_user	server/include/server.h	/^void Server_process_request_from_user(Server * serv, Connection * conn);$/;"	p	signature:(Server * serv, Connection * conn)
+Server_process_request_from_user	server/server.c	/^void Server_process_request_from_user(Server * serv, Connection * conn)$/;"	f	signature:(Server * serv, Connection * conn)
+Server_relay_message	server/include/server.h	/^void Server_relay_message(Server * serv, const char *origin,$/;"	p	signature:(Server * serv, const char *origin, const char *message)
+Server_relay_message	server/server.c	/^Server_relay_message(Server * serv, const char *origin,$/;"	f	signature:(Server * serv, const char *origin, const char *message)
+Server_remove_all_connections	server/server.c	/^void Server_remove_all_connections(Server * serv)$/;"	f	signature:(Server * serv)
+Server_remove_connection	server/include/server.h	/^void Server_remove_connection(Server * serv, Connection * connection);$/;"	p	signature:(Server * serv, Connection * connection)
+Server_remove_connection	server/server.c	/^void Server_remove_connection(Server * serv, Connection * connection)$/;"	f	signature:(Server * serv, Connection * connection)
+UNKNOWN_CONNECTION	server/include/server.h	/^    UNKNOWN_CONNECTION,$/;"	e	enum:_conn_type_t
+USER_CONNECTION	server/include/server.h	/^    USER_CONNECTION,$/;"	e	enum:_conn_type_t
+USER_OFFLINE	server/include/server.h	/^    USER_OFFLINE$/;"	e	enum:__anon3
+USER_ONLINE	server/include/server.h	/^    USER_ONLINE,$/;"	e	enum:__anon3
+User	server/include/server.h	/^} User;$/;"	t	typeref:struct:_User
+UserRequestHandler	server/server.c	/^} UserRequestHandler;$/;"	t	typeref:struct:_UserRequestHandler	file:
+User_add_channel	server/include/server.h	/^void User_add_channel(User * usr, const char *channel_name);$/;"	p	signature:(User * usr, const char *channel_name)
+User_add_channel	server/user.c	/^void User_add_channel(User * usr, const char *channel_name)$/;"	f	signature:(User * usr, const char *channel_name)
+User_alloc	server/include/server.h	/^User *User_alloc();$/;"	p	signature:()
+User_alloc	server/user.c	/^User *User_alloc()$/;"	f
+User_create_message	server/include/server.h	21;"	d
+User_free	server/include/server.h	/^void User_free(User * this);$/;"	p	signature:(User * this)
+User_free	server/user.c	/^void User_free(User * usr)$/;"	f	signature:(User * usr)
+User_is_member	server/include/server.h	/^bool User_is_member(User * usr, const char *channel_name);$/;"	p	signature:(User * usr, const char *channel_name)
+User_is_member	server/user.c	/^bool User_is_member(User * usr, const char *channel_name)$/;"	f	signature:(User * usr, const char *channel_name)
+User_remove_channel	server/include/server.h	/^bool User_remove_channel(User * usr, const char *channel_name);$/;"	p	signature:(User * usr, const char *channel_name)
+User_remove_channel	server/user.c	/^bool User_remove_channel(User * usr, const char *channel_name)$/;"	f	signature:(User * usr, const char *channel_name)
+Vector	common/include/vector.h	/^typedef struct Vector$/;"	s
+Vector	common/include/vector.h	/^} Vector;$/;"	t	typeref:struct:Vector
+Vector::capacity	common/include/vector.h	/^	size_t capacity;$/;"	m	struct:Vector	access:public
+Vector::elem_copy	common/include/vector.h	/^	void *(*elem_copy)(void *);$/;"	m	struct:Vector	access:public
+Vector::elem_free	common/include/vector.h	/^	void (*elem_free)(void *);$/;"	m	struct:Vector	access:public
+Vector::elems	common/include/vector.h	/^	void **elems;$/;"	m	struct:Vector	access:public
+Vector::size	common/include/vector.h	/^	size_t size;$/;"	m	struct:Vector	access:public
+Vector_alloc	common/include/vector.h	/^Vector *Vector_alloc(size_t capacity, void *(*elem_copy)(void *), void (*elem_free)(void *));$/;"	p	signature:(size_t capacity, void *(*elem_copy)(void *), void (*elem_free)(void *))
+Vector_alloc	common/vector.c	/^Vector_alloc (size_t capacity, void *(*elem_copy) (void *),$/;"	f	signature:(size_t capacity, void *(*elem_copy) (void *), void (*elem_free) (void *))
+Vector_find	common/include/vector.h	/^void *Vector_find(Vector *this, bool (*cb)(void *, const void *), const void *args);$/;"	p	signature:(Vector *this, bool (*cb)(void *, const void *), const void *args)
+Vector_find	common/vector.c	/^Vector_find (Vector * this, bool (*cb) (void *, const void *),$/;"	f	signature:(Vector * this, bool (*cb) (void *, const void *), const void *args)
+Vector_foreach	common/include/vector.h	/^void Vector_foreach(Vector *this, void (*cb)(void *));$/;"	p	signature:(Vector *this, void (*cb)(void *))
+Vector_foreach	common/vector.c	/^Vector_foreach (Vector * this, void (*cb) (void *))$/;"	f	signature:(Vector * this, void (*cb) (void *))
+Vector_free	common/include/vector.h	/^void Vector_free(Vector *this);$/;"	p	signature:(Vector *this)
+Vector_free	common/vector.c	/^Vector_free (Vector * this)$/;"	f	signature:(Vector * this)
+Vector_get_at	common/include/vector.h	/^void *Vector_get_at(Vector *this, size_t index);$/;"	p	signature:(Vector *this, size_t index)
+Vector_get_at	common/vector.c	/^Vector_get_at (Vector * this, size_t index)$/;"	f	signature:(Vector * this, size_t index)
+Vector_push	common/include/vector.h	/^void Vector_push(Vector *this, void *elem);$/;"	p	signature:(Vector *this, void *elem)
+Vector_push	common/vector.c	/^Vector_push (Vector * this, void *elem)$/;"	f	signature:(Vector * this, void *elem)
+Vector_remove	common/include/vector.h	/^void Vector_remove(Vector *this, size_t index, void **elem_out);$/;"	p	signature:(Vector *this, size_t index, void **elem_out)
+Vector_remove	common/vector.c	/^Vector_remove (Vector * this, size_t index, void **elem_out)$/;"	f	signature:(Vector * this, size_t index, void **elem_out)
+Vector_reserve	common/include/vector.h	/^void Vector_reserve(Vector *this, size_t capacity);$/;"	p	signature:(Vector *this, size_t capacity)
+Vector_reserve	common/vector.c	/^Vector_reserve (Vector * this, size_t capacity)$/;"	f	signature:(Vector * this, size_t capacity)
+Vector_size	common/include/vector.h	/^size_t Vector_size(Vector *this);$/;"	p	signature:(Vector *this)
+Vector_size	common/vector.c	/^Vector_size (Vector * this)$/;"	f	signature:(Vector * this)
+_CHECK	common/include/common.h	37;"	d
+_Channel	server/include/server.h	/^typedef struct _Channel {$/;"	s
+_Channel::members	server/include/server.h	/^    Hashtable *members;		\/\/ map username to User struct$/;"	m	struct:_Channel	access:public
+_Channel::mode	server/include/server.h	/^    int mode;			\/\/ channel mode$/;"	m	struct:_Channel	access:public
+_Channel::name	server/include/server.h	/^    char *name;			\/\/ name of channel$/;"	m	struct:_Channel	access:public
+_Channel::time_created	server/include/server.h	/^    time_t time_created;	\/\/ time channel was created$/;"	m	struct:_Channel	access:public
+_Channel::topic	server/include/server.h	/^    char *topic;		\/\/ channel topic$/;"	m	struct:_Channel	access:public
+_Connection	server/include/server.h	/^typedef struct _Connection {$/;"	s
+_Connection::conn_type	server/include/server.h	/^    conn_type_t conn_type;$/;"	m	struct:_Connection	access:public
+_Connection::data	server/include/server.h	/^    void *data;			\/\/ additional data for users and peers$/;"	m	struct:_Connection	access:public
+_Connection::fd	server/include/server.h	/^    int fd;$/;"	m	struct:_Connection	access:public
+_Connection::hostname	server/include/server.h	/^    char *hostname;$/;"	m	struct:_Connection	access:public
+_Connection::incoming_messages	server/include/server.h	/^    List *incoming_messages;	\/\/ queue of received messages$/;"	m	struct:_Connection	access:public
+_Connection::outgoing_messages	server/include/server.h	/^    List *outgoing_messages;	\/\/ queue of messages to deliver$/;"	m	struct:_Connection	access:public
+_Connection::port	server/include/server.h	/^    int port;$/;"	m	struct:_Connection	access:public
+_Connection::quit	server/include/server.h	/^    bool quit;$/;"	m	struct:_Connection	access:public
+_Connection::req_buf	server/include/server.h	/^    char req_buf[MAX_MSG_LEN + 1];	\/\/ request buffer$/;"	m	struct:_Connection	access:public
+_Connection::req_len	server/include/server.h	/^    size_t req_len;		\/\/ request buffer length$/;"	m	struct:_Connection	access:public
+_Connection::res_buf	server/include/server.h	/^    char res_buf[MAX_MSG_LEN + 1];	\/\/ response buffer$/;"	m	struct:_Connection	access:public
+_Connection::res_len	server/include/server.h	/^    size_t res_len;		\/\/ response buffer length$/;"	m	struct:_Connection	access:public
+_Connection::res_off	server/include/server.h	/^    size_t res_off;		\/\/ num bytes sent from response buffer$/;"	m	struct:_Connection	access:public
+_Message	common/include/message.h	/^typedef struct _Message$/;"	s
+_Message::body	common/include/message.h	/^	char *body;$/;"	m	struct:_Message	access:public
+_Message::command	common/include/message.h	/^	char *command;$/;"	m	struct:_Message	access:public
+_Message::message	common/include/message.h	/^	char *message; \/\/Add original message string$/;"	m	struct:_Message	access:public
+_Message::n_params	common/include/message.h	/^	size_t n_params;$/;"	m	struct:_Message	access:public
+_Message::origin	common/include/message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
+_Message::params	common/include/message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
+_Peer	server/include/server.h	/^typedef struct _Peer {$/;"	s
+_Peer::channels	server/include/server.h	/^    Vector *channels;		\/\/ names of channels behind this server$/;"	m	struct:_Peer	access:public
+_Peer::msg_queue	server/include/server.h	/^    List *msg_queue;$/;"	m	struct:_Peer	access:public
+_Peer::name	server/include/server.h	/^    char *name;$/;"	m	struct:_Peer	access:public
+_Peer::nicks	server/include/server.h	/^    Vector *nicks;		\/\/ nick of users behind this server$/;"	m	struct:_Peer	access:public
+_Peer::passwd	server/include/server.h	/^    char *passwd;$/;"	m	struct:_Peer	access:public
+_Peer::quit	server/include/server.h	/^    bool quit;			\/\/ flag to indicate server leaving$/;"	m	struct:_Peer	access:public
+_Peer::registered	server/include/server.h	/^    bool registered;$/;"	m	struct:_Peer	access:public
+_PeerRequestHandler	server/server.c	/^typedef struct _PeerRequestHandler {$/;"	s	file:
+_PeerRequestHandler::handler	server/server.c	/^    void (*handler)(Server *, Peer *, Message *);	\/* request handler function *\/$/;"	m	struct:_PeerRequestHandler	file:	access:public
+_PeerRequestHandler::name	server/server.c	/^    const char *name;		\/* command name *\/$/;"	m	struct:_PeerRequestHandler	file:	access:public
+_Server	server/include/server.h	/^typedef struct _Server {$/;"	s
+_Server::channel_to_serv_name_map	server/include/server.h	/^    Hashtable *channel_to_serv_name_map;	\/\/ Map channel name to name of server$/;"	m	struct:_Server	access:public
+_Server::config_file	server/include/server.h	/^    char *config_file;		\/\/ name of config file with irc server address and$/;"	m	struct:_Server	access:public
+_Server::connections	server/include/server.h	/^    Hashtable *connections;	\/\/ map sock to Connection struct$/;"	m	struct:_Server	access:public
+_Server::created_at	server/include/server.h	/^    char created_at[64];	\/\/ server time created at as string$/;"	m	struct:_Server	access:public
+_Server::epollfd	server/include/server.h	/^    int epollfd;		\/\/ epoll fd$/;"	m	struct:_Server	access:public
+_Server::fd	server/include/server.h	/^    int fd;			\/\/ listen socket$/;"	m	struct:_Server	access:public
+_Server::hostname	server/include/server.h	/^    char *hostname;		\/\/ server hostname$/;"	m	struct:_Server	access:public
+_Server::info	server/include/server.h	/^    char *info;$/;"	m	struct:_Server	access:public
+_Server::motd_file	server/include/server.h	/^    char *motd_file;		\/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
+_Server::name	server/include/server.h	/^    char *name;			\/\/ name of this server$/;"	m	struct:_Server	access:public
+_Server::name_to_channel_map	server/include/server.h	/^    Hashtable *name_to_channel_map;	\/\/ Map channel name to channel struct$/;"	m	struct:_Server	access:public
+_Server::name_to_peer_map	server/include/server.h	/^    Hashtable *name_to_peer_map;	\/\/ Map server name to peer struct$/;"	m	struct:_Server	access:public
+_Server::nick_to_serv_name_map	server/include/server.h	/^    Hashtable *nick_to_serv_name_map;	\/\/ Map nick to name of server which has user$/;"	m	struct:_Server	access:public
+_Server::nick_to_user_map	server/include/server.h	/^    Hashtable *nick_to_user_map;	\/\/ Map nick to user struct on this server$/;"	m	struct:_Server	access:public
+_Server::passwd	server/include/server.h	/^    char *passwd;$/;"	m	struct:_Server	access:public
+_Server::port	server/include/server.h	/^    char *port;			\/\/ server port$/;"	m	struct:_Server	access:public
+_Server::servaddr	server/include/server.h	/^    struct sockaddr_in servaddr;	\/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+_User	server/include/server.h	/^typedef struct _User {$/;"	s
+_User::channels	server/include/server.h	/^    Vector *channels;		\/\/ list of channels joined by user$/;"	m	struct:_User	access:public
+_User::hostname	server/include/server.h	/^    char *hostname;		\/\/ client ip$/;"	m	struct:_User	access:public
+_User::msg_queue	server/include/server.h	/^    List *msg_queue;$/;"	m	struct:_User	access:public
+_User::nick	server/include/server.h	/^    char *nick;			\/\/ display name$/;"	m	struct:_User	access:public
+_User::nick_changed	server/include/server.h	/^    bool nick_changed;		\/\/ flag to indicate user has set a nick$/;"	m	struct:_User	access:public
+_User::quit	server/include/server.h	/^    bool quit;			\/\/ flag to indicate user is leaving server$/;"	m	struct:_User	access:public
+_User::realname	server/include/server.h	/^    char *realname;		\/\/ full name$/;"	m	struct:_User	access:public
+_User::registered	server/include/server.h	/^    bool registered;		\/\/ flag to indicate user has registered with username,$/;"	m	struct:_User	access:public
+_User::status	server/include/server.h	/^    int status;			\/\/ to indicate if user online or offline$/;"	m	struct:_User	access:public
+_User::username	server/include/server.h	/^    char *username;		\/\/ unique identifier$/;"	m	struct:_User	access:public
+_UserRequestHandler	server/server.c	/^typedef struct _UserRequestHandler {$/;"	s	file:
+_UserRequestHandler::handler	server/server.c	/^    void (*handler)(Server *, User *, Message *);	\/* request handler function *\/$/;"	m	struct:_UserRequestHandler	file:	access:public
+_UserRequestHandler::name	server/server.c	/^    const char *name;		\/* command name *\/$/;"	m	struct:_UserRequestHandler	file:	access:public
+__anon1::ap	common/include/log.h	/^  va_list ap;$/;"	m	struct:__anon1	access:public
+__anon1::file	common/include/log.h	/^  const char *file;$/;"	m	struct:__anon1	access:public
+__anon1::fmt	common/include/log.h	/^  const char *fmt;$/;"	m	struct:__anon1	access:public
+__anon1::level	common/include/log.h	/^  int level;$/;"	m	struct:__anon1	access:public
+__anon1::line	common/include/log.h	/^  int line;$/;"	m	struct:__anon1	access:public
+__anon1::time	common/include/log.h	/^  struct tm *time;$/;"	m	struct:__anon1	typeref:struct:__anon1::tm	access:public
+__anon1::udata	common/include/log.h	/^  void *udata;$/;"	m	struct:__anon1	access:public
+_add_channels_to_map	server/server.c	/^void _add_channels_to_map(Server * serv)$/;"	f	signature:(Server * serv)
+_align_capacity	common/sstring.c	/^_align_capacity (size_t n)$/;"	f	signature:(size_t n)
+_align_capacity	common/vector.c	/^_align_capacity (size_t capacity)$/;"	f	file:	signature:(size_t capacity)
+_conn_type_t	server/include/server.h	/^typedef enum _conn_type_t {$/;"	g
+_free_callback	client/client.c	/^_free_callback (void *data)$/;"	f	signature:(void *data)
+_free_callback	client/include/client.h	/^void _free_callback(void *data);$/;"	p	signature:(void *data)
+_signal_handler	client/client.c	/^_signal_handler (int sig)$/;"	f	signature:(int sig)
+_signal_handler	client/include/client.h	/^void _signal_handler(int sig);$/;"	p	signature:(int sig)
+_sstring	common/include/sstring.h	/^typedef struct _sstring$/;"	s
+_sstring::buffer	common/include/sstring.h	/^    char *buffer;$/;"	m	struct:_sstring	access:public
+_sstring::capacity	common/include/sstring.h	/^    size_t capacity;$/;"	m	struct:_sstring	access:public
+_sstring::size	common/include/sstring.h	/^    size_t size;$/;"	m	struct:_sstring	access:public
+addr_to_string	common/common.c	/^addr_to_string (struct sockaddr *addr, socklen_t len)$/;"	f	signature:(struct sockaddr *addr, socklen_t len)
+addr_to_string	common/include/common.h	/^char *addr_to_string(struct sockaddr *addr, socklen_t len); \/* get ip address from sockaddr *\/$/;"	p	signature:(struct sockaddr *addr, socklen_t len)
+alive	client/client.c	/^static volatile bool alive = true;$/;"	v	file:
+ap	common/include/log.h	/^  va_list ap;$/;"	m	struct:__anon1	access:public
+body	common/include/message.h	/^	char *body;$/;"	m	struct:_Message	access:public
+body	server/include/server.h	/^    const char *body;$/;"	m	struct:help_t	access:public
+buffer	common/include/sstring.h	/^    char *buffer;$/;"	m	struct:_sstring	access:public
+capacity	common/include/hashtable.h	/^	size_t capacity;$/;"	m	struct:Hashtable	access:public
+capacity	common/include/sstring.h	/^    size_t capacity;$/;"	m	struct:_sstring	access:public
+capacity	common/include/vector.h	/^	size_t capacity;$/;"	m	struct:Vector	access:public
+cb	test/test.c	/^cb (void *elem, const void *arg)$/;"	f	signature:(void *elem, const void *arg)
+channel_to_serv_name_map	server/include/server.h	/^    Hashtable *channel_to_serv_name_map;	\/\/ Map channel name to name of server$/;"	m	struct:_Server	access:public
+channels	server/include/server.h	/^    Vector *channels;		\/\/ list of channels joined by user$/;"	m	struct:_User	access:public
+channels	server/include/server.h	/^    Vector *channels;		\/\/ names of channels behind this server$/;"	m	struct:_Peer	access:public
+check_peer_registration	server/reply.c	/^void check_peer_registration(Server * serv, Peer * peer)$/;"	f	signature:(Server * serv, Peer * peer)
+check_registered	server/reply.c	/^bool check_registered(Server * serv, User * usr)$/;"	f	signature:(Server * serv, User * usr)
+check_user_registration	server/reply.c	/^bool check_user_registration(Server * serv, User * usr)$/;"	f	signature:(Server * serv, User * usr)
+client_inbox	client/include/client.h	/^    queue_t *client_inbox;$/;"	m	struct:Client	access:public
+client_outbox	client/include/client.h	/^    queue_t *client_outbox;$/;"	m	struct:Client	access:public
+client_sock	client/include/client.h	/^    int client_sock;$/;"	m	struct:Client	access:public
+comapre_type	common/include/common_types.h	/^    compare_type comapre_type;$/;"	m	struct:elem_type_info_t	access:public
+command	common/include/message.h	/^	char *command;$/;"	m	struct:_Message	access:public
+compare_type	common/include/common_types.h	/^typedef int (*compare_type)(const void *, const void *);$/;"	t
+config_file	server/include/server.h	/^    char *config_file;		\/\/ name of config file with irc server address and$/;"	m	struct:_Server	access:public
+conn_type	server/include/server.h	/^    conn_type_t conn_type;$/;"	m	struct:_Connection	access:public
+conn_type_t	server/include/server.h	/^} conn_type_t;$/;"	t	typeref:enum:_conn_type_t
+connect_to_host	common/common.c	/^connect_to_host (char *hostname, char *port)$/;"	f	signature:(char *hostname, char *port)
+connect_to_host	common/include/common.h	/^int connect_to_host(char *hostname, char *port);$/;"	p	signature:(char *hostname, char *port)
+connections	server/include/server.h	/^    Hashtable *connections;	\/\/ map sock to Connection struct$/;"	m	struct:_Server	access:public
+copy_type	common/include/common_types.h	/^    elem_copy_type copy_type;$/;"	m	struct:elem_type_info_t	access:public
+create_and_bind_socket	common/common.c	/^create_and_bind_socket (char *hostname, char *port)$/;"	f	signature:(char *hostname, char *port)
+create_and_bind_socket	common/include/common.h	/^int create_and_bind_socket(char *hostname, char *port); \/* creates tcp socket to connect to given host and port  *\/$/;"	p	signature:(char *hostname, char *port)
+created_at	server/include/server.h	/^    char created_at[64];	\/\/ server time created at as string$/;"	m	struct:_Server	access:public
+cstring_to_sstring	common/include/sstring.h	/^sstring *cstring_to_sstring(char *cstr);$/;"	p	signature:(char *cstr)
+cstring_to_sstring	common/sstring.c	/^cstring_to_sstring (char *cstr)$/;"	f	signature:(char *cstr)
+current	common/include/list.h	/^	ListNode *current;$/;"	m	struct:ListIter	access:public
+cv	common/include/queue.h	/^    pthread_cond_t cv;$/;"	m	struct:queue_t	access:public
+data	server/include/server.h	/^    void *data;			\/\/ additional data for users and peers$/;"	m	struct:_Connection	access:public
+die	common/include/common.h	48;"	d
+display_message	client/client_threads.c	/^display_message (const char *message)$/;"	f	signature:(const char *message)
+djb2hash	common/hashtable.c	/^djb2hash (const void *key, int len, uint32_t seed)$/;"	f	signature:(const void *key, int len, uint32_t seed)
+djb2hash	common/hashtable.c	/^size_t djb2hash (const void *key, int len, uint32_t seed);$/;"	p	file:	signature:(const void *key, int len, uint32_t seed)
+elem	common/include/list.h	/^	void *elem;$/;"	m	struct:ListNode	access:public
+elem_copy	common/include/list.h	/^	void *(*elem_copy)(void *);$/;"	m	struct:List	access:public
+elem_copy	common/include/vector.h	/^	void *(*elem_copy)(void *);$/;"	m	struct:Vector	access:public
+elem_copy_type	common/include/common_types.h	/^typedef void *(*elem_copy_type)(void *elem);$/;"	t
+elem_free	common/include/list.h	/^	void (*elem_free)(void *);$/;"	m	struct:List	access:public
+elem_free	common/include/vector.h	/^	void (*elem_free)(void *);$/;"	m	struct:Vector	access:public
+elem_free_type	common/include/common_types.h	/^typedef void (*elem_free_type)(void *elem);$/;"	t
+elem_len	common/include/common_types.h	/^    int elem_len;$/;"	m	struct:elem_type_info_t	access:public
+elem_type_info_t	common/include/common_types.h	/^struct elem_type_info_t {$/;"	s
+elem_type_info_t::comapre_type	common/include/common_types.h	/^    compare_type comapre_type;$/;"	m	struct:elem_type_info_t	access:public
+elem_type_info_t::copy_type	common/include/common_types.h	/^    elem_copy_type copy_type;$/;"	m	struct:elem_type_info_t	access:public
+elem_type_info_t::elem_len	common/include/common_types.h	/^    int elem_len;$/;"	m	struct:elem_type_info_t	access:public
+elem_type_info_t::free_type	common/include/common_types.h	/^    elem_free_type free_type;$/;"	m	struct:elem_type_info_t	access:public
+elems	common/include/vector.h	/^	void **elems;$/;"	m	struct:Vector	access:public
+epollfd	server/include/server.h	/^    int epollfd;		\/\/ epoll fd$/;"	m	struct:_Server	access:public
+fd	server/include/server.h	/^    int fd;			\/\/ listen socket$/;"	m	struct:_Server	access:public
+fd	server/include/server.h	/^    int fd;$/;"	m	struct:_Connection	access:public
+file	common/include/log.h	/^  const char *file;$/;"	m	struct:__anon1	access:public
+fmt	common/include/log.h	/^  const char *fmt;$/;"	m	struct:__anon1	access:public
+foreach_callback_type	test/test.c	/^typedef void (*foreach_callback_type) (void *);$/;"	t	file:
+free_type	common/include/common_types.h	/^    elem_free_type free_type;$/;"	m	struct:elem_type_info_t	access:public
+g_alive	server/main.c	/^static volatile bool g_alive = true;$/;"	v	file:
+get_help_text	server/help.c	/^const struct help_t *get_help_text(const char *subject)$/;"	f	signature:(const char *subject)
+get_help_text	server/include/server.h	/^const struct help_t *get_help_text(const char *subject);$/;"	p	signature:(const char *subject)
+get_in_addr	common/common.c	/^get_in_addr (struct sockaddr *sa)$/;"	f	signature:(struct sockaddr *sa)
+get_in_addr	common/include/common.h	/^void *get_in_addr(struct sockaddr *sa);                 \/* returns the in_addr of ivp4 and ipv6 addresses *\/$/;"	p	signature:(struct sockaddr *sa)
+get_motd	server/include/server.h	/^char *get_motd(char *fname);$/;"	p	signature:(char *fname)
+get_motd	server/util.c	/^char *get_motd(char *fname)$/;"	f	signature:(char *fname)
+get_peer_info	server/include/server.h	/^bool get_peer_info(const char *filename, const char *name,$/;"	p	signature:(const char *filename, const char *name, struct peer_info_t *info)
+get_peer_info	server/peer.c	/^get_peer_info(const char *filename, const char *name,$/;"	f	signature:(const char *filename, const char *name, struct peer_info_t *info)
+get_port	common/common.c	/^get_port (struct sockaddr *sa, socklen_t len)$/;"	f	signature:(struct sockaddr *sa, socklen_t len)
+get_port	common/include/common.h	/^int get_port(struct sockaddr *sa, socklen_t len);$/;"	p	signature:(struct sockaddr *sa, socklen_t len)
+get_server_passwd	server/include/server.h	/^char *get_server_passwd(const char *config_filename, const char *name);$/;"	p	signature:(const char *config_filename, const char *name)
+get_server_passwd	server/peer.c	/^char *get_server_passwd(const char *config_filename, const char *name)$/;"	f	signature:(const char *config_filename, const char *name)
+handler	server/server.c	/^    void (*handler)(Server *, Peer *, Message *);	\/* request handler function *\/$/;"	m	struct:_PeerRequestHandler	file:	access:public
+handler	server/server.c	/^    void (*handler)(Server *, User *, Message *);	\/* request handler function *\/$/;"	m	struct:_UserRequestHandler	file:	access:public
+hashtable	common/include/hashtable.h	/^	Hashtable *hashtable;$/;"	m	struct:HashtableIter	access:public
+hashtable_iter_test	test/test.c	/^hashtable_iter_test ()$/;"	f
+hashtable_test	test/test.c	/^hashtable_test ()$/;"	f
+head	common/include/list.h	/^	ListNode *head;$/;"	m	struct:List	access:public
+help	server/help.c	/^const struct help_t help[] = {$/;"	v	typeref:struct:help_t
+help_privmsg	server/help.c	/^const char help_privmsg[] =$/;"	v
+help_t	server/include/server.h	/^struct help_t {$/;"	s
+help_t::body	server/include/server.h	/^    const char *body;$/;"	m	struct:help_t	access:public
+help_t::subject	server/include/server.h	/^    const char *subject;$/;"	m	struct:help_t	access:public
+help_t::title	server/include/server.h	/^    const char *title;$/;"	m	struct:help_t	access:public
+help_who	server/help.c	/^const char help_who[] =$/;"	v
+hostname	server/include/server.h	/^    char *hostname;		\/\/ client ip$/;"	m	struct:_User	access:public
+hostname	server/include/server.h	/^    char *hostname;		\/\/ server hostname$/;"	m	struct:_Server	access:public
+hostname	server/include/server.h	/^    char *hostname;$/;"	m	struct:_Connection	access:public
+ht_alloc	common/hashtable.c	/^ht_alloc ()$/;"	f
+ht_alloc	common/include/hashtable.h	/^Hashtable *ht_alloc();$/;"	p	signature:()
+ht_alloc_type	common/hashtable.c	/^ht_alloc_type (struct elem_type_info_t key_type,$/;"	f	signature:(struct elem_type_info_t key_type, struct elem_type_info_t value_type)
+ht_alloc_type	common/include/hashtable.h	/^Hashtable *ht_alloc_type(struct elem_type_info_t key_type, struct elem_type_info_t value_type);$/;"	p	signature:(struct elem_type_info_t key_type, struct elem_type_info_t value_type)
+ht_capacity	common/hashtable.c	/^ht_capacity (Hashtable * this)$/;"	f	signature:(Hashtable * this)
+ht_capacity	common/include/hashtable.h	/^size_t ht_capacity(Hashtable *this);$/;"	p	signature:(Hashtable *this)
+ht_contains	common/hashtable.c	/^ht_contains (Hashtable * this, const void *key)$/;"	f	signature:(Hashtable * this, const void *key)
+ht_contains	common/include/hashtable.h	/^bool ht_contains(Hashtable *this, const void *key);$/;"	p	signature:(Hashtable *this, const void *key)
+ht_destroy	common/hashtable.c	/^ht_destroy (Hashtable * this)$/;"	f	signature:(Hashtable * this)
+ht_destroy	common/include/hashtable.h	/^void ht_destroy(Hashtable *this);$/;"	p	signature:(Hashtable *this)
+ht_find	common/hashtable.c	/^ht_find (Hashtable * this, const void *key)$/;"	f	signature:(Hashtable * this, const void *key)
+ht_find	common/include/hashtable.h	/^HTNode *ht_find(Hashtable *this, const void *key);$/;"	p	signature:(Hashtable *this, const void *key)
+ht_foreach	common/hashtable.c	/^ht_foreach (Hashtable * this, void (*callback) (void *key, void *value))$/;"	f	signature:(Hashtable * this, void (*callback) (void *key, void *value))
+ht_foreach	common/include/hashtable.h	/^void ht_foreach(Hashtable *this, void (*callback)(void *key, void *value));$/;"	p	signature:(Hashtable *this, void (*callback)(void *key, void *value))
+ht_free	common/hashtable.c	/^ht_free (Hashtable * this)$/;"	f	signature:(Hashtable * this)
+ht_free	common/include/hashtable.h	/^void ht_free(Hashtable *this);$/;"	p	signature:(Hashtable *this)
+ht_get	common/hashtable.c	/^ht_get (Hashtable * this, const void *key)$/;"	f	signature:(Hashtable * this, const void *key)
+ht_get	common/include/hashtable.h	/^void *ht_get(Hashtable *this, const void *key);$/;"	p	signature:(Hashtable *this, const void *key)
+ht_hash	common/hashtable.c	/^ht_hash (const void *key, int key_len, int seed)$/;"	f	signature:(const void *key, int key_len, int seed)
+ht_init	common/hashtable.c	/^ht_init (Hashtable * this)$/;"	f	signature:(Hashtable * this)
+ht_init	common/include/hashtable.h	/^void ht_init(Hashtable *this);$/;"	p	signature:(Hashtable *this)
+ht_iter_init	common/hashtable.c	/^ht_iter_init (HashtableIter * itr, Hashtable * ht)$/;"	f	signature:(HashtableIter * itr, Hashtable * ht)
+ht_iter_init	common/include/hashtable.h	/^void ht_iter_init(HashtableIter *itr, Hashtable *ht);$/;"	p	signature:(HashtableIter *itr, Hashtable *ht)
+ht_iter_next	common/hashtable.c	/^ht_iter_next (HashtableIter * itr, void **key_out, void **value_out)$/;"	f	signature:(HashtableIter * itr, void **key_out, void **value_out)
+ht_iter_next	common/include/hashtable.h	/^bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out);/;"	p	signature:(HashtableIter *itr, void **key_out, void **value_out)
+ht_print	common/hashtable.c	/^ht_print (Hashtable * this, char *(*key_to_string) (void *),$/;"	f	signature:(Hashtable * this, char *(*key_to_string) (void *), char *(*value_to_string) (void *))
+ht_print	common/include/hashtable.h	/^void ht_print(Hashtable *this, char *(*key_to_string)(void *), char *(*value_to_string)(void *));$/;"	p	signature:(Hashtable *this, char *(*key_to_string)(void *), char *(*value_to_string)(void *))
+ht_remove	common/hashtable.c	/^ht_remove (Hashtable * this, const void *key, void **key_out,$/;"	f	signature:(Hashtable * this, const void *key, void **key_out, void **value_out)
+ht_remove	common/include/hashtable.h	/^bool ht_remove(Hashtable *this, const void *key, void **key_out, void **value_out);$/;"	p	signature:(Hashtable *this, const void *key, void **key_out, void **value_out)
+ht_set	common/hashtable.c	/^ht_set (Hashtable * this, void *key, void *value)$/;"	f	signature:(Hashtable * this, void *key, void *value)
+ht_set	common/include/hashtable.h	/^void ht_set(Hashtable *this, void *key, void *value);$/;"	p	signature:(Hashtable *this, void *key, void *value)
+ht_size	common/hashtable.c	/^ht_size (Hashtable * this)$/;"	f	signature:(Hashtable * this)
+ht_size	common/include/hashtable.h	/^size_t ht_size(Hashtable *this);$/;"	p	signature:(Hashtable *this)
+inbox_thread_routine	client/client_threads.c	/^inbox_thread_routine (void *args)$/;"	f	signature:(void *args)
+inbox_thread_routine	client/include/client.h	/^void *inbox_thread_routine(void *args);$/;"	p	signature:(void *args)
+incoming_messages	server/include/server.h	/^    List *incoming_messages;	\/\/ queue of received messages$/;"	m	struct:_Connection	access:public
+index	common/include/hashtable.h	/^	size_t index;$/;"	m	struct:HashtableIter	access:public
+info	server/include/server.h	/^    char *info;$/;"	m	struct:_Server	access:public
+int_compare	common/common.c	/^int_compare (const void *key1, const void *key2)$/;"	f	signature:(const void *key1, const void *key2)
+int_compare	common/include/common.h	/^int int_compare(const void *key1, const void *key2); \/* integer comparator *\/$/;"	p	signature:(const void *key1, const void *key2)
+int_copy	common/common.c	/^int_copy (void *other_int)$/;"	f	signature:(void *other_int)
+int_copy	common/include/common.h	/^void *int_copy(void *other_int);                     \/* integer copy constructor *\/$/;"	p	signature:(void *other_int)
+int_to_string	test/test.c	/^int_to_string (void *integer)$/;"	f	signature:(void *integer)
+key	common/include/hashtable.h	/^	void *key;$/;"	m	struct:HTNode	access:public
+key_compare	common/include/hashtable.h	/^	int (*key_compare)(const void *, const void *);$/;"	m	struct:Hashtable	access:public
+key_copy	common/include/hashtable.h	/^	void *(*key_copy)(void *);$/;"	m	struct:Hashtable	access:public
+key_free	common/include/hashtable.h	/^	void (*key_free)(void *);$/;"	m	struct:Hashtable	access:public
+key_len	common/include/hashtable.h	/^	int key_len;$/;"	m	struct:Hashtable	access:public
+l	common/include/queue.h	/^    List *l;$/;"	m	struct:queue_t	access:public
+level	common/include/log.h	/^  int level;$/;"	m	struct:__anon1	access:public
+line	common/include/log.h	/^  int line;$/;"	m	struct:__anon1	access:public
+line_wrap_test	test/test.c	/^line_wrap_test (size_t width)$/;"	f	signature:(size_t width)
+load_channels	server/channel.c	/^Hashtable *load_channels(const char *filename)$/;"	f	signature:(const char *filename)
+load_channels	server/include/server.h	/^Hashtable *load_channels(const char *filename);$/;"	p	signature:(const char *filename)
+load_peers	server/include/server.h	/^Hashtable *load_peers(const char *config_filename);$/;"	p	signature:(const char *config_filename)
+log_Event	common/include/log.h	/^} log_Event;$/;"	t	typeref:struct:__anon1
+log_LockFn	common/include/log.h	/^typedef void (*log_LockFn)(bool lock, void *udata);$/;"	t
+log_LogFn	common/include/log.h	/^typedef void (*log_LogFn)(log_Event *ev);$/;"	t
+log_add_callback	common/include/log.h	/^int log_add_callback(log_LogFn fn, void *udata, int level);$/;"	p	signature:(log_LogFn fn, void *udata, int level)
+log_add_fp	common/include/log.h	/^int log_add_fp(FILE *fp, int level);$/;"	p	signature:(FILE *fp, int level)
+log_debug	common/include/log.h	34;"	d
+log_error	common/include/log.h	37;"	d
+log_fatal	common/include/log.h	38;"	d
+log_info	common/include/log.h	35;"	d
+log_level_string	common/include/log.h	/^const char* log_level_string(int level);$/;"	p	signature:(int level)
+log_log	common/include/log.h	/^void log_log(int level, const char *file, int line, const char *fmt, ...);$/;"	p	signature:(int level, const char *file, int line, const char *fmt, ...)
+log_set_level	common/include/log.h	/^void log_set_level(int level);$/;"	p	signature:(int level)
+log_set_lock	common/include/log.h	/^void log_set_lock(log_LockFn fn, void *udata);$/;"	p	signature:(log_LockFn fn, void *udata)
+log_set_quiet	common/include/log.h	/^void log_set_quiet(bool enable);$/;"	p	signature:(bool enable)
+log_test	test/test.c	/^log_test ()$/;"	f
+log_trace	common/include/log.h	33;"	d
+log_warn	common/include/log.h	36;"	d
+m	common/include/queue.h	/^    pthread_mutex_t m;$/;"	m	struct:queue_t	access:public
+main	client/client.c	/^main (int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
+main	server/main.c	/^int main(int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
+main	test/test.c	/^main (int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
+main	test/thread_signals.c	/^main (int argc, char *argv[])$/;"	f	signature:(int argc, char *argv[])
+make_string	common/common.c	/^make_string (char *format, ...)$/;"	f	signature:(char *format, ...)
+make_string	common/include/common.h	/^char *make_string(char *format, ...); \/* allocates a string from format string and args with exact size *\/$/;"	p	signature:(char *format, ...)
+members	server/include/server.h	/^    Hashtable *members;		\/\/ map username to User struct$/;"	m	struct:_Channel	access:public
+message	common/include/message.h	/^	char *message; \/\/Add original message string$/;"	m	struct:_Message	access:public
+message_destroy	common/include/message.h	/^void message_destroy(Message *msg);$/;"	p	signature:(Message *msg)
+message_destroy	common/message.c	/^message_destroy (Message * msg)$/;"	f	signature:(Message * msg)
+message_free_callback	common/message.c	/^message_free_callback (void *ptr)$/;"	f	signature:(void *ptr)
+message_init	common/include/message.h	/^void message_init(Message *msg);$/;"	p	signature:(Message *msg)
+message_init	common/message.c	/^message_init (Message * msg)$/;"	f	signature:(Message * msg)
+message_test	test/test.c	/^message_test ()$/;"	f
+mode	server/include/server.h	/^    int mode;			\/\/ channel mode$/;"	m	struct:_Channel	access:public
+motd_file	server/include/server.h	/^    char *motd_file;		\/\/ file to use for message of the day greetings$/;"	m	struct:_Server	access:public
+msg_queue	server/include/server.h	/^    List *msg_queue;$/;"	m	struct:_Peer	access:public
+msg_queue	server/include/server.h	/^    List *msg_queue;$/;"	m	struct:_User	access:public
+mutex	client/client.c	/^pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+mutex_stdout	client/client.c	/^pthread_mutex_t mutex_stdout = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+n_params	common/include/message.h	/^	size_t n_params;$/;"	m	struct:_Message	access:public
+name	server/include/server.h	/^    char *name;			\/\/ name of channel$/;"	m	struct:_Channel	access:public
+name	server/include/server.h	/^    char *name;			\/\/ name of this server$/;"	m	struct:_Server	access:public
+name	server/include/server.h	/^    char *name;$/;"	m	struct:_Peer	access:public
+name	server/server.c	/^    const char *name;		\/* command name *\/$/;"	m	struct:_PeerRequestHandler	file:	access:public
+name	server/server.c	/^    const char *name;		\/* command name *\/$/;"	m	struct:_UserRequestHandler	file:	access:public
+name_to_channel_map	server/include/server.h	/^    Hashtable *name_to_channel_map;	\/\/ Map channel name to channel struct$/;"	m	struct:_Server	access:public
+name_to_peer_map	server/include/server.h	/^    Hashtable *name_to_peer_map;	\/\/ Map server name to peer struct$/;"	m	struct:_Server	access:public
+next	common/include/hashtable.h	/^	struct HTNode *next;$/;"	m	struct:HTNode	typeref:struct:HTNode::HTNode	access:public
+next	common/include/list.h	/^	struct ListNode *next;$/;"	m	struct:ListNode	typeref:struct:ListNode::ListNode	access:public
+nick	server/include/server.h	/^    char *nick;			\/\/ display name$/;"	m	struct:_User	access:public
+nick_changed	server/include/server.h	/^    bool nick_changed;		\/\/ flag to indicate user has set a nick$/;"	m	struct:_User	access:public
+nick_to_serv_name_map	server/include/server.h	/^    Hashtable *nick_to_serv_name_map;	\/\/ Map nick to name of server which has user$/;"	m	struct:_Server	access:public
+nick_to_user_map	server/include/server.h	/^    Hashtable *nick_to_user_map;	\/\/ Map nick to user struct on this server$/;"	m	struct:_Server	access:public
+nicks	server/include/server.h	/^    Vector *nicks;		\/\/ nick of users behind this server$/;"	m	struct:_Peer	access:public
+node	common/include/hashtable.h	/^	HTNode *node;$/;"	m	struct:HashtableIter	access:public
+origin	common/include/message.h	/^	char *origin;$/;"	m	struct:_Message	access:public
+outbox_thread_routine	client/client_threads.c	/^outbox_thread_routine (void *args)$/;"	f	signature:(void *args)
+outbox_thread_routine	client/include/client.h	/^void *outbox_thread_routine(void *args);$/;"	p	signature:(void *args)
+outgoing_messages	server/include/server.h	/^    List *outgoing_messages;	\/\/ queue of messages to deliver$/;"	m	struct:_Connection	access:public
+params	common/include/message.h	/^	char *params[MAX_MSG_PARAM];$/;"	m	struct:_Message	access:public
+parse_all_messages	common/include/message.h	/^Vector *parse_all_messages(char *str);$/;"	p	signature:(char *str)
+parse_all_messages	common/message.c	/^parse_all_messages (char *str)$/;"	f	signature:(char *str)
+parse_message	common/include/message.h	/^int parse_message(char *str, Message *msg);$/;"	p	signature:(char *str, Message *msg)
+parse_message	common/message.c	/^parse_message (char *str, Message * msg)$/;"	f	signature:(char *str, Message * msg)
+parse_message_list	common/include/message.h	/^Vector *parse_message_list(List *list);/;"	p	signature:(List *list)
+parse_message_list	common/message.c	/^parse_message_list (List * list)$/;"	f	signature:(List * list)
+passwd	server/include/server.h	/^    char *passwd;$/;"	m	struct:_Peer	access:public
+passwd	server/include/server.h	/^    char *passwd;$/;"	m	struct:_Server	access:public
+peer_host	server/include/server.h	/^    char *peer_host;$/;"	m	struct:peer_info_t	access:public
+peer_info_t	server/include/server.h	/^typedef struct peer_info_t {$/;"	s
+peer_info_t	server/include/server.h	/^} peer_info_t;$/;"	t	typeref:struct:peer_info_t
+peer_info_t::peer_host	server/include/server.h	/^    char *peer_host;$/;"	m	struct:peer_info_t	access:public
+peer_info_t::peer_name	server/include/server.h	/^    char *peer_name;$/;"	m	struct:peer_info_t	access:public
+peer_info_t::peer_passwd	server/include/server.h	/^    char *peer_passwd;$/;"	m	struct:peer_info_t	access:public
+peer_info_t::peer_port	server/include/server.h	/^    char *peer_port;$/;"	m	struct:peer_info_t	access:public
+peer_name	server/include/server.h	/^    char *peer_name;$/;"	m	struct:peer_info_t	access:public
+peer_passwd	server/include/server.h	/^    char *peer_passwd;$/;"	m	struct:peer_info_t	access:public
+peer_port	server/include/server.h	/^    char *peer_port;$/;"	m	struct:peer_info_t	access:public
+peer_request_handlers	server/server.c	/^static PeerRequestHandler peer_request_handlers[] = {$/;"	v	file:
+port	server/include/server.h	/^    char *port;			\/\/ server port$/;"	m	struct:_Server	access:public
+port	server/include/server.h	/^    int port;$/;"	m	struct:_Connection	access:public
+prev	common/include/list.h	/^	struct ListNode *prev;$/;"	m	struct:ListNode	typeref:struct:ListNode::ListNode	access:public
+print	test/test.c	/^print (char *key, struct s *value)$/;"	f	signature:(char *key, struct s *value)
+ptr_to_string	common/hashtable.c	/^ptr_to_string (void *ptr)$/;"	f	signature:(void *ptr)
+queue_alloc	common/include/queue.h	/^queue_t *queue_alloc();$/;"	p	signature:()
+queue_alloc	common/queue.c	/^queue_alloc ()$/;"	f
+queue_dequeue	common/include/queue.h	/^void *queue_dequeue(queue_t *q);/;"	p	signature:(queue_t *q)
+queue_dequeue	common/queue.c	/^queue_dequeue (queue_t * q)$/;"	f	signature:(queue_t * q)
+queue_destroy	common/include/queue.h	/^void queue_destroy(queue_t *q, void (*free_callback)(void *));$/;"	p	signature:(queue_t *q, void (*free_callback)(void *))
+queue_destroy	common/queue.c	/^queue_destroy (queue_t * q, void (*free_callback) (void *))$/;"	f	signature:(queue_t * q, void (*free_callback) (void *))
+queue_enqueue	common/include/queue.h	/^void queue_enqueue(queue_t *q, void *data);$/;"	p	signature:(queue_t *q, void *data)
+queue_enqueue	common/queue.c	/^queue_enqueue (queue_t * q, void *data)$/;"	f	signature:(queue_t * q, void *data)
+queue_free	common/include/queue.h	/^void queue_free(queue_t *q, void (*free_callback)(void *));$/;"	p	signature:(queue_t *q, void (*free_callback)(void *))
+queue_free	common/queue.c	/^queue_free (queue_t * q, void (*free_callback) (void *))$/;"	f	signature:(queue_t * q, void (*free_callback) (void *))
+queue_init	common/include/queue.h	/^void queue_init(queue_t *q);$/;"	p	signature:(queue_t *q)
+queue_init	common/queue.c	/^queue_init (queue_t * q)$/;"	f	signature:(queue_t * q)
+queue_t	common/include/queue.h	/^typedef struct queue_t {$/;"	s
+queue_t	common/include/queue.h	/^} queue_t;$/;"	t	typeref:struct:queue_t
+queue_t::cv	common/include/queue.h	/^    pthread_cond_t cv;$/;"	m	struct:queue_t	access:public
+queue_t::l	common/include/queue.h	/^    List *l;$/;"	m	struct:queue_t	access:public
+queue_t::m	common/include/queue.h	/^    pthread_mutex_t m;$/;"	m	struct:queue_t	access:public
+queue_test	test/test.c	/^queue_test ()$/;"	f
+quit	server/include/server.h	/^    bool quit;			\/\/ flag to indicate server leaving$/;"	m	struct:_Peer	access:public
+quit	server/include/server.h	/^    bool quit;			\/\/ flag to indicate user is leaving server$/;"	m	struct:_User	access:public
+quit	server/include/server.h	/^    bool quit;$/;"	m	struct:_Connection	access:public
+read_all	common/common.c	/^read_all (int fd, char *buf, size_t len)$/;"	f	signature:(int fd, char *buf, size_t len)
+read_all	common/include/common.h	/^ssize_t read_all(int fd, char *buf, size_t len);  \/* read all bytes from fd to buffer *\/$/;"	p	signature:(int fd, char *buf, size_t len)
+read_test	test/test.c	/^read_test (const char *filename)$/;"	f	signature:(const char *filename)
+reader_thread_routine	client/client_threads.c	/^reader_thread_routine (void *args)$/;"	f	signature:(void *args)
+reader_thread_routine	client/include/client.h	/^void *reader_thread_routine(void *args);$/;"	p	signature:(void *args)
+readlines	common/common.c	/^readlines (const char *filename)$/;"	f	signature:(const char *filename)
+readlines	common/include/common.h	/^Vector *readlines(const char *filename); \/* Returns a vector of lines in given file *\/$/;"	p	signature:(const char *filename)
+realname	server/include/server.h	/^    char *realname;		\/\/ full name$/;"	m	struct:_User	access:public
+registered	server/include/server.h	/^    bool registered;		\/\/ flag to indicate user has registered with username,$/;"	m	struct:_User	access:public
+registered	server/include/server.h	/^    bool registered;$/;"	m	struct:_Peer	access:public
+req_buf	server/include/server.h	/^    char req_buf[MAX_MSG_LEN + 1];	\/\/ request buffer$/;"	m	struct:_Connection	access:public
+req_len	server/include/server.h	/^    size_t req_len;		\/\/ request buffer length$/;"	m	struct:_Connection	access:public
+res_buf	server/include/server.h	/^    char res_buf[MAX_MSG_LEN + 1];	\/\/ response buffer$/;"	m	struct:_Connection	access:public
+res_len	server/include/server.h	/^    size_t res_len;		\/\/ response buffer length$/;"	m	struct:_Connection	access:public
+res_off	server/include/server.h	/^    size_t res_off;		\/\/ num bytes sent from response buffer$/;"	m	struct:_Connection	access:public
+rstrstr	common/common.c	/^rstrstr (char *string, char *pattern)$/;"	f	signature:(char *string, char *pattern)
+rstrstr	common/include/common.h	/^char *rstrstr(char *string, char *pattern); \/* reverse strstr: returns pointer to last occurrence of pattern in string *\/$/;"	p	signature:(char *string, char *pattern)
+s	test/test.c	/^struct s$/;"	s	file:
+s::x	test/test.c	/^  int x;$/;"	m	struct:s	file:	access:public
+save_channels	server/channel.c	/^void save_channels(Hashtable * hashtable, const char *filename)$/;"	f	signature:(Hashtable * hashtable, const char *filename)
+save_channels	server/include/server.h	/^void save_channels(Hashtable * hashtable, const char *filename);$/;"	p	signature:(Hashtable * hashtable, const char *filename)
+seed	common/include/hashtable.h	/^	int seed;$/;"	m	struct:Hashtable	access:public
+send_motd_reply	server/reply.c	/^void send_motd_reply(Server * serv, User * usr)$/;"	f	signature:(Server * serv, User * usr)
+send_names_reply	server/reply.c	/^void send_names_reply(Server * serv, User * usr, Channel * channel)$/;"	f	signature:(Server * serv, User * usr, Channel * channel)
+send_topic_reply	server/reply.c	/^void send_topic_reply(Server * serv, User * usr, Channel * channel)$/;"	f	signature:(Server * serv, User * usr, Channel * channel)
+send_welcome_reply	server/reply.c	/^void send_welcome_reply(Server * serv, User * usr)$/;"	f	signature:(Server * serv, User * usr)
+send_who_reply	server/reply.c	/^send_who_reply(Server * serv, User * usr, Channel * target_channel,$/;"	f	signature:(Server * serv, User * usr, Channel * target_channel, User * target_usr)
+servaddr	server/include/server.h	/^    struct sockaddr_in servaddr;	\/\/ address info for server$/;"	m	struct:_Server	typeref:struct:_Server::sockaddr_in	access:public
+shallow_compare	common/common_types.c	/^shallow_compare (void *elem1, void *elem2)$/;"	f	signature:(void *elem1, void *elem2)
+shallow_copy	common/common_types.c	/^shallow_copy (void *elem)$/;"	f	signature:(void *elem)
+shallow_free	common/common_types.c	/^shallow_free (void *elem)$/;"	f	signature:(void *elem)
+sighandler	server/main.c	/^void sighandler(int sig)$/;"	f	signature:(int sig)
+sighandler	server/main.c	/^void sighandler(int sig);$/;"	p	file:	signature:(int sig)
+signal_thread	test/thread_signals.c	/^signal_thread (void *arg)$/;"	f	signature:(void *arg)
+size	common/include/hashtable.h	/^	size_t size;$/;"	m	struct:Hashtable	access:public
+size	common/include/list.h	/^	size_t size;$/;"	m	struct:List	access:public
+size	common/include/sstring.h	/^    size_t size;$/;"	m	struct:_sstring	access:public
+size	common/include/vector.h	/^	size_t size;$/;"	m	struct:Vector	access:public
+sstring	common/include/sstring.h	/^} sstring;$/;"	t	typeref:struct:_sstring
+sstring_add_char	common/include/sstring.h	/^void sstring_add_char(sstring *this, char c);$/;"	p	signature:(sstring *this, char c)
+sstring_add_char	common/sstring.c	/^sstring_add_char (sstring * this, char c)$/;"	f	signature:(sstring * this, char c)
+sstring_add_string	common/include/sstring.h	/^void sstring_add_string(sstring *this, char *cstr);$/;"	p	signature:(sstring *this, char *cstr)
+sstring_add_string	common/sstring.c	/^sstring_add_string (sstring * this, char *cstr)$/;"	f	signature:(sstring * this, char *cstr)
+sstring_append	common/include/sstring.h	/^void sstring_append(sstring *this, const sstring *other);$/;"	p	signature:(sstring *this, const sstring *other)
+sstring_append	common/sstring.c	/^sstring_append (sstring * this, const sstring * other)$/;"	f	signature:(sstring * this, const sstring * other)
+sstring_capacity	common/include/sstring.h	/^size_t sstring_capacity(const sstring *this);$/;"	p	signature:(const sstring *this)
+sstring_capacity	common/sstring.c	/^sstring_capacity (const sstring * this)$/;"	f	signature:(const sstring * this)
+sstring_create	common/include/sstring.h	/^sstring *sstring_create();$/;"	p	signature:()
+sstring_create	common/sstring.c	/^sstring_create ()$/;"	f
+sstring_create1	common/include/sstring.h	/^sstring *sstring_create1(size_t n);$/;"	p	signature:(size_t n)
+sstring_create1	common/sstring.c	/^sstring_create1 (size_t n)$/;"	f	signature:(size_t n)
+sstring_destro	common/include/sstring.h	/^void sstring_destro(sstring *this);$/;"	p	signature:(sstring *this)
+sstring_destroy	common/sstring.c	/^sstring_destroy (sstring * this)$/;"	f	signature:(sstring * this)
+sstring_reserve	common/include/sstring.h	/^void sstring_reserve(sstring *this, size_t capacity);$/;"	p	signature:(sstring *this, size_t capacity)
+sstring_reserve	common/sstring.c	/^sstring_reserve (sstring * this, size_t capacity)$/;"	f	signature:(sstring * this, size_t capacity)
+sstring_resize	common/include/sstring.h	/^void sstring_resize(sstring *this, size_t size);$/;"	p	signature:(sstring *this, size_t size)
+sstring_resize	common/sstring.c	/^sstring_resize (sstring * this, size_t size)$/;"	f	signature:(sstring * this, size_t size)
+sstring_size	common/include/sstring.h	/^size_t sstring_size(const sstring *this);$/;"	p	signature:(const sstring *this)
+sstring_size	common/sstring.c	/^sstring_size (const sstring * this)$/;"	f	signature:(const sstring * this)
+sstring_slice	common/include/sstring.h	/^char *sstring_slice(sstring *this, size_t start, size_t end);$/;"	p	signature:(sstring *this, size_t start, size_t end)
+sstring_slice	common/sstring.c	/^sstring_slice (sstring * this, size_t start, size_t end)$/;"	f	signature:(sstring * this, size_t start, size_t end)
+sstring_to_cstring	common/include/sstring.h	/^char *sstring_to_cstring(sstring *this);$/;"	p	signature:(sstring *this)
+sstring_to_cstring	common/sstring.c	/^sstring_to_cstring (sstring * this)$/;"	f	signature:(sstring * this)
+status	server/include/server.h	/^    int status;			\/\/ to indicate if user online or offline$/;"	m	struct:_User	access:public
+string_to_string	test/test.c	/^string_to_string (char *string)$/;"	f	signature:(char *string)
+struct_copy	test/test.c	/^struct_copy (struct s *other)$/;"	f	signature:(struct s *other)
+struct_free	test/test.c	/^struct_free (struct s *other)$/;"	f	signature:(struct s *other)
+subject	server/include/server.h	/^    const char *subject;$/;"	m	struct:help_t	access:public
+table	common/include/hashtable.h	/^	HTNode **table;$/;"	m	struct:Hashtable	access:public
+tail	common/include/list.h	/^	ListNode *tail;$/;"	m	struct:List	access:public
+text_wrap	common/common.c	/^text_wrap (const char *str, const size_t line_width)$/;"	f	signature:(const char *str, const size_t line_width)
+text_wrap	common/include/common.h	/^Vector *text_wrap(const char *str, const size_t line_width);$/;"	p	signature:(const char *str, const size_t line_width)
+time	common/include/log.h	/^  struct tm *time;$/;"	m	struct:__anon1	typeref:struct:__anon1::tm	access:public
+time_created	server/include/server.h	/^    time_t time_created;	\/\/ time channel was created$/;"	m	struct:_Channel	access:public
+title	server/include/server.h	/^    const char *title;$/;"	m	struct:help_t	access:public
+topic	server/include/server.h	/^    char *topic;		\/\/ channel topic$/;"	m	struct:_Channel	access:public
+trimwhitespace	common/common.c	/^trimwhitespace (char *str)$/;"	f	signature:(char *str)
+trimwhitespace	common/include/common.h	/^char *trimwhitespace(char *str);$/;"	p	signature:(char *str)
+udata	common/include/log.h	/^  void *udata;$/;"	m	struct:__anon1	access:public
+user_request_handlers	server/server.c	/^static UserRequestHandler user_request_handlers[] = {$/;"	v	file:
+username	server/include/server.h	/^    char *username;		\/\/ unique identifier$/;"	m	struct:_User	access:public
+value	common/include/hashtable.h	/^	void *value;$/;"	m	struct:HTNode	access:public
+value_copy	common/include/hashtable.h	/^	void *(*value_copy)(void *);$/;"	m	struct:Hashtable	access:public
+value_free	common/include/hashtable.h	/^	void (*value_free)(void *);$/;"	m	struct:Hashtable	access:public
+vector_test	test/test.c	/^vector_test ()$/;"	f
+word_len	common/common.c	/^word_len (const char *str)$/;"	f	signature:(const char *str)
+word_len	common/include/common.h	/^size_t word_len(const char *str);$/;"	p	signature:(const char *str)
+write_all	common/common.c	/^write_all (int fd, char *buf, size_t len)$/;"	f	signature:(int fd, char *buf, size_t len)
+write_all	common/include/common.h	/^ssize_t write_all(int fd, char *buf, size_t len); \/* write all bytes from fd to buffer *\/$/;"	p	signature:(int fd, char *buf, size_t len)
+x	test/test.c	/^  int x;$/;"	m	struct:s	file:	access:public
