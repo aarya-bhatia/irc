@@ -694,10 +694,9 @@ void Server_handle_PART(Server * serv, User * usr, Message * msg)
 	    User_create_message(usr, "PART #%s :%s", channel->name, reason);
 
 	Channel_remove_member(channel, usr);	// Remove user from channel's list
-	Server_message_channel(serv, serv->name, channel_name + 1, broadcast_message);	// send message to all channel members
-
-	// remove channel from user's personal list
 	User_remove_channel(usr, channel->name);
+	
+	Server_message_channel(serv, serv->name, channel_name, broadcast_message);	// send message to all channel members
 
 	free(broadcast_message);
 	free(reason);

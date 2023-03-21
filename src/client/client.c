@@ -37,6 +37,13 @@ int main(int argc, char *argv[])
 	pthread_create(&inbox_thread, NULL, inbox_thread_routine, &client);
 	pthread_create(&reader_thread, NULL, reader_thread_routine, &client);
 
+	if(argc == 6) {
+		char *nick = argv[3];
+		char *username = argv[4];
+		char *realname = argv[5];
+		queue_enqueue(client.client_outbox, make_string("NICK %s\r\nUSER %s * * :%s\r\n", nick, username, realname));
+	}
+
 	char *line = NULL;	// buffer to store user input
 	size_t line_len = 0;	// length of line buffer
 
