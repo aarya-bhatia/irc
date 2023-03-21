@@ -67,11 +67,12 @@ typedef struct _Server {
 
 typedef struct _Peer {
 	char *name;
-	char *passwd;
 	bool registered;
 	bool quit;		// flag to indicate server leaving
 	List *msg_queue;
 	Vector *nicks;		// nick of users behind this server
+
+	enum { ACTIVE_SERVER, PASSIVE_SERVER } server_type;
 } Peer;
 
 typedef struct peer_info_t {
@@ -131,7 +132,6 @@ void Server_message_channel(Server * serv, const char *origin, const char *targe
 void Server_message_user(Server * serv, const char *origin, const char *target, const char *message);
 void Server_relay_message(Server * serv, const char *origin, const char *message);
 
-bool Server_add_peer(Server * serv, const char *name, const char *port);
 bool Server_add_connection(Server * serv, Connection * connection);
 void Server_remove_connection(Server * serv, Connection * connection);
 

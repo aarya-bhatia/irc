@@ -97,7 +97,8 @@ int connect_to_host(char *hostname, char *port)
 	int fd;
 
 	struct addrinfo *itr = NULL;
-	for (; itr != NULL; itr = itr->ai_next) {
+
+	for (itr = info; itr != NULL; itr = itr->ai_next) {
 		fd = socket(itr->ai_family, itr->ai_socktype, itr->ai_protocol);
 
 		if (fd == -1) {

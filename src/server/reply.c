@@ -710,51 +710,6 @@ void Server_handle_PART(Server * serv, User * usr, Message * msg)
 }
 
 /**
- * Command: CONNECT
- * Parameters: <target server> [<port> [<remote server>]]
- *
- * The CONNECT command forces a server to try to establish a new connection to
- * another server. CONNECT is a privileged command and is available only to IRC
- * Operators. If a remote server is given, the connection is attempted by that
- * remote server to <target server> using <port>.
- */
-void Server_handle_CONNECT(Server * serv, User * usr, Message * msg)
-{
-	// TODO
-
-	assert(!strcmp(msg->command, "CONNECT"));
-
-	if (msg->n_params == 0) {
-		List_push_back(usr->msg_queue,
-			       Server_create_message(serv,
-						     ERR_NEEDMOREPARAMS_MSG,
-						     usr->nick, msg->command));
-		return;
-	}
-
-	char *target_server = msg->params[0];
-	assert(target_server);
-
-	if (!strcmp(serv->hostname, target_server)) {
-		return;
-	}
-
-	struct peer_info_t target_info;
-
-	if (!get_peer_info(serv->config_file, target_server, &target_info)) {
-		List_push_back(usr->msg_queue,
-			       Server_create_message(serv, ERR_NOSUCHSERVER_MSG,
-						     usr->nick, target_server));
-
-		free(target_info.peer_host);
-		free(target_info.peer_name);
-		free(target_info.peer_passwd);
-		free(target_info.peer_port);
-		return;
-	}
-}
-
-/**
  * Returns statistics about local and global users, as numeric replies.
  *
  * TODO
@@ -889,11 +844,7 @@ void Server_handle_NOTICE(Server * serv, User * usr, Message * msg)
 
 void check_peer_registration(Server * serv, Peer * peer)
 {
-	if (peer->registered) {
-		return;
-	}
-
-	if (!peer->passwd || !peer->name) {
+	if (peer->registered || peer->quit || !peer->name) {
 		return;
 	}
 
@@ -906,37 +857,62 @@ void check_peer_registration(Server * serv, Peer * peer)
 		return;
 	}
 
-	if (strcmp(peer->passwd, serv->passwd) != 0) {
-		List_push_back(peer->msg_queue,
-			       make_string("ERROR :Bad password\r\n"));
-		peer->quit = true;
-		return;
-	}
+	if(peer->server_type == PASSIVE_SERVER) {
+		char *other_passwd = get_server_passwd(serv->config_file, peer->name);
 
-	char *other_passwd = NULL;
+		if (!other_passwd) {
+			List_push_back(peer->msg_queue, make_string ("ERROR :Server not configured here\r\n"));
+			peer->quit = true;
+			return;
+		}
 
-	if (!(other_passwd = get_server_passwd(serv->config_file, peer->name))) {
 		List_push_back(peer->msg_queue,
-			       make_string
-			       ("ERROR :Server not configured here\r\n"));
-		peer->quit = true;
+				Server_create_message(serv, "PASS %s 0210 |",
+							other_passwd));
+
+		List_push_back(peer->msg_queue,
+				Server_create_message(serv, "SERVER %s :%s",
+							serv->hostname, serv->info));
+
+		free(other_passwd);
+
 		return;
 	}
 
 	peer->registered = true;
 
+	// State information exchange
+
+	HashtableIter itr;
+	ht_iter_init(&itr, serv->nick_to_user_map);
+	User *other_user = NULL;
+	while(ht_iter_next(&itr, NULL, (void **) &other_user)) {
+		if(other_user->registered && !other_user->quit) {
+			List_push_back(peer->msg_queue, 
+				Server_create_message(serv, "%s 1 %s %s 1 + :%s", other_user->nick,
+						other_user->username, other_user->hostname,
+						other_user->realname));
+		}
+	}
+
+	ht_iter_init(&itr, serv->name_to_peer_map);
+	Peer *other_peer = NULL;
+	while(ht_iter_next(&itr, NULL, (void **) &other_peer)) {
+		if(other_peer->registered && !other_peer->quit) {
+			List_push_back(peer->msg_queue, 
+				Server_create_message(serv, "SERVER %s", other_peer->name));
+		}
+	}
+
+	ht_iter_init(&itr, serv->name_to_channel_map);
+	Channel *other_channel = NULL;
+	while(ht_iter_next(&itr, NULL, (void **) &other_channel)) {
+		List_push_back(peer->msg_queue, 
+			Server_create_message(serv, "MODE #%s", other_channel->name));
+	}
+
 	log_info("Server %s has registered", peer->name);
-
 	ht_set(serv->name_to_peer_map, peer->name, peer);
-
-	List_push_back(peer->msg_queue,
-		       Server_create_message(serv, "PASS %s 0210 |",
-					     other_passwd));
-	List_push_back(peer->msg_queue,
-		       Server_create_message(serv, "SERVER %s :%s",
-					     serv->hostname, serv->info));
-
-	free(other_passwd);
 }
 
 void Server_handle_INFO(Server * serv, User * usr, Message * msg)
@@ -973,15 +949,82 @@ void Server_handle_SERVER(Server * serv, Peer * peer, Message * msg)
 		return;
 	}
 
-	free(peer->name);
-
 	char *serv_name = msg->params[0];
 	assert(serv_name);
 
+	free(peer->name);
 	peer->name = strdup(serv_name);
 
 	check_peer_registration(serv, peer);
 }
+
+/**
+ * Command: CONNECT
+ * Parameters: <target server> [<port> [<remote server>]]
+ *
+ * The CONNECT command forces a server to try to establish a new connection to
+ * another server. CONNECT is a privileged command and is available only to IRC
+ * Operators. If a remote server is given, the connection is attempted by that
+ * remote server to <target server> using <port>.
+ */
+void Server_handle_CONNECT(Server * serv, User * usr, Message * msg)
+{
+	assert(!strcmp(msg->command, "CONNECT"));
+
+	if (msg->n_params == 0) {
+		List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG, usr->nick, msg->command));
+		return;
+	}
+
+	char *target_server = msg->params[0];
+	assert(target_server);
+
+	if (!strcmp(serv->hostname, target_server)) {
+		return;
+	}
+
+	struct peer_info_t target_info;
+
+	if (!get_peer_info(serv->config_file, target_server, &target_info)) {
+		List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHSERVER_MSG, usr->nick, target_server));
+		free(target_info.peer_host);
+		free(target_info.peer_name);
+		free(target_info.peer_passwd);
+		free(target_info.peer_port);
+		return;
+	} 
+
+	int fd = connect_to_host(target_info.peer_host, target_info.peer_port);
+
+	if (fd == -1) {
+		return;
+	}
+
+	Connection *conn = calloc(1, sizeof *conn);
+	conn->fd = fd;
+	conn->hostname = target_info.peer_host;
+	conn->port = atoi(target_info.peer_port);
+	conn->incoming_messages = List_alloc(NULL, free);
+	conn->outgoing_messages = List_alloc(NULL, free);
+
+	Server_add_connection(serv, conn);
+
+	Peer *peer = Peer_alloc();
+	peer->name = target_info.peer_name;
+	peer->server_type = PASSIVE_SERVER;
+
+	conn->conn_type = PEER_CONNECTION;
+	conn->data = peer;
+
+	ht_set(serv->name_to_peer_map, target_info.peer_name, peer);
+
+	List_push_back(conn->outgoing_messages, make_string("PASS %s * *\r\n", target_info.peer_passwd));
+	List_push_back(conn->outgoing_messages, make_string("SERVER %s\r\n", serv->name));
+
+	free(target_info.peer_passwd);
+	free(target_info.peer_port);
+}
+
 
 /**
  * Command: PASS
@@ -1010,8 +1053,12 @@ void Server_handle_PASS(Server * serv, Peer * peer, Message * msg)
 	char *passwd = msg->params[0];
 	assert(passwd);
 
-	free(peer->passwd);
-	peer->passwd = strdup(passwd);
+	if (strcmp(passwd, serv->passwd) != 0) {
+		List_push_back(peer->msg_queue,
+			       make_string("ERROR :Bad password\r\n"));
+		peer->quit = true;
+		return;
+	}
 
 	check_peer_registration(serv, peer);
 }

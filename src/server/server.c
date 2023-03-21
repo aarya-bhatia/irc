@@ -270,6 +270,7 @@ void Server_process_request_from_unknown(Server * serv, Connection * conn)
 	} else if (strncmp(message, "PASS", 4) == 0) {
 		conn->conn_type = PEER_CONNECTION;
 		conn->data = Peer_alloc();
+		((Peer *) conn->data)->server_type = ACTIVE_SERVER;
 	} else {
 		// Ignore message
 		List_pop_front(conn->incoming_messages);
@@ -580,6 +581,8 @@ void Server_remove_connection(Server * serv, Connection * connection)
 			}
 		}
 
+		Server_relay_message(serv, serv->name, Server_create_message(serv, "QUIT :%s", "closing link"));
+
 		User_free(usr);
 	} else if (connection->conn_type == PEER_CONNECTION) {
 		Peer *peer = connection->data;
@@ -597,63 +600,10 @@ void Server_remove_connection(Server * serv, Connection * connection)
 				  NULL);
 		}
 
+		Server_relay_message(serv, serv->name, Server_create_message(serv, "SQUIT %s :%s", peer->name, "closing link"));
+
 		Peer_free(peer);
 	}
 
 	Connection_free(connection);
-}
-
-/**
- * TODO
- */
-bool Server_add_peer(Server * serv, const char *name, const char *port)
-{
-	// Load server info from file
-	FILE *file = fopen(serv->config_file, "r");
-
-	if (!file) {
-		log_error("failed to open config file %s", serv->config_file);
-		return false;
-	}
-
-	struct peer_info_t peer_info;
-
-	if (!get_peer_info(serv->config_file, name, &peer_info)) {
-		return false;
-	}
-
-	int fd = connect_to_host(peer_info.peer_host,
-				 port ? port : peer_info.peer_port);
-
-	if (fd == -1) {
-		return false;
-	}
-
-	Connection *conn = calloc(1, sizeof *conn);
-	conn->fd = fd;
-	conn->hostname = strdup(peer_info.peer_host);
-	conn->port = atoi(peer_info.peer_port);
-	conn->incoming_messages = List_alloc(NULL, free);
-	conn->outgoing_messages = List_alloc(NULL, free);
-
-	Peer *peer = Peer_alloc();
-	peer->name = strdup(peer_info.peer_name);
-
-	conn->conn_type = PEER_CONNECTION;
-	conn->data = peer;
-
-	ht_set(serv->connections, &fd, conn);
-	ht_set(serv->name_to_peer_map, peer_info.peer_name, peer);
-
-	List_push_back(conn->outgoing_messages,
-		       make_string("PASS %s * *\r\n", peer_info.peer_passwd));
-	List_push_back(conn->outgoing_messages,
-		       make_string("SERVER %s :\r\n", serv->name));
-
-	free(peer_info.peer_host);
-	free(peer_info.peer_name);
-	free(peer_info.peer_port);
-	free(peer_info.peer_passwd);
-
-	return true;
 }
