@@ -130,7 +130,7 @@ Server *Server_create(const char *name) {
 
     serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);         /* Map<int, Connection *> */
     serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, Peer *> */
-    serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);  /* Map<string, string> */
+    serv->nick_to_serv_name_map = ht_alloc_type(STRING_TYPE, STRING_TYPE);  /* Map<string, string> */
     serv->channel_to_serv_name_map =
         ht_alloc_type(STRING_TYPE, STRING_TYPE);                       /* Map<string, string> */
     serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, User*>*/
