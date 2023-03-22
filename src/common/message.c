@@ -32,7 +32,15 @@ void message_free_callback(void *ptr)
 
 Vector *parse_message_list(List * list)
 {
-	Vector *array = Vector_alloc(4, NULL, message_free_callback);	// initialise a message vector with shallow copy and destructor
+	Vector *array = Vector_alloc(4, NULL, message_free_callback);	// initialise 
+	// a 
+	// message 
+	// vector 
+	// with 
+	// shallow 
+	// copy 
+	// and 
+	// destructor
 
 	int ret;
 
@@ -64,7 +72,15 @@ Vector *parse_all_messages(char *str)
 
 	int ret;
 
-	Vector *array = Vector_alloc(4, NULL, message_free_callback);	// initialise a message vector with shallow copy and destructor
+	Vector *array = Vector_alloc(4, NULL, message_free_callback);	// initialise 
+	// a 
+	// message 
+	// vector 
+	// with 
+	// shallow 
+	// copy 
+	// and 
+	// destructor
 
 	while (tok) {
 		Message *msg = calloc(1, sizeof *msg);
@@ -139,8 +155,8 @@ int parse_message(char *str, Message * msg)
 	msg->n_params = i;
 
 	// for (size_t j = 0; j < i; j++)
-	//{
-	//      log_debug("Param %d: %s", j + 1, msg->params[j]);
+	// {
+	// log_debug("Param %d: %s", j + 1, msg->params[j]);
 	// }
 
 	return 0;

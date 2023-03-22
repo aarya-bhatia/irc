@@ -93,9 +93,8 @@ int main(int argc, char *argv[])
 				}
 
 				if (connection->quit
-				    && List_size(connection->
-						 outgoing_messages) == 0
-				    && connection->res_len == 0) {
+				    && List_size(connection->outgoing_messages)
+				    == 0 && connection->res_len == 0) {
 					Server_remove_connection(serv,
 								 connection);
 					continue;

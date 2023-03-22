@@ -229,7 +229,7 @@ ssize_t read_all(int fd, char *buf, size_t len)
 		} else if (ret == -1) {
 			// if (errno == EINTR)
 			// {
-			//      continue;
+			// continue;
 			// }
 
 			if (errno == EAGAIN || errno == EWOULDBLOCK) {

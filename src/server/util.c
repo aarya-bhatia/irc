@@ -29,7 +29,9 @@ char *get_motd(char *fname)
 
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
-	size_t line_no = tm.tm_yday % num_lines;	// select a line from file to use
+	size_t line_no = tm.tm_yday % num_lines;	// select a line
+	// from file to
+	// use
 
 	for (size_t i = 0; i < line_no + 1; i++) {
 		if (getline(&res, &res_len, file) == -1) {

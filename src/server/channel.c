@@ -10,7 +10,8 @@ Channel *Channel_alloc(const char *name)
 	Channel *channel = calloc(1, sizeof *channel);
 	channel->name = strdup(name);
 	channel->time_created = time(NULL);
-	channel->members = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);	/* Map<string,User*> */
+	channel->members = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);	/* Map<string,User*> 
+									 */
 	return channel;
 }
 

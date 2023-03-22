@@ -4,7 +4,7 @@
 #include "vector.h"
 
 typedef struct _Message {
-	char *message;		//Add original message string
+	char *message;		// Add original message string
 	char *origin;
 	char *command;
 	char *params[MAX_MSG_PARAM];

@@ -53,8 +53,8 @@ void ht_init(Hashtable * this);
 void ht_destroy(Hashtable * this);
 void *ht_get(Hashtable * this, const void *key);
 void ht_set(Hashtable * this, void *key, void *value);
-bool ht_remove(Hashtable * this, const void *key, void **key_out,
-	       void **value_out);
+bool ht_remove(Hashtable * this, const void *key,
+	       void **key_out, void **value_out);
 void ht_foreach(Hashtable * this, void (*callback)(void *key, void *value));
 bool ht_contains(Hashtable * this, const void *key);
 HTNode *ht_find(Hashtable * this, const void *key);

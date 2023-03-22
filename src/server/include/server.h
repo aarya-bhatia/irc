@@ -13,11 +13,15 @@
 #define CHANNELS_FILENAME "./data/channels.txt"
 #define DEFAULT_INFO "development irc server"
 
-/* Add server prefix and \r\n suffix to messages */
+/*
+ * Add server prefix and \r\n suffix to messages 
+ */
 #define Server_create_message(serv, format, ...) \
   make_string(":%s " format "\r\n", serv->name, __VA_ARGS__)
 
-/* Add user prefix and \r\n suffix to messages */
+/*
+ * Add user prefix and \r\n suffix to messages 
+ */
 #define User_create_message(usr, format, ...)                       \
   make_string(":%s!%s@%s " format "\r\n", usr->nick, usr->username, \
               usr->hostname, __VA_ARGS__)
@@ -51,29 +55,38 @@ typedef struct _Server {
 	char *name;		// name of this server
 	char *hostname;		// server hostname
 	char *port;		// server port
-	char created_at[64];	// server time created at as string
-	char *motd_file;	// file to use for message of the day greetings
-	char *config_file;	// name of config file with irc server address and passwords
+	char created_at[64];	// server time created at as
+	// string
+	char *motd_file;	// file to use for message of the day
+	// greetings
+	char *config_file;	// name of config file with irc
+	// server address and passwords
 	char *passwd;
 	char *info;
 
 	Hashtable *connections;	// map sock to Connection struct
-	Hashtable *nick_to_user_map;	// Map nick to user struct on this server
+	Hashtable *nick_to_user_map;	// Map nick to user struct on this 
+	// server
 	Hashtable *name_to_peer_map;	// Map server name to peer struct
-	Hashtable *name_to_channel_map;	// Map channel name to channel struct
-	Hashtable *nick_to_serv_name_map;	// Map nick to name of server which has user
+	Hashtable *name_to_channel_map;	// Map channel name to
+	// channel struct
+	Hashtable *nick_to_serv_name_map;	// Map nick to name of
+	// server which has user
 
 } Server;
 
 typedef struct _Peer {
 	char *name;
+	char *passwd;
+
 	bool registered;
 	bool quit;		// flag to indicate server leaving
+
 	List *msg_queue;
 	Vector *nicks;		// nick of users behind this server
 
 	enum { ACTIVE_SERVER, PASSIVE_SERVER } server_type;
-	enum { CLOSED, HALF_OPEN, OPEN } state;
+	// enum { CLOSED, HALF_OPEN, OPEN } state;
 } Peer;
 
 typedef struct peer_info_t {
@@ -94,8 +107,10 @@ typedef struct _User {
 	char *realname;		// full name
 	char *hostname;		// client ip
 	Vector *channels;	// list of channels joined by user
-	bool registered;	// flag to indicate user has registered with username, realname and nick
-	bool nick_changed;	// flag to indicate user has set a nick
+	bool registered;	// flag to indicate user has registered
+	// with username, realname and nick
+	bool nick_changed;	// flag to indicate user has set a 
+	// nick
 	bool quit;		// flag to indicate user is leaving server
 	int status;		// to indicate if user online or offline
 	List *msg_queue;
@@ -129,9 +144,12 @@ void Server_process_request_from_unknown(Server * serv, Connection * conn);
 void Server_process_request_from_user(Server * serv, Connection * conn);
 void Server_process_request_from_peer(Server * serv, Connection * conn);
 
-void Server_message_channel(Server * serv, const char *origin, const char *target, const char *message);
-void Server_message_user(Server * serv, const char *origin, const char *target, const char *message);
-void Server_relay_message(Server * serv, const char *origin, const char *message);
+void Server_message_channel(Server * serv, const char *origin,
+			    const char *target, const char *message);
+void Server_message_user(Server * serv, const char *origin,
+			 const char *target, const char *message);
+void Server_relay_message(Server * serv, const char *origin,
+			  const char *message);
 
 bool Server_add_connection(Server * serv, Connection * connection);
 void Server_remove_connection(Server * serv, Connection * connection);
@@ -169,7 +187,8 @@ Peer *Peer_alloc();
 void Peer_free(Peer *);
 Hashtable *load_peers(const char *config_filename);
 char *get_server_passwd(const char *config_filename, const char *name);
-bool get_peer_info(const char *filename, const char *name, struct peer_info_t *info);
+bool get_peer_info(const char *filename, const char *name,
+		   struct peer_info_t *info);
 
 Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen);
 void Connection_free(Connection * this);

@@ -17,9 +17,15 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	pthread_t outbox_thread;	/* This thread will send the messages from the outbox queue to the server */
-	pthread_t inbox_thread;	/* This thread will process messages from the inbox queue and display them to stdout */
-	pthread_t reader_thread;	/* This thread will read message from server add them to the inbox queue */
+	pthread_t outbox_thread;	/* This thread will send the
+					 * messages from the outbox queue
+					 * to the server */
+	pthread_t inbox_thread;	/* This thread will process
+				 * messages from the inbox queue
+				 * and display them to stdout */
+	pthread_t reader_thread;	/* This thread will read message
+					 * from server add them to the
+					 * inbox queue */
 
 	Client client;
 
@@ -37,11 +43,13 @@ int main(int argc, char *argv[])
 	pthread_create(&inbox_thread, NULL, inbox_thread_routine, &client);
 	pthread_create(&reader_thread, NULL, reader_thread_routine, &client);
 
-	if(argc == 6) {
+	if (argc == 6) {
 		char *nick = argv[3];
 		char *username = argv[4];
 		char *realname = argv[5];
-		queue_enqueue(client.client_outbox, make_string("NICK %s\r\nUSER %s * * :%s\r\n", nick, username, realname));
+		queue_enqueue(client.client_outbox,
+			      make_string("NICK %s\r\nUSER %s * * :%s\r\n",
+					  nick, username, realname));
 	}
 
 	char *line = NULL;	// buffer to store user input

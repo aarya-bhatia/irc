@@ -137,7 +137,9 @@ void ht_set(Hashtable * this, void *key, void *value)
 
 	// log_debug("size=%zu, capacity=%zu", this->size, this->capacity);
 
-	/* Rehashing */
+	/*
+	 * Rehashing 
+	 */
 	if (this->size / this->capacity > HT_DENSITY) {
 		size_t new_capacity = (this->capacity * 2) + 1;
 		HTNode **new_table = calloc(new_capacity, sizeof(HTNode *));
@@ -279,7 +281,9 @@ void ht_iter_init(HashtableIter * itr, Hashtable * ht)
 
 bool ht_iter_next(HashtableIter * itr, void **key_out, void **value_out)
 {
-	// log_debug("index = %d, size = %d, capacity = %d, node = %p", itr->index, itr->hashtable->size, itr->hashtable->capacity, itr->node);
+	// log_debug("index = %d, size = %d, capacity = %d, node = %p",
+	// itr->index, itr->hashtable->size, itr->hashtable->capacity,
+	// itr->node);
 
 	// End of table
 	if (itr->index >= itr->hashtable->capacity) {

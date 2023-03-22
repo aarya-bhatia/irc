@@ -13,6 +13,7 @@ void Peer_free(Peer * this)
 	List_free(this->msg_queue);
 	Vector_free(this->nicks);
 	free(this->name);
+	free(this->passwd);
 	free(this);
 }
 
