@@ -112,9 +112,7 @@ Server *Server_create(const char *name)
 	// Listen
 	CHECK(listen(serv->fd, MAX_EVENTS), "listen");
 
-	log_info("Server %s is running at %s:%s", serv->name, serv->hostname,
-			 serv->port);
-
+	log_info("Server %s is running on port %s at %s", serv->name, serv->port, serv->hostname);
 	return serv;
 }
 
@@ -401,12 +399,17 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		}
 		else if (!strcmp(message->command, "SQUIT"))
 		{
+			List_push_back(peer->msg_queue, Server_create_message(serv, "ERROR :Closing Link: %s", conn->hostname));
 			peer->quit = true;
 			break;
 		}
 		else if (!strcmp(message->command, "SERVER"))
 		{
-			Server_handle_SERVER(serv, peer, message);
+			if(!peer->registered) {
+				Server_handle_SERVER(serv, peer, message);
+			} else {
+				Server_relay_message(serv, peer->name, message->message);
+			}
 		}
 		else if (!strcmp(message->command, "PASS"))
 		{
@@ -437,6 +440,10 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		else if (!strcmp(message->command, "PART"))
 		{
 			Server_message_channel(serv, peer->name, message->params[0] + 1, message->message);
+		}
+		else
+		{
+			Server_relay_message(serv, peer->name, message->message);
 		}
 	}
 

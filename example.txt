@@ -1,0 +1,3 @@
+PASS erwin@1234
+SERVER levi
+aarya!aarya@127.0.0.1 PRIVMSG #ocean :Help me!

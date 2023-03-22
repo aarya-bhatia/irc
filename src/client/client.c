@@ -81,8 +81,9 @@ int main(int argc, char *argv[])
 		queue_enqueue(client.client_outbox,
 					  make_string("%s\r\n", line));
 
-		if (!strncmp(line, "QUIT", 4))
+		if (strstr(line, "QUIT"))
 		{
+			log_warn("quit");
 			alive = false;
 			break;
 		}

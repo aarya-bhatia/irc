@@ -143,7 +143,8 @@ void *reader_thread_routine(void *args)
 
 			SAFE(mutex_stdout, {
 			     log_debug("reader_thread: read %zd bytes", nrecv);
-			     log_debug("reader_thread: %s", buf); });
+			    //  log_debug("reader_thread: %s", buf); 
+			});
 
 			if (!strstr(buf, "\r\n"))
 			{
@@ -231,7 +232,7 @@ void *outbox_thread_routine(void *args)
 			log_debug("outbox_thread: sent %zd bytes", nsent);
 		});
 
-		if (!strncmp(message, "QUIT", 4))
+		if (strstr(message, "QUIT"))
 		{
 			SAFE(mutex_stdout, {
 				log_debug("outbox_thread: bye");
