@@ -938,9 +938,9 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 	int fd = connect_to_host(target_info.peer_host, target_info.peer_port);
 
 	if(fd == -1)
-		{
-			return;
-		}
+	{
+		return;
+	}
 
 	Connection *conn = calloc(1, sizeof *conn);
 	conn->fd = fd;
@@ -958,7 +958,7 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 	conn->conn_type = PEER_CONNECTION;
 	conn->data = peer;
 
-	ht_set(serv->name_to_peer_map, target_info.peer_name, peer);
+	// ht_set(serv->name_to_peer_map, target_info.peer_name, peer);
 
 	List_push_back(conn->outgoing_messages,
 				   make_string("PASS %s * *\r\n", target_info.peer_passwd));
