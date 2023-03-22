@@ -9,12 +9,12 @@
 
 size_t djb2hash(const void *key, int len, uint32_t seed);
 
-size_t ht_size(Hashtable * this)
+size_t ht_size(Hashtable *this)
 {
 	return this->size;
 }
 
-size_t ht_capacity(Hashtable * this)
+size_t ht_capacity(Hashtable *this)
 {
 	return this->capacity;
 }
@@ -26,7 +26,7 @@ Hashtable *ht_alloc()
 	return this;
 }
 
-void ht_free(Hashtable * this)
+void ht_free(Hashtable *this)
 {
 	ht_destroy(this);
 	free(this);
@@ -39,27 +39,31 @@ char *ptr_to_string(void *ptr)
 	return s;
 }
 
-void
-ht_print(Hashtable * this, char *(*key_to_string)(void *),
-	 char * (*value_to_string)(void *))
+void ht_print(Hashtable *this, char *(*key_to_string)(void *),
+			  char *(*value_to_string)(void *))
 {
-	if(!key_to_string) {
+	if (!key_to_string)
+	{
 		key_to_string = ptr_to_string;
 	}
-	if (!value_to_string) {
+	if (!value_to_string)
+	{
 		value_to_string = ptr_to_string;
 	}
 
 	HTNode *itr = NULL;
-	for (size_t i = 0; i < this->capacity; i++) {
-		if (!this->table[i]) {
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		if (!this->table[i])
+		{
 			continue;
 		}
 		itr = this->table[i];
-		while (itr) {
+		while (itr)
+		{
 			log_info("bucket: %d, key: %s, value: %s", i,
-				 key_to_string(itr->key),
-				 value_to_string(itr->value));
+					 key_to_string(itr->key),
+					 value_to_string(itr->value));
 			itr = itr->next;
 		}
 	}
@@ -68,7 +72,7 @@ ht_print(Hashtable * this, char *(*key_to_string)(void *),
 /**
  * By default hashtable uses string keys and shallow copy and free for values
  */
-void ht_init(Hashtable * this)
+void ht_init(Hashtable *this)
 {
 	memset(this, 0, sizeof *this);
 
@@ -77,30 +81,35 @@ void ht_init(Hashtable * this)
 	this->size = 0;
 	this->seed = rand();
 	this->key_len = -1;
-	this->key_compare = (compare_type) strcmp;
-	this->key_free = (elem_free_type) free;
-	this->key_copy = (elem_copy_type) strdup;
+	this->key_compare = (compare_type)strcmp;
+	this->key_free = (elem_free_type)free;
+	this->key_copy = (elem_copy_type)strdup;
 	this->value_copy = NULL;
 	this->value_free = NULL;
 }
 
 size_t ht_hash(const void *key, int key_len, int seed)
 {
-	if (key_len < 0) {
+	if (key_len < 0)
+	{
 		return djb2hash(key, strlen(key), seed);
-	} else {
+	}
+	else
+	{
 		return djb2hash(key, key_len, seed);
 	}
 }
 
-HTNode *ht_find(Hashtable * this, const void *key)
+HTNode *ht_find(Hashtable *this, const void *key)
 {
 	size_t hash = ht_hash(key, this->key_len, this->seed) % this->capacity;
 
 	HTNode *node = this->table[hash];
 
-	while (node) {
-		if (this->key_compare(node->key, key) == 0) {
+	while (node)
+	{
+		if (this->key_compare(node->key, key) == 0)
+		{
 			return node;
 		}
 		node = node->next;
@@ -109,27 +118,31 @@ HTNode *ht_find(Hashtable * this, const void *key)
 	return NULL;
 }
 
-void ht_set(Hashtable * this, void *key, void *value)
+void ht_set(Hashtable *this, void *key, void *value)
 {
 	assert(this);
 	assert(key);
 
 	HTNode *found = ht_find(this, key);
 
-	if (found) {		// Update existing node value
-		if (this->value_free) {
+	if (found)
+	{ // Update existing node value
+		if (this->value_free)
+		{
 			this->value_free(found->value);
 		}
 
 		found->value =
-		    this->value_copy ? this->value_copy(value) : value;
-	} else {		// Create new node and add to bucket
+			this->value_copy ? this->value_copy(value) : value;
+	}
+	else
+	{ // Create new node and add to bucket
 		size_t hash =
-		    ht_hash(key, this->key_len, this->seed) % this->capacity;
+			ht_hash(key, this->key_len, this->seed) % this->capacity;
 		HTNode *new_node = calloc(1, sizeof *new_node);
 		new_node->key = this->key_copy ? this->key_copy(key) : key;
 		new_node->value =
-		    this->value_copy ? this->value_copy(value) : value;
+			this->value_copy ? this->value_copy(value) : value;
 		new_node->next = this->table[hash];
 		this->table[hash] = new_node;
 		this->size++;
@@ -138,18 +151,22 @@ void ht_set(Hashtable * this, void *key, void *value)
 	// log_debug("size=%zu, capacity=%zu", this->size, this->capacity);
 
 	/*
-	 * Rehashing 
+	 * Rehashing
 	 */
-	if (this->size / this->capacity > HT_DENSITY) {
+	if (this->size / this->capacity > HT_DENSITY)
+	{
 		size_t new_capacity = (this->capacity * 2) + 1;
 		HTNode **new_table = calloc(new_capacity, sizeof(HTNode *));
 
-		for (size_t i = 0; i < this->capacity; i++) {
-			if (this->table[i]) {
+		for (size_t i = 0; i < this->capacity; i++)
+		{
+			if (this->table[i])
+			{
 				// Move old bucket to new index
 				size_t new_hash =
-				    ht_hash(this->table[i]->key, this->key_len,
-					    this->seed) % new_capacity;
+					ht_hash(this->table[i]->key, this->key_len,
+							this->seed) %
+					new_capacity;
 				new_table[new_hash] = this->table[i];
 				this->table[i] = NULL;
 			}
@@ -161,36 +178,43 @@ void ht_set(Hashtable * this, void *key, void *value)
 	}
 }
 
-void *ht_get(Hashtable * this, const void *key)
+void *ht_get(Hashtable *this, const void *key)
 {
 	assert(this);
 	assert(key);
 
 	HTNode *found = ht_find(this, key);
 
-	if (found) {
+	if (found)
+	{
 		return found->value;
 	}
 
 	return NULL;
 }
 
-void ht_destroy(Hashtable * this)
+void ht_destroy(Hashtable *this)
 {
-	if (!this) {
+	if (!this)
+	{
 		return;
 	}
 
-	for (size_t i = 0; i < this->capacity; i++) {
-		if (this->table[i]) {
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		if (this->table[i])
+		{
 			HTNode *itr = this->table[i];
 
-			while (itr) {
-				if (this->key_free) {
+			while (itr)
+			{
+				if (this->key_free)
+				{
 					this->key_free(itr->key);
 				}
 
-				if (this->value_free) {
+				if (this->value_free)
+				{
 					this->value_free(itr->value);
 				}
 
@@ -208,13 +232,16 @@ void ht_destroy(Hashtable * this)
 	log_debug("hashtable destroyed");
 }
 
-void ht_foreach(Hashtable * this, void (*callback)(void *key, void *value))
+void ht_foreach(Hashtable *this, void (*callback)(void *key, void *value))
 {
-	for(size_t i = 0; i < this->capacity; i++) {
-		if (this->table[i]) {
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		if (this->table[i])
+		{
 			HTNode *itr = this->table[i];
 
-			while (itr) {
+			while (itr)
+			{
 				callback(itr->key, itr->value);
 				itr = itr->next;
 			}
@@ -222,36 +249,48 @@ void ht_foreach(Hashtable * this, void (*callback)(void *key, void *value))
 	}
 }
 
-bool ht_contains(Hashtable * this, const void *key)
+bool ht_contains(Hashtable *this, const void *key)
 {
 	return ht_find(this, key) != NULL;
 }
 
-bool
-ht_remove(Hashtable * this, const void *key, void **key_out, void **value_out)
+bool ht_remove(Hashtable *this, const void *key, void **key_out, void **value_out)
 {
-	for (size_t i = 0; i < this->capacity; i++) {
-		if (this->table[i]) {
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		if (this->table[i])
+		{
 			HTNode *curr = this->table[i];
 			HTNode *prev = NULL;
 
-			while (curr) {
-				if (this->key_compare(curr->key, key) == 0) {
-					if (!prev) {
+			while (curr)
+			{
+				if (this->key_compare(curr->key, key) == 0)
+				{
+					if (!prev)
+					{
 						this->table[i] = curr->next;
-					} else {
+					}
+					else
+					{
 						prev->next = curr->next;
 					}
 
-					if (this->key_free) {
+					if (this->key_free)
+					{
 						this->key_free(curr->key);
-					} else if (key_out) {
+					}
+					else if (key_out)
+					{
 						*key_out = curr->key;
 					}
 
-					if (this->value_free) {
+					if (this->value_free)
+					{
 						this->value_free(curr->value);
-					} else if (value_out) {
+					}
+					else if (value_out)
+					{
 						*value_out = curr->value;
 					}
 
@@ -272,40 +311,46 @@ ht_remove(Hashtable * this, const void *key, void **key_out, void **value_out)
 	return false;
 }
 
-void ht_iter_init(HashtableIter * itr, Hashtable * ht)
+void ht_iter_init(HashtableIter *itr, Hashtable *ht)
 {
 	itr->hashtable = ht;
 	itr->node = NULL;
 	itr->index = 0;
 }
 
-bool ht_iter_next(HashtableIter * itr, void **key_out, void **value_out)
+bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 {
 	// log_debug("index = %d, size = %d, capacity = %d, node = %p",
 	// itr->index, itr->hashtable->size, itr->hashtable->capacity,
 	// itr->node);
 
 	// End of table
-	if (itr->index >= itr->hashtable->capacity) {
+	if (itr->index >= itr->hashtable->capacity)
+	{
 		return false;
 	}
 	// Get next node in bucket
-	if (itr->node) {
+	if (itr->node)
+	{
 		itr->node = itr->node->next;
 	}
 	// No more nodes in bucket
-	if (!itr->node) {
+	if (!itr->node)
+	{
 		// Find next available bucket
 		for (itr->index = itr->index + 1;
-		     itr->index < itr->hashtable->capacity; itr->index++) {
-			if (itr->hashtable->table[itr->index]) {
+			 itr->index < itr->hashtable->capacity; itr->index++)
+		{
+			if (itr->hashtable->table[itr->index])
+			{
 				itr->node = itr->hashtable->table[itr->index];
 				break;
 			}
 		}
 
 		// End of table
-		if (!itr->node || itr->index >= itr->hashtable->capacity) {
+		if (!itr->node || itr->index >= itr->hashtable->capacity)
+		{
 			return false;
 		}
 	}
@@ -314,11 +359,13 @@ bool ht_iter_next(HashtableIter * itr, void **key_out, void **value_out)
 
 	// Save key and value pointer in given pointers
 
-	if (key_out) {
+	if (key_out)
+	{
 		*key_out = itr->node->key;
 	}
 
-	if (value_out) {
+	if (value_out)
+	{
 		*value_out = itr->node->value;
 	}
 
@@ -338,7 +385,7 @@ size_t djb2hash(const void *key, int len, uint32_t seed)
 }
 
 Hashtable *ht_alloc_type(struct elem_type_info_t key_type,
-			 struct elem_type_info_t value_type)
+						 struct elem_type_info_t value_type)
 {
 	Hashtable *this = ht_alloc();
 	Hashtable_set_key_type(this, key_type);
@@ -346,13 +393,13 @@ Hashtable *ht_alloc_type(struct elem_type_info_t key_type,
 	return this;
 }
 
-void Hashtable_set_value_type(Hashtable * this, struct elem_type_info_t info)
+void Hashtable_set_value_type(Hashtable *this, struct elem_type_info_t info)
 {
 	this->value_copy = info.copy_type;
 	this->value_free = info.free_type;
 }
 
-void Hashtable_set_key_type(Hashtable * this, struct elem_type_info_t info)
+void Hashtable_set_key_type(Hashtable *this, struct elem_type_info_t info)
 {
 	this->key_compare = info.comapre_type;
 	this->key_copy = info.copy_type;

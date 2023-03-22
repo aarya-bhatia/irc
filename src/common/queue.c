@@ -10,23 +10,25 @@ queue_t *queue_alloc()
 	return this;
 }
 
-void queue_free(queue_t * q, void (*free_callback)(void *))
+void queue_free(queue_t *q, void (*free_callback)(void *))
 {
 	queue_destroy(q, free_callback);
 	free(q);
 }
 
-void queue_init(queue_t * q)
+void queue_init(queue_t *q)
 {
 	q->l = List_alloc(NULL, NULL);
 	pthread_mutex_init(&q->m, NULL);
 	pthread_cond_init(&q->cv, NULL);
 }
 
-void queue_destroy(queue_t * q, void (*free_callback)(void *))
+void queue_destroy(queue_t *q, void (*free_callback)(void *))
 {
-	for(ListNode * itr = q->l->head; itr != NULL; itr = itr->next) {
-		if (free_callback) {
+	for (ListNode *itr = q->l->head; itr != NULL; itr = itr->next)
+	{
+		if (free_callback)
+		{
 			free_callback(itr->elem);
 		}
 
@@ -39,7 +41,7 @@ void queue_destroy(queue_t * q, void (*free_callback)(void *))
 	pthread_cond_destroy(&q->cv);
 }
 
-void queue_enqueue(queue_t * q, void *data)
+void queue_enqueue(queue_t *q, void *data)
 {
 	pthread_mutex_lock(&q->m);
 	List_push_back(q->l, data);
@@ -47,10 +49,11 @@ void queue_enqueue(queue_t * q, void *data)
 	pthread_mutex_unlock(&q->m);
 }
 
-void *queue_dequeue(queue_t * q)
+void *queue_dequeue(queue_t *q)
 {
 	pthread_mutex_lock(&q->m);
-	while (List_size(q->l) == 0) {
+	while (List_size(q->l) == 0)
+	{
 		pthread_cond_wait(&q->cv, &q->m);
 	}
 	void *data = List_peek_front(q->l);

@@ -45,7 +45,7 @@ char *trimwhitespace(char *str)
 	while (isspace((unsigned char)*str))
 		str++;
 
-	if (*str == 0)		// All spaces?
+	if (*str == 0) // All spaces?
 		return str;
 
 	// Trim trailing space
@@ -68,10 +68,12 @@ char *rstrstr(char *string, char *pattern)
 	char *next = strstr(string, pattern);
 	char *prev = next;
 
-	while (next) {
+	while (next)
+	{
 		next = strstr(prev + strlen(pattern), pattern);
 
-		if (next) {
+		if (next)
+		{
 			prev = next;
 		}
 	}
@@ -89,7 +91,8 @@ int connect_to_host(char *hostname, char *port)
 
 	int ret;
 
-	if ((ret = getaddrinfo(hostname, port, &hints, &info)) == -1) {
+	if ((ret = getaddrinfo(hostname, port, &hints, &info)) == -1)
+	{
 		log_error("getaddrinfo() failed: %s", gai_strerror(ret));
 		return -1;
 	}
@@ -98,15 +101,18 @@ int connect_to_host(char *hostname, char *port)
 
 	struct addrinfo *itr = NULL;
 
-	for (itr = info; itr != NULL; itr = itr->ai_next) {
+	for (itr = info; itr != NULL; itr = itr->ai_next)
+	{
 		fd = socket(itr->ai_family, itr->ai_socktype, itr->ai_protocol);
 
-		if (fd == -1) {
+		if (fd == -1)
+		{
 			continue;
 		}
 
-		if (connect(fd, itr->ai_addr, itr->ai_addrlen) != -1) {
-			break;	/* Success */
+		if (connect(fd, itr->ai_addr, itr->ai_addrlen) != -1)
+		{
+			break; /* Success */
 		}
 
 		close(fd);
@@ -114,7 +120,8 @@ int connect_to_host(char *hostname, char *port)
 
 	freeaddrinfo(info);
 
-	if (!itr) {
+	if (!itr)
+	{
 		log_error("Failed to connect to server %s:%s", hostname, port);
 		return -1;
 	}
@@ -143,8 +150,8 @@ int create_and_bind_socket(char *hostname, char *port)
 		die("getaddrinfo");
 
 	int sock = socket(servinfo->ai_family,
-			  servinfo->ai_socktype,
-			  servinfo->ai_protocol);
+					  servinfo->ai_socktype,
+					  servinfo->ai_protocol);
 
 	if (sock < 0)
 		die("socket");
@@ -184,7 +191,8 @@ void *int_copy(void *other_int)
  */
 void *get_in_addr(struct sockaddr *sa)
 {
-	if (sa->sa_family == AF_INET) {
+	if (sa->sa_family == AF_INET)
+	{
 		return &(((struct sockaddr_in *)sa)->sin_addr);
 	}
 
@@ -193,10 +201,13 @@ void *get_in_addr(struct sockaddr *sa)
 
 int get_port(struct sockaddr *sa, socklen_t len)
 {
-	if (sa->sa_family == AF_INET) {
+	if (sa->sa_family == AF_INET)
+	{
 		struct sockaddr_in *sin = (struct sockaddr_in *)sa;
 		return ntohs(sin->sin_port);
-	} else {
+	}
+	else
+	{
 		struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)sa;
 		return ntohs(sin6->sin6_port);
 	}
@@ -220,30 +231,38 @@ ssize_t read_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_read = 0;
 
-	while (bytes_read < len) {
+	while (bytes_read < len)
+	{
 		errno = 0;
 		ssize_t ret = read(fd, buf + bytes_read, len - bytes_read);
 
-		if (ret == 0) {
+		if (ret == 0)
+		{
 			break;
-		} else if (ret == -1) {
+		}
+		else if (ret == -1)
+		{
 			// if (errno == EINTR)
 			// {
 			// continue;
 			// }
 
-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
 				return bytes_read;
 			}
 
 			perror("read");
 			break;
-		} else {
+		}
+		else
+		{
 			bytes_read += ret;
 			buf[bytes_read] = 0;
 		}
 
-		if (strstr(buf, "\r\n")) {
+		if (strstr(buf, "\r\n"))
+		{
 			return bytes_read;
 		}
 	}
@@ -258,25 +277,33 @@ ssize_t write_all(int fd, char *buf, size_t len)
 {
 	size_t bytes_written = 0;
 
-	while (bytes_written < len) {
+	while (bytes_written < len)
+	{
 		errno = 0;
 		ssize_t ret =
-		    write(fd, buf + bytes_written, len - bytes_written);
+			write(fd, buf + bytes_written, len - bytes_written);
 
-		if (ret == 0) {
+		if (ret == 0)
+		{
 			break;
-		} else if (ret == -1) {
-			if (errno == EINTR) {
+		}
+		else if (ret == -1)
+		{
+			if (errno == EINTR)
+			{
 				continue;
 			}
 
-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
 				return bytes_written;
 			}
 
 			perror("write");
 			break;
-		} else {
+		}
+		else
+		{
 			bytes_written += ret;
 		}
 	}
@@ -288,29 +315,33 @@ Vector *readlines(const char *filename)
 {
 	FILE *file = fopen(filename, "r");
 
-	if (!file) {
+	if (!file)
+	{
 		perror("fopen");
 		log_error("Failed to open file %s", filename);
 		return NULL;
 	}
 
-	Vector *lines = Vector_alloc(10, (elem_copy_type) strdup, free);
+	Vector *lines = Vector_alloc(10, (elem_copy_type)strdup, free);
 
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t nread;
 
 	// Second line contains channel topic
-	while ((nread = getline(&line, &len, file)) > 0) {
+	while ((nread = getline(&line, &len, file)) > 0)
+	{
 		assert(line);
 
-		if (strlen(line) == 0) {
+		if (strlen(line) == 0)
+		{
 			continue;
 		}
 
 		size_t n = strlen(line);
 
-		if (line[n - 1] == '\n') {
+		if (line[n - 1] == '\n')
+		{
 			line[n - 1] = 0;
 		}
 
@@ -330,9 +361,12 @@ size_t word_len(const char *str)
 {
 	char *tok = strstr(str, " ");
 
-	if (!tok) {
+	if (!tok)
+	{
 		return strlen(str);
-	} else {
+	}
+	else
+	{
 		return tok - str;
 	}
 }
@@ -347,9 +381,12 @@ Vector *text_wrap(const char *str, const size_t line_width)
 	size_t line_len = 0;
 	const char *line = str;
 
-	for (size_t i = 0; str[i] != 0; i++) {
-		if (str[i] == '\n') {
-			if (line && line_len > 0) {
+	for (size_t i = 0; str[i] != 0; i++)
+	{
+		if (str[i] == '\n')
+		{
+			if (line && line_len > 0)
+			{
 				char *line_copy = strndup(line, line_len);
 				Vector_push(lines, line_copy);
 				line_len = 0;
@@ -358,8 +395,10 @@ Vector *text_wrap(const char *str, const size_t line_width)
 			}
 		}
 
-		if (isspace(str[i])) {
-			if (line_len + word_len(str + i + 1) + 1 >= line_width) {
+		if (isspace(str[i]))
+		{
+			if (line_len + word_len(str + i + 1) + 1 >= line_width)
+			{
 				char *line_copy = strndup(line, line_len);
 				Vector_push(lines, line_copy);
 				line_len = 0;
@@ -371,7 +410,8 @@ Vector *text_wrap(const char *str, const size_t line_width)
 		line_len++;
 	}
 
-	if (line != NULL && line_len > 0) {
+	if (line != NULL && line_len > 0)
+	{
 		char *line_copy = strndup(line, line_len);
 		Vector_push(lines, line_copy);
 	}

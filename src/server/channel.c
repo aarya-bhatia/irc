@@ -10,15 +10,15 @@ Channel *Channel_alloc(const char *name)
 	Channel *channel = calloc(1, sizeof *channel);
 	channel->name = strdup(name);
 	channel->time_created = time(NULL);
-	channel->members = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);	/* Map<string,User*> 
-									 */
+	channel->members = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string,User*>
+																  */
 	return channel;
 }
 
 /**
  * Destroy all memory associated with channel
  */
-void Channel_free(Channel * this)
+void Channel_free(Channel *this)
 {
 	ht_free(this->members);
 	free(this->topic);
@@ -29,7 +29,7 @@ void Channel_free(Channel * this)
 /**
  * Check if given user is part of channel.
  */
-bool Channel_has_member(Channel * this, User * user)
+bool Channel_has_member(Channel *this, User *user)
 {
 	return ht_contains(this->members, user->username);
 }
@@ -37,7 +37,7 @@ bool Channel_has_member(Channel * this, User * user)
 /**
  * Create membership for given user and add them to channel.
  */
-void Channel_add_member(Channel * this, User * user)
+void Channel_add_member(Channel *this, User *user)
 {
 	ht_set(this->members, user->username, user);
 }
@@ -46,7 +46,7 @@ void Channel_add_member(Channel * this, User * user)
  * Removes member from channel if they exist.
  * Returns true on success, false if they did not exist.
  */
-bool Channel_remove_member(Channel * this, User * user)
+bool Channel_remove_member(Channel *this, User *user)
 {
 	return ht_remove(this->members, user->username, NULL, NULL);
 }
@@ -58,11 +58,12 @@ Hashtable *load_channels(const char *filename)
 {
 	Hashtable *hashtable = ht_alloc();
 	hashtable->value_copy = NULL;
-	hashtable->value_free = (elem_free_type) Channel_free;
+	hashtable->value_free = (elem_free_type)Channel_free;
 
 	FILE *file = fopen(filename, "r");
 
-	if (!file) {
+	if (!file)
+	{
 		log_error("Failed to open file %s", filename);
 		return hashtable;
 	}
@@ -71,8 +72,10 @@ Hashtable *load_channels(const char *filename)
 	size_t len = 0;
 	ssize_t nread = 0;
 
-	while ((nread = getline(&line, &len, file)) > 0) {
-		if (line[nread - 1] == '\n') {
+	while ((nread = getline(&line, &len, file)) > 0)
+	{
+		if (line[nread - 1] == '\n')
+		{
 			line[nread - 1] = 0;
 		}
 
@@ -92,7 +95,7 @@ Hashtable *load_channels(const char *filename)
 		this->topic = topic ? strdup(topic) : NULL;
 
 		log_info("Added channel %s with topic %s", this->name,
-			 this->topic);
+				 this->topic);
 		ht_set(hashtable, name, this);
 	}
 
@@ -100,17 +103,18 @@ Hashtable *load_channels(const char *filename)
 	fclose(file);
 
 	log_info("Loaded %zu channels from file %s", ht_size(hashtable),
-		 filename);
+			 filename);
 	return hashtable;
 }
 
 /**
  * Write channels to give file with each line containing the (name, time_created, mode, user_limit, topic) of the channel.
  */
-void save_channels(Hashtable * hashtable, const char *filename)
+void save_channels(Hashtable *hashtable, const char *filename)
 {
 	FILE *file = fopen(filename, "w");
-	if (!file) {
+	if (!file)
+	{
 		log_error("Failed to open file %s", filename);
 		return;
 	}
@@ -120,11 +124,13 @@ void save_channels(Hashtable * hashtable, const char *filename)
 
 	Channel *channel = NULL;
 
-	while (ht_iter_next(&itr, NULL, (void **)&channel)) {
+	while (ht_iter_next(&itr, NULL, (void **)&channel))
+	{
 		fprintf(file, "%s %ld %d", channel->name,
-			(long)channel->time_created, channel->mode);
+				(long)channel->time_created, channel->mode);
 
-		if (channel->topic) {
+		if (channel->topic)
+		{
 			fprintf(file, " :%s", channel->topic);
 		}
 

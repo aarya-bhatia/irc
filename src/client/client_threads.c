@@ -2,16 +2,16 @@
 
 #include "include/client.h"
 
-#define EPOLL_TIMEOUT 2500	// Seconds
+#define EPOLL_TIMEOUT 2500 // Seconds
 
-extern pthread_mutex_t mutex_stdout;	// use this lock before printing
+extern pthread_mutex_t mutex_stdout; // use this lock before printing
 									 // to stdout
 
 void display_message(const char *message)
 {
 	SAFE(mutex_stdout, {
-	     puts(message);
-	     });
+		puts(message);
+	});
 }
 
 /*
@@ -20,9 +20,10 @@ void display_message(const char *message)
  */
 void *inbox_thread_routine(void *args)
 {
-	Client *client = (Client *) args;
+	Client *client = (Client *)args;
 
-	while (1) {
+	while (1)
+	{
 		char *message = queue_dequeue(client->client_inbox);
 		char *msgcopy = strdup(message);
 
@@ -30,24 +31,27 @@ void *inbox_thread_routine(void *args)
 
 		message_init(&msg_info);
 
-		if (parse_message(msgcopy, &msg_info) == -1) {
-			SAFE(mutex_stdout, {
-			     log_error("Failed to parse message: %s", msgcopy);}
-			);
-		} else {
+		if (parse_message(msgcopy, &msg_info) == -1)
+		{
+			SAFE(mutex_stdout, { log_error("Failed to parse message: %s", msgcopy); });
+		}
+		else
+		{
 			// Display message to stdout
 
-			if (!strcmp(msg_info.command, "PRIVMSG")) {
+			if (!strcmp(msg_info.command, "PRIVMSG"))
+			{
 				assert(msg_info.n_params == 1);
 
 				//   SAFE(mutex_stdout,
 				//        { printf("%s: %s\n", msg_info.origin,
 				//        msg_info.body); });
 				SAFE(mutex_stdout, {
-				     puts(message);
-				     }
-				);
-			} else {
+					puts(message);
+				});
+			}
+			else
+			{
 				display_message(message);
 			}
 		}
@@ -55,11 +59,11 @@ void *inbox_thread_routine(void *args)
 		free(msgcopy);
 		message_destroy(&msg_info);
 
-		if (strstr(message, "ERROR")) {
+		if (strstr(message, "ERROR"))
+		{
 			SAFE(mutex_stdout, {
-			     log_debug("inbox_thread: bye");
-			     }
-			);
+				log_debug("inbox_thread: bye");
+			});
 			free(message);
 			break;
 		}
@@ -75,7 +79,7 @@ void *inbox_thread_routine(void *args)
  */
 void *reader_thread_routine(void *args)
 {
-	Client *client = (Client *) args;
+	Client *client = (Client *)args;
 	char buf[MAX_MSG_LEN + 1];
 	memset(buf, 0, sizeof buf);
 	size_t len = 0;
@@ -83,50 +87,54 @@ void *reader_thread_routine(void *args)
 	// We will poll the socket for reads
 	int epollfd = epoll_create1(0);
 
-	struct epoll_event ev
-	    = {.events = EPOLLIN,.data.fd = client->client_sock };
+	struct epoll_event ev = {.events = EPOLLIN, .data.fd = client->client_sock};
 	epoll_ctl(epollfd, EPOLL_CTL_ADD, client->client_sock, &ev);
 
 	struct epoll_event events[1];
 
 	bool quit = false;
 
-	while (!quit) {
+	while (!quit)
+	{
 		int nfd = epoll_wait(epollfd, events, 1, EPOLL_TIMEOUT);
 
-		if (nfd == -1) {
+		if (nfd == -1)
+		{
 			perror("epoll_wait");
 			break;
 		}
 
 		// No events polled
-		if (nfd == 0) {
+		if (nfd == 0)
+		{
 			continue;
 		}
 
-		if (events[0].data.fd != client->client_sock) {
+		if (events[0].data.fd != client->client_sock)
+		{
 			continue;
 		}
 
 		// Server disconnect
-		if (events[0].events & (EPOLLERR | EPOLLHUP)) {
+		if (events[0].events & (EPOLLERR | EPOLLHUP))
+		{
 			SAFE(mutex_stdout, {
-			     log_info("Server disconnect");
-			     }
-			);
+				log_info("Server disconnect");
+			});
 			break;
 		}
 
-		if (events[0].events & EPOLLIN) {
-			ssize_t nrecv
-			    =
-			    read_all(client->client_sock, buf + len,
-				     MAX_MSG_LEN);
+		if (events[0].events & EPOLLIN)
+		{
+			ssize_t nrecv =
+				read_all(client->client_sock, buf + len,
+						 MAX_MSG_LEN);
 
 			if (nrecv == -1)
 				die("read");
 
-			if (nrecv == 0) {
+			if (nrecv == 0)
+			{
 				break;
 			}
 
@@ -135,10 +143,10 @@ void *reader_thread_routine(void *args)
 
 			SAFE(mutex_stdout, {
 			     log_debug("reader_thread: read %zd bytes", nrecv);
-			     log_debug("reader_thread: %s", buf);}
-			);
+			     log_debug("reader_thread: %s", buf); });
 
-			if (!strstr(buf, "\r\n")) {
+			if (!strstr(buf, "\r\n"))
+			{
 				continue;
 			}
 
@@ -162,15 +170,16 @@ void *reader_thread_routine(void *args)
 			int count = 0;
 
 			// add all complete messages to inbox
-			while (tok) {
+			while (tok)
+			{
 				queue_enqueue(client->client_inbox,
-					      strdup(tok));
+							  strdup(tok));
 
-				if (strstr(tok, "ERROR")) {
+				if (strstr(tok, "ERROR"))
+				{
 					SAFE(mutex_stdout, {
-					     log_debug("reader_thread: bye");
-					     }
-					);
+						log_debug("reader_thread: bye");
+					});
 					quit = true;
 					break;
 				}
@@ -192,10 +201,8 @@ void *reader_thread_routine(void *args)
 			// len = strlen(buf);
 
 			len = 0;
-			SAFE(mutex_stdout, {
-			     log_debug("%d messages were read from server",
-				       count);}
-			);
+			SAFE(mutex_stdout, { log_debug("%d messages were read from server",
+										   count); });
 		}
 	}
 
@@ -209,27 +216,26 @@ void *reader_thread_routine(void *args)
  */
 void *outbox_thread_routine(void *args)
 {
-	Client *client = (Client *) args;
+	Client *client = (Client *)args;
 
-	while (1) {
+	while (1)
+	{
 		char *message = queue_dequeue(client->client_outbox);
 
-		ssize_t nsent
-		    = write_all(client->client_sock, message, strlen(message));
+		ssize_t nsent = write_all(client->client_sock, message, strlen(message));
 
 		if (nsent == -1)
 			die("write_all");
 
 		SAFE(mutex_stdout, {
-		     log_debug("outbox_thread: sent %zd bytes", nsent);
-		     }
-		);
+			log_debug("outbox_thread: sent %zd bytes", nsent);
+		});
 
-		if (!strncmp(message, "QUIT", 4)) {
+		if (!strncmp(message, "QUIT", 4))
+		{
 			SAFE(mutex_stdout, {
-			     log_debug("outbox_thread: bye");
-			     }
-			);
+				log_debug("outbox_thread: bye");
+			});
 			free(message);
 			break;
 		}

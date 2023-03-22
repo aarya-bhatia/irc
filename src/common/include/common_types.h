@@ -4,7 +4,8 @@ typedef int (*compare_type)(const void *, const void *);
 typedef void *(*elem_copy_type)(void *elem);
 typedef void (*elem_free_type)(void *elem);
 
-struct elem_type_info_t {
+struct elem_type_info_t
+{
 	compare_type comapre_type;
 	elem_copy_type copy_type;
 	elem_free_type free_type;

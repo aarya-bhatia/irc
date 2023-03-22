@@ -8,21 +8,23 @@
 
 void *signal_thread(void *arg)
 {
-	sigset_t *mask = (sigset_t *) arg;
+	sigset_t *mask = (sigset_t *)arg;
 
 	/*
-	 * Wait for a signal to be delivered 
+	 * Wait for a signal to be delivered
 	 */
 
 	int sig;
 
-	while (1) {
+	while (1)
+	{
 		sigwait(mask, &sig);
 
 		/*
-		 * Handle the signal 
+		 * Handle the signal
 		 */
-		switch (sig) {
+		switch (sig)
+		{
 		case SIGINT:
 			printf("Received SIGINT\n");
 			break;
@@ -43,13 +45,13 @@ int main(int argc, char *argv[])
 	sigset_t mask;
 
 	/*
-	 * Block all signals 
+	 * Block all signals
 	 */
 	sigfillset(&mask);
 	sigprocmask(SIG_BLOCK, &mask, NULL);
 
 	/*
-	 * Create a thread to handle signals 
+	 * Create a thread to handle signals
 	 */
 	pthread_t thread;
 	pthread_create(&thread, NULL, signal_thread, &mask);

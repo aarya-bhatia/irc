@@ -2,15 +2,16 @@
 
 #include "include/common.h"
 
-void message_init(Message * msg)
+void message_init(Message *msg)
 {
 	assert(msg);
 	memset(msg, 0, sizeof(Message));
 }
 
-void message_destroy(Message * msg)
+void message_destroy(Message *msg)
 {
-	if (!msg) {
+	if (!msg)
+	{
 		return;
 	}
 
@@ -19,7 +20,8 @@ void message_destroy(Message * msg)
 	free(msg->command);
 	free(msg->body);
 
-	for (size_t i = 0; i < MAX_MSG_PARAM; i++) {
+	for (size_t i = 0; i < MAX_MSG_PARAM; i++)
+	{
 		free(msg->params[i]);
 	}
 }
@@ -30,30 +32,34 @@ void message_free_callback(void *ptr)
 	free(ptr);
 }
 
-Vector *parse_message_list(List * list)
+Vector *parse_message_list(List *list)
 {
-	Vector *array = Vector_alloc(4, NULL, message_free_callback);	// initialise 
-	// a 
-	// message 
-	// vector 
-	// with 
-	// shallow 
-	// copy 
-	// and 
+	Vector *array = Vector_alloc(4, NULL, message_free_callback); // initialise
+	// a
+	// message
+	// vector
+	// with
+	// shallow
+	// copy
+	// and
 	// destructor
 
 	int ret;
 
-	while (List_size(list) > 0) {
+	while (List_size(list) > 0)
+	{
 		char *message = List_peek_front(list);
 
 		Message *msg = calloc(1, sizeof *msg);
 		message_init(msg);
 
-		if ((ret = parse_message(message, msg)) == -1) {
+		if ((ret = parse_message(message, msg)) == -1)
+		{
 			log_warn("Invalid message");
 			message_destroy(msg);
-		} else {
+		}
+		else
+		{
 			Vector_push(array, msg);
 		}
 
@@ -72,26 +78,30 @@ Vector *parse_all_messages(char *str)
 
 	int ret;
 
-	Vector *array = Vector_alloc(4, NULL, message_free_callback);	// initialise 
-	// a 
-	// message 
-	// vector 
-	// with 
-	// shallow 
-	// copy 
-	// and 
+	Vector *array = Vector_alloc(4, NULL, message_free_callback); // initialise
+	// a
+	// message
+	// vector
+	// with
+	// shallow
+	// copy
+	// and
 	// destructor
 
-	while (tok) {
+	while (tok)
+	{
 		Message *msg = calloc(1, sizeof *msg);
 		message_init(msg);
 
 		log_debug("Message: %s", tok);
 
-		if ((ret = parse_message(tok, msg)) == -1) {
+		if ((ret = parse_message(tok, msg)) == -1)
+		{
 			log_warn("Invalid message");
 			message_destroy(msg);
-		} else {
+		}
+		else
+		{
 			Vector_push(array, msg);
 		}
 
@@ -101,7 +111,7 @@ Vector *parse_all_messages(char *str)
 	return array;
 }
 
-int parse_message(char *str, Message * msg)
+int parse_message(char *str, Message *msg)
 {
 	assert(str);
 
@@ -109,11 +119,13 @@ int parse_message(char *str, Message * msg)
 
 	char *ptr = strstr(str, ":");
 
-	if (ptr == str) {
+	if (ptr == str)
+	{
 		ptr = strstr(ptr + 1, ":");
 	}
 
-	if (ptr) {
+	if (ptr)
+	{
 		msg->body = strdup(ptr + 1);
 		*ptr = 0;
 	}
@@ -121,19 +133,23 @@ int parse_message(char *str, Message * msg)
 	char *saveptr;
 	char *tok = strtok_r(str, " ", &saveptr);
 
-	if (!tok) {
+	if (!tok)
+	{
 		return -1;
 	}
 	// prefix
-	if (tok[0] == ':') {
-		if (tok[1] != ' ' && tok[1] != '\0') {
+	if (tok[0] == ':')
+	{
+		if (tok[1] != ' ' && tok[1] != '\0')
+		{
 			msg->origin = strdup(tok + 1);
 		}
 
 		tok = strtok_r(NULL, " ", &saveptr);
 	}
 
-	if (!tok) {
+	if (!tok)
+	{
 		return -1;
 	}
 	// command
@@ -142,8 +158,10 @@ int parse_message(char *str, Message * msg)
 	// params
 	size_t i = 0;
 
-	while (tok && i < 15) {
-		if ((tok = strtok_r(NULL, " ", &saveptr)) != NULL) {
+	while (tok && i < 15)
+	{
+		if ((tok = strtok_r(NULL, " ", &saveptr)) != NULL)
+		{
 			msg->params[i++] = strdup(tok);
 		}
 	}

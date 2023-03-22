@@ -17,8 +17,8 @@ int shallow_compare(void *elem1, void *elem2)
 	return elem1 - elem2;
 }
 
-const struct elem_type_info_t STRING_TYPE = { strcmp, strdup, free, -1 };
+const struct elem_type_info_t STRING_TYPE = {strcmp, strdup, free, -1};
 const struct elem_type_info_t INT_TYPE =
-    { int_compare, int_copy, free, sizeof(int) };
+	{int_compare, int_copy, free, sizeof(int)};
 const struct elem_type_info_t SHALLOW_TYPE =
-    { shallow_compare, shallow_copy, shallow_free, -1 };
+	{shallow_compare, shallow_copy, shallow_free, -1};

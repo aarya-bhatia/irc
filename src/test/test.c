@@ -14,19 +14,23 @@ void queue_test()
 	queue_t *queue = calloc(1, sizeof *queue);
 	queue_init(queue);
 	int data[1024];
-	for (int i = 0; i < 1024; i++) {
+	for (int i = 0; i < 1024; i++)
+	{
 		data[i] = i;
-		if (i % 4 == 0) {
+		if (i % 4 == 0)
+		{
 			queue_enqueue(queue, data + i);
 		}
 	}
 
 	queue_enqueue(queue, NULL);
 
-	while (1) {
+	while (1)
+	{
 		void *elem = queue_dequeue(queue);
 
-		if (!elem) {
+		if (!elem)
+		{
 			break;
 		}
 
@@ -36,17 +40,22 @@ void queue_test()
 
 	queue_destroy(queue, NULL);
 
-	for (int i = 0; i < 10; i++) {
-		if (i % 4 == 0) {
+	for (int i = 0; i < 10; i++)
+	{
+		if (i % 4 == 0)
+		{
 			assert(data[i] == 0);
-		} else {
+		}
+		else
+		{
 			assert(data[i] == i);
 		}
 	}
 	log_info("success");
 }
 
-struct s {
+struct s
+{
 	int x;
 };
 
@@ -69,7 +78,8 @@ void print(char *key, struct s *value)
 
 char *int_to_string(void *integer)
 {
-	if (!integer) {
+	if (!integer)
+	{
 		return 0;
 	}
 	static char s[16];
@@ -86,17 +96,19 @@ void hashtable_iter_test()
 {
 	Hashtable *this = calloc(1, sizeof *this);
 	ht_init(this);
-	this->key_compare = (compare_type) int_compare;
+	this->key_compare = (compare_type)int_compare;
 	this->key_len = sizeof(int);
-	this->key_copy = (elem_copy_type) int_copy;
+	this->key_copy = (elem_copy_type)int_copy;
 	this->key_free = free;
-	this->value_copy = (elem_copy_type) strdup;
+	this->value_copy = (elem_copy_type)strdup;
 	this->value_free = free;
 
 	int n = 100;
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
+	{
 		char some_string[16];
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < 15; i++)
+		{
 			some_string[i] = 'a' + rand() % 26;
 		}
 		some_string[15] = 0;
@@ -107,7 +119,8 @@ void hashtable_iter_test()
 	ht_iter_init(&itr, this);
 
 	int count = 0;
-	while (ht_iter_next(&itr, NULL, NULL) == true) {
+	while (ht_iter_next(&itr, NULL, NULL) == true)
+	{
 		count++;
 	}
 
@@ -118,14 +131,15 @@ void hashtable_iter_test()
 
 	ht_iter_init(&itr, this);
 
-	while (ht_iter_next(&itr, (void **)&i, NULL) == true) {
+	while (ht_iter_next(&itr, (void **)&i, NULL) == true)
+	{
 		sum += *i;
 	}
 
 	assert(sum == n * (n - 1) / 2);
 
 	ht_print(this, (char *(*)(void *))int_to_string,
-		 (char * (*)(void *))string_to_string);
+			 (char *(*)(void *))string_to_string);
 	ht_free(this);
 }
 
@@ -134,8 +148,8 @@ void hashtable_test()
 	Hashtable this;
 	ht_init(&this);
 
-	this.value_copy = (elem_copy_type) struct_copy;
-	this.value_free = (elem_free_type) struct_free;
+	this.value_copy = (elem_copy_type)struct_copy;
+	this.value_free = (elem_free_type)struct_free;
 
 	{
 		struct s s1;
@@ -183,14 +197,14 @@ bool cb(void *elem, const void *arg)
 
 void vector_test()
 {
-	Vector *this = Vector_alloc(10, (elem_copy_type) strdup, free);
+	Vector *this = Vector_alloc(10, (elem_copy_type)strdup, free);
 
 	Vector_push(this, "hello");
 	Vector_push(this, "world");
 
 	assert(this->size == 2);
 
-	Vector_foreach(this, (foreach_callback_type) puts);
+	Vector_foreach(this, (foreach_callback_type)puts);
 
 	puts(Vector_find(this, cb, "hello"));
 
@@ -239,27 +253,30 @@ void read_test(const char *filename)
 {
 	FILE *file = fopen(filename, "r");
 
-	if (!file) {
+	if (!file)
+	{
 		perror("fopen");
 		log_error("Failed to open file %s", filename);
 		return;
 	}
 
-	Vector *lines = Vector_alloc(10, (elem_copy_type) strdup, free);
+	Vector *lines = Vector_alloc(10, (elem_copy_type)strdup, free);
 
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t nread;
 
 	// Second line contains channel topic
-	while ((nread = getline(&line, &len, file)) > 0) {
+	while ((nread = getline(&line, &len, file)) > 0)
+	{
 		assert(line);
 		assert(len > 0);
 
 		size_t n = strlen(line);
 		line[n - 1] = 0;
 
-		if (strlen(line) == 0) {
+		if (strlen(line) == 0)
+		{
 			continue;
 		}
 
@@ -269,7 +286,8 @@ void read_test(const char *filename)
 	free(line);
 	fclose(file);
 
-	for (size_t i = 0; i < Vector_size(lines); i++) {
+	for (size_t i = 0; i < Vector_size(lines); i++)
+	{
 		puts(Vector_get_at(lines, i));
 	}
 
@@ -279,14 +297,14 @@ void read_test(const char *filename)
 void line_wrap_test(size_t width)
 {
 	const char help_who[] =
-	    "The /WHO Command is used to query a list of users that match given mask.\n"
-	    "Example: WHO emersion ; request information on user 'emersion'.\n"
-	    "Example: WHO #ircv3 ; list users in the '#ircv3' channel";
+		"The /WHO Command is used to query a list of users that match given mask.\n"
+		"Example: WHO emersion ; request information on user 'emersion'.\n"
+		"Example: WHO #ircv3 ; list users in the '#ircv3' channel";
 
 	const char help_privmsg[] =
-	    "The /PRIVMSG command is the main way to send messages to other users.\n"
-	    "PRIVMSG Angel :yes I'm receiving it ! ; Command to send a message to Angel.\n"
-	    "PRIVMSG #bunny :Hi! I have a problem! ; Command to send a message to channel #bunny.";
+		"The /PRIVMSG command is the main way to send messages to other users.\n"
+		"PRIVMSG Angel :yes I'm receiving it ! ; Command to send a message to Angel.\n"
+		"PRIVMSG #bunny :Hi! I have a problem! ; Command to send a message to channel #bunny.";
 
 	Vector *lines = text_wrap(help_who, width);
 	Vector_foreach(lines, puts);
@@ -301,14 +319,16 @@ void line_wrap_test(size_t width)
 
 int main(int argc, char *argv[])
 {
-	if (argc < 2) {
+	if (argc < 2)
+	{
 		fprintf(stderr, "Usage: %s test_case\n", *argv);
 		return 1;
 	}
 
 	int test_num = atoi(argv[1]);
 
-	switch (test_num) {
+	switch (test_num)
+	{
 	case 1:
 		message_test();
 		break;
@@ -326,7 +346,8 @@ int main(int argc, char *argv[])
 		break;
 	case 6:
 		char *filename = argv[2];
-		if (!filename) {
+		if (!filename)
+		{
 			return 1;
 		}
 		read_test(filename);

@@ -3,8 +3,9 @@
 #include "common.h"
 #include "vector.h"
 
-typedef struct _Message {
-	char *message;		// Add original message string
+typedef struct _Message
+{
+	char *message; // Add original message string
 	char *origin;
 	char *command;
 	char *params[MAX_MSG_PARAM];
@@ -12,8 +13,8 @@ typedef struct _Message {
 	size_t n_params;
 } Message;
 
-void message_init(Message * msg);
-void message_destroy(Message * msg);
-int parse_message(char *str, Message * msg);
+void message_init(Message *msg);
+void message_destroy(Message *msg);
+int parse_message(char *str, Message *msg);
 Vector *parse_all_messages(char *str);
-Vector *parse_message_list(List * list);
+Vector *parse_message_list(List *list);

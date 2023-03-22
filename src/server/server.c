@@ -310,7 +310,8 @@ void Server_process_request_from_user(Server *serv, Connection *conn)
 
 		if (!usr->registered)
 		{
-			char *reply = Server_create_message(serv, "451 %s :Connection not registered", usr->nick); List_push_back(conn->outgoing_messages, reply);
+			char *reply = Server_create_message(serv, "451 %s :Connection not registered", usr->nick);
+			List_push_back(conn->outgoing_messages, reply);
 		}
 		else
 		{
@@ -407,7 +408,7 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 
 	Vector *messages = parse_message_list(conn->incoming_messages);
 
-	for(size_t i = 0; i < Vector_size(messages); i++)
+	for (size_t i = 0; i < Vector_size(messages); i++)
 	{
 		Message *message = Vector_get_at(messages, i);
 

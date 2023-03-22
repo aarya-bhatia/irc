@@ -4,11 +4,11 @@ Peer *Peer_alloc()
 {
 	Peer *this = calloc(1, sizeof *this);
 	this->msg_queue = List_alloc(NULL, free);
-	this->nicks = Vector_alloc(1, (elem_copy_type) strcpy, free);
+	this->nicks = Vector_alloc(1, (elem_copy_type)strcpy, free);
 	return this;
 }
 
-void Peer_free(Peer * this)
+void Peer_free(Peer *this)
 {
 	List_free(this->msg_queue);
 	Vector_free(this->nicks);
@@ -17,12 +17,12 @@ void Peer_free(Peer * this)
 	free(this);
 }
 
-bool
-get_peer_info(const char *filename, const char *name, struct peer_info_t *info)
+bool get_peer_info(const char *filename, const char *name, struct peer_info_t *info)
 {
 	FILE *file = fopen(filename, "r");
 
-	if (!file) {
+	if (!file)
+	{
 		return false;
 	}
 
@@ -30,8 +30,10 @@ get_peer_info(const char *filename, const char *name, struct peer_info_t *info)
 	size_t capacity = 0;
 	ssize_t nread = 0;
 
-	while ((nread = getline(&line, &capacity, file)) > 0) {
-		if (line[nread - 1] == '\n') {
+	while ((nread = getline(&line, &capacity, file)) > 0)
+	{
+		if (line[nread - 1] == '\n')
+		{
 			line[nread - 1] = 0;
 		}
 
@@ -45,7 +47,8 @@ get_peer_info(const char *filename, const char *name, struct peer_info_t *info)
 		assert(remote_port);
 		assert(remote_passwd);
 
-		if (!strcmp(remote_name, name)) {
+		if (!strcmp(remote_name, name))
+		{
 			info->peer_name = strdup(remote_name);
 			info->peer_host = strdup(remote_host);
 			info->peer_port = strdup(remote_port);
@@ -68,7 +71,8 @@ char *get_server_passwd(const char *config_filename, const char *name)
 	// Load server info from file
 	FILE *file = fopen(config_filename, "r");
 
-	if (!file) {
+	if (!file)
+	{
 		log_error("failed to open config file %s", config_filename);
 		return false;
 	}
@@ -82,7 +86,8 @@ char *get_server_passwd(const char *config_filename, const char *name)
 	size_t capacity = 0;
 	ssize_t nread = 0;
 
-	while ((nread = getline(&line, &capacity, file)) > 0) {
+	while ((nread = getline(&line, &capacity, file)) > 0)
+	{
 		assert(line);
 
 		remote_name = strtok(line, ",");
@@ -95,14 +100,16 @@ char *get_server_passwd(const char *config_filename, const char *name)
 		assert(remote_port);
 		assert(remote_passwd);
 
-		if (!strcmp(remote_name, name)) {
+		if (!strcmp(remote_name, name))
+		{
 			break;
 		}
 	}
 
 	fclose(file);
 
-	if (!remote_passwd || strcmp(remote_name, name) != 0) {
+	if (!remote_passwd || strcmp(remote_name, name) != 0)
+	{
 		log_error("Server not configured in file %s", config_filename);
 		free(line);
 		return NULL;
