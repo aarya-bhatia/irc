@@ -37,6 +37,15 @@ typedef struct HashtableIter
 	HTNode *node;
 } HashtableIter;
 
+
+#define HASHTABLE_FOR_EACH(hashtable, iterator, key_ptr, value_ptr, callback) \
+	ht_iter_init(&iterator, hashtable);                                       \
+	while (ht_iter_next(&iterator, (void **)key, (void **)value))             \
+	{                                                                         \
+		callback;                                                             \
+	}
+
+
 void Hashtable_set_value_type(Hashtable *this, struct elem_type_info_t info);
 void Hashtable_set_key_type(Hashtable *this, struct elem_type_info_t info);
 

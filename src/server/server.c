@@ -9,13 +9,6 @@
 #include "include/hashtable.h"
 #include "include/list.h"
 
-#define HASHTABLE_FOR_EACH(hashtable, iterator, key_ptr, value_ptr, callback) \
-	ht_iter_init(&iterator, hashtable);                                       \
-	while (ht_iter_next(&iterator, (void **)key, (void **)value))             \
-	{                                                                         \
-		callback;                                                             \
-	}
-
 /**
  * request handler
  */
@@ -24,17 +17,6 @@ typedef struct _UserRequestHandler
 	const char *name;							  // command name
 	void (*handler)(Server *, User *, Message *); // request handler function
 } UserRequestHandler;
-
-typedef struct _PeerRequestHandler
-{
-	const char *name;							  // command name
-	void (*handler)(Server *, Peer *, Message *); // request handler function
-} PeerRequestHandler;
-
-/**
- * Look up table for peer request handlers
- */
-static PeerRequestHandler peer_request_handlers[] = {{"SERVER", Server_handle_SERVER}, {"PASS", Server_handle_PASS}};
 
 /**
  * Look up table for user request handlers
@@ -58,49 +40,6 @@ static UserRequestHandler user_request_handlers[] = {
 	{"HELP", Server_handle_HELP},
 	{"CONNECT", Server_handle_CONNECT},
 };
-
-/**
- * Remove any open connections from server.
- */
-void Server_remove_all_connections(Server *serv)
-{
-	HashtableIter conn_itr;
-	ht_iter_init(&conn_itr, serv->connections);
-	Connection *conn = NULL;
-
-	while (ht_iter_next(&conn_itr, NULL, (void **)&conn))
-	{
-		Server_remove_connection(serv, conn);
-	}
-}
-
-/**
- * Destroy server and close all connections.
- */
-void Server_destroy(Server *serv)
-{
-	assert(serv);
-
-	save_channels(serv->name_to_channel_map, CHANNELS_FILENAME);
-	Server_remove_all_connections(serv);
-
-	ht_free(serv->name_to_channel_map);
-	ht_free(serv->name_to_peer_map);
-	ht_free(serv->nick_to_user_map);
-	ht_free(serv->connections);
-
-	close(serv->fd);
-	close(serv->epollfd);
-	free(serv->hostname);
-	free(serv->port);
-	free(serv->passwd);
-	free(serv->info);
-	free(serv->name);
-	free(serv);
-
-	log_debug("Server stopped");
-	exit(0);
-}
 
 /**
  * Create and initialise the server with given name.
@@ -177,6 +116,49 @@ Server *Server_create(const char *name)
 			 serv->port);
 
 	return serv;
+}
+
+/**
+ * Remove any open connections from server.
+ */
+void Server_remove_all_connections(Server *serv)
+{
+	HashtableIter conn_itr;
+	ht_iter_init(&conn_itr, serv->connections);
+	Connection *conn = NULL;
+
+	while (ht_iter_next(&conn_itr, NULL, (void **)&conn))
+	{
+		Server_remove_connection(serv, conn);
+	}
+}
+
+/**
+ * Destroy server and close all connections.
+ */
+void Server_destroy(Server *serv)
+{
+	assert(serv);
+
+	save_channels(serv->name_to_channel_map, CHANNELS_FILENAME);
+	Server_remove_all_connections(serv);
+
+	ht_free(serv->name_to_channel_map);
+	ht_free(serv->name_to_peer_map);
+	ht_free(serv->nick_to_user_map);
+	ht_free(serv->connections);
+
+	close(serv->fd);
+	close(serv->epollfd);
+	free(serv->hostname);
+	free(serv->port);
+	free(serv->passwd);
+	free(serv->info);
+	free(serv->name);
+	free(serv);
+
+	log_debug("Server stopped");
+	exit(0);
 }
 
 /**
@@ -417,50 +399,44 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 			peer->quit = true;
 			break;
 		}
-
-		bool found = false;
-
-		// Find and execute request handler for special commands
-		for (size_t i = 0; i < sizeof(peer_request_handlers) / sizeof(peer_request_handlers[0]); i++)
+		else if (!strcmp(message->command, "SQUIT"))
 		{
-			PeerRequestHandler handler = peer_request_handlers[i];
-
-			if (!strcmp(handler.name, message->command))
-			{
-				handler.handler(serv, peer, &message);
-				found = true;
-				break;
-			}
+			peer->quit = true;
+			break;
 		}
-
-		// Relay other commands to network
-		if (!found)
+		else if (!strcmp(message->command, "SERVER"))
 		{
-			// A new user was registered on peer server
-			if (!strcmp(message->command, "NICK"))
-			{
-				ht_set(serv->nick_to_serv_name_map, message->params[0], peer->name);
-				Server_relay_message(serv, peer->name, message->message);
-			}
-			// To send message to a user or channel
-			else if (!strcmp(message->command, "PRIVMSG"))
-			{
-				assert(message->n_params > 0);
+			Server_handle_SERVER(serv, peer, message);
+		}
+		else if (!strcmp(message->command, "PASS"))
+		{
+			Server_handle_PASS(serv, peer, message);
+		}
+		else if (!strcmp(message->command, "NICK")) // A new user was registered on peer server
+		{
+			ht_set(serv->nick_to_serv_name_map, message->params[0], peer->name);
+			Server_relay_message(serv, peer->name, message->message);
+		}
+		else if (!strcmp(message->command, "PRIVMSG")) // To send message to a user or channel
+		{
+			assert(message->n_params > 0);
 
-				if (*message->params[0] == '#')
-				{
-					Server_message_channel(serv, peer->name, message->params[0] + 1, message->message);
-				}
-				else
-				{
-					Server_message_user(serv, peer->name, message->params[0], message->message);
-				}
-			}
-
-			else if (!strcmp(message->command, "JOIN") || !strcmp(message->command, "PART"))
+			if (*message->params[0] == '#')
 			{
 				Server_message_channel(serv, peer->name, message->params[0] + 1, message->message);
 			}
+			else
+			{
+				Server_message_user(serv, peer->name, message->params[0], message->message);
+			}
+		}
+		else if (!strcmp(message->command, "JOIN"))
+		{
+			Server_message_channel(serv, peer->name, message->params[0] + 1, message->message);
+		}
+		else if (!strcmp(message->command, "PART"))
+		{
+			Server_message_channel(serv, peer->name, message->params[0] + 1, message->message);
 		}
 	}
 
@@ -481,17 +457,17 @@ void Server_process_request(Server *serv, Connection *conn)
 		return;
 	}
 
-	if (conn->conn_type == UNKNOWN_CONNECTION)
+	if (!conn->quit && conn->conn_type == UNKNOWN_CONNECTION)
 	{
 		Server_process_request_from_unknown(serv, conn);
 	}
 
-	if (conn->conn_type == PEER_CONNECTION)
+	if (!conn->quit && conn->conn_type == PEER_CONNECTION)
 	{
 		Server_process_request_from_peer(serv, conn);
 	}
 
-	if (conn->conn_type == USER_CONNECTION)
+	if (!conn->quit && conn->conn_type == USER_CONNECTION)
 	{
 		Server_process_request_from_user(serv, conn);
 	}
@@ -567,7 +543,6 @@ void Server_remove_connection(Server *serv, Connection *connection)
 	{
 		Peer *peer = connection->data;
 		log_info("Closing connection with peer %d", connection->fd);
-
 		if (peer->name)
 		{
 			ht_remove(serv->name_to_peer_map, peer->name, NULL, NULL);
