@@ -73,6 +73,7 @@ typedef struct _Peer {
 	Vector *nicks;		// nick of users behind this server
 
 	enum { ACTIVE_SERVER, PASSIVE_SERVER } server_type;
+	enum { CLOSED, HALF_OPEN, OPEN } state;
 } Peer;
 
 typedef struct peer_info_t {

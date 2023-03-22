@@ -876,10 +876,13 @@ void check_peer_registration(Server * serv, Peer * peer)
 
 		free(other_passwd);
 
+		peer->state = HALF_OPEN;
+
 		return;
 	}
 
 	peer->registered = true;
+	peer->state = OPEN;
 
 	// State information exchange
 
@@ -984,6 +987,7 @@ void Server_handle_CONNECT(Server * serv, User * usr, Message * msg)
 	}
 
 	struct peer_info_t target_info;
+	memset(&target_info, 0, sizeof target_info);
 
 	if (!get_peer_info(serv->config_file, target_server, &target_info)) {
 		List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NOSUCHSERVER_MSG, usr->nick, target_server));
@@ -1012,6 +1016,7 @@ void Server_handle_CONNECT(Server * serv, User * usr, Message * msg)
 	Peer *peer = Peer_alloc();
 	peer->name = target_info.peer_name;
 	peer->server_type = PASSIVE_SERVER;
+	peer->state = HALF_OPEN;
 
 	conn->conn_type = PEER_CONNECTION;
 	conn->data = peer;

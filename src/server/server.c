@@ -108,6 +108,7 @@ Server *Server_create(const char *name)
 	serv->config_file = CONFIG_FILENAME;
 
 	struct peer_info_t serv_info;
+	memset(&serv_info, 0, sizeof serv_info);
 
 	if (!get_peer_info(CONFIG_FILENAME, name, &serv_info)) {
 		log_error("server %s not found in config file %s", name,
@@ -419,6 +420,13 @@ void Server_process_request_from_peer(Server * serv, Connection * conn)
 	while (List_size(conn->incoming_messages) > 0) {
 		char *message_str = List_peek_front(conn->incoming_messages);
 		assert(message_str);
+
+		if(peer->server_type == PASSIVE_SERVER && peer->state == HALF_OPEN && !strstr(message_str, "ERROR"))
+		{
+			log_info("Server %s has registered", peer->name);
+			peer->registered = true;
+			peer->state = OPEN;
+		}
 
 		Message message;
 		message_init(&message);
