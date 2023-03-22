@@ -137,6 +137,7 @@ void *reader_thread_routine(void *args)
 
 					SAFE(mutex_stdout, {
 						log_debug("reader_thread: read %zd bytes", nrecv);
+						log_debug("reader_thread: %s", buf);
 					});
 
 					if(!strstr(buf, "\r\n"))
