@@ -1,4 +1,7 @@
 BasedOnStyle:  GNU
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
 AlignAfterOpenBracket: Align
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: true
@@ -39,3 +42,4 @@ SortIncludes: false
 SpaceBeforeParens: Never
 SpacesInContainerLiterals: false
 Standard:        Cpp11
+

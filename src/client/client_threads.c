@@ -5,11 +5,11 @@
 #define EPOLL_TIMEOUT 2500 // Seconds
 
 extern pthread_mutex_t mutex_stdout; // use this lock before printing
-                                     // to stdout
+									 // to stdout
 
 void display_message(const char *message)
 {
-  SAFE(mutex_stdout, { puts(message); });
+	SAFE(mutex_stdout, { puts(message); });
 }
 
 /*
@@ -18,55 +18,56 @@ void display_message(const char *message)
  */
 void *inbox_thread_routine(void *args)
 {
-  Client *client = (Client *)args;
+	Client *client = (Client *)args;
 
-  while(1)
-    {
-      char *message = queue_dequeue(client->client_inbox);
-      char *msgcopy = strdup(message);
+	while(1)
+		{
+			char *message = queue_dequeue(client->client_inbox);
+			char *msgcopy = strdup(message);
 
-      Message msg_info;
+			Message msg_info;
 
-      message_init(&msg_info);
+			message_init(&msg_info);
 
-      if(parse_message(msgcopy, &msg_info) == -1)
-        {
-          SAFE(mutex_stdout,
-               { log_error("Failed to parse message: %s", msgcopy); });
-        }
-      else
-        {
-          // Display message to stdout
+			if(parse_message(msgcopy, &msg_info) == -1)
+				{
+					SAFE(mutex_stdout, {
+						log_error("Failed to parse message: %s", msgcopy);
+					});
+				}
+			else
+				{
+					// Display message to stdout
 
-          if(!strcmp(msg_info.command, "PRIVMSG"))
-            {
-              assert(msg_info.n_params == 1);
+					if(!strcmp(msg_info.command, "PRIVMSG"))
+						{
+							assert(msg_info.n_params == 1);
 
-            //   SAFE(mutex_stdout,
-            //        { printf("%s: %s\n", msg_info.origin, msg_info.body); });
-              SAFE(mutex_stdout,
-                   { puts(msgcopy); });
-            }
-          else
-            {
-              display_message(message);
-            }
-        }
+							//   SAFE(mutex_stdout,
+							//        { printf("%s: %s\n", msg_info.origin,
+							//        msg_info.body); });
+							SAFE(mutex_stdout, { puts(message); });
+						}
+					else
+						{
+							display_message(message);
+						}
+				}
 
-      free(msgcopy);
-      message_destroy(&msg_info);
+			free(msgcopy);
+			message_destroy(&msg_info);
 
-      if(strstr(message, "ERROR"))
-        {
-          SAFE(mutex_stdout, { log_debug("inbox_thread: bye"); });
-          free(message);
-          break;
-        }
+			if(strstr(message, "ERROR"))
+				{
+					SAFE(mutex_stdout, { log_debug("inbox_thread: bye"); });
+					free(message);
+					break;
+				}
 
-      free(message);
-    }
+			free(message);
+		}
 
-  return client;
+	return client;
 }
 
 /*
@@ -74,129 +75,133 @@ void *inbox_thread_routine(void *args)
  */
 void *reader_thread_routine(void *args)
 {
-  Client *client = (Client *)args;
-  char buf[MAX_MSG_LEN + 1];
-  memset(buf, 0, sizeof buf);
-  size_t len = 0;
+	Client *client = (Client *)args;
+	char buf[MAX_MSG_LEN + 1];
+	memset(buf, 0, sizeof buf);
+	size_t len = 0;
 
-  // We will poll the socket for reads
-  int epollfd = epoll_create1(0);
+	// We will poll the socket for reads
+	int epollfd = epoll_create1(0);
 
-  struct epoll_event ev = {.events = EPOLLIN, .data.fd = client->client_sock};
-  epoll_ctl(epollfd, EPOLL_CTL_ADD, client->client_sock, &ev);
+	struct epoll_event ev
+	  = {.events = EPOLLIN, .data.fd = client->client_sock};
+	epoll_ctl(epollfd, EPOLL_CTL_ADD, client->client_sock, &ev);
 
-  struct epoll_event events[1];
+	struct epoll_event events[1];
 
-  bool quit = false;
+	bool quit = false;
 
-  while(!quit)
-    {
-      int nfd = epoll_wait(epollfd, events, 1, EPOLL_TIMEOUT);
+	while(!quit)
+		{
+			int nfd = epoll_wait(epollfd, events, 1, EPOLL_TIMEOUT);
 
-      if(nfd == -1)
-        {
-          perror("epoll_wait");
-          break;
-        }
+			if(nfd == -1)
+				{
+					perror("epoll_wait");
+					break;
+				}
 
-      // No events polled
-      if(nfd == 0)
-        {
-          continue;
-        }
+			// No events polled
+			if(nfd == 0)
+				{
+					continue;
+				}
 
-      if(events[0].data.fd != client->client_sock)
-        {
-          continue;
-        }
+			if(events[0].data.fd != client->client_sock)
+				{
+					continue;
+				}
 
-      // Server disconnect
-      if(events[0].events & (EPOLLERR | EPOLLHUP))
-        {
-          SAFE(mutex_stdout, { log_info("Server disconnect"); });
-          break;
-        }
+			// Server disconnect
+			if(events[0].events & (EPOLLERR | EPOLLHUP))
+				{
+					SAFE(mutex_stdout, { log_info("Server disconnect"); });
+					break;
+				}
 
-      if(events[0].events & EPOLLIN)
-        {
-          ssize_t nrecv
-            = read_all(client->client_sock, buf + len, MAX_MSG_LEN);
+			if(events[0].events & EPOLLIN)
+				{
+					ssize_t nrecv
+					  = read_all(client->client_sock, buf + len, MAX_MSG_LEN);
 
-          if(nrecv == -1)
-            die("read");
+					if(nrecv == -1)
+						die("read");
 
-          if(nrecv == 0)
-            {
-              break;
-            }
+					if(nrecv == 0)
+						{
+							break;
+						}
 
-          len += nrecv;
-          buf[len] = 0;
+					len += nrecv;
+					buf[len] = 0;
 
-          SAFE(mutex_stdout,
-               { log_debug("reader_thread: read %zd bytes", nrecv); });
+					SAFE(mutex_stdout, {
+						log_debug("reader_thread: read %zd bytes", nrecv);
+					});
 
-          if(!strstr(buf, "\r\n"))
-            {
-              continue;
-            }
+					if(!strstr(buf, "\r\n"))
+						{
+							continue;
+						}
 
-          // check for partial messages
+					// check for partial messages
 
-          // char *partial = rstrstr(buf, "\r\n"); // get ptr to last
-          // \r\n in buf
-          // partial += 2; // move ptr to start of last message
+					// char *partial = rstrstr(buf, "\r\n"); // get ptr to last
+					// \r\n in buf
+					// partial += 2; // move ptr to start of last message
 
-          // // all messages are complete
-          // if (*partial == 0)
-          // {
-          // partial = NULL;
-          // }
-          // else
-          // {
-          // *partial = 0; // erase tail of buffer
-          // }
+					// // all messages are complete
+					// if (*partial == 0)
+					// {
+					// partial = NULL;
+					// }
+					// else
+					// {
+					// *partial = 0; // erase tail of buffer
+					// }
 
-          char *tok = strtok(buf, "\r\n");
-          int count = 0;
+					char *tok = strtok(buf, "\r\n");
+					int count = 0;
 
-          // add all complete messages to inbox
-          while(tok)
-            {
-              queue_enqueue(client->client_inbox, strdup(tok));
+					// add all complete messages to inbox
+					while(tok)
+						{
+							queue_enqueue(client->client_inbox, strdup(tok));
 
-              if(strstr(tok, "ERROR"))
-                {
-                  SAFE(mutex_stdout, { log_debug("reader_thread: bye"); });
-                  quit = true;
-                  break;
-                }
+							if(strstr(tok, "ERROR"))
+								{
+									SAFE(mutex_stdout,
+										 { log_debug("reader_thread: bye"); });
+									quit = true;
+									break;
+								}
 
-              tok = strtok(NULL, "\r\n");
-              count++;
-            }
+							tok = strtok(NULL, "\r\n");
+							count++;
+						}
 
-          // if (partial)
-          // {
-          // memmove(buf, partial, strlen(partial) + 1); // also copy
-          // null byte
-          // }
-          // else
-          // {
-          // memset(buf, 0, sizeof buf);
-          // }
+					// if (partial)
+					// {
+					// memmove(buf, partial, strlen(partial) + 1); // also copy
+					// null byte
+					// }
+					// else
+					// {
+					// memset(buf, 0, sizeof buf);
+					// }
 
-          // len = strlen(buf);
+					// len = strlen(buf);
 
-          len = 0;
-          SAFE(mutex_stdout,
-               { log_debug("%d messages were read from server", count); });
-        }
-    }
+					len = 0;
+					SAFE(mutex_stdout, {
+						log_debug("%d messages were read from server", count);
+					});
+				}
+		}
 
-  close(epollfd);
+	close(epollfd);
 
-  return client;
+	return client;
 }
 
 /*
@@ -204,29 +209,30 @@ void *reader_thread_routine(void *args)
  */
 void *outbox_thread_routine(void *args)
 {
-  Client *client = (Client *)args;
+	Client *client = (Client *)args;
 
-  while(1)
-    {
-      char *message = queue_dequeue(client->client_outbox);
+	while(1)
+		{
+			char *message = queue_dequeue(client->client_outbox);
 
-      ssize_t nsent = write_all(client->client_sock, message, strlen(message));
+			ssize_t nsent
+			  = write_all(client->client_sock, message, strlen(message));
 
-      if(nsent == -1)
-        die("write_all");
+			if(nsent == -1)
+				die("write_all");
 
-      SAFE(mutex_stdout,
-           { log_debug("outbox_thread: sent %zd bytes", nsent); });
+			SAFE(mutex_stdout,
+				 { log_debug("outbox_thread: sent %zd bytes", nsent); });
 
-      if(!strncmp(message, "QUIT", 4))
-        {
-          SAFE(mutex_stdout, { log_debug("outbox_thread: bye"); });
-          free(message);
-          break;
-        }
+			if(!strncmp(message, "QUIT", 4))
+				{
+					SAFE(mutex_stdout, { log_debug("outbox_thread: bye"); });
+					free(message);
+					break;
+				}
 
-      free(message);
-    }
+			free(message);
+		}
 
-  return client;
+	return client;
 }
