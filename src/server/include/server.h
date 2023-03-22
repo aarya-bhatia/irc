@@ -157,6 +157,8 @@ void Server_handle_HELP(Server * serv, User * usr, Message * msg);
 void Server_handle_SERVER(Server * serv, Peer * peer, Message * msg);
 void Server_handle_PASS(Server * serv, Peer * peer, Message * msg);
 
+void check_peer_registration(Server * serv, Peer * peer);
+
 User *User_alloc();
 void User_free(User * this);
 bool User_is_member(User * usr, const char *channel_name);

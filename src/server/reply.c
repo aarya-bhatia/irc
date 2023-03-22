@@ -857,7 +857,7 @@ void check_peer_registration(Server * serv, Peer * peer)
 		return;
 	}
 
-	if(peer->server_type == PASSIVE_SERVER) {
+	if(peer->server_type == PASSIVE_SERVER && peer->state == CLOSED) { 
 		char *other_passwd = get_server_passwd(serv->config_file, peer->name);
 
 		if (!other_passwd) {
@@ -880,6 +880,8 @@ void check_peer_registration(Server * serv, Peer * peer)
 
 		return;
 	}
+
+	assert(peer->state == HALF_OPEN);
 
 	peer->registered = true;
 	peer->state = OPEN;

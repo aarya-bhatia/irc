@@ -421,11 +421,9 @@ void Server_process_request_from_peer(Server * serv, Connection * conn)
 		char *message_str = List_peek_front(conn->incoming_messages);
 		assert(message_str);
 
-		if(peer->server_type == PASSIVE_SERVER && peer->state == HALF_OPEN && !strstr(message_str, "ERROR"))
+		if(!peer->registered && !strstr(message_str, "ERROR"))
 		{
-			log_info("Server %s has registered", peer->name);
-			peer->registered = true;
-			peer->state = OPEN;
+			check_peer_registration(serv, peer);
 		}
 
 		Message message;
