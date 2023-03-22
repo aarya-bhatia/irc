@@ -31,7 +31,7 @@ bool List_iter_next(ListIter * iter, void **elem_ptr)
 	return true;
 }
 
-List *List_alloc(void *(*elem_copy)(void *), void(*elem_free)(void *))
+List *List_alloc(void *(*elem_copy)(void *), void (*elem_free)(void *))
 {
 	List *this = calloc(1, sizeof *this);
 	List_init(this, elem_copy, elem_free);
@@ -45,7 +45,7 @@ void List_free(List * this)
 }
 
 void
-List_init(List * this, void *(*elem_copy)(void *), void(*elem_free)(void *))
+List_init(List * this, void *(*elem_copy)(void *), void (*elem_free)(void *))
 {
 	this->head = NULL;
 	this->tail = NULL;

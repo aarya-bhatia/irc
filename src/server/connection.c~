@@ -104,20 +104,9 @@ ssize_t Connection_write(Connection * this)
 
 		return nsent;
 	}
-
-	List *queue = NULL;
-
-	if(List_size(this->outgoing_messages)) {
-		queue = this->outgoing_messages;
-	} else if(this->conn_type == USER_CONNECTION) {
-		queue = ((User *) this->data) -> msg_queue;
-	} else if(this->conn_type == PEER_CONNECTION) {
-		queue = ((Peer *) this->data) -> msg_queue;
-	}
-
 	// Check for pending messages in outgoing list
-	if (queue && List_size(queue) > 0) {
-		char *msg = List_peek_front(queue);
+	if (List_size(this->outgoing_messages) > 0) {
+		char *msg = List_peek_front(this->outgoing_messages);
 
 		// Add next message to response buffer
 		strncpy(this->res_buf, msg, strlen(msg));
@@ -125,7 +114,7 @@ ssize_t Connection_write(Connection * this)
 		this->res_len = strlen(msg);
 		this->res_off = 0;
 
-		List_pop_front(queue);
+		List_pop_front(this->outgoing_messages);
 	}
 
 	return 0;

@@ -25,7 +25,7 @@ void queue_init(queue_t * q)
 
 void queue_destroy(queue_t * q, void (*free_callback)(void *))
 {
-	for(ListNode * itr = q->l->head; itr != NULL; itr = itr->next) {
+	for (ListNode * itr = q->l->head; itr != NULL; itr = itr->next) {
 		if (free_callback) {
 			free_callback(itr->elem);
 		}

@@ -41,9 +41,9 @@ char *ptr_to_string(void *ptr)
 
 void
 ht_print(Hashtable * this, char *(*key_to_string)(void *),
-	 char * (*value_to_string)(void *))
+	 char *(*value_to_string)(void *))
 {
-	if(!key_to_string) {
+	if (!key_to_string) {
 		key_to_string = ptr_to_string;
 	}
 	if (!value_to_string) {
@@ -210,7 +210,7 @@ void ht_destroy(Hashtable * this)
 
 void ht_foreach(Hashtable * this, void (*callback)(void *key, void *value))
 {
-	for(size_t i = 0; i < this->capacity; i++) {
+	for (size_t i = 0; i < this->capacity; i++) {
 		if (this->table[i]) {
 			HTNode *itr = this->table[i];
 

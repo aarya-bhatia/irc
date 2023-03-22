@@ -70,7 +70,8 @@ int main(int argc, char *argv[])
 		if (strlen(line) > MAX_MSG_LEN) {
 			SAFE(mutex_stdout, {
 			     log_error("Message is greater than %d bytes",
-				       MAX_MSG_LEN);}
+				       MAX_MSG_LEN);
+			     }
 			);
 			continue;
 		}
@@ -87,22 +88,26 @@ int main(int argc, char *argv[])
 	free(line);
 
 	SAFE(mutex_stdout, {
-	     log_debug("joining theads");}
+	     log_debug("joining theads");
+	     }
 	);
 
 	pthread_join(inbox_thread, NULL);
 	SAFE(mutex_stdout, {
-	     log_debug("inbox thread quit");}
+	     log_debug("inbox thread quit");
+	     }
 	);
 
 	pthread_join(outbox_thread, NULL);
 	SAFE(mutex_stdout, {
-	     log_debug("outbox thread quit");}
+	     log_debug("outbox thread quit");
+	     }
 	);
 
 	pthread_join(reader_thread, NULL);
 	SAFE(mutex_stdout, {
-	     log_debug("reader thread quit");}
+	     log_debug("reader thread quit");
+	     }
 	);
 
 	queue_free(client.client_inbox, _free_callback);

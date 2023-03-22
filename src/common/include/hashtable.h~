@@ -41,7 +41,7 @@ Hashtable *ht_alloc_type(struct elem_type_info_t key_type,
 			 struct elem_type_info_t value_type);
 
 void ht_print(Hashtable * this, char *(*key_to_string)(void *),
-	      char * (*value_to_string)(void *));
+	      char *(*value_to_string)(void *));
 
 Hashtable *ht_alloc();
 void ht_free(Hashtable * this);
