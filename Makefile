@@ -1,9 +1,10 @@
 CLIENT_DIR=src/client
 SERVER_DIR=src/server
 COMMON_DIR=src/common
+INCLUDES=-Isrc/
 
-INCLUDE_DIRS=$(CLIENT_DIR) $(SERVER_DIR) $(COMMON_DIR)
-INCLUDES=$(addprefix -I, $(INCLUDE_DIRS))
+# INCLUDE_DIRS=$(CLIENT_DIR) $(SERVER_DIR) $(COMMON_DIR)
+# INCLUDES=$(addprefix -I, $(INCLUDE_DIRS))
 
 LDFLAGS=-Llib -llog
 

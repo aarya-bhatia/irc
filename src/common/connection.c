@@ -2,6 +2,7 @@
  * Functions to read/write from a socket byte stream
  */
 
+#include "include/connection.h"
 #include "include/server.h"
 
 Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen)

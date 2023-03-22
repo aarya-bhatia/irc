@@ -1,10 +1,11 @@
 #pragma once
 
-#include "include/common.h"
-#include "include/hashtable.h"
-#include "include/list.h"
-#include "include/message.h"
-#include "include/vector.h"
+#include "common.h"
+#include "hashtable.h"
+#include "list.h"
+#include "message.h"
+#include "vector.h"
+#include "connection.h"
 
 #define MOTD_FILENAME "./data/motd.txt"
 #define CONFIG_FILENAME "./config.csv"
@@ -25,30 +26,6 @@
 #define User_create_message(usr, format, ...)                         \
 	make_string(":%s!%s@%s " format "\r\n", usr->nick, usr->username, \
 				usr->hostname, __VA_ARGS__)
-
-typedef enum _conn_type_t
-{
-	UNKNOWN_CONNECTION,
-	USER_CONNECTION,
-	PEER_CONNECTION
-} conn_type_t;
-
-typedef struct _Connection
-{
-	int fd;
-	conn_type_t conn_type;
-	char *hostname;
-	int port;
-	bool quit;
-	size_t req_len;				   // request buffer length
-	size_t res_len;				   // response buffer length
-	size_t res_off;				   // num bytes sent from response buffer
-	char req_buf[MAX_MSG_LEN + 1]; // request buffer
-	char res_buf[MAX_MSG_LEN + 1]; // response buffer
-	List *incoming_messages;	   // queue of received messages
-	List *outgoing_messages;	   // queue of messages to deliver
-	void *data;					   // additional data for users and peers
-} Connection;
 
 typedef struct _Server
 {
@@ -189,11 +166,6 @@ void Peer_free(Peer *);
 Hashtable *load_peers(const char *config_filename);
 char *get_server_passwd(const char *config_filename, const char *name);
 bool get_peer_info(const char *filename, const char *name, struct peer_info_t *info);
-
-Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen);
-void Connection_free(Connection *this);
-ssize_t Connection_read(Connection *);
-ssize_t Connection_write(Connection *);
 
 Hashtable *load_channels(const char *filename);
 void save_channels(Hashtable *hashtable, const char *filename);
