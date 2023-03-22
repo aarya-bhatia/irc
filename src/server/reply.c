@@ -728,24 +728,21 @@ void Server_handle_NOTICE(Server *serv, User *usr, Message *msg)
 		return;
 	}
 
-	char *save = NULL;
-	char *target = strtok_r(targets, ",", &save);
-
+	char *target = strtok(targets, ",");
 	char *message = User_create_message(usr, "%s", msg->message);
 
 	while (target)
 	{
 		if (target[0] == '#')
 		{
-			Server_message_channel(serv, serv->name, target + 1,
-								   message);
+			Server_message_channel(serv, serv->name, target + 1, message);
 		}
 		else
 		{
 			Server_message_user(serv, serv->name, target, message);
 		}
 
-		target = strtok_r(NULL, ",", &save);
+		target = strtok(NULL, ",");
 	}
 
 	free(message);
@@ -821,18 +818,14 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 	conn->conn_type = PEER_CONNECTION;
 	conn->data = peer;
 
-	// ht_set(serv->name_to_peer_map, target_info.peer_name, peer);
-
 	List_push_back(conn->outgoing_messages, make_string("PASS %s * *\r\n", target_info.peer_passwd));
 	List_push_back(conn->outgoing_messages, make_string("SERVER %s\r\n", serv->name));
 
+	log_info("server %s initiated request with peer %s", serv->name, peer->name);
+	log_debug("active server: %s, passive server: %s", serv->name, peer->name);
+
 	free(target_info.peer_passwd);
 	free(target_info.peer_port);
-
-	log_info("server %s initiated request with peer %s", serv->name,
-			 peer->name);
-	log_debug("active server: %s, passive server: %s", serv->name,
-			  peer->name);
 }
 
 /**
@@ -933,17 +926,14 @@ void check_peer_registration(Server *serv, Peer *peer)
 
 	if (peer->server_type == ACTIVE_SERVER)
 	{
-		log_debug("active server: %s, passive server: %s", peer->name,
-				  serv->name);
+		log_debug("active server: %s, passive server: %s", peer->name, serv->name);
 	}
 	else
 	{
-		log_debug("active server: %s, passive server: %s", serv->name,
-				  peer->name);
+		log_debug("active server: %s, passive server: %s", serv->name, peer->name);
 	}
 
-	log_info("peer %s has registered with server %s", peer->name,
-			 serv->name);
+	log_info("peer %s has registered with server %s", peer->name, serv->name);
 
 	peer->registered = true;
 

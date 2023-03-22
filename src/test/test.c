@@ -204,7 +204,7 @@ void vector_test()
 
 	assert(this->size == 2);
 
-	Vector_foreach(this, (foreach_callback_type)puts);
+	Vector_foreach(this, puts);
 
 	puts(Vector_find(this, cb, "hello"));
 
@@ -326,6 +326,8 @@ int main(int argc, char *argv[])
 	}
 
 	int test_num = atoi(argv[1]);
+	char *filename;
+	size_t width;
 
 	switch (test_num)
 	{
@@ -345,7 +347,7 @@ int main(int argc, char *argv[])
 		queue_test();
 		break;
 	case 6:
-		char *filename = argv[2];
+		filename = argv[2];
 		if (!filename)
 		{
 			return 1;
@@ -353,7 +355,7 @@ int main(int argc, char *argv[])
 		read_test(filename);
 		break;
 	case 7:
-		size_t width = argc < 3 ? 10 : atol(argv[2]);
+		width = argc < 3 ? 10 : atol(argv[2]);
 		line_wrap_test(width);
 		break;
 	default:
