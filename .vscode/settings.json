@@ -19,7 +19,8 @@
         "errno.h": "c",
         "string.h": "c",
         "assert.h": "c",
-        "list.h": "c"
+        "list.h": "c",
+        "stdint.h": "c"
     },
     "cmake.configureOnOpen": true
 }

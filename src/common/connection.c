@@ -16,6 +16,24 @@ Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen)
 	return this;
 }
 
+Connection *Connection_create_and_connect(const char *hostname, const char *port)
+{
+	int fd = connect_to_host(hostname, port);
+
+	if (fd == -1)
+	{
+		return NULL;
+	}
+
+	Connection *this = calloc(1, sizeof *this);
+	this->fd = fd;
+	this->hostname = strdup(hostname);
+	this->port = atoi(port);
+	this->incoming_messages = List_alloc(NULL, free);
+	this->outgoing_messages = List_alloc(NULL, free);
+	return this;
+}
+
 void Connection_free(Connection *this)
 {
 	if (this->fd != -1)

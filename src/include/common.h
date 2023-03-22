@@ -80,7 +80,7 @@ void *int_copy(void *other_int);					 /* integer copy
 													  * constructor */
 
 // Networking helper functions
-int connect_to_host(char *hostname, char *port);
+int connect_to_host(const char *hostname, const char *port);
 int create_and_bind_socket(char *hostname, char *port); /* creates
 														 * tcp
 														 * socket

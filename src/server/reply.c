@@ -763,6 +763,8 @@ void Server_handle_INFO(Server *serv, User *usr, Message *msg)
  * another server. CONNECT is a privileged command and is available only to IRC
  * Operators. If a remote server is given, the connection is attempted by that
  * remote server to <target server> using <port>.
+ * 
+ * Note: Currently, <remote server> connection is not supported.
  */
 void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 {
@@ -795,25 +797,16 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 		return;
 	}
 
-	int fd = connect_to_host(target_info.peer_host, target_info.peer_port);
+	Connection *conn = Connection_create_and_connect(target_info.peer_host, target_info.peer_port);
 
-	if (fd == -1)
-	{
+	if(!conn) {
 		return;
 	}
 
-	Connection *conn = calloc(1, sizeof *conn);
-	conn->fd = fd;
-	conn->hostname = target_info.peer_host;
-	conn->port = atoi(target_info.peer_port);
-	conn->incoming_messages = List_alloc(NULL, free);
-	conn->outgoing_messages = List_alloc(NULL, free);
-
 	Server_add_connection(serv, conn);
 
-	Peer *peer = Peer_alloc();
+	Peer *peer = Peer_alloc(PASSIVE_SERVER);
 	peer->name = target_info.peer_name;
-	peer->server_type = PASSIVE_SERVER;
 
 	conn->conn_type = PEER_CONNECTION;
 	conn->data = peer;
@@ -821,11 +814,12 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 	List_push_back(conn->outgoing_messages, make_string("PASS %s * *\r\n", target_info.peer_passwd));
 	List_push_back(conn->outgoing_messages, make_string("SERVER %s\r\n", serv->name));
 
+	free(target_info.peer_passwd);
+	free(target_info.peer_host);
+	free(target_info.peer_port);
+	
 	log_info("server %s initiated request with peer %s", serv->name, peer->name);
 	log_debug("active server: %s, passive server: %s", serv->name, peer->name);
-
-	free(target_info.peer_passwd);
-	free(target_info.peer_port);
 }
 
 /**

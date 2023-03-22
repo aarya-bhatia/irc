@@ -226,8 +226,7 @@ void Server_process_request_from_unknown(Server *serv, Connection *conn)
 	else if (strncmp(message, "PASS", 4) == 0 || strncmp(message, "SERVER", 6) == 0)
 	{
 		conn->conn_type = PEER_CONNECTION;
-		conn->data = Peer_alloc();
-		((Peer *)conn->data)->server_type = ACTIVE_SERVER;
+		conn->data = Peer_alloc(ACTIVE_SERVER);
 	}
 	else
 	{

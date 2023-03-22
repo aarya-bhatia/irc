@@ -1,8 +1,18 @@
 
 #include "include/vector.h"
 
-Vector *Vector_alloc(size_t capacity, void *(*elem_copy)(void *),
-					 void (*elem_free)(void *))
+static size_t _align_capacity(size_t capacity)
+{
+	size_t i = 1;
+	while (i < capacity)
+	{
+		i *= 2;
+	}
+
+	return i;
+}
+
+Vector *Vector_alloc(size_t capacity, elem_copy_type elem_copy, elem_free_type elem_free)
 {
 	Vector *this = calloc(1, sizeof *this);
 	this->elems = calloc(capacity, sizeof *this->elems);
@@ -13,8 +23,21 @@ Vector *Vector_alloc(size_t capacity, void *(*elem_copy)(void *),
 	return this;
 }
 
+Vector *Vector_alloc_type(size_t capacity, struct elem_type_info_t elem_type)
+{
+	Vector *this = calloc(1, sizeof *this);
+	this->elems = calloc(capacity, sizeof *this->elems);
+	this->size = 0;
+	this->capacity = capacity;
+	this->elem_copy = elem_type.copy_type;
+	this->elem_free = elem_type.free_type;
+	this->compare = elem_type.comapre_type;
+	return this;
+}
+
 void Vector_free(Vector *this)
 {
+	assert(this);
 	for (size_t i = 0; i < this->size; i++)
 	{
 		if (this->elem_free)
@@ -30,27 +53,19 @@ void Vector_free(Vector *this)
 
 size_t Vector_size(Vector *this)
 {
+	assert(this);
 	return this->size;
 }
 
 void *Vector_get_at(Vector *this, size_t index)
 {
+	assert(this);
 	return index < this->size ? this->elems[index] : NULL;
-}
-
-static size_t _align_capacity(size_t capacity)
-{
-	size_t i = 1;
-	while (i < capacity)
-	{
-		i *= 2;
-	}
-
-	return i;
 }
 
 void Vector_reserve(Vector *this, size_t capacity)
 {
+	assert(this);
 	if (capacity <= this->capacity)
 	{
 		return;
@@ -62,22 +77,28 @@ void Vector_reserve(Vector *this, size_t capacity)
 		   (this->capacity - this->size) * sizeof *this->elems);
 }
 
-void *Vector_find(Vector *this, bool (*cb)(void *, const void *),
-				  const void *args)
+bool Vector_contains(Vector *this, const void *target)
 {
+	assert(this);
+	if (!this->compare)
+	{
+		return false;
+	}
+
 	for (size_t i = 0; i < this->size; i++)
 	{
-		if (cb(this->elems[i], args))
+		if (this->compare(this->elems[i], target) == 0)
 		{
-			return this->elems[i];
+			return true;
 		}
 	}
 
-	return NULL;
+	return false;
 }
 
 void Vector_remove(Vector *this, size_t index, void **elem_out)
 {
+	assert(this);
 	if (index >= this->size)
 	{
 		return;
@@ -105,13 +126,16 @@ void Vector_remove(Vector *this, size_t index, void **elem_out)
 
 void Vector_push(Vector *this, void *elem)
 {
+	assert(this);
 	void *new = this->elem_copy ? this->elem_copy(elem) : elem;
 	Vector_reserve(this, this->size + 1);
 	this->elems[this->size++] = new;
 }
 
-void Vector_foreach(Vector *this, void (*cb)(void *))
+void Vector_foreach(Vector *this, elem_callback_type cb)
 {
+	assert(this);
+	assert(cb);
 	for (size_t i = 0; i < this->size; i++)
 	{
 		cb(this->elems[i]);

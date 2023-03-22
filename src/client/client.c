@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 	}
 
 	free(line);
-	pthread_join(client_thread, NULL);
+	pthread_join(client.thread, NULL);
 	Connection_free(client.conn);
 	printf("Goodbye!\n");
 	return 0;

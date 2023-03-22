@@ -7,7 +7,10 @@
 #include "include/queue.h"
 #include "include/vector.h"
 
-typedef void (*foreach_callback_type)(void *);
+void print_string(void *s)
+{
+	puts(s);
+}
 
 void queue_test()
 {
@@ -190,23 +193,19 @@ void hashtable_test()
 	ht_destroy(&this);
 }
 
-bool cb(void *elem, const void *arg)
-{
-	return strcmp(elem, arg) == 0;
-}
-
 void vector_test()
 {
-	Vector *this = Vector_alloc(10, (elem_copy_type)strdup, free);
+	Vector *this = Vector_alloc_type(10, STRING_TYPE);
 
 	Vector_push(this, "hello");
 	Vector_push(this, "world");
 
 	assert(this->size == 2);
 
-	Vector_foreach(this, puts);
+	Vector_foreach(this, print_string);
 
-	puts(Vector_find(this, cb, "hello"));
+	assert(Vector_contains(this, "hello"));
+	assert(!Vector_contains(this, "hello1"));
 
 	Vector_remove(this, 1, NULL);
 	Vector_remove(this, 0, NULL);
@@ -307,13 +306,13 @@ void line_wrap_test(size_t width)
 		"PRIVMSG #bunny :Hi! I have a problem! ; Command to send a message to channel #bunny.";
 
 	Vector *lines = text_wrap(help_who, width);
-	Vector_foreach(lines, puts);
+	Vector_foreach(lines, print_string);
 	Vector_free(lines);
 
 	puts("\n");
 
 	lines = text_wrap(help_privmsg, width);
-	Vector_foreach(lines, puts);
+	Vector_foreach(lines, print_string);
 	Vector_free(lines);
 }
 

@@ -161,7 +161,7 @@ bool User_is_member(User *usr, const char *channel_name);
 void User_add_channel(User *usr, const char *channel_name);
 bool User_remove_channel(User *usr, const char *channel_name);
 
-Peer *Peer_alloc();
+Peer *Peer_alloc(int type);
 void Peer_free(Peer *);
 Hashtable *load_peers(const char *config_filename);
 char *get_server_passwd(const char *config_filename, const char *name);

@@ -28,6 +28,7 @@ typedef struct _Connection
 } Connection;
 
 Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen);
+Connection *Connection_create_and_connect(const char *hostname, const char *port);
 void Connection_free(Connection *);
 ssize_t Connection_read(Connection *);
 ssize_t Connection_write(Connection *);

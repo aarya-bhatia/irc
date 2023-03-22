@@ -81,7 +81,7 @@ char *rstrstr(char *string, char *pattern)
 	return prev;
 }
 
-int connect_to_host(char *hostname, char *port)
+int connect_to_host(const char *hostname, const char *port)
 {
 	struct addrinfo hints, *info = NULL;
 
@@ -322,7 +322,7 @@ Vector *readlines(const char *filename)
 		return NULL;
 	}
 
-	Vector *lines = Vector_alloc(10, (elem_copy_type)strdup, free);
+	Vector *lines = Vector_alloc_type(10, STRING_TYPE);
 
 	char *line = NULL;
 	size_t len = 0;

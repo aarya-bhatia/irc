@@ -1,10 +1,11 @@
 #include "include/server.h"
 
-Peer *Peer_alloc()
+Peer *Peer_alloc(int type)
 {
 	Peer *this = calloc(1, sizeof *this);
 	this->msg_queue = List_alloc(NULL, free);
 	this->nicks = Vector_alloc(1, (elem_copy_type)strdup, free);
+	this->server_type = type;
 	return this;
 }
 

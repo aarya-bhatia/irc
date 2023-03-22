@@ -12,9 +12,9 @@ void shallow_free(void *elem)
 	(void)elem;
 }
 
-int shallow_compare(void *elem1, void *elem2)
+int shallow_compare(const void *elem1, const void *elem2)
 {
-	return elem1 - elem2;
+	return (int) (elem1 - elem2);
 }
 
 const struct elem_type_info_t STRING_TYPE = {(compare_type) strcmp, (elem_copy_type) strdup, free, -1};
