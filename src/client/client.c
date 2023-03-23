@@ -175,7 +175,15 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		client_add_message(&client, make_string("%s\r\n", line));
+		if(!strncmp(line, "/server ", strlen("/server "))) {
+			char *tok = strstr(line, " ");
+			log_info("Registering as server %s", tok+1);
+			client_add_message(&client, make_string("PASS erwin@1234\r\n", line));
+			client_add_message(&client, make_string("SERVER %s\r\n", tok+1));
+		}
+		else {
+			client_add_message(&client, make_string("%s\r\n", line));
+		}
 
 		if (strstr(line, "QUIT"))
 		{
