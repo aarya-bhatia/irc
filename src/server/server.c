@@ -340,7 +340,7 @@ void Server_message_channel(Server *serv, const char *origin, const char *target
 		}
 	}
 
-	Server_relay_message(serv, origin, message);
+	Server_broadcast_message(serv, message);
 }
 
 /**
@@ -373,13 +373,17 @@ void Server_broadcast_message(Server *serv, const char *message)
 	HashtableIter itr;
 	ht_iter_init(&itr, serv->name_to_peer_map);
 	Peer *peer = NULL;
+	int c = 0;
 	while (ht_iter_next(&itr, NULL, (void **)&peer))
 	{
 		if (peer->registered && !peer->quit)
 		{
 			add_message(peer->msg_queue, message);
+			c++;
 		}
 	}
+
+	log_debug("Sent message to %d peers", c);
 }
 
 /**

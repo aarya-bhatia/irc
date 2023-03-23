@@ -1,6 +1,5 @@
 PASS erwin@1234
 SERVER levi
-NICK aarya
 :aarya!aarya@127.0.0.1 PRIVMSG aarya :Hello
 :aarya!aarya@127.0.0.1 PRIVMSG #ocean :Help me!
 :aarya!aarya@127.0.0.1 JOIN #ocean
