@@ -5,3 +5,4 @@ build/
 *.out
 *.dSYM/
 .DS_STORE
+tags
