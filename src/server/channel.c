@@ -94,8 +94,15 @@ Hashtable *load_channels(const char *filename)
 		this->time_created = time_created;
 		this->topic = topic ? strdup(topic) : NULL;
 
-		log_info("Added channel %s with topic %s", this->name,
-				 this->topic);
+		if (!this->topic)
+		{
+			log_info("Added channel %s without topic", this->name);
+		}
+		else
+		{
+			log_info("Added channel %s with topic %s", this->name, this->topic);
+		}
+
 		ht_set(hashtable, name, this);
 	}
 

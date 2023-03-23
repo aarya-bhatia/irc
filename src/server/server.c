@@ -93,8 +93,7 @@ Server *Server_create(const char *name)
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
 
-	size_t n =
-		strftime(serv->created_at, sizeof(serv->created_at), "%c", tm);
+	size_t n = strftime(serv->created_at, sizeof(serv->created_at), "%c", tm);
 	assert(n > 0);
 
 	// Create epoll fd for listen socket and clients
@@ -124,7 +123,7 @@ Server *Server_create(const char *name)
 	// Listen
 	CHECK(listen(serv->fd, MAX_EVENTS), "listen");
 
-	log_info("Server %s is running on port %s at %s", serv->name, serv->port, serv->hostname);
+	log_info("Server \"%s\" is running on port %s at %s", serv->name, serv->port, serv->hostname);
 	return serv;
 }
 

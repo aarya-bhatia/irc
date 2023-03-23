@@ -229,7 +229,7 @@ void ht_destroy(Hashtable *this)
 	free(this->table);
 
 	memset(this, 0, sizeof *this);
-	log_debug("hashtable destroyed");
+	// log_debug("hashtable destroyed");
 }
 
 void ht_foreach(Hashtable *this, void (*callback)(void *key, void *value))
