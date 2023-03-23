@@ -78,7 +78,7 @@ ssize_t Connection_read(Connection *this)
 	while ((end_msg = strstr(start_msg, "\r\n")) != NULL)
 	{
 		char *message = strndup(start_msg, end_msg - start_msg);
-		// log_debug("Message: %s", message);
+		log_debug("Message: %s", message);
 		List_push_back(this->incoming_messages, message);
 		start_msg = end_msg + 2;
 	}

@@ -2,6 +2,7 @@
 #include "include/list.h"
 #include "include/message.h"
 #include "include/connection.h"
+#include "include/server.h"
 
 #include <pthread.h>
 #include <sys/epoll.h>
@@ -13,8 +14,8 @@ extern pthread_mutex_t mutex_stdout;
 
 typedef struct Client
 {
-	const char *hostname;
-	const char *port;
+	char *hostname;
+	char *port;
 	Connection *conn;
 	pthread_t thread;
 	pthread_mutex_t mutex;
@@ -80,14 +81,16 @@ void *client_thread(void *args)
 			{
 				char *message = List_peek_front(client->conn->incoming_messages);
 				SAFE(mutex_stdout, { puts(message); });
-				List_pop_front(client->conn->incoming_messages);
 				num_msg++;
 
 				if (strstr(message, "ERROR"))
 				{
 					quit = true;
+					List_pop_front(client->conn->incoming_messages);
 					break;
 				}
+
+				List_pop_front(client->conn->incoming_messages);
 			}
 
 			log_debug("Received %zu messages from server", num_msg);
@@ -120,19 +123,35 @@ void client_add_message(Client *client, char *message)
 
 int main(int argc, char *argv[])
 {
-	if (argc < 3)
+	if (argc < 2)
 	{
-		fprintf(stderr, "Usage: %s <server> <hostname> <port>\n", *argv);
+		fprintf(stderr, "Usage: %s <server>\n", *argv);
+		fprintf(stderr, "Usage: %s <hostname> <port>\n", *argv);
 		return 1;
 	}
 
 	Client client;
 	memset(&client, 0, sizeof client);
-	client.hostname = argv[1];
-	client.port = argv[2];
+
+	if (argc == 2)
+	{
+		char *server_name = argv[1];
+		struct peer_info_t info;
+		memset(&info, 0, sizeof info);
+		if (get_peer_info(CONFIG_FILENAME, server_name, &info))
+		{
+			client.hostname = info.peer_host;
+			client.port = info.peer_port;
+		}
+	}
+	else
+	{
+		client.hostname = strdup(argv[1]);
+		client.port = strdup(argv[2]);
+	}
 
 	// establish connection with the server
-	int client_sock = create_and_bind_socket(argv[1], argv[2]);
+	int client_sock = create_and_bind_socket(client.hostname, client.port);
 	fcntl(client_sock, F_SETFL, fcntl(client_sock, F_GETFL) | O_NONBLOCK);
 
 	client.conn = calloc(1, sizeof *client.conn);
@@ -141,6 +160,7 @@ int main(int argc, char *argv[])
 	client.conn->incoming_messages = List_alloc(NULL, free);
 	client.conn->outgoing_messages = List_alloc(NULL, free);
 
+	pthread_mutex_init(&client.mutex, NULL);
 	pthread_create(&client.thread, NULL, client_thread, &client);
 
 	if (argc == 6)
@@ -250,8 +270,13 @@ int main(int argc, char *argv[])
 	}
 
 	free(line);
+
 	pthread_join(client.thread, NULL);
 	Connection_free(client.conn);
+	free(client.hostname);
+	free(client.port);
+	pthread_mutex_destroy(&client.mutex);
+
 	printf("Goodbye!\n");
 	return 0;
 }

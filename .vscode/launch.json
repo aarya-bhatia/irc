@@ -1,7 +1,7 @@
 {
   "configurations": [
     {
-      "name": "(lldb) Launch client",
+      "name": "Launch Client",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build/client",
@@ -9,15 +9,7 @@
       "cwd": "${workspaceFolder}",
     },
     {
-      "name": "(lldb) Test",
-      "type": "lldb",
-      "request": "launch",
-      "program": "${workspaceFolder}/build/test",
-      "args": ["${input:lldbArgs}"],
-      "cwd": "${workspaceFolder}",
-    },
-    {
-      "name": "(lldb) Launch Server erwin",
+      "name": "Launch Server erwin",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build/server",
@@ -25,11 +17,19 @@
       "cwd": "${workspaceFolder}",
     },
     {
-      "name": "(lldb) Launch Server levi",
+      "name": "Launch Server levi",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build/server",
       "args": ["levi"],
+      "cwd": "${workspaceFolder}",
+    },
+    {
+      "name": "Test",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/test",
+      "args": ["${input:lldbArgs}"],
       "cwd": "${workspaceFolder}",
     },
   ],
