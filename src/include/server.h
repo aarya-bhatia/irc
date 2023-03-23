@@ -128,7 +128,7 @@ void Server_process_request_from_peer(Server *serv, Connection *conn);
 void Server_message_channel(Server *serv, const char *origin, const char *target, const char *message);
 void Server_message_user(Server *serv, const char *origin, const char *target, const char *message);
 void Server_relay_message(Server *serv, const char *origin, const char *message);
-
+void Server_broadcast_message(Server *serv, const char *message);
 bool Server_add_connection(Server *serv, Connection *connection);
 void Server_remove_connection(Server *serv, Connection *connection);
 

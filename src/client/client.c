@@ -73,12 +73,15 @@ void *client_thread(void *args)
 			{
 				die(NULL);
 			}
+			
+			size_t num_msg = 0;
 
 			while (List_size(client->conn->incoming_messages))
 			{
 				char *message = List_peek_front(client->conn->incoming_messages);
 				SAFE(mutex_stdout, { puts(message); });
 				List_pop_front(client->conn->incoming_messages);
+				num_msg++;
 
 				if (strstr(message, "ERROR"))
 				{
@@ -86,6 +89,8 @@ void *client_thread(void *args)
 					break;
 				}
 			}
+
+			log_debug("Received %zu messages from server", num_msg);
 		}
 
 		if (events[0].events & EPOLLOUT)

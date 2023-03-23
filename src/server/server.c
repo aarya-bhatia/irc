@@ -9,6 +9,18 @@
 #include "include/hashtable.h"
 #include "include/list.h"
 
+void add_message(List *queue, const char *message)
+{
+	if (strstr(message, "\r\n"))
+	{
+		List_push_back(queue, strdup(message));
+	}
+	else
+	{
+		List_push_back(queue, make_string("%s\r\n", message));
+	}
+}
+
 /**
  * request handler
  */
@@ -211,10 +223,7 @@ void Server_process_request_from_unknown(Server *serv, Connection *conn)
 		{
 			reason = "";
 		}
-		List_push_back(conn->outgoing_messages,
-					   Server_create_message(serv,
-											 "ERROR :Closing Link: %s (%s)",
-											 conn->hostname, reason));
+		List_push_back(conn->outgoing_messages, Server_create_message(serv, "ERROR :Closing Link: %s (%s)", conn->hostname, reason));
 		conn->quit = true;
 	}
 	else if (strncmp(message, "NICK", 4) == 0 || strncmp(message, "USER", 4) == 0)
@@ -257,6 +266,7 @@ void Server_process_request_from_user(Server *serv, Connection *conn)
 	{
 		Message *message = Vector_get_at(messages, i);
 		assert(message);
+		log_debug("Message from user %s: %s", usr->nick, message->message);
 
 		if (!message->command)
 		{
@@ -325,7 +335,7 @@ void Server_message_channel(Server *serv, const char *origin, const char *target
 			if (member->registered && !member->quit)
 			{
 				log_debug("Sent message to user %s in channel %s on server %s", member->nick, channel->name, serv->name);
-				List_push_back(member->msg_queue, strdup(message));
+				add_message(member->msg_queue, message);
 			}
 		}
 	}
@@ -346,12 +356,29 @@ void Server_message_user(Server *serv, const char *origin, const char *target, c
 		if (user->registered && !user->quit)
 		{
 			log_debug("Sent message to user %s on server %s", user->nick, serv->name);
-			List_push_back(user->msg_queue, strdup(message));
+			add_message(user->msg_queue, message);
 		}
 	}
 	else
 	{
-		Server_relay_message(serv, origin, message);
+		Server_broadcast_message(serv, message);
+	}
+}
+
+/**
+ * Send message to every peer connected to server
+ */
+void Server_broadcast_message(Server *serv, const char *message)
+{
+	HashtableIter itr;
+	ht_iter_init(&itr, serv->name_to_peer_map);
+	Peer *peer = NULL;
+	while (ht_iter_next(&itr, NULL, (void **)&peer))
+	{
+		if (peer->registered && !peer->quit)
+		{
+			add_message(peer->msg_queue, message);
+		}
 	}
 }
 
@@ -364,14 +391,16 @@ void Server_relay_message(Server *serv, const char *origin, const char *message)
 	ht_iter_init(&itr, serv->name_to_peer_map);
 	Peer *peer = NULL;
 	int c = 0;
+
 	while (ht_iter_next(&itr, NULL, (void **)&peer))
 	{
 		if (strcmp(peer->name, origin) != 0 && peer->registered && !peer->quit)
 		{
-			List_push_back(peer->msg_queue, strdup(message));
+			add_message(peer->msg_queue, message);
+			c++;
 		}
-		c++;
 	}
+
 	log_debug("Relayed message to %d peers on server %s", c, serv->name);
 }
 
@@ -390,6 +419,7 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 	for (size_t i = 0; i < Vector_size(messages); i++)
 	{
 		Message *message = Vector_get_at(messages, i);
+		log_debug("Message from peer %s: %s", peer->name, message->message);
 
 		if (!strcmp(message->command, "ERROR"))
 		{
@@ -404,9 +434,12 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		}
 		else if (!strcmp(message->command, "SERVER"))
 		{
-			if(!peer->registered) {
+			if (!peer->registered)
+			{
 				Server_handle_SERVER(serv, peer, message);
-			} else {
+			}
+			else
+			{
 				Server_relay_message(serv, peer->name, message->message);
 			}
 		}

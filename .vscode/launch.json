@@ -1,6 +1,14 @@
 {
   "configurations": [
     {
+      "name": "(lldb) Launch client",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/client",
+      "args": ["localhost", "5000"],
+      "cwd": "${workspaceFolder}",
+    },
+    {
       "name": "(lldb) Test",
       "type": "lldb",
       "request": "launch",

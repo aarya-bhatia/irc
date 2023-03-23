@@ -60,8 +60,7 @@ ssize_t Connection_read(Connection *this)
 		return -1;
 	}
 	// Read available bytes into request buffer
-	ssize_t nread = read_all(this->fd, this->req_buf + this->req_len,
-							 MAX_MSG_LEN - this->req_len);
+	ssize_t nread = read_all(this->fd, this->req_buf + this->req_len, MAX_MSG_LEN - this->req_len);
 
 	if (nread <= 0)
 	{
@@ -79,7 +78,7 @@ ssize_t Connection_read(Connection *this)
 	while ((end_msg = strstr(start_msg, "\r\n")) != NULL)
 	{
 		char *message = strndup(start_msg, end_msg - start_msg);
-		log_debug("Message: %s", message);
+		// log_debug("Message: %s", message);
 		List_push_back(this->incoming_messages, message);
 		start_msg = end_msg + 2;
 	}
@@ -111,9 +110,8 @@ ssize_t Connection_write(Connection *this)
 	// Send all available bytes from response buffer
 	if (this->res_len > 0 && this->res_off < this->res_len)
 	{
-		ssize_t nsent =
-			write_all(this->fd, this->res_buf + this->res_off,
-					  this->res_len - this->res_off);
+		ssize_t nsent = write_all(this->fd, this->res_buf + this->res_off, this->res_len - this->res_off);
+		log_debug("Sent %zd bytes to fd %d", nsent, this->fd);
 
 		if (nsent <= 0)
 		{
