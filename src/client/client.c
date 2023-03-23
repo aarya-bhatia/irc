@@ -73,7 +73,7 @@ void *client_thread(void *args)
 			{
 				die(NULL);
 			}
-			
+
 			size_t num_msg = 0;
 
 			while (List_size(client->conn->incoming_messages))
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 {
 	if (argc < 3)
 	{
-		fprintf(stderr, "Usage: %s <hostname> <port>\n", *argv);
+		fprintf(stderr, "Usage: %s <server> <hostname> <port>\n", *argv);
 		return 1;
 	}
 
@@ -175,13 +175,69 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		if(!strncmp(line, "/server ", strlen("/server "))) {
-			char *tok = strstr(line, " ");
-			log_info("Registering as server %s", tok+1);
+		if (!strncmp(line, "/server ", strlen("/server "))) // register as server using the specified name
+		{
+			char *name = strstr(line, " ") + 1;
+			SAFE(mutex_stdout, { log_info("Registering as server %s", name); });
 			client_add_message(&client, make_string("PASS erwin@1234\r\n", line));
-			client_add_message(&client, make_string("SERVER %s\r\n", tok+1));
+			client_add_message(&client, make_string("SERVER %s\r\n", name));
 		}
-		else {
+		else if (!strncmp(line, "/client ", strlen("/client "))) // register as user using the specified client file
+		{
+			char *fname = strstr(line, " ") + 1;
+
+			FILE *fptr = fopen(fname, "r");
+
+			if (!fptr)
+			{
+				SAFE(mutex_stdout, { log_error("client file not found: %s", fname); });
+				continue;
+			}
+
+			char *contents = NULL;
+			size_t cap = 0;
+			ssize_t nread = getline(&contents, &cap, fptr);
+
+			if (nread == -1)
+				die("getline");
+
+			char *realname = strstr(contents, ":");
+
+			if (!realname)
+			{
+				SAFE(mutex_stdout, { log_error("realname not given"); });
+				continue;
+			}
+
+			*realname = 0;
+			realname += 1;
+
+			char *nick = strtok(contents, " ");
+
+			if (!nick)
+			{
+				SAFE(mutex_stdout, { log_error("nick not given"); });
+				continue;
+			}
+
+			char *username = strtok(NULL, " ");
+
+			if (!username)
+			{
+				SAFE(mutex_stdout, { log_error("username not given"); });
+				continue;
+			}
+
+			SAFE(mutex_stdout, { log_info("Registering as user: nick=%s, username=%s, realname=%s", nick, username, realname); });
+
+			client_add_message(&client, make_string("NICK %s\r\n", nick));
+			client_add_message(&client, make_string("USER %s * * :%s\r\n", username, realname));
+
+			free(contents);
+			fclose(fptr);
+		}
+		else
+		{
 			client_add_message(&client, make_string("%s\r\n", line));
 		}
 
