@@ -2,15 +2,23 @@
 
 Project in progress...
 
+## Connection Struct
+
+- The connection struct is generic and helps read/write data to any socket connection. It is used by both client and server.
+- The connection struct has a type parameter which can either be UNKNOWN_CONNECTION, CLIENT_CONNECTION, PEER_CONNECTION, or USER_CONNECTION.  A new connection on the server is set to be Unknown. It is later promoted to a Peer or a User connection when the client sends the initial messages (NICK/USER or SERVER/PASS).
+- A connection can also store arbitary data for the client. This parameter is used to store a pointer to the Peer or User struct in a polymorphic way. It is initialised as soon as the connection type is determined.
+- A connection contains incoming and outgoing message queues aside from the request and response buffers. This allows us to handle multiple messages from the client at one time and also prepare multiple messages to send to the client. It is also used to store chat messages sent by another client. The request and response buffer only store the data that is currently being read or sent.
+- Note that users and peers have internal message queues as well. Initially messages are put in the main message queue, but after client registration, the messages are put in the internal message queues. This is done partly so we don't have to deal with Connection structs in the request handlers.
+
 ## Server
 
 ### Data structures
 
-- A hashtable `sock_to_user_map` to map sockets to user data struct for each client.
-- A hashtable `username_to_user_map` to map usernames to user data struct for each registered user.
-- A hashtable `online_nick_to_username_map` to map nick to username for each online user.
-- A hashtable `offline_nick_to_username_map` to map nick to username for each offline user.
-- A hashtable `name_to_channel_map` to map each channel name to a channel struct.
+- A hashtable `connections` to map socket to a connection struct for each client and peer.
+- A hashtable `nick_to_user_map` to map nick to user struct for each user. The users get a random nick in the beginning. As they update their nicks, the entry in the hashmap for that user is also updated. This map is useful to check which nicks are available and also quickly fetch the User when messages are to be delivered.
+- A hashtable `name_to_channel_map` to map each channel name to a channel struct. Each server has their own copy of the channel. Since different users are connected to different servers, a channel message must be propogated to the entire network in order to reach all channel members. But a single server does not know all the clients in the channel.
+- A hashtable `name_to_peer_map` is used to map the name of a peer to a Peer struct. When a server-to-server connection is established the remote server becomes a peer for the current server. The server which initiates the connection is known as the ACTIVE_SERVER and the server which accepts the connections is known as PASSIVE_SERVER.
+- A hashtable `nick_to_serv_name_map` is used to determine which users are connected to each server. This map is updated when a peer advertises a new user connection or relays the message from another server.
 
 ### Summary
 
