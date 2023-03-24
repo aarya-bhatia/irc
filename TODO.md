@@ -1,7 +1,6 @@
 # Todo
 
-- on peer registration, send all NICKS to other server
-- send QUIT for all nicks when server stops
+- Remove user entry from other peers on quit
 
 - multiserver
   - no cycles to handle duplicates

@@ -462,7 +462,10 @@ void Server_broadcast_message(Server *serv, const char *message)
 		}
 	}
 
-	log_debug("Sent message to %d peers", c);
+	if (c)
+	{
+		log_debug("Sent message to %d peers", c);
+	}
 }
 
 /**
@@ -484,7 +487,10 @@ void Server_relay_message(Server *serv, const char *origin, const char *message)
 		}
 	}
 
-	log_debug("Relayed message to %d peers on server %s", c, serv->name);
+	if (c)
+	{
+		log_debug("Relayed message to %d peers on server %s", c, serv->name);
+	}
 }
 
 /**
@@ -502,7 +508,6 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 	for (size_t i = 0; i < Vector_size(messages); i++)
 	{
 		Message *message = Vector_get_at(messages, i);
-		log_debug("Message from peer %s: %s", peer->name, message->message);
 
 		if (!strcmp(message->command, "ERROR"))
 		{
@@ -532,7 +537,10 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		}
 		else if (!strcmp(message->command, "NICK")) // A new user was registered on peer server
 		{
-			ht_set(serv->nick_to_serv_name_map, message->params[0], peer->name);
+			char *nick = message->params[0];
+			assert(nick);
+			log_info("== user %s registered with server %s == ", nick, peer->name);
+			ht_set(serv->nick_to_serv_name_map, nick, peer->name);
 			Server_relay_message(serv, peer->name, message->message);
 		}
 		else if (!strcmp(message->command, "PRIVMSG")) // To send message to a user or channel

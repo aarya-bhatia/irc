@@ -80,8 +80,9 @@ bool check_user_registration(Server *serv, User *usr)
 		send_motd_reply(serv, usr);
 		log_info("registration completed for user %s", usr->nick);
 
+		// notify peers about new user
 		// <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>
-		char *message = Server_create_message(serv, "%s 1 %s %s 1 + :%s", usr->nick, usr->username, usr->hostname, usr->realname);
+		char *message = Server_create_message(serv, "NICK %s 1 %s %s 1 + :%s", usr->nick, usr->username, usr->hostname, usr->realname);
 		Server_broadcast_message(serv, message);
 		free(message);
 		return true;
@@ -181,7 +182,7 @@ void Server_handle_NICK(Server *serv, User *usr, Message *msg)
 	}
 	else
 	{
-		char *message = Server_create_message(serv, "%s 1 %s %s 1 + :%s", usr->nick, usr->username, usr->hostname, usr->realname);
+		char *message = Server_create_message(serv, "NICK %s 1 %s %s 1 + :%s", usr->nick, usr->username, usr->hostname, usr->realname);
 		Server_broadcast_message(serv, message);
 		free(message);
 	}
@@ -928,8 +929,6 @@ void check_peer_registration(Server *serv, Peer *peer)
 		log_debug("active server: %s, passive server: %s", serv->name, peer->name);
 	}
 
-	log_info("peer %s has registered with server %s", peer->name, serv->name);
-
 	peer->registered = true;
 
 	// State information exchange
@@ -941,7 +940,7 @@ void check_peer_registration(Server *serv, Peer *peer)
 	{
 		if (other_user->registered && !other_user->quit)
 		{
-			List_push_back(peer->msg_queue, Server_create_message(serv, "%s 1 %s %s 1 + :%s", other_user->nick, other_user->username, other_user->hostname, other_user->realname));
+			List_push_back(peer->msg_queue, Server_create_message(serv, "NICK %s 1 %s %s 1 + :%s", other_user->nick, other_user->username, other_user->hostname, other_user->realname));
 		}
 	}
 
