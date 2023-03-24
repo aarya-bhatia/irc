@@ -159,11 +159,20 @@ Server *Server_create(const char *name)
 
 	serv->info = strdup(DEFAULT_INFO);
 
+<<<<<<< HEAD
 	serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);		   /* Map<int, Connection *> */
 	serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string,  Peer *> */
 	serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);  /* Map<string, string> */
 	serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, User*> */
 	serv->name_to_channel_map = load_channels(CHANNELS_FILENAME);	   /* Map<string, Channel *> */
+=======
+    serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);         /* Map<int, Connection *> */
+    serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, Peer *> */
+    serv->nick_to_serv_name_map = ht_alloc_type(STRING_TYPE, STRING_TYPE);  /* Map<string, string> */
+    serv->channel_to_serv_name_map =
+        ht_alloc_type(STRING_TYPE, STRING_TYPE);                       /* Map<string, string> */
+    serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, User*>*/
+>>>>>>> de0626dcf33f5a1d6d7febcd38b4510cb39f7a5e
 
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
