@@ -8,7 +8,6 @@
 #include "connection.h"
 
 #define MOTD_FILENAME "./data/motd.txt"
-#define CONFIG_FILENAME "./config.csv"
 #define MAX_CHANNEL_COUNT 8
 #define MAX_CHANNEL_USERS 8
 #define CHANNELS_FILENAME "./data/channels.txt"
@@ -64,14 +63,6 @@ typedef struct _Peer
 		PASSIVE_SERVER
 	} server_type;
 } Peer;
-
-typedef struct peer_info_t
-{
-	char *peer_name;
-	char *peer_host;
-	char *peer_port;
-	char *peer_passwd;
-} peer_info_t;
 
 // enum
 // {
@@ -164,8 +155,6 @@ bool User_remove_channel(User *usr, const char *channel_name);
 Peer *Peer_alloc(int type);
 void Peer_free(Peer *);
 Hashtable *load_peers(const char *config_filename);
-char *get_server_passwd(const char *config_filename, const char *name);
-bool get_peer_info(const char *filename, const char *name, struct peer_info_t *info);
 
 Hashtable *load_channels(const char *filename);
 void save_channels(Hashtable *hashtable, const char *filename);

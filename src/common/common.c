@@ -1,9 +1,6 @@
 #include "include/common.h"
 #include "include/server.h"
 
-#include <ctype.h>
-#include <stdarg.h>
-
 /**
  * Use this utility function to allocate a string with given format and args.
  * The purpose of this function is to check the size of the resultant string
@@ -82,6 +79,118 @@ char *rstrstr(char *string, char *pattern)
 	return prev;
 }
 
+Vector *readlines(const char *filename)
+{
+	FILE *file = fopen(filename, "r");
+
+	if (!file)
+	{
+		perror("fopen");
+		log_error("Failed to open file %s", filename);
+		return NULL;
+	}
+
+	Vector *lines = Vector_alloc_type(10, STRING_TYPE);
+
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t nread;
+
+	// Second line contains channel topic
+	while ((nread = getline(&line, &len, file)) > 0)
+	{
+		assert(line);
+
+		if (strlen(line) == 0)
+		{
+			continue;
+		}
+
+		size_t n = strlen(line);
+
+		if (line[n - 1] == '\n')
+		{
+			line[n - 1] = 0;
+		}
+
+		Vector_push(lines, line);
+	}
+
+	free(line);
+	fclose(file);
+
+	return lines;
+}
+
+/**
+ * Find the length of word in string at the given position.
+ */
+size_t word_len(const char *str)
+{
+	char *tok = strstr(str, " ");
+
+	if (!tok)
+	{
+		return strlen(str);
+	}
+	else
+	{
+		return tok - str;
+	}
+}
+
+/**
+ * Break given string into multiple lines at given line width.
+ * Return a vector containing lines of the wrapped text.
+ */
+Vector *text_wrap(const char *str, const size_t line_width)
+{
+	Vector *lines = Vector_alloc(4, NULL, free);
+	size_t line_len = 0;
+	const char *line = str;
+
+	for (size_t i = 0; str[i] != 0; i++)
+	{
+		if (str[i] == '\n')
+		{
+			if (line && line_len > 0)
+			{
+				char *line_copy = strndup(line, line_len);
+				Vector_push(lines, line_copy);
+				line_len = 0;
+				line = &str[i + 1];
+				continue;
+			}
+		}
+
+		if (isspace(str[i]))
+		{
+			if (line_len + word_len(str + i + 1) + 1 >= line_width)
+			{
+				char *line_copy = strndup(line, line_len);
+				Vector_push(lines, line_copy);
+				line_len = 0;
+				line = &str[i + 1];
+				continue;
+			}
+		}
+
+		line_len++;
+	}
+
+	if (line != NULL && line_len > 0)
+	{
+		char *line_copy = strndup(line, line_len);
+		Vector_push(lines, line_copy);
+	}
+
+	return lines;
+}
+
+/**
+ * Attempts to establish tcp connection with a server on given address
+ * Returns a socket on success and -1 on failure.
+ */
 int connect_to_host(const char *hostname, const char *port)
 {
 	struct addrinfo hints, *info = NULL;
@@ -133,61 +242,6 @@ int connect_to_host(const char *hostname, const char *port)
 }
 
 /**
- *
- * This function will create and bind a TCP socket to give hostname and port.
- * Returns the socket fd if succeeded.
- * Kills the process if failure.
- */
-int create_and_bind_socket(char *hostname, char *port)
-{
-	struct addrinfo hints, *servinfo = NULL;
-
-	memset(&hints, 0, sizeof hints);
-
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-
-	if (getaddrinfo(hostname, port, &hints, &servinfo) != 0)
-		die("getaddrinfo");
-
-	int sock = socket(servinfo->ai_family,
-					  servinfo->ai_socktype,
-					  servinfo->ai_protocol);
-
-	if (sock < 0)
-		die("socket");
-
-	if (connect(sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
-		die("connect");
-
-	freeaddrinfo(servinfo);
-
-	log_info("Connection established");
-
-	return sock;
-}
-
-/**
- * Simple comparison function to compare two integers
- * given by pointers key1 and key2.
- * The return values are similar to strcmp.
- */
-int int_compare(const void *key1, const void *key2)
-{
-	return *(int *)key1 - *(int *)key2;
-}
-
-/**
- * integer copy constructor
- */
-void *int_copy(void *other_int)
-{
-	int *this = calloc(1, sizeof *this);
-	*this = *(int *)other_int;
-	return this;
-}
-
-/**
  * Returns the in_addr part of a sockaddr struct of either ipv4 or ipv6 type.
  */
 void *get_in_addr(struct sockaddr *sa)
@@ -200,7 +254,7 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
-int get_port(struct sockaddr *sa, socklen_t len)
+int get_port(struct sockaddr *sa)
 {
 	if (sa->sa_family == AF_INET)
 	{
@@ -310,114 +364,6 @@ ssize_t write_all(int fd, char *buf, size_t len)
 	}
 
 	return bytes_written;
-}
-
-Vector *readlines(const char *filename)
-{
-	FILE *file = fopen(filename, "r");
-
-	if (!file)
-	{
-		perror("fopen");
-		log_error("Failed to open file %s", filename);
-		return NULL;
-	}
-
-	Vector *lines = Vector_alloc_type(10, STRING_TYPE);
-
-	char *line = NULL;
-	size_t len = 0;
-	ssize_t nread;
-
-	// Second line contains channel topic
-	while ((nread = getline(&line, &len, file)) > 0)
-	{
-		assert(line);
-
-		if (strlen(line) == 0)
-		{
-			continue;
-		}
-
-		size_t n = strlen(line);
-
-		if (line[n - 1] == '\n')
-		{
-			line[n - 1] = 0;
-		}
-
-		Vector_push(lines, line);
-	}
-
-	free(line);
-	fclose(file);
-
-	return lines;
-}
-
-/**
- * Find the length of word in string at the given position.
- */
-size_t word_len(const char *str)
-{
-	char *tok = strstr(str, " ");
-
-	if (!tok)
-	{
-		return strlen(str);
-	}
-	else
-	{
-		return tok - str;
-	}
-}
-
-/**
- * Break given string into multiple lines at given line width.
- * Return a vector containing lines of the wrapped text.
- */
-Vector *text_wrap(const char *str, const size_t line_width)
-{
-	Vector *lines = Vector_alloc(4, NULL, free);
-	size_t line_len = 0;
-	const char *line = str;
-
-	for (size_t i = 0; str[i] != 0; i++)
-	{
-		if (str[i] == '\n')
-		{
-			if (line && line_len > 0)
-			{
-				char *line_copy = strndup(line, line_len);
-				Vector_push(lines, line_copy);
-				line_len = 0;
-				line = &str[i + 1];
-				continue;
-			}
-		}
-
-		if (isspace(str[i]))
-		{
-			if (line_len + word_len(str + i + 1) + 1 >= line_width)
-			{
-				char *line_copy = strndup(line, line_len);
-				Vector_push(lines, line_copy);
-				line_len = 0;
-				line = &str[i + 1];
-				continue;
-			}
-		}
-
-		line_len++;
-	}
-
-	if (line != NULL && line_len > 0)
-	{
-		char *line_copy = strndup(line, line_len);
-		Vector_push(lines, line_copy);
-	}
-
-	return lines;
 }
 
 bool get_peer_info(const char *filename, const char *name, struct peer_info_t *info)

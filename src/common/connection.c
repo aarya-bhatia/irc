@@ -10,7 +10,7 @@ Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen)
 	Connection *this = calloc(1, sizeof *this);
 	this->fd = fd;
 	this->hostname = strdup(addr_to_string(addr, addrlen));
-	this->port = get_port(addr, addrlen);
+	this->port = get_port(addr);
 	this->incoming_messages = List_alloc(NULL, free);
 	this->outgoing_messages = List_alloc(NULL, free);
 	return this;

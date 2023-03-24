@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 	}
 
 	// establish connection with the server
-	int client_sock = create_and_bind_socket(client.hostname, client.port);
+	int client_sock = connect_to_host(client.hostname, client.port);
 	fcntl(client_sock, F_SETFL, fcntl(client_sock, F_GETFL) | O_NONBLOCK);
 
 	client.conn = calloc(1, sizeof *client.conn);

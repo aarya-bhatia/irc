@@ -1,6 +1,7 @@
 #include <pthread.h>
 
 #include "include/common.h"
+#include "include/common_types.h"
 #include "include/hashtable.h"
 #include "include/list.h"
 #include "include/message.h"

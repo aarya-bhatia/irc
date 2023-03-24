@@ -435,6 +435,7 @@ void Server_message_user(Server *serv, const char *origin, const char *target, c
 	}
 	else
 	{
+		// TODO: change to relay message
 		Server_broadcast_message(serv, message);
 	}
 }
