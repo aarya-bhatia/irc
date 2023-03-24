@@ -414,19 +414,23 @@ void Server_message_channel(Server *serv, const char *origin, const char *target
 		}
 	}
 
-	Server_broadcast_message(serv, message);
+	Server_relay_message(serv, origin, message);
 }
 
 /**
  * Attemps to send a message to user with given nick.
+ * Relays message to peers if user is not on current server.
  * If user is not on this server, message is relayed to its peers.
  */
 void Server_message_user(Server *serv, const char *origin, const char *target, const char *message)
 {
+	// TODO: check if user nick exists in nick_to_serv_name map
+
 	User *user = ht_get(serv->nick_to_user_map, target);
 
 	if (user)
 	{
+		// found user
 		if (user->registered && !user->quit)
 		{
 			log_debug("Sent message to user %s on server %s", user->nick, serv->name);
@@ -435,13 +439,13 @@ void Server_message_user(Server *serv, const char *origin, const char *target, c
 	}
 	else
 	{
-		// TODO: change to relay message
-		Server_broadcast_message(serv, message);
+		Server_relay_message(serv, origin, message);
 	}
 }
 
 /**
- * Send message to every peer connected to server
+ * Send message to every peer connected to server.
+ * NOTE: This should be only called if the message is originating from this server.
  */
 void Server_broadcast_message(Server *serv, const char *message)
 {
@@ -544,7 +548,7 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 				Server_message_user(serv, peer->name, message->params[0], message->message);
 			}
 		}
-		else if (!strcmp(message->command, "JOIN"))
+		else if (!strcmp(message->command, "JOIN")) // TODO: Update channel map
 		{
 			Server_message_channel(serv, peer->name, message->params[0] + 1, message->message);
 		}
