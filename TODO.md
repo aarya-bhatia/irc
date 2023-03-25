@@ -1,9 +1,5 @@
 # Todo
 
-## Issues
-
-- on register, passive server does not send NICKs
-
 ## Todos
 
 - Remove user entry from other peers on quit
@@ -33,3 +29,5 @@
 
 - Filename: `log/history.csv`
 - Columns: conn_type, name, request, time
+
+## Issues
