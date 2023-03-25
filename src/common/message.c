@@ -34,15 +34,7 @@ void message_free_callback(void *ptr)
 
 Vector *parse_message_list(List *list)
 {
-	Vector *array = Vector_alloc(4, NULL, message_free_callback); // initialise
-	// a
-	// message
-	// vector
-	// with
-	// shallow
-	// copy
-	// and
-	// destructor
+	Vector *array = Vector_alloc(4, NULL, message_free_callback); // initialise a message vector with shallow copy and destructor
 
 	int ret;
 
@@ -78,15 +70,7 @@ Vector *parse_all_messages(char *str)
 
 	int ret;
 
-	Vector *array = Vector_alloc(4, NULL, message_free_callback); // initialise
-	// a
-	// message
-	// vector
-	// with
-	// shallow
-	// copy
-	// and
-	// destructor
+	Vector *array = Vector_alloc(4, NULL, message_free_callback); // initialise a message vector with shallow copy and destructor
 
 	while (tok)
 	{
@@ -137,6 +121,7 @@ int parse_message(char *str, Message *msg)
 	{
 		return -1;
 	}
+
 	// prefix
 	if (tok[0] == ':')
 	{
@@ -155,7 +140,7 @@ int parse_message(char *str, Message *msg)
 	// command
 	msg->command = strdup(tok);
 
-	// params
+	// parse params
 	size_t i = 0;
 
 	while (tok && i < 15)
@@ -166,16 +151,7 @@ int parse_message(char *str, Message *msg)
 		}
 	}
 
-	// log_debug("Origin: %s", msg->origin);
-	// log_debug("Command: %s", msg->command);
-	// log_debug("Body: %s", msg->body);
-
 	msg->n_params = i;
-
-	// for (size_t j = 0; j < i; j++)
-	// {
-	// log_debug("Param %d: %s", j + 1, msg->params[j]);
-	// }
 
 	return 0;
 }

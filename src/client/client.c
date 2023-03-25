@@ -75,25 +75,36 @@ void *client_thread(void *args)
 				die(NULL);
 			}
 
-			size_t num_msg = 0;
-
-			while (List_size(client->conn->incoming_messages))
+			if (List_size(client->conn->incoming_messages) > 0)
 			{
-				char *message = List_peek_front(client->conn->incoming_messages);
-				SAFE(mutex_stdout, { puts(message); });
-				num_msg++;
+				size_t num_msg = 0;
 
-				if (strstr(message, "ERROR"))
+				Vector *messages = parse_message_list(client->conn->incoming_messages);
+
+				for (size_t i = 0; i < Vector_size(messages); i++)
 				{
-					quit = true;
-					List_pop_front(client->conn->incoming_messages);
-					break;
+					Message *message = List_peek_front(client->conn->incoming_messages);
+					log_debug("%s", message->message);
+
+					if (message->origin && message->body)
+					{
+						SAFE(mutex_stdout, {
+							printf("%s: %s\n", message->origin, message->body);
+						});
+					}
+
+					num_msg++;
+
+					if (strstr(message->message, "ERROR"))
+					{
+						quit = true;
+						break;
+					}
 				}
 
-				List_pop_front(client->conn->incoming_messages);
+				Vector_free(messages);
+				log_debug("Received %zu messages from server", num_msg);
 			}
-
-			log_debug("Received %zu messages from server", num_msg);
 		}
 
 		if (events[0].events & EPOLLOUT)
