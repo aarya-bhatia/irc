@@ -83,7 +83,7 @@ void *client_thread(void *args)
 
 				for (size_t i = 0; i < Vector_size(messages); i++)
 				{
-					Message *message = List_peek_front(client->conn->incoming_messages);
+					Message *message = Vector_get_at(messages, i);
 					log_debug("%s", message->message);
 
 					if (message->origin && message->body)
@@ -153,6 +153,8 @@ int main(int argc, char *argv[])
 		{
 			client.hostname = info.peer_host;
 			client.port = info.peer_port;
+			free(info.peer_name);
+			free(info.peer_passwd);
 		}
 	}
 	else
