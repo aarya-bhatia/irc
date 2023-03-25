@@ -5,10 +5,18 @@
 - multiserver
   - no cycles to handle duplicates
   - broadcast message to each server
+  - remove server if cycle is detected at registration time
+    - SERVER message sent for all known peers
+    - check if peer name already exists on other server
+    - disconnect from that peer
+  - save channels that exist on other server
+  - implement LUSERS and stat commands
 - ping timeouts
 - For final report, connect to server from real irc client (LimeChat)
 - stats
 - nicknames <https://datatracker.ietf.org/doc/html/rfc2813#section-5.7>
+- TODO: report
+- demo video
 
 ## Session log
 
