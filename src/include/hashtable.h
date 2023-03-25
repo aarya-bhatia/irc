@@ -34,6 +34,7 @@ typedef struct HashtableIter
 {
 	Hashtable *hashtable;
 	size_t index;
+	bool start;
 	HTNode *node;
 } HashtableIter;
 

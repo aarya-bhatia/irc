@@ -1,3 +1,4 @@
+#include "include/common.h"
 #include "include/list.h"
 #include "include/replies.h"
 #include "include/server.h"
@@ -152,15 +153,23 @@ void Server_handle_NICK(Server *serv, User *usr, Message *msg)
 		return;
 	}
 
-	assert(msg->params[0]);
 	char *new_nick = msg->params[0];
+	assert(new_nick);
 
+	// nick not changed
+	if(!strcmp(new_nick, usr->nick))
+	{
+		return;
+	}
+
+	// nick collision
 	if (ht_contains(serv->nick_to_user_map, new_nick))
 	{
 		List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NICKNAMEINUSE_MSG, msg->params[0]));
 		return;
 	}
 
+	// nick update
 	if (usr->registered)
 	{
 		ht_remove(serv->nick_to_user_map, usr->nick, NULL, NULL);

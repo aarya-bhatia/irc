@@ -316,14 +316,11 @@ void ht_iter_init(HashtableIter *itr, Hashtable *ht)
 	itr->hashtable = ht;
 	itr->node = NULL;
 	itr->index = 0;
+	itr->start = false;
 }
 
 bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 {
-	// log_debug("index = %d, size = %d, capacity = %d, node = %p",
-	// itr->index, itr->hashtable->size, itr->hashtable->capacity,
-	// itr->node);
-
 	// End of table
 	if (itr->index >= itr->hashtable->capacity)
 	{
@@ -337,9 +334,18 @@ bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 	// No more nodes in bucket
 	if (!itr->node)
 	{
+		if(!itr->start)
+		{
+			itr->start = true;
+			itr->index = 0;
+		}
+		else
+		{
+			itr->index++;
+		}
+
 		// Find next available bucket
-		for (itr->index = itr->index + 1;
-			 itr->index < itr->hashtable->capacity; itr->index++)
+		for ( ; itr->index < itr->hashtable->capacity; itr->index++)
 		{
 			if (itr->hashtable->table[itr->index])
 			{
