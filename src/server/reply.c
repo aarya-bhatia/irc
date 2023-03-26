@@ -789,6 +789,10 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 	char *target_server = msg->params[0];
 	assert(target_server);
 
+	if(ht_contains(serv->name_to_peer_map, target_server)) {
+		return;
+	}
+
 	if (!strcmp(serv->hostname, target_server))
 	{
 		return;
