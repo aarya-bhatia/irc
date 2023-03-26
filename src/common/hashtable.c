@@ -132,43 +132,36 @@ void ht_set(Hashtable *this, void *key, void *value)
 			this->value_free(found->value);
 		}
 
-		found->value =
-			this->value_copy ? this->value_copy(value) : value;
+		found->value = this->value_copy ? this->value_copy(value) : value;
 	}
 	else
 	{ // Create new node and add to bucket
-		size_t hash =
-			ht_hash(key, this->key_len, this->seed) % this->capacity;
+		size_t hash = ht_hash(key, this->key_len, this->seed) % this->capacity;
 		HTNode *new_node = calloc(1, sizeof *new_node);
 		new_node->key = this->key_copy ? this->key_copy(key) : key;
-		new_node->value =
-			this->value_copy ? this->value_copy(value) : value;
+		new_node->value = this->value_copy ? this->value_copy(value) : value;
 		new_node->next = this->table[hash];
 		this->table[hash] = new_node;
 		this->size++;
 	}
 
-	// log_debug("size=%zu, capacity=%zu", this->size, this->capacity);
-
-	/*
-	 * Rehashing
-	 */
-	if (this->size / this->capacity > HT_DENSITY)
+	/* Rehashing */
+	if (this->size > this->capacity * HT_DENSITY)
 	{
 		size_t new_capacity = (this->capacity * 2) + 1;
 		HTNode **new_table = calloc(new_capacity, sizeof(HTNode *));
 
 		for (size_t i = 0; i < this->capacity; i++)
 		{
-			if (this->table[i])
+			HTNode *node = this->table[i];
+
+			while (node)
 			{
-				// Move old bucket to new index
-				size_t new_hash =
-					ht_hash(this->table[i]->key, this->key_len,
-							this->seed) %
-					new_capacity;
-				new_table[new_hash] = this->table[i];
-				this->table[i] = NULL;
+				HTNode *tmp = node->next;
+				size_t new_hash = ht_hash(node->key, this->key_len, this->seed) % new_capacity;
+				node->next = new_table[new_hash];
+				new_table[new_hash] = node;
+				node = tmp;
 			}
 		}
 
@@ -405,6 +398,7 @@ bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 bool ht_remove_all_filter(Hashtable *this, filter_type filter, void *args)
 {
 	bool ret = false;
+	size_t prev_size = this->size;
 
 	for (size_t i = 0; i < this->capacity; i++)
 	{
@@ -440,6 +434,8 @@ bool ht_remove_all_filter(Hashtable *this, filter_type filter, void *args)
 				memset(node, 0, sizeof *node);
 				free(node);
 
+				this->size--;
+
 				node = tmp;
 				ret = true;
 			}
@@ -450,6 +446,8 @@ bool ht_remove_all_filter(Hashtable *this, filter_type filter, void *args)
 			}
 		}
 	}
+
+	log_debug("%zu elements deleted", prev_size - this->size);
 
 	return ret;
 }
@@ -506,6 +504,9 @@ bool ht_remove_filter(Hashtable *this, filter_type filter, void *args, void **ke
 
 				memset(node, 0, sizeof *node);
 				free(node);
+
+				this->size--;
+
 				return true;
 			}
 			else
