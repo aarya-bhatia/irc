@@ -46,12 +46,13 @@ typedef struct _Server
 	Hashtable *name_to_channel_map;	  // Map channel name to channel struct
 	Hashtable *nick_to_serv_name_map; // Map nick to name of server which has user
 
-	Hashtable *test_list_server_map;  // Map nick to ListCommand struct
+	Hashtable *test_list_server_map; // Map nick to ListCommand struct
 
 } Server;
 
 typedef struct _Peer
 {
+	int fd;
 	char *name;
 	char *passwd;
 	bool registered;
@@ -74,6 +75,7 @@ typedef struct _Peer
 
 typedef struct _User
 {
+	int fd;
 	char *nick;		  // display name
 	char *username;	  // unique identifier
 	char *realname;	  // full name
@@ -148,6 +150,9 @@ void Server_handle_NAMES(Server *serv, User *usr, Message *msg);
 void Server_handle_CONNECT(Server *serv, User *usr, Message *msg);
 void Server_handle_LUSERS(Server *serv, User *usr, Message *msg);
 void Server_handle_HELP(Server *serv, User *usr, Message *msg);
+
+void Server_handle_TEST_LIST_SERVER(Server *serv, User *usr, Message *msg);
+void Server_handle_peer_TEST_LIST_SERVER(Server *serv, Peer *peer, Message *msg);
 
 void Server_handle_SERVER(Server *serv, Peer *peer, Message *msg);
 void Server_handle_PASS(Server *serv, Peer *peer, Message *msg);
