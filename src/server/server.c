@@ -453,19 +453,31 @@ void Server_broadcast_message(Server *serv, const char *message)
 	ht_iter_init(&itr, serv->name_to_peer_map);
 	Peer *peer = NULL;
 	int c = 0;
+
+	Hashtable *visited = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);
+
 	while (ht_iter_next(&itr, NULL, (void **)&peer))
 	{
+		if(ht_contains(visited, peer->name))
+		{
+			continue;
+		}
+
 		if (peer->registered && !peer->quit)
 		{
 			add_message(peer->msg_queue, message);
 			c++;
 		}
+
+		ht_set(visited, peer->name, NULL);
 	}
 
 	if (c)
 	{
 		log_debug("Sent message to %d peers", c);
 	}
+
+	ht_free(visited);
 }
 
 /**
@@ -478,19 +490,47 @@ void Server_relay_message(Server *serv, const char *origin, const char *message)
 	Peer *peer = NULL;
 	int c = 0;
 
+	Hashtable *visited = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);
+
 	while (ht_iter_next(&itr, NULL, (void **)&peer))
 	{
+		if(ht_contains(visited, peer->name))
+		{
+			continue;
+		}
+
 		if (strcmp(peer->name, origin) != 0 && peer->registered && !peer->quit)
 		{
 			add_message(peer->msg_queue, message);
 			c++;
 		}
+
+		ht_set(visited, peer->name, NULL);
 	}
 
 	if (c)
 	{
 		log_debug("Relayed message to %d peers on server %s", c, serv->name);
 	}
+
+	ht_free(visited);
+}
+
+Connection *get_connection_by_peer_name(Server *serv, const char *name)
+{
+	HashtableIter itr;
+	ht_iter_init(&itr, serv->connections);
+	Connection *conn;
+	while(ht_iter_next(&itr, NULL, (void **) &conn)) {
+		if(conn->conn_type == PEER_CONNECTION) {
+			Peer *peer = conn->data;
+			if(peer->name && !strcmp(peer->name, name)) {
+				return conn;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 /**
@@ -528,6 +568,20 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 			}
 			else
 			{
+				char *server_name = message->params[0];
+				assert(server_name);
+
+				if(ht_contains(serv->name_to_peer_map, server_name)) {
+					log_error("Cycle detected: Remove peer %s", server_name);
+					Peer *peer = ht_get(serv->name_to_peer_map, server_name); 
+					// TODO: Get connection struct for this peer
+					Connection *other_conn = get_connection_by_peer_name(serv, peer->name);
+					assert(other_conn);
+					Server_remove_connection(serv, other_conn);
+					continue;
+				}
+
+				ht_set(serv->name_to_peer_map, server_name, peer);
 				Server_relay_message(serv, peer->name, message->message);
 			}
 		}
