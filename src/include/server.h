@@ -46,6 +46,8 @@ typedef struct _Server
 	Hashtable *name_to_channel_map;	  // Map channel name to channel struct
 	Hashtable *nick_to_serv_name_map; // Map nick to name of server which has user
 
+	Hashtable *test_list_server_map;  // Map nick to ListCommand struct
+
 } Server;
 
 typedef struct _Peer
@@ -103,6 +105,12 @@ struct help_t
 	const char *subject;
 	const char *title;
 	const char *body;
+};
+
+struct ListCommand
+{
+	Hashtable *pending; // set of server name
+	Connection *conn;
 };
 
 Server *Server_create(const char *name);
