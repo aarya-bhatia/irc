@@ -929,19 +929,22 @@ void check_peer_registration(Server *serv, Peer *peer)
 			return;
 		}
 
-		List_push_back(peer->msg_queue, Server_create_message(serv, "PASS %s 0210 |", other_passwd));
-		List_push_back(peer->msg_queue, Server_create_message(serv, "SERVER %s :%s", serv->hostname, serv->info));
+		char *pass_message = Server_create_message(serv, "PASS %s 0210 |", other_passwd);
+		char *server_message = Server_create_message(serv, "SERVER %s :%s", serv->hostname, serv->info);
+		List_push_back(peer->msg_queue, pass_message);
+		List_push_back(peer->msg_queue, server_message);
+		log_debug("Sent: %s%s", pass_message, server_message);
 		free(other_passwd);
 	}
 
-	if (peer->server_type == ACTIVE_SERVER)
-	{
-		log_debug("active server: %s, passive server: %s", peer->name, serv->name);
-	}
-	else
-	{
-		log_debug("active server: %s, passive server: %s", serv->name, peer->name);
-	}
+	// if (peer->server_type == ACTIVE_SERVER)
+	// {
+	// 	log_debug("active server: %s, passive server: %s", peer->name, serv->name);
+	// }
+	// else
+	// {
+	// 	log_debug("active server: %s, passive server: %s", serv->name, peer->name);
+	// }
 
 	peer->registered = true;
 
@@ -968,12 +971,13 @@ void check_peer_registration(Server *serv, Peer *peer)
 		}
 	}
 
-	ht_iter_init(&itr, serv->name_to_channel_map);
-	Channel *other_channel = NULL;
-	while (ht_iter_next(&itr, NULL, (void **)&other_channel))
-	{
-		List_push_back(peer->msg_queue, Server_create_message(serv, "MODE #%s", other_channel->name));
-	}
+	// TODO: UNCOMMENNT
+	// ht_iter_init(&itr, serv->name_to_channel_map);
+	// Channel *other_channel = NULL;
+	// while (ht_iter_next(&itr, NULL, (void **)&other_channel))
+	// {
+	// 	List_push_back(peer->msg_queue, Server_create_message(serv, "MODE #%s", other_channel->name));
+	// }
 
 	log_info("Server %s has registered", peer->name);
 	ht_set(serv->name_to_peer_map, peer->name, peer);
