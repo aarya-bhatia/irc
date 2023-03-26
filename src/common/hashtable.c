@@ -254,6 +254,23 @@ bool ht_contains(Hashtable *this, const void *key)
 	return ht_find(this, key) != NULL;
 }
 
+/**
+ * Removes an element from the hashtable if an element with matching key exists.
+ *
+ * @param this the hashtable to remove element from
+ * @param key the key for the element to remove
+ * @param key_out If key_out is non null, the node key is not freed and stored into the given pointer.
+ * @param value_out If value_out is non null, the node value is not freed and stored into the given pointer.
+ *
+ * NOTE: In all other cases, the key or value of the node is freed automatically
+ * based on the given callback function key_free and value_free.
+ *
+ * WARNING: If the callback function is not provided, the key and value are not freed.
+ * This could cause a memory leak, if the pointers to the node key or node value are not
+ * accessible by the callee.
+ *
+ * @return Returs true if deletion was success. Returns false if no element was deleted i.e key does not exist.
+ */
 bool ht_remove(Hashtable *this, const void *key, void **key_out, void **value_out)
 {
 	for (size_t i = 0; i < this->capacity; i++)
@@ -276,22 +293,22 @@ bool ht_remove(Hashtable *this, const void *key, void **key_out, void **value_ou
 						prev->next = curr->next;
 					}
 
-					if (this->key_free)
-					{
-						this->key_free(curr->key);
-					}
-					else if (key_out)
+					if (key_out)
 					{
 						*key_out = curr->key;
 					}
-
-					if (this->value_free)
+					else if (this->key_free)
 					{
-						this->value_free(curr->value);
+						this->key_free(curr->key);
 					}
-					else if (value_out)
+
+					if (value_out)
 					{
 						*value_out = curr->value;
+					}
+					else if (this->value_free)
+					{
+						this->value_free(curr->value);
 					}
 
 					memset(curr, 0, sizeof *curr);
@@ -334,7 +351,7 @@ bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 	// No more nodes in bucket
 	if (!itr->node)
 	{
-		if(!itr->start)
+		if (!itr->start)
 		{
 			itr->start = true;
 			itr->index = 0;
@@ -345,7 +362,7 @@ bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 		}
 
 		// Find next available bucket
-		for ( ; itr->index < itr->hashtable->capacity; itr->index++)
+		for (; itr->index < itr->hashtable->capacity; itr->index++)
 		{
 			if (itr->hashtable->table[itr->index])
 			{
@@ -376,6 +393,85 @@ bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 	}
 
 	return true;
+}
+
+/**
+ * Removes ALL nodes for whom the filter function returns true.
+ *
+ * @param args The filter function can optionally receive args if required.
+ *
+ * @return returns true to indicate an element was deleted, otherwise false.
+ */
+bool ht_remove_filter(Hashtable *this, filter_type filter, void *args)
+{
+}
+
+/**
+ * Removes FIRST node for whom the filter function returns true.
+ *
+ * @param args The filter function can optionally receive args if required.
+ * @param key_out see ht_remove()
+ * @param value_out see ht_remove()
+ *
+ * @return returns true to indicate an element was deleted, otherwise false.
+ */
+bool ht_remove_filter(Hashtable *this, filter_type filter, void *args, void **key_out, void **value_out)
+{
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		HTNode *prev = NULL;
+		HTNode *node = this->table[i];
+
+		while (node)
+		{
+			// Element found
+			if (filter(node->key, node->value, args))
+			{
+				HTNode *tmp = node->next;
+
+				if (!prev)
+				{
+					this->table[i] = tmp;
+				}
+				else
+				{
+					prev->next = tmp;
+				}
+
+				if (key_out)
+				{
+					*key_out = node->key;
+				}
+				else if (this->key_free)
+				{
+					this->key_free(node->key);
+				}
+
+				if (value_out)
+				{
+					*value_out = node->value;
+				}
+				else if (this->value_free)
+				{
+					this->value_free(node->value);
+				}
+
+				memset(node, 0, sizeof *node);
+				free(node);
+
+				node = tmp;
+
+				return true;
+			}
+			else
+			{
+				prev = node;
+				node = node->next;
+			}
+		}
+	}
+
+	return false;
 }
 
 size_t djb2hash(const void *key, int len, uint32_t seed)
