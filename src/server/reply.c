@@ -163,7 +163,7 @@ void Server_handle_NICK(Server *serv, User *usr, Message *msg)
 	}
 
 	// nick collision
-	if (ht_contains(serv->nick_to_user_map, new_nick))
+	if (ht_contains(serv->nick_to_user_map, new_nick) || ht_contains(serv->nick_to_serv_name_map, new_nick))
 	{
 		List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NICKNAMEINUSE_MSG, msg->params[0]));
 		return;
