@@ -194,6 +194,38 @@ void hashtable_test()
 	ht_destroy(&this);
 }
 
+bool check_mod_3(int *key, void *val, int *arg)
+{
+	return *key % 3 == *arg;
+}
+
+void hashtable_test2()
+{
+	Hashtable *this = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);
+
+	int i;
+
+	for (i = 0; i < 1000; i++)
+	{
+		ht_set(this, &i, NULL);
+	}
+
+	assert(ht_size(this) == 1000);
+
+	int arg;
+
+	for (int i = 0; i < 3; i++)
+	{
+		arg = i;
+		ht_remove_filter(this, (filter_type)check_mod_3, &arg, NULL, NULL);
+		ht_remove_all_filter(this, (filter_type)check_mod_3, &arg);
+	}
+
+	assert(ht_size(this) == 0);
+
+	ht_free(this);
+}
+
 void vector_test()
 {
 	Vector *this = Vector_alloc_type(10, STRING_TYPE);
@@ -357,6 +389,9 @@ int main(int argc, char *argv[])
 	case 7:
 		width = argc < 3 ? 10 : atol(argv[2]);
 		line_wrap_test(width);
+		break;
+	case 8:
+		hashtable_test2();
 		break;
 	default:
 		log_error("No such test case");

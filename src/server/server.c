@@ -18,6 +18,12 @@ typedef struct _UserRequestHandler
 	void (*handler)(Server *, User *, Message *); // request handler function
 } UserRequestHandler;
 
+struct filter_arg_t
+{
+	Server *serv;
+	Peer *peer;
+};
+
 /**
  * Look up table for user request handlers
  */
@@ -727,6 +733,28 @@ bool Server_add_connection(Server *serv, Connection *connection)
 	return true;
 }
 
+// TODO: Send quit message for user: Need to save user info
+bool _remove_nick_for_peer(char *nick, char *name, struct filter_arg_t *filter_arg)
+{
+	if (!strcmp(name, filter_arg->peer->name))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool _remove_server_for_peer(char *name, Peer *peer, struct filter_arg_t *filter_arg)
+{
+	if (!strcmp(peer->name, filter_arg->peer->name))
+	{
+		Server_broadcast_message(filter_arg->serv, Server_create_message(filter_arg->serv, "SQUIT %s :closing link", name));
+		return true;
+	}
+
+	return false;
+}
+
 /**
  * Remove connection from server and free all its memory.
  *
@@ -769,41 +797,9 @@ void Server_remove_connection(Server *serv, Connection *connection)
 		if (peer->name)
 		{
 			// Remove all users behind quitting server
-			HashtableIter itr;
-			ht_iter_init(&itr, serv->nick_to_serv_name_map);
-			char *nick = NULL;
-			char *name = NULL;
-
-			while (ht_iter_next(&itr, (void **)&nick, (void **)&name))
-			{
-				if (!strcmp(name, peer->name))
-				{
-					// TODO: Send quit message for user
-					// Need to save user info
-					// Server_broadcast_message(serv, User_create_message(serv, "QUIT :%s", "closing link"));
-					if (!ht_iter_remove(&itr, NULL, NULL))
-					{
-						break;
-					}
-				}
-			}
-
-			ht_remove(serv->name_to_peer_map, peer->name, NULL, NULL);
-			ht_iter_init(&itr, serv->name_to_peer_map);
-			Peer *other_peer = NULL;
-			name = NULL;
-			while (ht_iter_next(&itr, (void **)&name, (void **)&other_peer))
-			{
-				if (!strcmp(other_peer->name, peer->name))
-				{
-					Server_broadcast_message(serv, Server_create_message(serv, "SQUIT %s :closing link", name));
-
-					if (!ht_iter_remove(&itr, NULL, NULL))
-					{
-						break;
-					}
-				}
-			}
+			struct filter_arg_t arg = {.serv = serv, .peer = peer};
+			ht_remove_all_filter(serv->nick_to_serv_name_map, (filter_type)_remove_nick_for_peer, &arg);
+			ht_remove_all_filter(serv->name_to_peer_map, (filter_type)_remove_server_for_peer, &arg);
 		}
 
 		Peer_free(peer);

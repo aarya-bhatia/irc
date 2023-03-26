@@ -75,4 +75,5 @@ HTNode *ht_find(Hashtable *this, const void *key);
 void ht_iter_init(HashtableIter *itr, Hashtable *ht);
 bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out);
 
+bool ht_remove_all_filter(Hashtable *this, filter_type filter, void *args);
 bool ht_remove_filter(Hashtable *this, filter_type filter, void *args, void **key_out, void **value_out);

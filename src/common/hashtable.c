@@ -402,8 +402,56 @@ bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
  *
  * @return returns true to indicate an element was deleted, otherwise false.
  */
-bool ht_remove_filter(Hashtable *this, filter_type filter, void *args)
+bool ht_remove_all_filter(Hashtable *this, filter_type filter, void *args)
 {
+	bool ret = false;
+
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		HTNode *prev = NULL;
+		HTNode *node = this->table[i];
+
+		while (node)
+		{
+			// Element found
+			if (filter(node->key, node->value, args))
+			{
+				HTNode *tmp = node->next;
+
+				if (!prev)
+				{
+					this->table[i] = tmp;
+				}
+				else
+				{
+					prev->next = tmp;
+				}
+
+				if (this->key_free)
+				{
+					this->key_free(node->key);
+				}
+
+				if (this->value_free)
+				{
+					this->value_free(node->value);
+				}
+
+				memset(node, 0, sizeof *node);
+				free(node);
+
+				node = tmp;
+				ret = true;
+			}
+			else
+			{
+				prev = node;
+				node = node->next;
+			}
+		}
+	}
+
+	return ret;
 }
 
 /**
@@ -458,9 +506,6 @@ bool ht_remove_filter(Hashtable *this, filter_type filter, void *args, void **ke
 
 				memset(node, 0, sizeof *node);
 				free(node);
-
-				node = tmp;
-
 				return true;
 			}
 			else
