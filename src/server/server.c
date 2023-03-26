@@ -46,7 +46,6 @@ Peer *Peer_alloc(int type)
 {
 	Peer *this = calloc(1, sizeof *this);
 	this->msg_queue = List_alloc(NULL, free);
-	this->nicks = Vector_alloc(1, (elem_copy_type)strdup, free);
 	this->server_type = type;
 	return this;
 }
@@ -54,7 +53,6 @@ Peer *Peer_alloc(int type)
 void Peer_free(Peer *this)
 {
 	List_free(this->msg_queue);
-	Vector_free(this->nicks);
 	free(this->name);
 	free(this->passwd);
 	free(this);
@@ -338,7 +336,7 @@ void Server_process_request_from_user(Server *serv, Connection *conn)
 	Vector *messages = parse_message_list(conn->incoming_messages);
 	assert(messages);
 
-	log_debug("Processing %zu messages from connection %d", Vector_size(messages), conn->fd);
+	// log_debug("Processing %zu messages from connection %d", Vector_size(messages), conn->fd);
 
 	// Iterate over the request messages and add response message(s) to user's message queue in the same order.
 	for (size_t i = 0; i < Vector_size(messages); i++)
@@ -759,24 +757,55 @@ void Server_remove_connection(Server *serv, Connection *connection)
 				Channel_remove_member(channel, usr);
 			}
 		}
-		Server_relay_message(serv, serv->name, Server_create_message(serv, "QUIT :%s", "closing link"));
+		Server_broadcast_message(serv, Server_create_message(serv, "QUIT :%s", "closing link"));
 		User_free(usr);
 	}
 	else if (connection->conn_type == PEER_CONNECTION)
 	{
 		Peer *peer = connection->data;
 		log_info("Closing connection with peer %d", connection->fd);
+
+		// Remove all servers behind quitting server
 		if (peer->name)
 		{
+			// Remove all users behind quitting server
+			HashtableIter itr;
+			ht_iter_init(&itr, serv->nick_to_serv_name_map);
+			char *nick = NULL;
+			char *name = NULL;
+
+			while (ht_iter_next(&itr, (void **)&nick, (void **)&name))
+			{
+				if (!strcmp(name, peer->name))
+				{
+					// TODO: Send quit message for user
+					// Need to save user info
+					// Server_broadcast_message(serv, User_create_message(serv, "QUIT :%s", "closing link"));
+					if (!ht_iter_remove(&itr, NULL, NULL))
+					{
+						break;
+					}
+				}
+			}
+
 			ht_remove(serv->name_to_peer_map, peer->name, NULL, NULL);
+			ht_iter_init(&itr, serv->name_to_peer_map);
+			Peer *other_peer = NULL;
+			name = NULL;
+			while (ht_iter_next(&itr, (void **)&name, (void **)&other_peer))
+			{
+				if (!strcmp(other_peer->name, peer->name))
+				{
+					Server_broadcast_message(serv, Server_create_message(serv, "SQUIT %s :closing link", name));
+
+					if (!ht_iter_remove(&itr, NULL, NULL))
+					{
+						break;
+					}
+				}
+			}
 		}
 
-		for (size_t i = 0; i < Vector_size(peer->nicks); i++)
-		{
-			char *nick = Vector_get_at(peer->nicks, i);
-			ht_remove(serv->nick_to_serv_name_map, nick, NULL, NULL);
-		}
-		Server_relay_message(serv, serv->name, Server_create_message(serv, "SQUIT %s :%s", peer->name, "closing link"));
 		Peer_free(peer);
 	}
 

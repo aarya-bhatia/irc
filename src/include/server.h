@@ -58,7 +58,6 @@ typedef struct _Peer
 	bool registered;
 	bool quit; // flag to indicate server leaving
 	List *msg_queue;
-	Vector *nicks; // nick of users behind this server
 
 	enum
 	{

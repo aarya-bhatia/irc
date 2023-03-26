@@ -937,15 +937,6 @@ void check_peer_registration(Server *serv, Peer *peer)
 		free(other_passwd);
 	}
 
-	// if (peer->server_type == ACTIVE_SERVER)
-	// {
-	// 	log_debug("active server: %s, passive server: %s", peer->name, serv->name);
-	// }
-	// else
-	// {
-	// 	log_debug("active server: %s, passive server: %s", serv->name, peer->name);
-	// }
-
 	peer->registered = true;
 
 	// State information exchange
@@ -978,6 +969,8 @@ void check_peer_registration(Server *serv, Peer *peer)
 	// {
 	// 	List_push_back(peer->msg_queue, Server_create_message(serv, "MODE #%s", other_channel->name));
 	// }
+
+	Server_broadcast_message(serv, Server_create_message(serv, "SERVER %s", peer->name));
 
 	log_info("Server %s has registered", peer->name);
 	ht_set(serv->name_to_peer_map, peer->name, peer);
