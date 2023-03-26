@@ -205,6 +205,7 @@ void hashtable_test1()
 
 	Hashtable *this = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);
 
+	// insert all
 	for (int i = 0; i < 1000; i++)
 	{
 		assert(!ht_contains(this, &i));
@@ -216,6 +217,7 @@ void hashtable_test1()
 	assert(ht_size(this) == 1000);
 	assert(ht_capacity(this) > 1000);
 
+	// remove all
 	for (int i = 0; i < 1000; i++)
 	{
 		assert(ht_contains(this, &i));
@@ -235,10 +237,15 @@ void hashtable_test1()
 
 	for (int i = 0; i < 1000; i++)
 	{
-		ht_remove(this, &i, NULL, NULL);
+		assert(ht_remove(this, &i, NULL, NULL));
 	}
 
 	assert(ht_size(this) == 4000);
+
+	for (int i = 0; i < 1000; i++)
+	{
+		assert(!ht_remove(this, &i, NULL, NULL));
+	}
 
 	for (int i = 1000; i < 2000; i++)
 	{
@@ -250,6 +257,8 @@ void hashtable_test1()
 	for (int i = 1000; i < 5000; i += 2)
 	{
 		assert(ht_contains(this, &i));
+		ht_set(this, &i, NULL); // update key
+		assert(ht_size(this) == 4000);
 	}
 
 	ht_free(this);
