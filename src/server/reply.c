@@ -821,7 +821,7 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 
 	Server_add_connection(serv, conn);
 
-	Peer *peer = Peer_alloc(PASSIVE_SERVER);
+	Peer *peer = Peer_alloc(PASSIVE_SERVER, conn->fd, conn->hostname);
 	peer->name = target_info.peer_name;
 
 	conn->conn_type = PEER_CONNECTION;

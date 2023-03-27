@@ -26,7 +26,24 @@
 	make_string(":%s!%s@%s " format "\r\n", usr->nick, usr->username, \
 				usr->hostname, __VA_ARGS__)
 
-typedef struct user_info_t
+typedef struct _Peer
+{
+	int fd;
+	const char *hostname;
+	char *name;
+	char *passwd;
+	bool registered;
+	bool quit; // flag to indicate server leaving
+	List *msg_queue;
+
+	enum
+	{
+		ACTIVE_SERVER,
+		PASSIVE_SERVER
+	} server_type;
+} Peer;
+
+struct user_info_t
 {
 	char *nick;
 	char *username;
@@ -61,41 +78,17 @@ typedef struct _Server
 
 } Server;
 
-typedef struct _Peer
-{
-	int fd;
-	const char *hostname;
-	char *name;
-	char *passwd;
-	bool registered;
-	bool quit; // flag to indicate server leaving
-	List *msg_queue;
-
-	enum
-	{
-		ACTIVE_SERVER,
-		PASSIVE_SERVER
-	} server_type;
-} Peer;
-
-// enum
-// {
-// 	USER_ONLINE,
-// 	USER_OFFLINE
-// };
-
 typedef struct _User
 {
 	int fd;
+	const char *hostname;
 	char *nick;			  // display name
-	char *username;		  // unique identifier
-	char *realname;		  // full name
-	const char *hostname; // client ip
+	char *username;
+	char *realname;
 	Vector *channels;	  // list of channels joined by user
 	bool registered;	  // flag to indicate user has registered with username, realname and nick
 	bool nick_changed;	  // flag to indicate user has set a nick
 	bool quit;			  // flag to indicate user is leaving server
-	// int status;			  // to indicate if user online or offline
 	List *msg_queue;
 } User;
 
