@@ -7,6 +7,30 @@
 
 #include "include/common.h"
 
+void ht_node_free(Hashtable *this, HTNode *node, void **key_out, void **value_out)
+{
+	if (key_out)
+	{
+		*key_out = node->key;
+	}
+	else if (this->key_free)
+	{
+		this->key_free(node->key);
+	}
+
+	if (value_out)
+	{
+		*value_out = node->value;
+	}
+	else if (this->value_free)
+	{
+		this->value_free(node->value);
+	}
+
+	memset(node, 0, sizeof *node);
+	free(node);
+}
+
 size_t djb2hash(const void *key, int len, uint32_t seed);
 
 size_t ht_size(Hashtable *this)
@@ -286,27 +310,7 @@ bool ht_remove(Hashtable *this, const void *key, void **key_out, void **value_ou
 						prev->next = curr->next;
 					}
 
-					if (key_out)
-					{
-						*key_out = curr->key;
-					}
-					else if (this->key_free)
-					{
-						this->key_free(curr->key);
-					}
-
-					if (value_out)
-					{
-						*value_out = curr->value;
-					}
-					else if (this->value_free)
-					{
-						this->value_free(curr->value);
-					}
-
-					memset(curr, 0, sizeof *curr);
-					free(curr);
-
+					ht_node_free(this, curr, key_out, value_out);
 					this->size--;
 
 					return true;
@@ -421,19 +425,7 @@ bool ht_remove_all_filter(Hashtable *this, filter_type filter, void *args)
 					prev->next = tmp;
 				}
 
-				if (this->key_free)
-				{
-					this->key_free(node->key);
-				}
-
-				if (this->value_free)
-				{
-					this->value_free(node->value);
-				}
-
-				memset(node, 0, sizeof *node);
-				free(node);
-
+				ht_node_free(this, node, NULL, NULL);
 				this->size--;
 
 				node = tmp;
@@ -484,27 +476,7 @@ bool ht_remove_filter(Hashtable *this, filter_type filter, void *args, void **ke
 					prev->next = tmp;
 				}
 
-				if (key_out)
-				{
-					*key_out = node->key;
-				}
-				else if (this->key_free)
-				{
-					this->key_free(node->key);
-				}
-
-				if (value_out)
-				{
-					*value_out = node->value;
-				}
-				else if (this->value_free)
-				{
-					this->value_free(node->value);
-				}
-
-				memset(node, 0, sizeof *node);
-				free(node);
-
+				ht_node_free(this, node, key_out, value_out);
 				this->size--;
 
 				return true;
