@@ -1,4 +1,15 @@
+server1,192.168.64.4,5010,test1@123
+server2,192.168.64.4,5011,test2@123
+server3,192.168.64.4,5012,test3@123
+server4,192.168.64.4,5013,test4@123
+
 erwin,192.168.64.8,5000,erwin@1234
 armin,192.168.64.8,5002,armin@1234
+eren,192.168.64.8,5003,eren@1234
+itachi,192.168.64.8,5004,itachi@1234
+
 levi,192.168.64.6,5001,levi@1234
 mikasa,192.168.64.6,5000,mikasa@1234
+
+cs340vm1,sp23-cs340-042.cs.illinois.edu,6000,aarya#2001@vm1
+cs340vm2,sp23-cs340-161.cs.illinois.edu,6001,aarya#2001@vm2

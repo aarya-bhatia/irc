@@ -7,6 +7,30 @@
 
 #include "include/common.h"
 
+void ht_node_free(Hashtable *this, HTNode *node, void **key_out, void **value_out)
+{
+	if (key_out)
+	{
+		*key_out = node->key;
+	}
+	else if (this->key_free)
+	{
+		this->key_free(node->key);
+	}
+
+	if (value_out)
+	{
+		*value_out = node->value;
+	}
+	else if (this->value_free)
+	{
+		this->value_free(node->value);
+	}
+
+	memset(node, 0, sizeof *node);
+	free(node);
+}
+
 size_t djb2hash(const void *key, int len, uint32_t seed);
 
 size_t ht_size(Hashtable *this)
@@ -132,43 +156,36 @@ void ht_set(Hashtable *this, void *key, void *value)
 			this->value_free(found->value);
 		}
 
-		found->value =
-			this->value_copy ? this->value_copy(value) : value;
+		found->value = this->value_copy ? this->value_copy(value) : value;
 	}
 	else
 	{ // Create new node and add to bucket
-		size_t hash =
-			ht_hash(key, this->key_len, this->seed) % this->capacity;
+		size_t hash = ht_hash(key, this->key_len, this->seed) % this->capacity;
 		HTNode *new_node = calloc(1, sizeof *new_node);
 		new_node->key = this->key_copy ? this->key_copy(key) : key;
-		new_node->value =
-			this->value_copy ? this->value_copy(value) : value;
+		new_node->value = this->value_copy ? this->value_copy(value) : value;
 		new_node->next = this->table[hash];
 		this->table[hash] = new_node;
 		this->size++;
 	}
 
-	// log_debug("size=%zu, capacity=%zu", this->size, this->capacity);
-
-	/*
-	 * Rehashing
-	 */
-	if (this->size / this->capacity > HT_DENSITY)
+	/* Rehashing */
+	if (this->size > this->capacity * HT_DENSITY)
 	{
 		size_t new_capacity = (this->capacity * 2) + 1;
 		HTNode **new_table = calloc(new_capacity, sizeof(HTNode *));
 
 		for (size_t i = 0; i < this->capacity; i++)
 		{
-			if (this->table[i])
+			HTNode *node = this->table[i];
+
+			while (node)
 			{
-				// Move old bucket to new index
-				size_t new_hash =
-					ht_hash(this->table[i]->key, this->key_len,
-							this->seed) %
-					new_capacity;
-				new_table[new_hash] = this->table[i];
-				this->table[i] = NULL;
+				HTNode *tmp = node->next;
+				size_t new_hash = ht_hash(node->key, this->key_len, this->seed) % new_capacity;
+				node->next = new_table[new_hash];
+				new_table[new_hash] = node;
+				node = tmp;
 			}
 		}
 
@@ -254,6 +271,23 @@ bool ht_contains(Hashtable *this, const void *key)
 	return ht_find(this, key) != NULL;
 }
 
+/**
+ * Removes an element from the hashtable if an element with matching key exists.
+ *
+ * @param this the hashtable to remove element from
+ * @param key the key for the element to remove
+ * @param key_out If key_out is non null, the node key is not freed and stored into the given pointer.
+ * @param value_out If value_out is non null, the node value is not freed and stored into the given pointer.
+ *
+ * NOTE: In all other cases, the key or value of the node is freed automatically
+ * based on the given callback function key_free and value_free.
+ *
+ * WARNING: If the callback function is not provided, the key and value are not freed.
+ * This could cause a memory leak, if the pointers to the node key or node value are not
+ * accessible by the callee.
+ *
+ * @return Returs true if deletion was success. Returns false if no element was deleted i.e key does not exist.
+ */
 bool ht_remove(Hashtable *this, const void *key, void **key_out, void **value_out)
 {
 	for (size_t i = 0; i < this->capacity; i++)
@@ -276,27 +310,7 @@ bool ht_remove(Hashtable *this, const void *key, void **key_out, void **value_ou
 						prev->next = curr->next;
 					}
 
-					if (this->key_free)
-					{
-						this->key_free(curr->key);
-					}
-					else if (key_out)
-					{
-						*key_out = curr->key;
-					}
-
-					if (this->value_free)
-					{
-						this->value_free(curr->value);
-					}
-					else if (value_out)
-					{
-						*value_out = curr->value;
-					}
-
-					memset(curr, 0, sizeof *curr);
-					free(curr);
-
+					ht_node_free(this, curr, key_out, value_out);
 					this->size--;
 
 					return true;
@@ -316,14 +330,11 @@ void ht_iter_init(HashtableIter *itr, Hashtable *ht)
 	itr->hashtable = ht;
 	itr->node = NULL;
 	itr->index = 0;
+	itr->start = false;
 }
 
 bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 {
-	// log_debug("index = %d, size = %d, capacity = %d, node = %p",
-	// itr->index, itr->hashtable->size, itr->hashtable->capacity,
-	// itr->node);
-
 	// End of table
 	if (itr->index >= itr->hashtable->capacity)
 	{
@@ -337,9 +348,18 @@ bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 	// No more nodes in bucket
 	if (!itr->node)
 	{
+		if (!itr->start)
+		{
+			itr->start = true;
+			itr->index = 0;
+		}
+		else
+		{
+			itr->index++;
+		}
+
 		// Find next available bucket
-		for (itr->index = itr->index + 1;
-			 itr->index < itr->hashtable->capacity; itr->index++)
+		for (; itr->index < itr->hashtable->capacity; itr->index++)
 		{
 			if (itr->hashtable->table[itr->index])
 			{
@@ -370,6 +390,106 @@ bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out)
 	}
 
 	return true;
+}
+
+/**
+ * Removes ALL nodes for whom the filter function returns true.
+ *
+ * @param args The filter function can optionally receive args if required.
+ *
+ * @return returns true to indicate an element was deleted, otherwise false.
+ */
+bool ht_remove_all_filter(Hashtable *this, filter_type filter, void *args)
+{
+	bool ret = false;
+	size_t prev_size = this->size;
+
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		HTNode *prev = NULL;
+		HTNode *node = this->table[i];
+
+		while (node)
+		{
+			// Element found
+			if (filter(node->key, node->value, args))
+			{
+				HTNode *tmp = node->next;
+
+				if (!prev)
+				{
+					this->table[i] = tmp;
+				}
+				else
+				{
+					prev->next = tmp;
+				}
+
+				ht_node_free(this, node, NULL, NULL);
+				this->size--;
+
+				node = tmp;
+				ret = true;
+			}
+			else
+			{
+				prev = node;
+				node = node->next;
+			}
+		}
+	}
+
+	log_debug("%zu elements deleted", prev_size - this->size);
+
+	return ret;
+}
+
+/**
+ * Removes FIRST node for whom the filter function returns true.
+ *
+ * @param args The filter function can optionally receive args if required.
+ * @param key_out see ht_remove()
+ * @param value_out see ht_remove()
+ *
+ * @return returns true to indicate an element was deleted, otherwise false.
+ */
+bool ht_remove_filter(Hashtable *this, filter_type filter, void *args, void **key_out, void **value_out)
+{
+	for (size_t i = 0; i < this->capacity; i++)
+	{
+		HTNode *prev = NULL;
+		HTNode *node = this->table[i];
+
+		while (node)
+		{
+			// Element found
+			if (filter(node->key, node->value, args))
+			{
+				HTNode *tmp = node->next;
+
+				if (!prev)
+				{
+					this->table[i] = tmp;
+				}
+				else
+				{
+					prev->next = tmp;
+				}
+
+				ht_node_free(this, node, key_out, value_out);
+				this->size--;
+
+				return true;
+			}
+			else
+			{
+				prev = node;
+				node = node->next;
+			}
+		}
+	}
+
+	return false;
 }
 
 size_t djb2hash(const void *key, int len, uint32_t seed)

@@ -194,6 +194,108 @@ void hashtable_test()
 	ht_destroy(&this);
 }
 
+bool check_mod_3(int *key, void *val, int *arg)
+{
+	return *key % 3 == *arg;
+}
+
+void hashtable_test1()
+{
+	// stress test 1
+
+	Hashtable *this = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);
+
+	// insert all
+	for (int i = 0; i < 1000; i++)
+	{
+		assert(!ht_contains(this, &i));
+		ht_set(this, &i, NULL);
+		assert(ht_size(this) == i + 1);
+		assert(ht_contains(this, &i));
+	}
+
+	assert(ht_size(this) == 1000);
+	assert(ht_capacity(this) > 1000);
+
+	// remove all
+	for (int i = 0; i < 1000; i++)
+	{
+		assert(ht_contains(this, &i));
+		assert(ht_remove(this, &i, NULL, NULL));
+		assert(!ht_contains(this, &i));
+		assert(ht_size(this) == 1000 - i - 1);
+	}
+
+	assert(ht_size(this) == 0);
+
+	for (int i = 0; i < 5000; i++)
+	{
+		ht_set(this, &i, NULL);
+	}
+
+	assert(ht_size(this) == 5000);
+
+	for (int i = 0; i < 1000; i++)
+	{
+		assert(ht_remove(this, &i, NULL, NULL));
+	}
+
+	assert(ht_size(this) == 4000);
+
+	for (int i = 0; i < 1000; i++)
+	{
+		assert(!ht_remove(this, &i, NULL, NULL));
+	}
+
+	for (int i = 1000; i < 2000; i++)
+	{
+		ht_set(this, &i, NULL);
+	}
+
+	assert(ht_size(this) == 4000);
+
+	for (int i = 1000; i < 5000; i += 2)
+	{
+		assert(ht_contains(this, &i));
+		ht_set(this, &i, NULL); // update key
+		assert(ht_size(this) == 4000);
+	}
+
+	ht_free(this);
+}
+
+void hashtable_test2()
+{
+	Hashtable *this = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);
+
+	int i;
+	int n = 609;
+
+	for (i = 0; i < n; i++)
+	{
+		ht_set(this, &i, NULL);
+	}
+
+	log_info("ht_size() = %zu", ht_size(this));
+	log_info("ht_capacity() = %zu", ht_capacity(this));
+	assert(ht_size(this) == n);
+
+	int arg;
+
+	for (int i = 0; i < 3; i++)
+	{
+		arg = i;
+		log_info("Removing elements which are congruent to %d mod 3", arg);
+		ht_remove_all_filter(this, (filter_type)check_mod_3, &arg);
+		log_info("ht_size() = %zu", ht_size(this));
+	}
+
+	log_info("ht_size() = %zu", ht_size(this));
+	assert(ht_size(this) == 0);
+
+	ht_free(this);
+}
+
 void vector_test()
 {
 	Vector *this = Vector_alloc_type(10, STRING_TYPE);
@@ -357,6 +459,12 @@ int main(int argc, char *argv[])
 	case 7:
 		width = argc < 3 ? 10 : atol(argv[2]);
 		line_wrap_test(width);
+		break;
+	case 8:
+		hashtable_test2();
+		break;
+	case 9:
+		hashtable_test1();
 		break;
 	default:
 		log_error("No such test case");

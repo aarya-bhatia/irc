@@ -1,3 +1,4 @@
+#include "include/common.h"
 #include "include/list.h"
 #include "include/replies.h"
 #include "include/server.h"
@@ -152,15 +153,23 @@ void Server_handle_NICK(Server *serv, User *usr, Message *msg)
 		return;
 	}
 
-	assert(msg->params[0]);
 	char *new_nick = msg->params[0];
+	assert(new_nick);
 
-	if (ht_contains(serv->nick_to_user_map, new_nick))
+	// nick not changed
+	if (!strcmp(new_nick, usr->nick))
+	{
+		return;
+	}
+
+	// nick collision
+	if (ht_contains(serv->nick_to_user_map, new_nick) || ht_contains(serv->nick_to_serv_name_map, new_nick))
 	{
 		List_push_back(usr->msg_queue, Server_create_message(serv, ERR_NICKNAMEINUSE_MSG, msg->params[0]));
 		return;
 	}
 
+	// nick update
 	if (usr->registered)
 	{
 		ht_remove(serv->nick_to_user_map, usr->nick, NULL, NULL);
@@ -780,6 +789,11 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 	char *target_server = msg->params[0];
 	assert(target_server);
 
+	if (ht_contains(serv->name_to_peer_map, target_server))
+	{
+		return;
+	}
+
 	if (!strcmp(serv->hostname, target_server))
 	{
 		return;
@@ -807,7 +821,7 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg)
 
 	Server_add_connection(serv, conn);
 
-	Peer *peer = Peer_alloc(PASSIVE_SERVER);
+	Peer *peer = Peer_alloc(PASSIVE_SERVER, conn->fd, conn->hostname);
 	peer->name = target_info.peer_name;
 
 	conn->conn_type = PEER_CONNECTION;
@@ -915,18 +929,12 @@ void check_peer_registration(Server *serv, Peer *peer)
 			return;
 		}
 
-		List_push_back(peer->msg_queue, Server_create_message(serv, "PASS %s 0210 |", other_passwd));
-		List_push_back(peer->msg_queue, Server_create_message(serv, "SERVER %s :%s", serv->hostname, serv->info));
+		char *pass_message = Server_create_message(serv, "PASS %s 0210 |", other_passwd);
+		char *server_message = Server_create_message(serv, "SERVER %s :%s", serv->hostname, serv->info);
+		List_push_back(peer->msg_queue, pass_message);
+		List_push_back(peer->msg_queue, server_message);
+		log_debug("Sent: %s%s", pass_message, server_message);
 		free(other_passwd);
-	}
-
-	if (peer->server_type == ACTIVE_SERVER)
-	{
-		log_debug("active server: %s, passive server: %s", peer->name, serv->name);
-	}
-	else
-	{
-		log_debug("active server: %s, passive server: %s", serv->name, peer->name);
 	}
 
 	peer->registered = true;
@@ -954,13 +962,118 @@ void check_peer_registration(Server *serv, Peer *peer)
 		}
 	}
 
-	ht_iter_init(&itr, serv->name_to_channel_map);
-	Channel *other_channel = NULL;
-	while (ht_iter_next(&itr, NULL, (void **)&other_channel))
-	{
-		List_push_back(peer->msg_queue, Server_create_message(serv, "MODE #%s", other_channel->name));
-	}
+	// TODO: UNCOMMENNT
+	// ht_iter_init(&itr, serv->name_to_channel_map);
+	// Channel *other_channel = NULL;
+	// while (ht_iter_next(&itr, NULL, (void **)&other_channel))
+	// {
+	// 	List_push_back(peer->msg_queue, Server_create_message(serv, "MODE #%s", other_channel->name));
+	// }
+
+	Server_broadcast_message(serv, Server_create_message(serv, "SERVER %s", peer->name));
 
 	log_info("Server %s has registered", peer->name);
 	ht_set(serv->name_to_peer_map, peer->name, peer);
+}
+
+void Server_handle_TEST_LIST_SERVER(Server *serv, User *usr, Message *msg)
+{
+	if (ht_contains(serv->test_list_server_map, usr->nick))
+	{
+		log_warn("There is an existing list request in action");
+		return;
+	}
+
+	struct ListCommand *list_data = calloc(1, sizeof *list_data);
+	list_data->conn = ht_get(serv->connections, &usr->fd);
+	list_data->pending = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);
+
+	Hashtable *visited = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);
+	HashtableIter itr;
+	ht_iter_init(&itr, serv->name_to_peer_map);
+	Peer *peer = NULL;
+	while (ht_iter_next(&itr, NULL, (void **)&peer))
+	{
+		if (peer->registered && !peer->quit && !ht_contains(visited, peer->name))
+		{
+			List_push_back(peer->msg_queue, Server_create_message(serv, "TEST_LIST_SERVER %s", usr->nick));
+			List_push_back(usr->msg_queue, Server_create_message(serv, "901 %s :%s", usr->nick, peer->name)); // RPL_TEST_LIST_SERVER
+			ht_set(list_data->pending, peer->name, peer);
+			ht_set(visited, peer->name, NULL);
+		}
+	}
+
+	ht_free(visited);
+
+	log_debug("Waiting for list request from %zu peers", ht_size(list_data->pending));
+
+	if (ht_size(list_data->pending) == 0)
+	{
+		List_push_back(usr->msg_queue, Server_create_message(serv, "902 %s :End of TEST_LIST_SERVER", usr->nick));
+		ht_free(list_data->pending);
+		free(list_data);
+		log_debug("TEST_LIST_SERVER_END for target %s", usr->nick);
+		return;
+	}
+
+	ht_set(serv->test_list_server_map, usr->nick, list_data);
+}
+
+void Server_handle_peer_TEST_LIST_SERVER(Server *serv, Peer *peer, Message *msg)
+{
+	assert(!strcmp(msg->command, "TEST_LIST_SERVER"));
+
+	if (!peer->registered || peer->quit)
+	{
+		return;
+	}
+
+	if (msg->n_params == 0)
+	{
+		return;
+	}
+
+	char *target = msg->params[0];
+
+	if (ht_contains(serv->test_list_server_map, target))
+	{
+		log_warn("There is an existing list request in action");
+		return;
+	}
+
+	struct ListCommand *list_data = calloc(1, sizeof *list_data);
+	list_data->conn = ht_get(serv->connections, &peer->fd);
+	list_data->pending = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);
+
+	Hashtable *visited = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);
+	ht_set(visited, peer->name, NULL);
+
+	HashtableIter itr;
+	ht_iter_init(&itr, serv->name_to_peer_map);
+	Peer *other_peer = NULL;
+	while (ht_iter_next(&itr, NULL, (void **)&other_peer))
+	{
+		if (other_peer->registered && !other_peer->quit && !ht_contains(visited, other_peer->name))
+		{
+			List_push_back(other_peer->msg_queue, Server_create_message(serv, "TEST_LIST_SERVER %s", target));
+			List_push_back(peer->msg_queue, Server_create_message(serv, "901 %s :%s", target, other_peer->name)); // RPL_TEST_LIST_SERVER
+			ht_set(list_data->pending, peer->name, peer);
+			ht_set(visited, peer->name, NULL);
+		}
+	}
+
+	ht_free(visited);
+
+	log_debug("Waiting for list request from %zu peers", ht_size(list_data->pending));
+
+	if (ht_size(list_data->pending) == 0)
+	{
+		List_push_back(peer->msg_queue, Server_create_message(serv, "902 %s :End of TEST_LIST_SERVER", target));
+		ht_free(list_data->pending);
+		free(list_data);
+		log_debug("TEST_LIST_SERVER_END for target %s", target);
+		return;
+	}
+
+	ht_set(serv->test_list_server_map, target, list_data);
 }

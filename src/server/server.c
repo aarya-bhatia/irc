@@ -1,35 +1,35 @@
-
+#include "include/common.h"
+#include "include/hashtable.h"
+#include "include/list.h"
 #include "include/server.h"
 
 #include <sys/epoll.h>
 #include <sys/stat.h>
 #include <time.h>
 
-#include "include/common.h"
-#include "include/hashtable.h"
-#include "include/list.h"
-
-Peer *Peer_alloc(int type)
+Peer *Peer_alloc(int type, int fd, const char *hostname)
 {
 	Peer *this = calloc(1, sizeof *this);
+	this->fd = fd;
 	this->msg_queue = List_alloc(NULL, free);
-	this->nicks = Vector_alloc(1, (elem_copy_type)strdup, free);
 	this->server_type = type;
+	this->hostname = hostname;
 	return this;
 }
 
 void Peer_free(Peer *this)
 {
 	List_free(this->msg_queue);
-	Vector_free(this->nicks);
 	free(this->name);
 	free(this->passwd);
 	free(this);
 }
 
-User *User_alloc()
+User *User_alloc(int fd, const char *hostname)
 {
 	User *this = calloc(1, sizeof *this);
+	this->fd = fd;
+	this->hostname = hostname;
 	this->nick = make_string("user%05d", (rand() % (int)1e5)); // temporary nick
 	this->channels = Vector_alloc(4, (elem_copy_type)strdup, free);
 	this->msg_queue = List_alloc(NULL, free);
@@ -41,7 +41,6 @@ void User_free(User *usr)
 	free(usr->nick);
 	free(usr->username);
 	free(usr->realname);
-	free(usr->hostname);
 
 	Vector_free(usr->channels);
 	List_free(usr->msg_queue);
@@ -97,38 +96,6 @@ void add_message(List *queue, const char *message)
 }
 
 /**
- * request handler
- */
-typedef struct _UserRequestHandler
-{
-	const char *name;							  // command name
-	void (*handler)(Server *, User *, Message *); // request handler function
-} UserRequestHandler;
-
-/**
- * Look up table for user request handlers
- */
-static UserRequestHandler user_request_handlers[] = {
-	{"NICK", Server_handle_NICK},
-	{"USER", Server_handle_USER},
-	{"PRIVMSG", Server_handle_PRIVMSG},
-	{"NOTICE", Server_handle_NOTICE},
-	{"PING", Server_handle_PING},
-	{"QUIT", Server_handle_QUIT},
-	{"MOTD", Server_handle_MOTD},
-	{"INFO", Server_handle_INFO},
-	{"LIST", Server_handle_LIST},
-	{"WHO", Server_handle_WHO},
-	{"JOIN", Server_handle_JOIN},
-	{"PART", Server_handle_PART},
-	{"NAMES", Server_handle_NAMES},
-	{"TOPIC", Server_handle_TOPIC},
-	{"LUSERS", Server_handle_LUSERS},
-	{"HELP", Server_handle_HELP},
-	{"CONNECT", Server_handle_CONNECT},
-};
-
-/**
  * Create and initialise the server with given name.
  * Reads server info from config file.
  */
@@ -159,20 +126,12 @@ Server *Server_create(const char *name)
 
 	serv->info = strdup(DEFAULT_INFO);
 
-<<<<<<< HEAD
-	serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);		   /* Map<int, Connection *> */
-	serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string,  Peer *> */
-	serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);  /* Map<string, string> */
-	serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, User*> */
-	serv->name_to_channel_map = load_channels(CHANNELS_FILENAME);	   /* Map<string, Channel *> */
-=======
-    serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);         /* Map<int, Connection *> */
-    serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, Peer *> */
-    serv->nick_to_serv_name_map = ht_alloc_type(STRING_TYPE, STRING_TYPE);  /* Map<string, string> */
-    serv->channel_to_serv_name_map =
-        ht_alloc_type(STRING_TYPE, STRING_TYPE);                       /* Map<string, string> */
-    serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, User*>*/
->>>>>>> de0626dcf33f5a1d6d7febcd38b4510cb39f7a5e
+	serv->connections = ht_alloc_type(INT_TYPE, SHALLOW_TYPE);			   /* Map<int, Connection *> */
+	serv->name_to_peer_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);	   /* Map<string,  Peer *> */
+	serv->nick_to_serv_name_map = ht_alloc(STRING_TYPE, STRING_TYPE);	   /* Map<string, string> */
+	serv->nick_to_user_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);	   /* Map<string, User*> */
+	serv->name_to_channel_map = load_channels(CHANNELS_FILENAME);		   /* Map<string, Channel *> */
+	serv->test_list_server_map = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE); /* Map<string, struct ListCommand *> */
 
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
@@ -196,13 +155,10 @@ Server *Server_create(const char *name)
 	int yes = 1;
 
 	// Set socket options
-	CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes),
-		  "setsockopt");
+	CHECK(setsockopt(serv->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes), "setsockopt");
 
 	// Bind
-	CHECK(bind(serv->fd, (struct sockaddr *)&serv->servaddr,
-			   sizeof(struct sockaddr_in)),
-		  "bind");
+	CHECK(bind(serv->fd, (struct sockaddr *)&serv->servaddr, sizeof(struct sockaddr_in)), "bind");
 
 	// Listen
 	CHECK(listen(serv->fd, MAX_EVENTS), "listen");
@@ -240,6 +196,7 @@ void Server_destroy(Server *serv)
 	ht_free(serv->name_to_peer_map);
 	ht_free(serv->nick_to_user_map);
 	ht_free(serv->connections);
+	ht_free(serv->test_list_server_map);
 
 	close(serv->fd);
 	close(serv->epollfd);
@@ -264,8 +221,7 @@ void Server_accept_all(Server *serv)
 
 	while (1)
 	{
-		int conn_sock =
-			accept(serv->fd, (struct sockaddr *)&client_addr, &addrlen);
+		int conn_sock = accept(serv->fd, (struct sockaddr *)&client_addr, &addrlen);
 
 		if (conn_sock == -1)
 		{
@@ -277,9 +233,7 @@ void Server_accept_all(Server *serv)
 			die("accept");
 		}
 
-		Connection *conn =
-			Connection_alloc(conn_sock, (struct sockaddr *)&client_addr,
-							 addrlen);
+		Connection *conn = Connection_alloc(conn_sock, (struct sockaddr *)&client_addr, addrlen);
 
 		if (!Server_add_connection(serv, conn))
 		{
@@ -312,13 +266,12 @@ void Server_process_request_from_unknown(Server *serv, Connection *conn)
 	else if (strncmp(message, "NICK", 4) == 0 || strncmp(message, "USER", 4) == 0)
 	{
 		conn->conn_type = USER_CONNECTION;
-		conn->data = User_alloc();
-		((User *)conn->data)->hostname = strdup(conn->hostname);
+		conn->data = User_alloc(conn->fd, conn->hostname);
 	}
 	else if (strncmp(message, "PASS", 4) == 0 || strncmp(message, "SERVER", 6) == 0)
 	{
 		conn->conn_type = PEER_CONNECTION;
-		conn->data = Peer_alloc(ACTIVE_SERVER);
+		conn->data = Peer_alloc(ACTIVE_SERVER, conn->fd, conn->hostname);
 	}
 	else
 	{
@@ -342,7 +295,7 @@ void Server_process_request_from_user(Server *serv, Connection *conn)
 	Vector *messages = parse_message_list(conn->incoming_messages);
 	assert(messages);
 
-	log_debug("Processing %zu messages from connection %d", Vector_size(messages), conn->fd);
+	// log_debug("Processing %zu messages from connection %d", Vector_size(messages), conn->fd);
 
 	// Iterate over the request messages and add response message(s) to user's message queue in the same order.
 	for (size_t i = 0; i < Vector_size(messages); i++)
@@ -356,31 +309,79 @@ void Server_process_request_from_user(Server *serv, Connection *conn)
 			log_error("invalid message");
 			continue;
 		}
-
-		// Find a handler to execute for given request
-
-		bool found = false;
-
-		for (size_t j = 0; j < sizeof(user_request_handlers) / sizeof(user_request_handlers[0]); j++)
+		else if (!strcmp(message->command, "NICK"))
 		{
-			UserRequestHandler handle = user_request_handlers[j];
-
-			if (!strcmp(handle.name, message->command))
-			{
-				handle.handler(serv, usr, message);
-				found = true;
-				break;
-			}
+			Server_handle_NICK(serv, usr, message);
 		}
-
-		if (found)
+		else if (!strcmp(message->command, "USER"))
 		{
-			continue;
+			Server_handle_USER(serv, usr, message);
 		}
-
-		// Handle every other command
-
-		if (!usr->registered)
+		else if (!strcmp(message->command, "PRIVMSG"))
+		{
+			Server_handle_PRIVMSG(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "NOTICE"))
+		{
+			Server_handle_NOTICE(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "PING"))
+		{
+			Server_handle_PING(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "QUIT"))
+		{
+			Server_handle_QUIT(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "MOTD"))
+		{
+			Server_handle_MOTD(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "INFO"))
+		{
+			Server_handle_INFO(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "LIST"))
+		{
+			Server_handle_LIST(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "WHO"))
+		{
+			Server_handle_WHO(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "JOIN"))
+		{
+			Server_handle_JOIN(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "PART"))
+		{
+			Server_handle_PART(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "NAMES"))
+		{
+			Server_handle_NAMES(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "TOPIC"))
+		{
+			Server_handle_TOPIC(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "LUSERS"))
+		{
+			Server_handle_LUSERS(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "HELP"))
+		{
+			Server_handle_HELP(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "CONNECT"))
+		{
+			Server_handle_CONNECT(serv, usr, message);
+		}
+		else if (!strcmp(message->command, "TEST_LIST_SERVER"))
+		{
+			Server_handle_TEST_LIST_SERVER(serv, usr, message);
+		}
+		else if (!usr->registered)
 		{
 			char *reply = Server_create_message(serv, "451 %s :Connection not registered", usr->nick);
 			List_push_back(conn->outgoing_messages, reply);
@@ -433,8 +434,6 @@ void Server_message_channel(Server *serv, const char *origin, const char *target
  */
 void Server_message_user(Server *serv, const char *origin, const char *target, const char *message)
 {
-	// TODO: check if user nick exists in nick_to_serv_name map
-
 	User *user = ht_get(serv->nick_to_user_map, target);
 
 	if (user)
@@ -448,6 +447,9 @@ void Server_message_user(Server *serv, const char *origin, const char *target, c
 	}
 	else
 	{
+		// TODO: Only send message to one peer
+		// char *name = ht_get(serv->nick_to_serv_name_map, target);
+		// Peer *peer = ht_get(serv->name_to_peer_map, name);
 		Server_relay_message(serv, origin, message);
 	}
 }
@@ -461,20 +463,25 @@ void Server_broadcast_message(Server *serv, const char *message)
 	HashtableIter itr;
 	ht_iter_init(&itr, serv->name_to_peer_map);
 	Peer *peer = NULL;
-	int c = 0;
+
+	Hashtable *visited = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);
+
 	while (ht_iter_next(&itr, NULL, (void **)&peer))
 	{
+		if (ht_contains(visited, peer->name))
+		{
+			continue;
+		}
+
 		if (peer->registered && !peer->quit)
 		{
 			add_message(peer->msg_queue, message);
-			c++;
 		}
+
+		ht_set(visited, peer->name, NULL);
 	}
 
-	if (c)
-	{
-		log_debug("Sent message to %d peers", c);
-	}
+	ht_free(visited);
 }
 
 /**
@@ -485,21 +492,25 @@ void Server_relay_message(Server *serv, const char *origin, const char *message)
 	HashtableIter itr;
 	ht_iter_init(&itr, serv->name_to_peer_map);
 	Peer *peer = NULL;
-	int c = 0;
+
+	Hashtable *visited = ht_alloc_type(STRING_TYPE, SHALLOW_TYPE);
 
 	while (ht_iter_next(&itr, NULL, (void **)&peer))
 	{
+		if (ht_contains(visited, peer->name))
+		{
+			continue;
+		}
+
 		if (strcmp(peer->name, origin) != 0 && peer->registered && !peer->quit)
 		{
 			add_message(peer->msg_queue, message);
-			c++;
 		}
+
+		ht_set(visited, peer->name, NULL);
 	}
 
-	if (c)
-	{
-		log_debug("Relayed message to %d peers on server %s", c, serv->name);
-	}
+	ht_free(visited);
 }
 
 /**
@@ -529,6 +540,45 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 			peer->quit = true;
 			break;
 		}
+		else if (!strcmp(message->command, "TEST_LIST_SERVER"))
+		{
+			Server_handle_peer_TEST_LIST_SERVER(serv, peer, message);
+		}
+		else if (!strcmp(message->command, "901"))
+		{
+			if (message->n_params > 0 && message->body)
+			{
+				char *target = message->params[0];
+				assert(target);
+				struct ListCommand *list_data = ht_get(serv->test_list_server_map, target);
+				if (list_data)
+				{
+					log_debug("Sent TEST_LIST_SERVER reply for %s to fd %d", target, list_data->conn->fd);
+					List_push_back(list_data->conn->outgoing_messages, strdup(message->message));
+				}
+			}
+		}
+		else if (!strcmp(message->command, "902"))
+		{
+			if (message->n_params > 0 && message->body)
+			{
+				char *target = message->params[0];
+				assert(target);
+				struct ListCommand *list_data = ht_get(serv->test_list_server_map, target);
+				if (list_data)
+				{
+					ht_remove(list_data->pending, peer->name, NULL, NULL);
+					if (ht_size(list_data->pending) == 0)
+					{
+						log_debug("Sent TEST_LIST_SERVER_END reply for %s to %d", target, list_data->conn->fd);
+						List_push_back(list_data->conn->outgoing_messages, Server_create_message(serv, "902 %s :End of TEST_LIST_SERVER", target));
+						ht_remove(serv->test_list_server_map, target, NULL, NULL);
+						ht_free(list_data->pending);
+						free(list_data);
+					}
+				}
+			}
+		}
 		else if (!strcmp(message->command, "SERVER"))
 		{
 			if (!peer->registered)
@@ -537,6 +587,20 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 			}
 			else
 			{
+				char *server_name = message->params[0];
+				assert(server_name);
+
+				if (ht_contains(serv->name_to_peer_map, server_name))
+				{
+					log_error("Cycle detected: Remove peer %s", server_name);
+					Peer *other_peer = ht_get(serv->name_to_peer_map, server_name);
+					Connection *other_conn = ht_get(serv->connections, &other_peer->fd);
+					assert(other_conn);
+					Server_remove_connection(serv, other_conn);
+					continue;
+				}
+
+				ht_set(serv->name_to_peer_map, server_name, peer);
 				Server_relay_message(serv, peer->name, message->message);
 			}
 		}
@@ -548,6 +612,18 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		{
 			char *nick = message->params[0];
 			assert(nick);
+
+			if (ht_contains(serv->nick_to_serv_name_map, nick))
+			{
+				log_error("NICK collision: %s", nick);
+				User *user = ht_get(serv->nick_to_user_map, nick);
+				assert(user);
+				Connection *other_conn = ht_get(serv->connections, &user->fd);
+				assert(other_conn);
+				Server_remove_connection(serv, other_conn);
+				continue;
+			}
+
 			log_info("== user %s registered with server %s == ", nick, peer->name);
 			ht_set(serv->nick_to_serv_name_map, nick, peer->name);
 			Server_relay_message(serv, peer->name, message->message);
@@ -645,6 +721,34 @@ bool Server_add_connection(Server *serv, Connection *connection)
 	return true;
 }
 
+struct filter_arg_t
+{
+	Server *serv;
+	Peer *peer;
+};
+
+// TODO: Send quit message for user: Need to save user info
+bool _remove_nick_for_peer(char *nick, char *name, struct filter_arg_t *filter_arg)
+{
+	if (!strcmp(name, filter_arg->peer->name))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool _remove_server_for_peer(char *name, Peer *peer, struct filter_arg_t *filter_arg)
+{
+	if (!strcmp(peer->name, filter_arg->peer->name))
+	{
+		Server_broadcast_message(filter_arg->serv, Server_create_message(filter_arg->serv, "SQUIT %s :closing link", name));
+		return true;
+	}
+
+	return false;
+}
+
 /**
  * Remove connection from server and free all its memory.
  *
@@ -675,24 +779,23 @@ void Server_remove_connection(Server *serv, Connection *connection)
 				Channel_remove_member(channel, usr);
 			}
 		}
-		Server_relay_message(serv, serv->name, Server_create_message(serv, "QUIT :%s", "closing link"));
+		Server_broadcast_message(serv, Server_create_message(serv, "QUIT :%s", "closing link"));
 		User_free(usr);
 	}
 	else if (connection->conn_type == PEER_CONNECTION)
 	{
 		Peer *peer = connection->data;
 		log_info("Closing connection with peer %d", connection->fd);
+
+		// Remove all servers behind quitting server
 		if (peer->name)
 		{
-			ht_remove(serv->name_to_peer_map, peer->name, NULL, NULL);
+			// Remove all users behind quitting server
+			struct filter_arg_t arg = {.serv = serv, .peer = peer};
+			ht_remove_all_filter(serv->nick_to_serv_name_map, (filter_type)_remove_nick_for_peer, &arg);
+			ht_remove_all_filter(serv->name_to_peer_map, (filter_type)_remove_server_for_peer, &arg);
 		}
 
-		for (size_t i = 0; i < Vector_size(peer->nicks); i++)
-		{
-			char *nick = Vector_get_at(peer->nicks, i);
-			ht_remove(serv->nick_to_serv_name_map, nick, NULL, NULL);
-		}
-		Server_relay_message(serv, serv->name, Server_create_message(serv, "SQUIT %s :%s", peer->name, "closing link"));
 		Peer_free(peer);
 	}
 

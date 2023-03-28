@@ -26,6 +26,32 @@
 	make_string(":%s!%s@%s " format "\r\n", usr->nick, usr->username, \
 				usr->hostname, __VA_ARGS__)
 
+typedef struct _Peer
+{
+	int fd;
+	const char *hostname;
+	char *name;
+	char *passwd;
+	bool registered;
+	bool quit; // flag to indicate server leaving
+	List *msg_queue;
+
+	enum
+	{
+		ACTIVE_SERVER,
+		PASSIVE_SERVER
+	} server_type;
+} Peer;
+
+struct user_info_t
+{
+	char *nick;
+	char *username;
+	char *realname;
+	char *source; // the server that the user lives on
+	Peer *peer;	  // the peer that knows this user
+};
+
 typedef struct _Server
 {
 	struct sockaddr_in servaddr; // address info for server
@@ -46,43 +72,23 @@ typedef struct _Server
 	Hashtable *name_to_channel_map;	  // Map channel name to channel struct
 	Hashtable *nick_to_serv_name_map; // Map nick to name of server which has user
 
+	// Hashtable *user_info_map;		// Map nick to user_info struct
+
+	Hashtable *test_list_server_map; // Map nick to ListCommand struct
+
 } Server;
-
-typedef struct _Peer
-{
-	char *name;
-	char *passwd;
-	bool registered;
-	bool quit; // flag to indicate server leaving
-	List *msg_queue;
-	Vector *nicks; // nick of users behind this server
-
-	enum
-	{
-		ACTIVE_SERVER,
-		PASSIVE_SERVER
-	} server_type;
-} Peer;
-
-// enum
-// {
-// 	USER_ONLINE,
-// 	USER_OFFLINE
-// };
 
 typedef struct _User
 {
-	char *nick;		  // display name
-	char *username;	  // unique identifier
-	char *realname;	  // full name
-	char *hostname;	  // client ip
-	Vector *channels; // list of channels joined by user
-	bool registered;  // flag to indicate user has registered
-	// with username, realname and nick
-	bool nick_changed; // flag to indicate user has set a
-	// nick
-	bool quit;	// flag to indicate user is leaving server
-	int status; // to indicate if user online or offline
+	int fd;
+	const char *hostname;
+	char *nick;			  // display name
+	char *username;
+	char *realname;
+	Vector *channels;	  // list of channels joined by user
+	bool registered;	  // flag to indicate user has registered with username, realname and nick
+	bool nick_changed;	  // flag to indicate user has set a nick
+	bool quit;			  // flag to indicate user is leaving server
 	List *msg_queue;
 } User;
 
@@ -103,6 +109,12 @@ struct help_t
 	const char *subject;
 	const char *title;
 	const char *body;
+};
+
+struct ListCommand
+{
+	Hashtable *pending; // set of server name
+	Connection *conn;
 };
 
 Server *Server_create(const char *name);
@@ -141,18 +153,22 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg);
 void Server_handle_LUSERS(Server *serv, User *usr, Message *msg);
 void Server_handle_HELP(Server *serv, User *usr, Message *msg);
 
+void Server_handle_TEST_LIST_SERVER(Server *serv, User *usr, Message *msg);
+void Server_handle_peer_TEST_LIST_SERVER(Server *serv, Peer *peer, Message *msg);
+
 void Server_handle_SERVER(Server *serv, Peer *peer, Message *msg);
 void Server_handle_PASS(Server *serv, Peer *peer, Message *msg);
 
+bool check_user_registration(Server *serv, User *usr);
 void check_peer_registration(Server *serv, Peer *peer);
 
-User *User_alloc();
+User *User_alloc(int fd, const char *hostname);
 void User_free(User *this);
 bool User_is_member(User *usr, const char *channel_name);
 void User_add_channel(User *usr, const char *channel_name);
 bool User_remove_channel(User *usr, const char *channel_name);
 
-Peer *Peer_alloc(int type);
+Peer *Peer_alloc(int type, int fd, const char *hostname);
 void Peer_free(Peer *);
 Hashtable *load_peers(const char *config_filename);
 

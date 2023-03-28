@@ -5,23 +5,19 @@
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build/client",
-      "args": ["localhost", "5000"],
+      "args": [
+        "${input:name}"
+      ],
       "cwd": "${workspaceFolder}",
     },
     {
-      "name": "Launch Server erwin",
+      "name": "Launch Server",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build/server",
-      "args": ["erwin"],
-      "cwd": "${workspaceFolder}",
-    },
-    {
-      "name": "Launch Server levi",
-      "type": "lldb",
-      "request": "launch",
-      "program": "${workspaceFolder}/build/server",
-      "args": ["levi"],
+      "args": [
+        "${input:name}"
+      ],
       "cwd": "${workspaceFolder}",
     },
     {
@@ -29,16 +25,24 @@
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceFolder}/build/test",
-      "args": ["${input:lldbArgs}"],
+      "args": [
+        "${input:lldbArgs}"
+      ],
       "cwd": "${workspaceFolder}",
     },
   ],
   "inputs": [
     {
       "id": "lldbArgs",
-      "type":"promptString",
+      "type": "promptString",
       "description": "args for lldb",
       "default": ""
+    },
+    {
+      "id": "name",
+      "type": "promptString",
+      "description": "server name",
+      "default": "erwin"
     },
   ],
   "version": "2.0.0"

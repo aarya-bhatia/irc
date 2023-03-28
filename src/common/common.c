@@ -464,7 +464,7 @@ char *get_server_passwd(const char *config_filename, const char *name)
 		return NULL;
 	}
 
-	log_debug("Password found for server %s: %s", name, remote_passwd);
+	// log_debug("Password found for server %s: %s", name, remote_passwd);
 
 	char *passwd = strdup(remote_passwd);
 	free(line);

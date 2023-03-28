@@ -75,25 +75,36 @@ void *client_thread(void *args)
 				die(NULL);
 			}
 
-			size_t num_msg = 0;
-
-			while (List_size(client->conn->incoming_messages))
+			if (List_size(client->conn->incoming_messages) > 0)
 			{
-				char *message = List_peek_front(client->conn->incoming_messages);
-				SAFE(mutex_stdout, { puts(message); });
-				num_msg++;
+				// size_t num_msg = 0;
 
-				if (strstr(message, "ERROR"))
+				Vector *messages = parse_message_list(client->conn->incoming_messages);
+
+				for (size_t i = 0; i < Vector_size(messages); i++)
 				{
-					quit = true;
-					List_pop_front(client->conn->incoming_messages);
-					break;
+					Message *message = Vector_get_at(messages, i);
+					// log_debug("%s", message->message);
+
+					if (message->origin && message->body)
+					{
+						SAFE(mutex_stdout, {
+							printf("%s: %s\n", message->origin, message->body);
+						});
+					}
+
+					// num_msg++;
+
+					if (strstr(message->message, "ERROR"))
+					{
+						quit = true;
+						break;
+					}
 				}
 
-				List_pop_front(client->conn->incoming_messages);
+				Vector_free(messages);
+				// log_debug("Received %zu messages from server", num_msg);
 			}
-
-			log_debug("Received %zu messages from server", num_msg);
 		}
 
 		if (events[0].events & EPOLLOUT)
@@ -126,34 +137,30 @@ int main(int argc, char *argv[])
 	if (argc < 2)
 	{
 		fprintf(stderr, "Usage: %s <server>\n", *argv);
-		fprintf(stderr, "Usage: %s <hostname> <port>\n", *argv);
 		return 1;
 	}
 
+	// client info
 	Client client;
 	memset(&client, 0, sizeof client);
 
-	if (argc == 2)
+	// server info
+	struct peer_info_t info;
+	memset(&info, 0, sizeof info);
+
+	if (!get_peer_info(CONFIG_FILENAME, argv[1], &info))
 	{
-		char *server_name = argv[1];
-		struct peer_info_t info;
-		memset(&info, 0, sizeof info);
-		if (get_peer_info(CONFIG_FILENAME, server_name, &info))
-		{
-			client.hostname = info.peer_host;
-			client.port = info.peer_port;
-		}
+		die("Failed to get server info");
 	}
-	else
-	{
-		client.hostname = strdup(argv[1]);
-		client.port = strdup(argv[2]);
-	}
+
+	client.hostname = info.peer_host;
+	client.port = info.peer_port;
 
 	// establish connection with the server
 	int client_sock = connect_to_host(client.hostname, client.port);
 	fcntl(client_sock, F_SETFL, fcntl(client_sock, F_GETFL) | O_NONBLOCK);
 
+	// init client
 	client.conn = calloc(1, sizeof *client.conn);
 	client.conn->fd = client_sock;
 	client.conn->conn_type = CLIENT_CONNECTION;
@@ -161,20 +168,14 @@ int main(int argc, char *argv[])
 	client.conn->outgoing_messages = List_alloc(NULL, free);
 
 	pthread_mutex_init(&client.mutex, NULL);
+
+	// create thread to communicate with server
 	pthread_create(&client.thread, NULL, client_thread, &client);
-
-	if (argc == 6)
-	{
-		char *nick = argv[3];
-		char *username = argv[4];
-		char *realname = argv[5];
-
-		client_add_message(&client, make_string("NICK %s\r\nUSER %s * * :%s\r\n", nick, username, realname));
-	}
 
 	char *line = NULL;	 // buffer to store user input
 	size_t line_len = 0; // length of line buffer
 
+	// main thread will read commands from stdin
 	while (alive)
 	{
 		// Read the next line till \n
@@ -199,7 +200,7 @@ int main(int argc, char *argv[])
 		{
 			char *name = strstr(line, " ") + 1;
 			SAFE(mutex_stdout, { log_info("Registering as server %s", name); });
-			client_add_message(&client, make_string("PASS erwin@1234\r\n", line));
+			client_add_message(&client, make_string("PASS %s\r\n", info.peer_passwd));
 			client_add_message(&client, make_string("SERVER %s\r\n", name));
 		}
 		else if (!strncmp(line, "/client ", strlen("/client "))) // register as user using the specified client file
@@ -273,9 +274,12 @@ int main(int argc, char *argv[])
 
 	pthread_join(client.thread, NULL);
 	Connection_free(client.conn);
-	free(client.hostname);
-	free(client.port);
 	pthread_mutex_destroy(&client.mutex);
+
+	free(info.peer_host);
+	free(info.peer_port);
+	free(info.peer_name);
+	free(info.peer_passwd);
 
 	printf("Goodbye!\n");
 	return 0;

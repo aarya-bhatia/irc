@@ -35,8 +35,8 @@ typedef struct HashtableIter
 	Hashtable *hashtable;
 	size_t index;
 	HTNode *node;
+	bool start;
 } HashtableIter;
-
 
 #define HASHTABLE_FOR_EACH(hashtable, iterator, key_ptr, value_ptr, callback) \
 	ht_iter_init(&iterator, hashtable);                                       \
@@ -45,6 +45,7 @@ typedef struct HashtableIter
 		callback;                                                             \
 	}
 
+typedef bool (*filter_type)(void *key, void *value, void *args);
 
 void Hashtable_set_value_type(Hashtable *this, struct elem_type_info_t info);
 void Hashtable_set_key_type(Hashtable *this, struct elem_type_info_t info);
@@ -73,3 +74,6 @@ HTNode *ht_find(Hashtable *this, const void *key);
 
 void ht_iter_init(HashtableIter *itr, Hashtable *ht);
 bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out);
+
+bool ht_remove_all_filter(Hashtable *this, filter_type filter, void *args);
+bool ht_remove_filter(Hashtable *this, filter_type filter, void *args, void **key_out, void **value_out);
