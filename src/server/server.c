@@ -633,7 +633,7 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		{
 			Server_handle_PASS(serv, peer, message);
 		}
-		else if (!strcmp(message->command, "NICK")) // A new user was registered on peer server
+		else if (!strcmp(message->command, "NICK")) // A new user was registered behind the peer server
 		{
 			char *nick = message->params[0];
 			assert(nick);

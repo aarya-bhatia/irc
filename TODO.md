@@ -3,6 +3,7 @@
 ## Todos
 
 - Remove user entry from other peers on quit
+- Use SQUIT message to figure out which users were behind that server
 
 - multiserver
   - no cycles to handle duplicates

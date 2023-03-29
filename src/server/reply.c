@@ -942,6 +942,8 @@ void check_peer_registration(Server *serv, Peer *peer)
 	// State information exchange
 
 	HashtableIter itr;
+
+	// Send NICK for users on this server
 	ht_iter_init(&itr, serv->nick_to_user_map);
 	User *other_user = NULL;
 	while (ht_iter_next(&itr, NULL, (void **)&other_user))
@@ -952,6 +954,20 @@ void check_peer_registration(Server *serv, Peer *peer)
 		}
 	}
 
+	// TODO
+	// Send NICK for users behind peer servers
+	ht_iter_init(&itr, serv->nick_to_serv_name_map);
+	char *other_nick = NULL;
+	char *other_peer_name = NULL;
+	while (ht_iter_next(&itr, (void **) &other_nick, (void **) &other_peer_name))
+	{
+		if (strcmp(other_peer_name, serv->name) != 0)
+		{
+			List_push_back(peer->msg_queue, Server_create_message(serv, "NICK %s 1 * * 1 + :*", other_nick));
+		}
+	}
+
+	// Send SERVER for servers behind this server
 	ht_iter_init(&itr, serv->name_to_peer_map);
 	Peer *other_peer = NULL;
 	while (ht_iter_next(&itr, NULL, (void **)&other_peer))
@@ -970,6 +986,7 @@ void check_peer_registration(Server *serv, Peer *peer)
 	// 	List_push_back(peer->msg_queue, Server_create_message(serv, "MODE #%s", other_channel->name));
 	// }
 
+	// Send SERVER message for new peer to existing peers
 	Server_broadcast_message(serv, Server_create_message(serv, "SERVER %s", peer->name));
 
 	log_info("Server %s has registered", peer->name);

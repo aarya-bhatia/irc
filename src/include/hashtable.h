@@ -49,31 +49,21 @@ typedef bool (*filter_type)(void *key, void *value, void *args);
 
 void Hashtable_set_value_type(Hashtable *this, struct elem_type_info_t info);
 void Hashtable_set_key_type(Hashtable *this, struct elem_type_info_t info);
-
-Hashtable *ht_alloc_type(struct elem_type_info_t key_type,
-						 struct elem_type_info_t value_type);
-
-void ht_print(Hashtable *this, char *(*key_to_string)(void *),
-			  char *(*value_to_string)(void *));
-
+Hashtable *ht_alloc_type(struct elem_type_info_t key_type, struct elem_type_info_t value_type);
+void ht_print(Hashtable *this, char *(*key_to_string)(void *), char *(*value_to_string)(void *));
 Hashtable *ht_alloc();
 void ht_free(Hashtable *this);
-
 size_t ht_size(Hashtable *this);
 size_t ht_capacity(Hashtable *this);
-
 void ht_init(Hashtable *this);
 void ht_destroy(Hashtable *this);
 void *ht_get(Hashtable *this, const void *key);
 void ht_set(Hashtable *this, void *key, void *value);
-bool ht_remove(Hashtable *this, const void *key,
-			   void **key_out, void **value_out);
+bool ht_remove(Hashtable *this, const void *key, void **key_out, void **value_out);
 void ht_foreach(Hashtable *this, void (*callback)(void *key, void *value));
 bool ht_contains(Hashtable *this, const void *key);
 HTNode *ht_find(Hashtable *this, const void *key);
-
 void ht_iter_init(HashtableIter *itr, Hashtable *ht);
 bool ht_iter_next(HashtableIter *itr, void **key_out, void **value_out);
-
 bool ht_remove_all_filter(Hashtable *this, filter_type filter, void *args);
 bool ht_remove_filter(Hashtable *this, filter_type filter, void *args, void **key_out, void **value_out);

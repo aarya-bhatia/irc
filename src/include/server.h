@@ -43,15 +43,6 @@ typedef struct _Peer
 	} server_type;
 } Peer;
 
-struct user_info_t
-{
-	char *nick;
-	char *username;
-	char *realname;
-	char *source; // the server that the user lives on
-	Peer *peer;	  // the peer that knows this user
-};
-
 typedef struct _Server
 {
 	struct sockaddr_in servaddr; // address info for server
@@ -71,8 +62,6 @@ typedef struct _Server
 	Hashtable *name_to_peer_map;	  // Map server name to peer struct
 	Hashtable *name_to_channel_map;	  // Map channel name to channel struct
 	Hashtable *nick_to_serv_name_map; // Map nick to name of server which has user
-
-	// Hashtable *user_info_map;		// Map nick to user_info struct
 
 	Hashtable *test_list_server_map; // Map nick to ListCommand struct
 
