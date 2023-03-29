@@ -560,9 +560,11 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		}
 		else if (!strcmp(message->command, "QUIT")) // A user behind peer has quit
 		{
-			if(message->origin) {
+			if (message->origin)
+			{
 				char *nick = strtok(message->origin, "!");
-				if(nick && ht_remove(serv->nick_to_serv_name_map, nick, NULL, NULL)){
+				if (nick && ht_remove(serv->nick_to_serv_name_map, nick, NULL, NULL))
+				{
 					log_info("user %s has left", nick);
 				}
 			}
@@ -614,29 +616,31 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		}
 		else if (!strcmp(message->command, "SERVER"))
 		{
-			// first SERVER message indicates the name of current peer
-			if (!peer->registered)
+			char *server_name = message->params[0];
+			assert(server_name);
+
+			if (peer->server_type == PASSIVE_SERVER && !strcmp(peer->name, server_name))
+			{
+				continue;
+			}
+			else if (!peer->registered)
 			{
 				Server_handle_SERVER(serv, peer, message);
+				continue;
 			}
-			else
-			{ // subsequent SERVER messages indicate a new server has joined the network behind the current peer
-				char *server_name = message->params[0];
-				assert(server_name);
 
-				if (ht_contains(serv->name_to_peer_map, server_name))
-				{
-					log_error("Cycle detected: Remove peer %s", server_name);
-					Peer *other_peer = ht_get(serv->name_to_peer_map, server_name);
-					Connection *other_conn = ht_get(serv->connections, &other_peer->fd);
-					assert(other_conn);
-					Server_remove_connection(serv, other_conn);
-					continue;
-				}
-
-				ht_set(serv->name_to_peer_map, server_name, peer);
-				Server_relay_message(serv, peer->name, message->message);
+			if (ht_contains(serv->name_to_peer_map, server_name))
+			{ // A new server has joined the network behind the current peer
+				log_error("Cycle detected: Remove peer %s", server_name);
+				Peer *other_peer = ht_get(serv->name_to_peer_map, server_name);
+				Connection *other_conn = ht_get(serv->connections, &other_peer->fd);
+				assert(other_conn);
+				Server_remove_connection(serv, other_conn);
+				continue;
 			}
+
+			ht_set(serv->name_to_peer_map, server_name, peer);
+			Server_relay_message(serv, peer->name, message->message);
 		}
 		else if (!strcmp(message->command, "PASS"))
 		{
@@ -814,7 +818,7 @@ void Server_remove_connection(Server *serv, Connection *connection)
 				Channel_remove_member(channel, usr);
 			}
 		}
-		Server_broadcast_message(serv, User_create_message(usr, "QUIT :%s", usr->quit_message ? usr->quit_message : "Closing Link")); 
+		Server_broadcast_message(serv, User_create_message(usr, "QUIT :%s", usr->quit_message ? usr->quit_message : "Closing Link"));
 		User_free(usr);
 	}
 	else if (connection->conn_type == PEER_CONNECTION)
