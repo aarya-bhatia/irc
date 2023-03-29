@@ -7,6 +7,24 @@
 #include <sys/stat.h>
 #include <time.h>
 
+/**
+ * Helper function to delimit the message before adding to queue.
+ */
+void add_message(List *queue, const char *message)
+{
+	if (strstr(message, "\r\n"))
+	{
+		List_push_back(queue, strdup(message));
+	}
+	else
+	{
+		List_push_back(queue, make_string("%s\r\n", message));
+	}
+}
+
+/**
+ * To allocate data for a new server-server connection
+ */
 Peer *Peer_alloc(int type, int fd, const char *hostname)
 {
 	Peer *this = calloc(1, sizeof *this);
@@ -17,6 +35,9 @@ Peer *Peer_alloc(int type, int fd, const char *hostname)
 	return this;
 }
 
+/**
+ * To free data for a server-server connection
+ */
 void Peer_free(Peer *this)
 {
 	List_free(this->msg_queue);
@@ -25,6 +46,9 @@ void Peer_free(Peer *this)
 	free(this);
 }
 
+/**
+ * To allocate data for a new client-server connection
+ */
 User *User_alloc(int fd, const char *hostname)
 {
 	User *this = calloc(1, sizeof *this);
@@ -36,6 +60,9 @@ User *User_alloc(int fd, const char *hostname)
 	return this;
 }
 
+/**
+ * To free data for a client-server connection
+ */
 void User_free(User *usr)
 {
 	free(usr->nick);
@@ -48,6 +75,9 @@ void User_free(User *usr)
 	free(usr);
 }
 
+/**
+ * Check if user is a member of given channel
+ */
 bool User_is_member(User *usr, const char *channel_name)
 {
 	for (size_t i = 0; i < Vector_size(usr->channels); i++)
@@ -61,6 +91,9 @@ bool User_is_member(User *usr, const char *channel_name)
 	return false;
 }
 
+/**
+ * Add the user to given channel
+ */
 void User_add_channel(User *usr, const char *channel_name)
 {
 	if (!User_is_member(usr, channel_name))
@@ -69,6 +102,9 @@ void User_add_channel(User *usr, const char *channel_name)
 	}
 }
 
+/**
+ * Remove the user from given channel
+ */
 bool User_remove_channel(User *usr, const char *channel_name)
 {
 	for (size_t i = 0; i < Vector_size(usr->channels); i++)
@@ -81,18 +117,6 @@ bool User_remove_channel(User *usr, const char *channel_name)
 	}
 
 	return false;
-}
-
-void add_message(List *queue, const char *message)
-{
-	if (strstr(message, "\r\n"))
-	{
-		List_push_back(queue, strdup(message));
-	}
-	else
-	{
-		List_push_back(queue, make_string("%s\r\n", message));
-	}
 }
 
 /**
@@ -581,12 +605,13 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		}
 		else if (!strcmp(message->command, "SERVER"))
 		{
+			// first SERVER message indicates the name of current peer
 			if (!peer->registered)
 			{
 				Server_handle_SERVER(serv, peer, message);
 			}
 			else
-			{
+			{ // subsequent SERVER messages indicate a new server has joined the network behind the current peer
 				char *server_name = message->params[0];
 				assert(server_name);
 

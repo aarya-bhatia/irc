@@ -386,6 +386,11 @@ bool get_peer_info(const char *filename, const char *name, struct peer_info_t *i
 			line[nread - 1] = 0;
 		}
 
+		if(strlen(line) == 0)
+		{
+			continue;
+		}
+
 		char *remote_name = strtok(line, ",");
 		char *remote_host = strtok(NULL, ",");
 		char *remote_port = strtok(NULL, ",");
@@ -437,12 +442,20 @@ char *get_server_passwd(const char *config_filename, const char *name)
 
 	while ((nread = getline(&line, &capacity, file)) > 0)
 	{
-		assert(line);
+		if (line[nread - 1] == '\n')
+		{
+			line[nread - 1] = 0;
+		}
+
+		if(strlen(line) == 0)
+		{
+			continue;
+		}
 
 		remote_name = strtok(line, ",");
 		remote_host = strtok(NULL, ",");
 		remote_port = strtok(NULL, ",");
-		remote_passwd = strtok(NULL, "\n");
+		remote_passwd = strtok(NULL, ",");
 
 		assert(remote_name);
 		assert(remote_host);

@@ -1,5 +1,7 @@
 #pragma once
 
+#define _GNU_SOURCE
+
 // Standard Libraries
 #include <assert.h>
 #include <ctype.h>
