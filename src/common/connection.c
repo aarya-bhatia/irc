@@ -111,7 +111,7 @@ ssize_t Connection_write(Connection *this)
 	if (this->res_len > 0 && this->res_off < this->res_len)
 	{
 		ssize_t nsent = write_all(this->fd, this->res_buf + this->res_off, this->res_len - this->res_off);
-		// log_debug("Sent %zd bytes to fd %d", nsent, this->fd);
+		log_debug("Sent %zd bytes to fd %d", nsent, this->fd);
 
 		if (nsent <= 0)
 		{

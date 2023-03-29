@@ -78,6 +78,7 @@ typedef struct _User
 	bool registered;	  // flag to indicate user has registered with username, realname and nick
 	bool nick_changed;	  // flag to indicate user has set a nick
 	bool quit;			  // flag to indicate user is leaving server
+	char *quit_message;
 	List *msg_queue;
 } User;
 

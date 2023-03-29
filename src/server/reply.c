@@ -319,7 +319,15 @@ void Server_handle_PRIVMSG(Server *serv, User *usr, Message *msg)
 void Server_handle_QUIT(Server *serv, User *usr, Message *msg)
 {
 	assert(!strcmp(msg->command, "QUIT"));
-	char *reason = (msg->body ? msg->body : "Client Quit");
+	char *reason = NULL;
+
+	if(msg->body) {
+		usr->quit_message = strdup(msg->body);
+		reason = msg->body;
+	} else {
+		reason = "Client Quit";
+	}
+
 	List_push_back(usr->msg_queue, Server_create_message(serv, "ERROR :Closing Link: %s (%s)", usr->hostname, reason));
 	usr->quit = true;
 }

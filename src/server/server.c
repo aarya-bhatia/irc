@@ -558,6 +558,15 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 			peer->quit = true;
 			break;
 		}
+		else if (!strcmp(message->command, "QUIT")) // A user behind peer has quit
+		{
+			if(message->origin) {
+				char *nick = strtok(message->origin, "!");
+				if(nick && ht_remove(serv->nick_to_serv_name_map, nick, NULL, NULL)){
+					log_info("user %s has left", nick);
+				}
+			}
+		}
 		else if (!strcmp(message->command, "SQUIT"))
 		{
 			List_push_back(peer->msg_queue, Server_create_message(serv, "ERROR :Closing Link: %s", conn->hostname));
@@ -752,11 +761,12 @@ struct filter_arg_t
 	Peer *peer;
 };
 
-// TODO: Send quit message for user: Need to save user info
 bool _remove_nick_for_peer(char *nick, char *name, struct filter_arg_t *filter_arg)
 {
 	if (!strcmp(name, filter_arg->peer->name))
 	{
+		// TODO: Send quit message for user: need to save user info
+		Server_broadcast_message(filter_arg->serv, make_string(":%s!*@* QUIT :closing link", nick));
 		return true;
 	}
 
@@ -804,7 +814,7 @@ void Server_remove_connection(Server *serv, Connection *connection)
 				Channel_remove_member(channel, usr);
 			}
 		}
-		Server_broadcast_message(serv, Server_create_message(serv, "QUIT :%s", "closing link"));
+		Server_broadcast_message(serv, User_create_message(usr, "QUIT :%s", usr->quit_message ? usr->quit_message : "Closing Link")); 
 		User_free(usr);
 	}
 	else if (connection->conn_type == PEER_CONNECTION)
@@ -816,6 +826,7 @@ void Server_remove_connection(Server *serv, Connection *connection)
 		if (peer->name)
 		{
 			// Remove all users behind quitting server
+			// callback function sends the SQUIT and QUIT messages
 			struct filter_arg_t arg = {.serv = serv, .peer = peer};
 			ht_remove_all_filter(serv->nick_to_serv_name_map, (filter_type)_remove_nick_for_peer, &arg);
 			ht_remove_all_filter(serv->name_to_peer_map, (filter_type)_remove_server_for_peer, &arg);
