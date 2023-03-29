@@ -938,7 +938,7 @@ void check_peer_registration(Server *serv, Peer *peer)
 		}
 
 		char *pass_message = Server_create_message(serv, "PASS %s 0210 |", other_passwd);
-		char *server_message = Server_create_message(serv, "SERVER %s :%s", serv->hostname, serv->info);
+		char *server_message = Server_create_message(serv, "SERVER %s :%s %s", serv->name, serv->hostname, serv->info);
 		List_push_back(peer->msg_queue, pass_message);
 		List_push_back(peer->msg_queue, server_message);
 		log_debug("Sent: %s%s", pass_message, server_message);
