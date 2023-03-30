@@ -9,7 +9,6 @@
 
 #define DEBUG
 #define EPOLL_TIMEOUT 2500 // Seconds
-extern pthread_mutex_t mutex_stdout;
 #define PING_INTERVAL_SEC 10
 
 typedef struct Client
@@ -24,7 +23,6 @@ typedef struct Client
 static volatile bool alive = true;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutex_stdout = PTHREAD_MUTEX_INITIALIZER;
 
 void _signal_handler(int sig);
 
@@ -47,6 +45,13 @@ void *client_thread(void *args)
 
 	while (!quit)
 	{
+		pthread_mutex_lock(&mutex);
+		if(!alive) {
+			pthread_mutex_unlock(&mutex);
+			break;
+		}
+		pthread_mutex_unlock(&mutex);
+
 		int nfd = epoll_wait(epollfd, events, 1, EPOLL_TIMEOUT);
 
 		if (nfd == -1)
@@ -64,7 +69,7 @@ void *client_thread(void *args)
 		// Server disconnect
 		if (events[0].events & (EPOLLERR | EPOLLHUP))
 		{
-			SAFE(mutex_stdout, { log_info("Server disconnect"); });
+			SAFE(mutex, { log_info("Server disconnect"); });
 			break;
 		}
 
@@ -88,7 +93,7 @@ void *client_thread(void *args)
 
 					if (message->origin && message->body)
 					{
-						SAFE(mutex_stdout, {
+						SAFE(mutex, {
 							printf("%s: %s\n", message->origin, message->body);
 						});
 					}
@@ -97,13 +102,13 @@ void *client_thread(void *args)
 
 					if (strstr(message->message, "ERROR"))
 					{
+						SAFE(mutex, { log_info("Server has closed connection: %s", message->body); });
 						quit = true;
 						break;
 					}
 				}
 
 				Vector_free(messages);
-				// log_debug("Received %zu messages from server", num_msg);
 			}
 		}
 
@@ -121,7 +126,8 @@ void *client_thread(void *args)
 	}
 
 	close(epollfd);
-	SAFE(mutex_stdout, { log_info("client thread has quit!"); });
+	SAFE(mutex, { log_info("client thread has quit!"); });
+
 	return client;
 }
 
@@ -176,8 +182,15 @@ int main(int argc, char *argv[])
 	size_t line_len = 0; // length of line buffer
 
 	// main thread will read commands from stdin
-	while (alive)
+	while (1)
 	{
+		pthread_mutex_lock(&mutex);
+		if(!alive) {
+			pthread_mutex_unlock(&mutex);
+			break;
+		}
+		pthread_mutex_unlock(&mutex);
+
 		// Read the next line till \n
 		ssize_t nread = getline(&line, &line_len, stdin);
 		if (nread == -1)
@@ -192,14 +205,14 @@ int main(int argc, char *argv[])
 
 		if (strlen(line) > MAX_MSG_LEN)
 		{
-			SAFE(mutex_stdout, { log_error("Message is greater than %d bytes", MAX_MSG_LEN); });
+			SAFE(mutex, { log_error("Message is greater than %d bytes", MAX_MSG_LEN); });
 			continue;
 		}
 
 		if (!strncmp(line, "/server ", strlen("/server "))) // register as server using the specified name
 		{
 			char *name = strstr(line, " ") + 1;
-			SAFE(mutex_stdout, { log_info("Registering as server %s", name); });
+			SAFE(mutex, { log_info("Registering as server %s", name); });
 			client_add_message(&client, make_string("PASS %s\r\n", info.peer_passwd));
 			client_add_message(&client, make_string("SERVER %s\r\n", name));
 		}
@@ -211,7 +224,7 @@ int main(int argc, char *argv[])
 
 			if (!fptr)
 			{
-				SAFE(mutex_stdout, { log_error("client file not found: %s", fname); });
+				SAFE(mutex, { log_error("client file not found: %s", fname); });
 				continue;
 			}
 
@@ -226,7 +239,7 @@ int main(int argc, char *argv[])
 
 			if (!realname)
 			{
-				SAFE(mutex_stdout, { log_error("realname not given"); });
+				SAFE(mutex, { log_error("realname not given"); });
 				continue;
 			}
 
@@ -237,7 +250,7 @@ int main(int argc, char *argv[])
 
 			if (!nick)
 			{
-				SAFE(mutex_stdout, { log_error("nick not given"); });
+				SAFE(mutex, { log_error("nick not given"); });
 				continue;
 			}
 
@@ -245,11 +258,11 @@ int main(int argc, char *argv[])
 
 			if (!username)
 			{
-				SAFE(mutex_stdout, { log_error("username not given"); });
+				SAFE(mutex, { log_error("username not given"); });
 				continue;
 			}
 
-			SAFE(mutex_stdout, { log_info("Registering as user: nick=%s, username=%s, realname=%s", nick, username, realname); });
+			SAFE(mutex, { log_info("Registering as user: nick=%s, username=%s, realname=%s", nick, username, realname); });
 
 			client_add_message(&client, make_string("NICK %s\r\n", nick));
 			client_add_message(&client, make_string("USER %s * * :%s\r\n", username, realname));
@@ -265,7 +278,9 @@ int main(int argc, char *argv[])
 		if (strstr(line, "QUIT"))
 		{
 			log_warn("quit");
+			pthread_mutex_lock(&mutex);
 			alive = false;
+			pthread_mutex_unlock(&mutex);
 			break;
 		}
 	}

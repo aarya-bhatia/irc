@@ -98,7 +98,18 @@ int main(int argc, char *argv[])
 					}
 				}
 
-				if (connection->quit && List_size(connection->outgoing_messages) == 0 && connection->res_len == 0)
+				bool quit = connection->quit;
+
+				if(!quit && connection->conn_type == USER_CONNECTION) {
+					User *user = connection->data;
+					quit = user->quit;
+				} 
+				else if(!quit && connection->conn_type == PEER_CONNECTION) {
+					Peer *peer = connection->data;
+					quit = peer->quit;
+				}
+
+				if (quit && List_size(connection->outgoing_messages) == 0 && connection->res_len == 0)
 				{
 					Server_remove_connection(serv, connection);
 					continue;

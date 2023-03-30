@@ -646,6 +646,20 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 		{
 			Server_handle_PASS(serv, peer, message);
 		}
+		else if (!strcmp(message->command, "KILL"))
+		{
+			char *nick = message->params[0];
+			ht_remove(serv->nick_to_serv_name_map, nick, NULL, NULL);
+
+			User *other_user = ht_get(serv->nick_to_user_map, nick);
+
+			if(other_user) {
+				List_push_back(other_user->msg_queue, Server_create_message(serv, "ERROR :nickname collision for %s", nick));
+				other_user->quit = true;
+			}
+
+			log_warn("removed nick %s", nick);
+		}
 		else if (!strcmp(message->command, "NICK")) // A new user was registered behind the peer server
 		{
 			char *nick = message->params[0];
@@ -653,18 +667,24 @@ void Server_process_request_from_peer(Server *serv, Connection *conn)
 
 			if (ht_contains(serv->nick_to_serv_name_map, nick))
 			{
-				log_error("NICK collision: %s", nick);
-				User *user = ht_get(serv->nick_to_user_map, nick);
-				assert(user);
-				Connection *other_conn = ht_get(serv->connections, &user->fd);
-				assert(other_conn);
-				Server_remove_connection(serv, other_conn);
+				List_push_back(peer->msg_queue, Server_create_message(serv, "KILL %s :nickname collision", nick));
+				ht_remove(serv->nick_to_serv_name_map, nick, NULL, NULL);
+
+				User *other_user = ht_get(serv->nick_to_user_map, nick);
+
+				if(other_user) {
+					List_push_back(other_user->msg_queue, Server_create_message(serv, "ERROR :nickname collision for %s", nick));
+					other_user->quit = true;
+				}
+
 				continue;
 			}
-
-			log_info("== user %s registered with server %s == ", nick, peer->name);
-			ht_set(serv->nick_to_serv_name_map, nick, peer->name);
-			Server_relay_message(serv, peer->name, message->message);
+			else
+			{
+				log_info("== user %s registered with server %s == ", nick, peer->name);
+				ht_set(serv->nick_to_serv_name_map, nick, peer->name);
+				Server_relay_message(serv, peer->name, message->message);
+			}
 		}
 		else if (!strcmp(message->command, "PRIVMSG")) // To send message to a user or channel
 		{
