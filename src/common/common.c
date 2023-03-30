@@ -386,7 +386,14 @@ bool get_peer_info(const char *filename, const char *name, struct peer_info_t *i
 			line[nread - 1] = 0;
 		}
 
+		// empty line
 		if(strlen(line) == 0)
+		{
+			continue;
+		}
+
+		// comment
+		if(line[0] == '%')
 		{
 			continue;
 		}
@@ -447,7 +454,14 @@ char *get_server_passwd(const char *config_filename, const char *name)
 			line[nread - 1] = 0;
 		}
 
+		// empty line
 		if(strlen(line) == 0)
+		{
+			continue;
+		}
+
+		// comment
+		if(line[0] == '%')
 		{
 			continue;
 		}
