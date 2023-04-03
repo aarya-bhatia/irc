@@ -56,7 +56,7 @@ sstring *cstring_to_sstring(char *cstr);
 /**
  * Destructor to free up all memory allocated by the sstring including itself
  */
-void sstring_destro(sstring *this);
+void sstring_destroy(sstring *this);
 
 /**
  * Returns a substring (C string) of given sstring in the range [start ... end)

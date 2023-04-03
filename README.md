@@ -4,28 +4,30 @@ Project in progress...
 
 ## Connection Struct
 
-- The connection struct is generic and helps read/write data to any socket connection. It is used by both client and server.
-- The connection struct has a type parameter which can either be UNKNOWN_CONNECTION, CLIENT_CONNECTION, PEER_CONNECTION, or USER_CONNECTION.  A new connection on the server is set to be Unknown. It is later promoted to a Peer or a User connection when the client sends the initial messages (NICK/USER or SERVER/PASS).
-- A connection can also store arbitary data for the client. This parameter is used to store a pointer to the Peer or User struct in a polymorphic way. It is initialised as soon as the connection type is determined.
-- A connection contains incoming and outgoing message queues aside from the request and response buffers. This allows us to handle multiple messages from the client at one time and also prepare multiple messages to send to the client. It is also used to store chat messages sent by another client. The request and response buffer only store the data that is currently being read or sent.
-- Note that users and peers have internal message queues as well. Initially messages are put in the main message queue, but after client registration, the messages are put in the internal message queues. This is done partly so we don't have to deal with Connection structs in the request handlers.
+- The connection struct is a generic type which helps us read or write data to any socket connection. It is used by both client and server.
+- The connection struct has a type parameter which can either be UNKNOWN_CONNECTION, CLIENT_CONNECTION, PEER_CONNECTION, or USER_CONNECTION.  
+A new connection on the server is set to be UNKNOWN. It is later promoted to a PEER or a USER connection when the client sends the initial messages i.e. a user would send a NICK/USER pair and a server would send a PASS/SERVER to register.
+- A connection can also store arbitary data for the client. This parameter is used to store a pointer to a corresponding Peer or User struct in a polymorphic way. It is initialised as soon as the connection type is determined.
+- Message queues: A connection struct contains incoming and outgoing message queues as well as request and response buffers. This allows us to send or receive multiple messages to and fro a client at once. It is also used for storing chat messages from another client. The request and response buffer only store the data that is currently being read or transmitted. Since we may not send or receive all the data we use indices to keep track of where we are in the buffer.
+- Note that the User and Peer struct have their own internal message queue. Initially messages are put in the main message queue, but after client registration, the messages are put in the internal message queues. This is done partly so we don't have to deal with Connection structs in the request handlers functions and have to cast the data to the right type.
 
 ## Server
 
 ### Data structures
 
-- A hashtable `connections` to map socket to a connection struct for each client and peer.
-- A hashtable `nick_to_user_map` to map nick to user struct for each user. The users get a random nick in the beginning. As they update their nicks, the entry in the hashmap for that user is also updated. This map is useful to check which nicks are available and also quickly fetch the User when messages are to be delivered.
+- A hashtable `connections` is used to map sockets to connection structs for each connection, such as a client or peer.
+- A hashtable `nick_to_user_map` to map a nick string to a user struct for a user. The users get a random nick in the beginning. As they update their nicks, the entry in the hashmap for that user is also updated. This map is useful to check which nicks are available and also access the User data when we are to deliver a message to some nick.
 - A hashtable `name_to_channel_map` to map each channel name to a channel struct. Each server has their own copy of the channel. Since different users are connected to different servers, a channel message must be propogated to the entire network in order to reach all channel members. But a single server does not know all the clients in the channel.
-- A hashtable `name_to_peer_map` is used to map the name of a peer to a Peer struct. When a server-to-server connection is established the remote server becomes a peer for the current server. The server which initiates the connection is known as the ACTIVE_SERVER and the server which accepts the connections is known as PASSIVE_SERVER.
-- A hashtable `nick_to_serv_name_map` is used to determine which users are connected to each server. This map is updated when a peer advertises a new user connection or relays the message from another server.
+- A hashtable `name_to_peer_map` is used to map the name of a peer server to a Peer struct. When a server-to-server connection is established the remote server becomes a peer for the current server. The server which initiates the connection is known as the ACTIVE_SERVER and the server which accepts the connections is known as PASSIVE_SERVER. The entry is added after registration as the peer name is not known before the SERVER message is received. The entry is removed when a server quits or disconnects and a SQUIT message is generated by the server that realised this event.
+- A hashtable `nick_to_serv_name_map` is used to determine which users are connected to each server. This map is updated when a peer advertises a new user connection or relays the message from another server. This map helps keep track of all the users on the network at each server. The entries are removed when a user disconnects and a server sends a KILL request for that user.
 
 ### Summary
 
-- The core of the server is single-thread and uses epoll API and nonblocking IO.
-- The server uses buffers in the user data struct to receive/send messages.
-- The user data uses a message queue that allows the server to prepare multiple messages to send to one client.
-- The message queue is also useful for message chat as messages for a target user can be pushed to their respective queues.
+The server is implemented in an event-driven manner with the core being single-threaded and polling based. The server also uses non blocking IO on all connections as it has to process many requests at once.  The server uses buffers and message queues for communication as well as the Connection struct and the data structures mentioned previously. The message queue allows the server to prepare messages to be sent to a client before the client is ready to receive them.
+
+The servers use a config file to configure the servers. Only servers specified in the file are allowed to participate in the network. This is recommended by the RFC. The config file contains the name of the server, the IP address, port number and password. The password is used for server-server registration. The port is the port that the server listens for connections. We can simply edit this file to add / remove servers. It behaves like a small database.
+
+The client is implemented as a multi-threaded application so that it can communicate with the user on stdin as well as the server over a socket. The client also uses the connection struct and a similar queueing strategy. The client message queues are synchronised by mutex locks so messages can be sent from various threads. Most commands read from stdin are sent verbatim to the server, aside from adding a CRLF delimiter. This works out well because IRC is a text-based protocol. The client can accept special commands that are prefixed with a '/'. These commands allow us faster registration. We can use the client as a user or another server (for testing). For users, the client can recognise a text file that contains the username, realname and nick for that user. This allows the user to login with `/client filename`. For server mode, we can run a similar command such as `/register servername`. Here servername refers to the name in the config file.
 
 ## Logic
 
@@ -79,46 +81,108 @@ The code for registering is found in `register.c`.
 
 ## Client
 
-The client implements a thread-based model with four threads:
+The client implements a thread-based model with two threads:
 
-### Client Outbox thread
-
-- The outbox thread blocks if the outbox queue is empty.
-- This thread pulls messages from the queue and sends them to the server over existing tcp connection.
-- If a 'QUIT' message is discovered this thread will quit immediately after sending it to the server.
-
-### Client Inbox thread
-
-- The inbox thread will block if the inbox queue is empty.
-- The inbox thread pulls messages from the inbox queue and handles them.
-- Most commonly the messages are printed to stdout for the user to see.
-- On an ERROR message the inbox thread will quit immediately. The ERROR message is also a reply to a QUIT message.
-
-### Client Reader thread
-
-- The reader thread will asynchronously read() from the server using the epoll API.
-- This thread will use a buffer to store incomplete messages.
-<!-- - It will use the Message parser to parse the messages received from the server. -->
-- It will handle the case if there are multiple messages sent at once.
-- It will add each message to the inbox queue for the inbox thread to handle.
-- It will never block on an enqueue as the queue has no maximum size.
-
-### Client Main thread
+### Main thread
 
 - It is the duty of the main thread to read user input from stdin.
 - This thread blocks on the getline() instruction.
 - If the input is a valid IRC command, the string will be terminated by CRLF appropriately.
 - If the input is a special command starting with a /, the client will generate the corresponding command.
 - The irc command is added to the outbox queue to send to the server.
+- The main thread quits when the user enters the QUIT or SQUIT command.
 
-## Command-Line Args
+### Worker thread
 
-The client can accept the following command line args in the given order:
+- This thread polls the server socket for read/write events.
+- It displays the messages read from the server to stdout.
+- It writes the messages from the queue to the server.
+- This thread quits when the server sends a ERROR message.
 
-1. hostname
-2. port
-3. nick
-4. username
-5. realname
+The process for exiting all threads works as follows: The user types in the QUIT command.
+The main thread recognises that it is time to quit and after adding this last message to the queue, will quit.
+The worked thread will send this message but wait for the response. The server will reply to a QUIT with a ERROR message.
+When the worker thread receives a ERROR message it will quit. The ERROR message is also sent in case of errors such as incorrect password.
 
-*Example*: `./client localhost 5000 aaryab2 aarya.bhatia1678 "Aarya Bhatia"`.
+## Establishing Server-Server connection
+
+## Establishing Client-Server connection
+
+## Disconnect a server or client
+
+## Relay messages
+
+## Special Commands
+
+The following commands have been designed for demonstration and are not part of the specification.
+
+The following command is asynchronous in nature, i.e. they involve communicating with the entire network to create the full responsne.
+
+Edge cases:
+
+Command: TEST_LIST_SERVER
+Replies:
+
+- 901 RPL_TEST_LIST_SERVER_START
+- 902 RPL_TEST_LIST_SERVER
+- 903 RPL_TEST_LIST_SERVER_END
+
+Algorithm:
+
+- User requests origin server to list all servers on the network.
+- server adds user to map `test_list_server_map` and initialises a struct with the following members:
+  - a reference to the connection struct to send messages
+  - a set containing all the peers of this server
+    - this set inidicates which peers still need to send a reply
+- we send the original client all the reply messages for the original server first.
+- now we request the peers of the original server to also send a list reply for the same request.
+- we can continue processing other commands from the user while waiting for replies for the TEST_LIST_SERVER request.
+- The reply is sent in a multipart message, so that when one of the peers recursively sends back a reply for servers behind their connection, we relay this information to the original client in turn.
+- In particular, when one of the peers sends a RPL_TEST_LIST_SERVER to the origin server, we add this response to the original client's message queue.
+- when one of the peers sends a RPL_TEST_LIST_SERVER_END to the origin server, this indicates that the peer has finished listing all the servers behind their server.
+So this peer is removed from the set.
+- When the set is empty, we have finished listing all servers so we can send a RPL_TEST_LIST_SERVER_END to the original client and remove their entry from the map.
+- If during this period a new server joins, we simply ignore them from the response.
+- If during this period the user sends another list request, we do not acknowledge it.
+
+## How to keep consistent state across the network
+
+- Event of server disconnect:
+  - Broadcast a SQUIT message for each server behind that connection
+  - Broadcast a QUIT for each client behind that connection
+- Event of new server connection:
+  - Both servers share the names of their peers with each other
+  - Both servers share the NICKs of their clients with each other
+  - Both servers share their channels with each other
+- Event of client disconnect:
+  - Broadcast a QUIT for that client to all peers
+
+## Routing messages
+
+Observe that the IRC network is a spanning tree structure, so it has no cycles. So, it is simple to use a BFS like algorithm
+to route messages from one server to another.
+
+Suppose we have three clients alice and bob and cat.
+There are three servers A,B and C.
+There are the following edges in the network graph: A <-> B and A <-> C.
+Suppose alice is connected to A, bob is connected to B and cat is connected to C.
+
+Suppose alice wants to send a message "hello" to cat.
+The following actions will take place:
+
+1. alice will send a message "PRIVMSG cat :hello" to server A
+2. server A will check if cat is a client known to it.
+3. Since server A knows C, it will check if cat is a client on the server A.
+4. Since cat is not a client on server A, A will relay this message to each of its peers, namely B and C.
+5. server B and server C recursively do the similar action.
+6. server B knows cat and cat does not live on server B. At the point server B can ignore the message because
+server B's only peer is A and no server should relay a message back to the sender.
+Without this, there would be an infinite loop of messages.
+7. server C will finally see that cat lives on that server. server C will not relay this message any further to avoid wasting bandwidth.
+8. server C will add this message to cat's message queue. When cat is ready to receive messages, this server will write this message over the socket to cat's client program.
+9. the client program will display this message to cat.
+
+As you can see, all messages are propogated down the network until they reach the destination or an edge. The messages make their way to the destination through a series of relays on intermediate servers. This strategy would work on any number of servers as long as they follow the critical rule that the network is a spanning tree.
+
+Note: The server can optimise this message delivery process even further if it wishes to do so. There are optional features built into
+the protocol to allow the servers to gain more insight about the network. For example, we can attach a "hop count" parameter to some messages so that servers can know the distance between two nodes on the network. With more information, the server can pre compute the shortest path to the client and only relay messages to a few peers to save bandwidth. This strategy is not implemented in my project, but it is simple to extend the functionality of the relaying.
