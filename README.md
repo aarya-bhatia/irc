@@ -159,8 +159,7 @@ So this peer is removed from the set.
 
 ## Routing messages
 
-Observe that the IRC network is a spanning tree structure, so it has no cycles. So, it is simple to use a BFS like algorithm
-to route messages from one server to another.
+Observe that the IRC network is a spanning tree structure, so it has no cycles. We use a BFS like algorithm to route messages from one server to another.
 
 Suppose we have three clients alice and bob and cat.
 There are three servers A,B and C.
@@ -168,21 +167,22 @@ There are the following edges in the network graph: A <-> B and A <-> C.
 Suppose alice is connected to A, bob is connected to B and cat is connected to C.
 
 Suppose alice wants to send a message "hello" to cat.
+
 The following actions will take place:
 
-1. alice will send a message "PRIVMSG cat :hello" to server A
-2. server A will check if cat is a client known to it.
-3. Since server A knows C, it will check if cat is a client on the server A.
-4. Since cat is not a client on server A, A will relay this message to each of its peers, namely B and C.
-5. server B and server C recursively do the similar action.
-6. server B knows cat and cat does not live on server B. At the point server B can ignore the message because
-server B's only peer is A and no server should relay a message back to the sender.
-Without this, there would be an infinite loop of messages.
-7. server C will finally see that cat lives on that server. server C will not relay this message any further to avoid wasting bandwidth.
-8. server C will add this message to cat's message queue. When cat is ready to receive messages, this server will write this message over the socket to cat's client program.
-9. the client program will display this message to cat.
+- alice will send a message `PRIVMSG cat :hello` to server A
+- server A will check if cat is a client known to it.
+- Since server A knows C, it will check if cat is a client on the server A.
+- Since cat is not a client on server A, server A will relay this message to each of its peers in the `name_to_peer_map`, namely server B and server C.
+- server A will add B and C to a visited set because we may have multiple entries in the hashtable that map to the same peer.
+This is because there can be multiple servers behind one connection and each server keeps track of all other servers in its hashtable.
+- server B and server C recursively do the same thing.
+- server B knows the client cat and cat does not live on server B. At the point server B can ignore the message because
+server B's only peer is A and a server should never relay a message back to the sender, otherwise there would be an infinite loop.
+- server C will finally see that cat lives on that server. server C will not relay this message any further to avoid wasting bandwidth.
+- server C will add this message to cat's message queue. When cat is ready to receive messages, this server will write this message over the socket to cat's client program.
+- the client program will display this message to cat.
 
-As you can see, all messages are propogated down the network until they reach the destination or an edge. The messages make their way to the destination through a series of relays on intermediate servers. This strategy would work on any number of servers as long as they follow the critical rule that the network is a spanning tree.
+As you can see, all messages are propogated down the network until they reach the destination or an edge. The messages make their way to the destination through a series of relays on intermediate servers. This strategy would work on any number of servers as long as they follow the main rule that the network is a spanning tree.
 
-Note: The server can optimise this message delivery process even further if it wishes to do so. There are optional features built into
-the protocol to allow the servers to gain more insight about the network. For example, we can attach a "hop count" parameter to some messages so that servers can know the distance between two nodes on the network. With more information, the server can pre compute the shortest path to the client and only relay messages to a few peers to save bandwidth. This strategy is not implemented in my project, but it is simple to extend the functionality of the relaying.
+Note: It is possible to optimise the path. There are optional features in the protocol to allow the servers to gain more information about the network. For example, we can attach a "hop count" parameter to some messages so that servers can know the distance between two nodes on the network. With more information, the server can pre compute the shortest path to the client and only relay messages to a few peers.
