@@ -2,73 +2,102 @@
 
 Project in progress...
 
+The main structs used in this project include the Peer, User, Connection and Server struct. Here is what each of these do.
+
 ## Connection Struct
 
 - The connection struct is a generic type which helps us read or write data to any socket connection. It is used by both client and server.
-- The connection struct has a type parameter which can either be UNKNOWN_CONNECTION, CLIENT_CONNECTION, PEER_CONNECTION, or USER_CONNECTION.  
-A new connection on the server is set to be UNKNOWN. It is later promoted to a PEER or a USER connection when the client sends the initial messages i.e. a user would send a NICK/USER pair and a server would send a PASS/SERVER to register.
-- A connection can also store arbitary data for the client. This parameter is used to store a pointer to a corresponding Peer or User struct in a polymorphic way. It is initialised as soon as the connection type is determined.
-- Message queues: A connection struct contains incoming and outgoing message queues as well as request and response buffers. This allows us to send or receive multiple messages to and fro a client at once. It is also used for storing chat messages from another client. The request and response buffer only store the data that is currently being read or transmitted. Since we may not send or receive all the data we use indices to keep track of where we are in the buffer.
-- Note that the User and Peer struct have their own internal message queue. Initially messages are put in the main message queue, but after client registration, the messages are put in the internal message queues. This is done partly so we don't have to deal with Connection structs in the request handlers functions and have to cast the data to the right type.
+
+- The connection struct has a type parameter which can either be `UNKNOWN_CONNECTION`, `CLIENT_CONNECTION`, `PEER_CONNECTION`, or `USER_CONNECTION`.  
+
+A new connection on the server is set to be UNKNOWN. It is later promoted to a PEER or a USER connection when the client sends the initial messages i.e. a user would send a NICK/USER pair and a server would send a PASS/SERVER to register themselves.
+
+- Each connection can also store arbitary data for the client. This parameter is used to store a pointer to a Peer or User struct depending on the type of connection. It is initialised when the connection type is determined.
+
+- Message queues and buffers: A connection struct contains incoming and outgoing message queues in addition to request and response buffers. This allows us to send or receive multiple messages to and fro a client at once. It is also used for storing chat messages from another client. 
+
+On the other hand, the request and response buffer only store the data that is currently being read or transmitted. Since we may not send or receive all the data we also keep track of where we are in the buffer.
+
+- Note that the User and Peer struct have their own internal message queues. Initially messages are put in the main message queue, but after client has registered, the messages are put in the internal message queues. This is done so we don't have to deal with Connection structs in the request handlers functions and have to cast the data to the right type.
 
 ## Server
+
+The server data is stored in the Server struct. The server maintains data about all of its clients, users and even some state about the network - such as the nicks that exist outside this server. The servers must know this information to avoid nick conflicts and also how to route messages to some user on a different server. (More about this later) 
+
+The Server uses the following data structures:
 
 ### Data structures
 
 - A hashtable `connections` is used to map sockets to connection structs for each connection, such as a client or peer.
+
 - A hashtable `nick_to_user_map` to map a nick string to a user struct for a user. The users get a random nick in the beginning. As they update their nicks, the entry in the hashmap for that user is also updated. This map is useful to check which nicks are available and also access the User data when we are to deliver a message to some nick.
+
 - A hashtable `name_to_channel_map` to map each channel name to a channel struct. Each server has their own copy of the channel. Since different users are connected to different servers, a channel message must be propogated to the entire network in order to reach all channel members. But a single server does not know all the clients in the channel.
+
 - A hashtable `name_to_peer_map` is used to map the name of a peer server to a Peer struct. When a server-to-server connection is established the remote server becomes a peer for the current server. The server which initiates the connection is known as the ACTIVE_SERVER and the server which accepts the connections is known as PASSIVE_SERVER. The entry is added after registration as the peer name is not known before the SERVER message is received. The entry is removed when a server quits or disconnects and a SQUIT message is generated by the server that realised this event.
+
 - A hashtable `nick_to_serv_name_map` is used to determine which users are connected to each server. This map is updated when a peer advertises a new user connection or relays the message from another server. This map helps keep track of all the users on the network at each server. The entries are removed when a user disconnects and a server sends a KILL request for that user.
+
 
 ### Summary
 
-The server is implemented in an event-driven manner with the core being single-threaded and polling based. The server also uses non blocking IO on all connections as it has to process many requests at once.  The server uses buffers and message queues for communication as well as the Connection struct and the data structures mentioned previously. The message queue allows the server to prepare messages to be sent to a client before the client is ready to receive them.
+The server is implemented in an event-driven manner with the core being single-threaded and polling based. The server also uses non blocking IO for all connections as it has to process many requests at once.  The server uses buffers and message queues for communication as well as the Connection struct and data structures mentioned previously. The message queue allows the server to prepare messages to be sent to a client before the client is ready to receive them.
 
-The servers use a config file to configure the servers. Only servers specified in the file are allowed to participate in the network. This is recommended by the RFC. The config file contains the name of the server, the IP address, port number and password. The password is used for server-server registration. The port is the port that the server listens for connections. We can simply edit this file to add / remove servers. It behaves like a small database.
+The servers use a config file to configure the servers. Only servers specified in the file are allowed to participate in the network. This is recommended by the RFC. The config file contains the name of the server, the IP address, port number and password. The password is used for server-server registration. The port is the port that the server listens for connections. We can simply edit this file to add / remove servers. The config file behaves like a small database for servers in the network.
 
-The client is implemented as a multi-threaded application so that it can communicate with the user on stdin as well as the server over a socket. The client also uses the connection struct and a similar queueing strategy. The client message queues are synchronised by mutex locks so messages can be sent from various threads. Most commands read from stdin are sent verbatim to the server, aside from adding a CRLF delimiter. This works out well because IRC is a text-based protocol. The client can accept special commands that are prefixed with a '/'. These commands allow us faster registration. We can use the client as a user or another server (for testing). For users, the client can recognise a text file that contains the username, realname and nick for that user. This allows the user to login with `/client filename`. For server mode, we can run a similar command such as `/register servername`. Here servername refers to the name in the config file.
+The client is implemented as a multi-threaded application so that it can communicate with the user on stdin as well as the server over a socket. The client also uses the connection struct and messages queues like the server. The client message queues are synchronised by mutex locks so messages can be sent from various threads. Most commands read from stdin are sent verbatim to the server, with only the addition of a CRLF delimiter. This works well because IRC is a text-based protocol.
+
+A user can start the client by typing `./build/client <server-name>`, where server name is a server that exists in the config file. The client will try to connect to the host and IP specified by the entry in the config. Then the user can interact with the client by typing IRC commands such as "NICK example". The new line character is used to end the messages. The client also displays the replies sent by the server to stdout asynchronously.
+
+The client can accept special commands that are prefixed with a '/'. These commands allow us to register faster. We can use the client to behave as a user or another server (only for testing). For users, the client can recognise a text file that contains the username, realname and nick for that user. This allows the user to login with `/client filename`. The client will load all the user details from the specified file and make the registration requests to the server on its own. These include the NICK and USER message.
+
+For server mode, we can run a similar command such as `/register servername`. Here servername refers to a server name in the config file as mentioned before.
+
 
 ## Logic
 
-The main logic is that the epoll listens for Read/Write events on all the available client sock_to_user_map as well as the server listening socket. If the event is on the listening socket, that implies the server can connect to new clients and initialise their user data. This is done through the `Server_process_request()` function.
-In the case the event is on a client socket, I handle three cases: read, write and error. On error, I disconnect the client. On write, we send any pending messages from that user's message queue. Lastly, on read, we receive any data and parse the message if it is complete. Otherwise, we store the bytes in the user's buffer for later.
+The server operates by using the epoll API to listen for Read/Write events on all the available clients as well as the server's listening socket. If the event occurs on the listening socket, it means that the server can connect to new clients and initialise their data.
 
-There are various functions to handle the commands in the form of `Server_handle_XXXX()`.
-These functions use the predefined message reply strings in `reply.h` and substitute the reply parameters such as user's nick.
-The message parser in `message.h` is used to parse message details safely.
+In the case the event is on a client socket, there are three cases: 
 
-The server currently supports the following commands from the client: MOTD, NICK, USER, PING, QUIT.
+- On an error event, the client is disconnected. A disconnect is important because the server should inform the rest of the network about this user. The server also needs to update its hashtables to remove this user wherever required. The server notifies the network by sending a `KILL <client>` message and fills in the nick of the disconnecting client.
+
+- On a write event, we send pending messages from that user's message queue if any. So we can prepare messages to be sent to any client by adding them to their message queues. The messages will eventually get delivered when the client is ready to receive them.
+
+- On a read event from a client, we receive any data they have to send and parse the messages if it is completed. A message is 'completed' when the CRLF delimiter is found in the message. Moreover, every IRC message has a maximum length of 512 bytes. If a message exceeds this limit without a CRLF we return an error status and the server can remove this misbehaving client. On a successful but incomplete message, we store the bytes in the user's request buffer. Messages are transferred to the queue only when they are completed.
+
+There are various functions to handle the commands in the form of `Server_handle_XXXX()`. These functions use the predefined format strings in `reply.h` and substitute the parameters as needed. The message parser in `message.h` is used to parse message details and check for errors.
+
+The server currently supports the following commands from the clients: 
+MOTD, NICK, USER, PING, QUIT, HELP, PRIVMSG, NOTICE, INFO, WHO, NAMES, LIST, PART, JOIN, TOPIC, CONNECT and a special command TEST_LIST_SERVER which is discussed later.
 
 ## QUIT
 
-The QUIT command is used by a client to indicate their wish to leave the server.
-All data associated with this user is freed and socket is closed.
-An ERROR reply is sent before closing the socket to allow the reader thread at the client to quit gracefully.
-This is done through a 'quit' flag in the user data that is set to true when the QUIT request comes.
-When the final message to the client is sent and if a quit flag is seen, the server knows to close that connection at that point.
+- The QUIT command is used by a client to indicate their wish to leave the server.
+- All data associated with this user is freed and socket is closed.
+- An ERROR reply is sent before closing the socket to allow the reader thread in the client to quit gracefully.
+- A client is not removed immediately. Instead we set a `quit` flag in the user data because we still need to send the final messages. 
+- When all messages are sent and the user is marked as quit, the server closes the connection.
 
 ## MOTD
 
-This command sends a Message of the Day to the requesting user.
-It looks up the current day's message from a file (motd.txt) that contains a list of quotes.
-This file was downloaded using the `zenquotes.io` API using the script in `download_quotes.py`.
-This list can be updated by repeating this script.
-The server simply gets the line that is at position `day_of_year % total_lines`, where `total_lines < 365`.
-The filename can be changed at any time as the server has a string to store the filename.
+- This command sends the "Message of the Day" to the user.
+- It looks up the current message from a file (motd.txt) that contains a list of quotes.
+- This file was downloaded using the `zenquotes.io` API using a small python script in `download_quotes.py`.
+- This list can be updated by running this script at any point.
+- The server fetches the line that is at position equal to `day_of_year % total_lines`, where `total_lines < 365`.
+- The filename can be changed at any time as the server reopens the file each time. It is not neccessary to cache this file as the MOTD is only sent once for each client on registration or if someone requests for it.
 
 ## NICK/USER: User Registration
 
-- User can register with NICK and USER commands
+- A user can register with NICK and USER commands
 - NICK can be used to update nick at any time
-- Server keeps track of all the nicks that have been used by username_to_user_map
-- User may skip NICK to reuse previous NICK if there is one
-- USER can only be used once at the start to set username and realname.
-- username is private to the user, it is the main identification source
-- Users can use NICKs to send messages to another user
-- User can use any NICK that is owned by a user
-
-The code for registering is found in `register.c`.
+- The username and realname set by the USER command cannot change.
+- Users can use NICKs to send messages to another user. (See PRIVMSG and NOTICE for more information).
+- A user's nick is freed i.e. made available to other users when they leave the session.
+- A server always knows every client on the network.
+- NOTE: There is a risk of NICK collisions in a "net split" scenario: If there are two disjoint IRC networks containing the same NICK and these two
+networks are joined by a server-server connection then we end up with two clients with same NICK on the new network. However, it is impossible to prevent this at registration. Thus, the IRC specs suggest to use the KILL command and remove both the clients from the network. This is exactly how I implement it in my project.
 
 ## PRIVMSG
 
