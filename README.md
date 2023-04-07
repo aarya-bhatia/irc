@@ -102,11 +102,17 @@ networks are joined by a server-server connection then we end up with two client
 ## PRIVMSG
 
 - This command is only enabled after registration for both sender and receiver.
-- User can send message to another user using their nick.
-- Server can accept any nick that user has owned as a valid target.
-- Server searches the userame to nicks map to find the username of the target user.
-- The server can look up the user's data through their username and check if they are online or not.
-- The server will not send the message to a user that is offline.
+- User can send messages to another user using their nick only.
+- Server can accept any nick that exists in the network as a valid target.
+- Server can also accept any channel name as a valid target. We only support channels that are prefixed with '#'.
+- Since users can exist on different servers, the server has to relay such messages to its peers.
+Channel messages are different because members of a channel may exist on multiple servers.
+In the case the message target is a user, the message is relayed to only one peer which is either the destination server or
+a server that is peers with the destination server. Every client to client message has a unique path because the IRC network
+is a spanning tree and does not contain cycles. 
+Messages to a channel are always broadcasted to all peers of a server so that each server can check if any members of that channel
+exist on that server.
+
 
 ## Client
 
@@ -133,6 +139,7 @@ The main thread recognises that it is time to quit and after adding this last me
 The worked thread will send this message but wait for the response. The server will reply to a QUIT with a ERROR message.
 When the worker thread receives a ERROR message it will quit. The ERROR message is also sent in case of errors such as incorrect password.
 
+
 ## Establishing Server-Server connection
 
 ## Establishing Client-Server connection
@@ -149,7 +156,12 @@ The following command is asynchronous in nature, i.e. they involve communicating
 
 Edge cases:
 
-Command: TEST_LIST_SERVER
+
+## Additional Command
+
+I added an additional command that is not a real command but is used for demonstration and testing. The command "TEST_LIST_SERVER" is used 
+to get a list of all servers on the network in an asynchronous way. To implement this command we use three kinds of replies and send the reply as a multipart message.
+
 Replies:
 
 - 901 RPL_TEST_LIST_SERVER_START
@@ -159,17 +171,15 @@ Replies:
 Algorithm:
 
 - User requests origin server to list all servers on the network.
-- server adds user to map `test_list_server_map` and initialises a struct with the following members:
-  - a reference to the connection struct to send messages
-  - a set containing all the peers of this server
-    - this set inidicates which peers still need to send a reply
-- we send the original client all the reply messages for the original server first.
+- server adds user to the map `test_list_server_map` and initialises a struct with the following members:
+  - A reference to the connection struct to send messages: This is set to the user's connection
+  - A set containing all the peers of this server: This set inidicates which peers still need to send a reply
+- we send the original client all the names of the original server's peers. Each server is in a new RPL_TEST_LIST_SERVER message.
 - now we request the peers of the original server to also send a list reply for the same request.
 - we can continue processing other commands from the user while waiting for replies for the TEST_LIST_SERVER request.
-- The reply is sent in a multipart message, so that when one of the peers recursively sends back a reply for servers behind their connection, we relay this information to the original client in turn.
+- When one of the peers recursively sends back a reply for any servers behind their connection, we can send relay it to the original client.
 - In particular, when one of the peers sends a RPL_TEST_LIST_SERVER to the origin server, we add this response to the original client's message queue.
-- when one of the peers sends a RPL_TEST_LIST_SERVER_END to the origin server, this indicates that the peer has finished listing all the servers behind their server.
-So this peer is removed from the set.
+- Also, when one of the peers sends a RPL_TEST_LIST_SERVER_END to the origin server, this indicates that the peer has finished listing all the servers behind their server. Therefore, this peer is removed from the set.
 - When the set is empty, we have finished listing all servers so we can send a RPL_TEST_LIST_SERVER_END to the original client and remove their entry from the map.
 - If during this period a new server joins, we simply ignore them from the response.
 - If during this period the user sends another list request, we do not acknowledge it.
