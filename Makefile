@@ -23,7 +23,12 @@ SERVER_EXE=build/server
 CLIENT_EXE=build/client
 TEST_EXE=build/test
 
-all: $(SERVER_EXE) $(CLIENT_EXE) $(TEST_EXE)
+REPORT=reoprt.pdf
+
+all: $(SERVER_EXE) $(CLIENT_EXE) $(TEST_EXE) $(REPORT)
+
+$(REPORT): README.md
+	pandoc $< -o $@
 
 $(CLIENT_EXE): $(CLIENT_OBJ)
 	@mkdir -p $(dir $@);

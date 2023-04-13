@@ -8,41 +8,55 @@ real time text communication between multiple users on the Internet. The
 protocol was developed in the late 1980s and has since become a popular means
 of online communication.
 
-The server is implemented as a single-threaded event-driven system. The server
-uses the linux polling API as well as non blocking IO for all network
-communication. This allows the server to service many requests at once and be
-more efficient. The server uses buffers and message queues for communication.
-There are various data structures like the Connection struct handles the
-communication for each connection. The message queue allows the server to
-prepare messages to be sent to a client before the client is ready to receive
-them. It also lets the server parse multiple messages sent by the client at the
-same time and save them for future. The buffers store the current request or
-response data. Since the connections are multiplexed, these buffers may be in
-an incomplete state. However, when the messages are fully received or sent, the
-message queues will always be in a correct state.
+The server is implemented as a single-threaded event-driven system. It uses the
+linux polling API as well as non blocking IO for all network communication.
+This allows the server to service many requests at once and be more efficient.
+The server uses buffers and message queues for communication. There are various
+data structures like the Connection struct to handle the communication for each
+connection. The message queue allows the server to prepare messages to be sent
+to a client before the client is ready to receive them. It also lets the server
+parse multiple messages sent by the client at the same time and save them for
+future. The buffers store the current request or response data. Since the
+connections are multiplexed, these buffers may be in an incomplete state.
+However, when the messages are fully received or sent, the message queues will
+always be in a correct state.
+
+An IRC network is composed of many servers running in parallel as well as many
+clients connected to a single server. The network topology is always a spanning
+tree by design. This ensures that there are no loops in the network. Therefore,
+servers can relay messages to every connected peer to propogate messages from
+one server to the others. Secondly, there is always a single path between each
+pair of clients due to the nature of the network. This eliminates the risk of
+duplicate messages and infinite cycles of messages that are relayed. However,
+the server needs to keep track of all the servers that it is currently
+connected to and all the servers that it can reach through one of its peers.
+The server implements the cycle detection logic so that any illegal connection
+can be dismissed.
 
 The servers use a config file to configure the servers. Only servers specified
 in the file are allowed to participate in the network. This is recommended by
 the RFC. The config file contains the name of the server, the IP address, port
 number and password. The password is used for server-server registration. The
-port is the port that the server listens for connections. We can simply edit
-this file to add / remove servers. The config file behaves like a small
-database for servers in the network.
+port is where the server listens for new connections from clients or peers. It
+is possible to edit this file to manage the servers. The config file behaves
+like a database for the network. Here is an example of a valid entry in the
+`config.csv` file: `testserver,192.168.64.4,5000,password@1234`
 
 The client is implemented as a multi-threaded application so that it can
 communicate with the user on stdin as well as the server over a socket. The
-client also uses the connection struct and messages queues like the server. The
+client also uses the Connection struct and messages queues like the server. The
 client message queues are synchronised by mutex locks so messages can be sent
 from various threads. Most commands read from stdin are sent verbatim to the
 server, with only the addition of a CRLF delimiter. This works well because IRC
 is a text-based protocol.
 
-A user can start the client by typing `./build/client <server-name>`, where
-server name is a server that exists in the config file. The client will try to
-connect to the host and IP specified by the entry in the config. Then the user
-can interact with the client by typing IRC commands such as "NICK example". The
-new line character is used to end the messages. The client also displays the
-replies sent by the server to stdout asynchronously.
+A user can start the client by typing `./build/client <server-name>` on the
+terminal, where server name is a server that exists in the config file. The
+client will try to connect to the host and IP specified by the server's entry
+in the file. Then, the user can interact with the client by typing IRC commands
+such as "NICK example" or "PRIVMSG #aarya :Hello". The new line character is
+used to end the messages. The client also displays the replies sent by the
+server to stdout asynchronously.
 
 The client can accept special commands that are prefixed with a '/'. These
 commands allow us to register faster. We can use the client to behave as a user
@@ -50,20 +64,48 @@ or another server (only for testing). For users, the client can recognise a
 text file that contains the username, realname and nick for that user. This
 allows the user to login with `/client filename`. The client will load all the
 user details from the specified file and make the registration requests to the
-server on its own. These include the NICK and USER message.
+server on its own. These requests include the NICK and USER message.
 
-For server mode, we can run a similar command such as `/register servername`.
-Here servername refers to a server name in the config file as mentioned before.
+For example, a client can create a file 'login.txt' with the following
+contents: `aarya aaryab2 :Aarya Bhatia`. Now the client can start the program
+and type `/client login.txt`. The client will use this file to create the
+initial registration request and push them to the message queue, ready to be
+delivered to the server. The server registers the client if the request
+succeeds and it notifies the other servers about the users existence. This
+enables the new user to receive messages from other users on the network. The
+registration can fail for various reasons, for example the NICK chosen by the
+user may be in use. Furthermore, the requests sent by the client may be
+malformed. In any case, the server will remove the connection with the client
+and no other messages will be exchanged.
 
+After registration, the user can quit the client program by typing the `QUIT
+[:<reason>]` command. This will gracefully stop the client. There will be a
+final exchange of messages between the client and server to faciliate the
+removal of the client from the network. The client should send a QUIT message
+to the server and the server will reply with an ERROR message. The client
+thread will exit on receiving the ERROR message. The main thread would have
+exited after the first QUIT message was sent. Finally, the program can be
+closed. Note that the server must update the data structures on its side, and
+notify the entire network that the client has left. The other servers
+recursively perform the same action.
+
+For chatting between users or on a channel, we use the `PRIVMSG` command. There
+is more about this command later. The way this command works is that it takes
+the name of a target as the first parameter and the text as the final
+parameter. The server checks if the target is a user or channel before making a
+decision on how to relay it forward. If the target is found on the original
+server, the server can push the message to the target user(s) message queues.
+
+To use the client program in 'server mode', we can run a similar command such
+as `/register servername`. Here servername refers to a server name in the
+config file as mentioned before.
 
 ## Logic
 
-The server operates by using the epoll API to listen for Read/Write events on
-all the available clients as well as the server's listening socket. If the
-event occurs on the listening socket, it means that the server can connect to
-new clients and initialise their data.
+The server handles three kinds of polling events for each connection:
 
-In the case the event is on a client socket, there are three cases: 
+- If the event occurs on the server's own listening socket, it signals to the
+  server that it can accept new connections.
 
 - On an error event, the client is disconnected. A disconnect is important
   because the server should inform the rest of the network about this user. The
@@ -80,12 +122,12 @@ In the case the event is on a client socket, there are three cases:
   parse the messages if it is completed. A message is 'completed' when the CRLF
   delimiter is found in the message. Moreover, every IRC message has a maximum
   length of 512 bytes. If a message exceeds this limit without a CRLF we return
-  an error status and the server can remove this misbehaving client. On a
+  an error status and the server can remove the malformed client. On a
   successful but incomplete message, we store the bytes in the user's request
   buffer. Messages are transferred to the queue only when they are completed.
 
-The main structs used in this project include the Peer, User, Connection and
-Server struct. Here is what each of these do.
+The main structs used by the Server are the `Peer`, `User`, `Connection` and
+`Server`. This is what each of them do:
 
 ## Connection Struct
 
@@ -96,10 +138,10 @@ Server struct. Here is what each of these do.
   `UNKNOWN_CONNECTION`, `CLIENT_CONNECTION`, `PEER_CONNECTION`, or
   `USER_CONNECTION`.  
 
-A new connection on the server is set to be UNKNOWN. It is later promoted to a
-PEER or a USER connection when the client sends the initial messages i.e. a
-user would send a NICK/USER pair and a server would send a PASS/SERVER to
-register themselves.
+- A new connection on the server is set to be UNKNOWN. It is later promoted to
+  a PEER or a USER connection when the client sends the initial messages i.e. a
+  user would send a NICK/USER pair and a server would send a PASS/SERVER to
+  register themselves.
 
 - Each connection can also store arbitary data for the client. This parameter
   is used to store a pointer to a Peer or User struct depending on the type of
@@ -108,11 +150,9 @@ register themselves.
 - Message queues and buffers: A connection struct contains incoming and
   outgoing message queues in addition to request and response buffers. This
   allows us to send or receive multiple messages to and fro a client at once.
-  It is also used for storing chat messages from another client. 
-
-On the other hand, the request and response buffer only store the data that is
-currently being read or transmitted. Since we may not send or receive all the
-data we also keep track of where we are in the buffer.
+  It is also used for storing chat messages from another client. Since we may
+  not send or receive all the data at once, we also keep track of where we are
+  in the buffers using integer indices and offsets.
 
 - Note that the User and Peer struct have their own internal message queues.
   Initially messages are put in the main message queue, but after client has
@@ -122,15 +162,12 @@ data we also keep track of where we are in the buffer.
 
 ## Server
 
-The server data is stored in the Server struct. The server maintains data about
-all of its clients, users and even some state about the network - such as the
-nicks that exist outside this server. The servers must know this information to
-avoid nick conflicts and also how to route messages to some user on a different
-server. (More about this later) 
+The server data is stored in the Server struct. The server contains data about
+all of its clients, users and the network - such as the nicks that exist in the
+network. The servers must know this information to avoid nick conflicts. Also,
+the server uses this data to route messages.
 
 The Server uses the following data structures:
-
-### Data structures
 
 - A hashtable `connections` is used to map sockets to connection structs for
   each connection, such as a client or peer.
@@ -164,11 +201,8 @@ The Server uses the following data structures:
   user.
 
 
-
-There are various functions to handle the commands in the form of
-`Server_handle_XXXX()`. These functions use the predefined format strings in
-`reply.h` and substitute the parameters as needed. The message parser in
-`message.h` is used to parse message details and check for errors.
+There is also a simple message parser in `message.h` whcih is used to parse
+messages and check for errors. This is used by both server and client.
 
 The server currently supports the following commands from the clients: MOTD,
 NICK, USER, PING, QUIT, HELP, PRIVMSG, NOTICE, INFO, WHO, NAMES, LIST, PART,
@@ -211,13 +245,13 @@ later.
 - A user's nick is freed i.e. made available to other users when they leave the
   session.
 - A server always knows every client on the network.
-- NOTE: There is a risk of NICK collisions in a "net split" scenario: If there
-  are two disjoint IRC networks containing the same NICK and these two networks
-  are joined by a server-server connection then we end up with two clients with
-  same NICK on the new network. However, it is impossible to prevent this at
-  registration. Thus, the IRC specs suggest to use the KILL command and remove
-  both the clients from the network. This is exactly how I implement it in my
-  project.
+- NOTE: There is a risk of NICK collisions in an unavoidable scenario known as
+  a **net split**: If there are two disjoint IRC networks containing the same
+  NICK and these two networks are joined by a server-server connection then we
+  end up with two clients with same NICK on the new network. However, it is
+  impossible to prevent this at registration. Thus, the IRC specs suggest to
+  use the KILL command and remove both the clients from the network. This is
+  the approach used by me in the project.
 
 ## PRIVMSG
 
@@ -228,13 +262,18 @@ later.
   channels that are prefixed with '#'.
 - Since users can exist on different servers, the server has to relay such
   messages to its peers. Channel messages are different because members of a
-  channel may exist on multiple servers. In the case the message target is a
-  user, the message is relayed to only one peer which is either the destination
-  server or a server that is peers with the destination server. Every client to
-  client message has a unique path because the IRC network is a spanning tree
-  and does not contain cycles. Messages to a channel are always broadcasted to
-  all peers of a server so that each server can check if any members of that
-  channel exist on that server.
+  channel may exist on multiple servers. 
+- If the message target is a user, the message is relayed to only one peer in
+  each step, which is either the destination server or a server that is peers
+  with the destination server. Every client to client message has a unique path
+  because the IRC network is a spanning tree and does not contain cycles.
+- If the message target is a channel, the message is always broadcasted to all
+  peers of a server so that the message is propogated to every other server. If
+  the server knew which members live on which servers, we could decrease the
+  number of redundant messages sent. At each step of a channel relay message,
+  the server should check for any members of that channel on the current server
+  and deliver the message to each user of the channel using the message queue
+  system.
 
 
 ## Client
@@ -269,10 +308,6 @@ The ERROR message is also sent in case of errors such as incorrect password.
 
 ## Establishing Server-Server connection
 
-## Establishing Client-Server connection
-
-## Disconnect a server or client
-
 ## Relay messages
 
 ## Special Commands
@@ -289,9 +324,9 @@ Edge cases:
 ## Additional Command
 
 I added an additional command that is not a real command but is used for
-demonstration and testing. The command "TEST_LIST_SERVER" is used to get a list
-of all servers on the network in an asynchronous way. To implement this command
-we use three kinds of replies and send the reply as a multipart message.
+demonstration. The command "TEST_LIST_SERVER" is used to get a list of all
+servers on the network in an asynchronous way. To implement this command we use
+three kinds of replies and send the reply as a multipart message.
 
 Replies:
 
@@ -382,9 +417,25 @@ through a series of relays on intermediate servers. This strategy would work on
 any number of servers as long as they follow the main rule that the network is
 a spanning tree.
 
-Note: It is possible to optimise the path. There are optional features in the
-protocol to allow the servers to gain more information about the network. For
-example, we can attach a "hop count" parameter to some messages so that servers
-can know the distance between two nodes on the network. With more information,
-the server can pre compute the shortest path to the client and only relay
-messages to a few peers.
+## Conclusion
+
+I gained a great deal of knowledge about network programming and distributed
+systems as well insights about the limitations of such kinds of protocols.
+
+Clearly there are numerous ways to extend the functionality of the IRC protocol
+and add support for features like file transfer or unicode emojis. I would also
+like to dig deeper into security and have stronger security features than just
+text-based password authentication. These features are not yet supported by all
+servers, but it is easy to see how useful the IRC protocol can be and also how
+extensible it can be.
+
+There is another text-based protocol - HTTP, which has gained popularity with
+web applications. Current chat applications use some form of HTTP like
+WebSockets. In contrast, the IRC is a very simple text-based protocol without
+the overhead of HTTP headers. It also imposes message size limits and is not as
+generic as HTTP. 
+
+There are many limitations of the IRC protocol which are mentioned in the RFC .
+The overhead of keeping the state of the network at every server is costly when
+we need to scale up to billions of users. For such reasons, IRC is losing
+popularity and we should seek a better and safer alternative.
