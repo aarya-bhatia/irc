@@ -1,21 +1,13 @@
-% testing
 server1,127.0.0.1,5000,test1
 server2,127.0.0.1,5001,test2
 server3,127.0.0.1,5002,test3
 server4,127.0.0.1,5003,test4
-
-% multipass primary
+cs340vm1,sp23-cs340-042.cs.illinois.edu,6000,aarya#2001@vm1
+cs340vm2,sp23-cs340-161.cs.illinois.edu,6001,aarya#2001@vm2
 erwin,192.168.64.4,5000,erwin@1234
 armin,192.168.64.4,5002,armin@1234
-
-% multipass vm1
 eren,192.168.64.8,5003,eren@1234
 itachi,192.168.64.8,5004,itachi@1234
-
-% todo
 levi,192.168.64.6,5001,levi@1234
 mikasa,192.168.64.6,5000,mikasa@1234
 
-% cs340 vms
-cs340vm1,sp23-cs340-042.cs.illinois.edu,6000,aarya#2001@vm1
-cs340vm2,sp23-cs340-161.cs.illinois.edu,6001,aarya#2001@vm2
