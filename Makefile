@@ -3,9 +3,6 @@ SERVER_DIR=src/server
 COMMON_DIR=src/common
 INCLUDES=-Isrc/
 
-# INCLUDE_DIRS=$(CLIENT_DIR) $(SERVER_DIR) $(COMMON_DIR)
-# INCLUDES=$(addprefix -I, $(INCLUDE_DIRS))
-
 LDFLAGS=-Llib -llog
 
 CFLAGS=-std=c99 -Wall -Wextra -Wno-pointer-arith -pedantic -gdwarf-4 -MMD -MP -O0 -D_GNU_SOURCE -c $(INCLUDES)
@@ -23,12 +20,7 @@ SERVER_EXE=build/server
 CLIENT_EXE=build/client
 TEST_EXE=build/test
 
-REPORT=reoprt.pdf
-
 all: $(SERVER_EXE) $(CLIENT_EXE) $(TEST_EXE) $(REPORT)
-
-$(REPORT): README.md
-	pandoc $< -o $@
 
 $(CLIENT_EXE): $(CLIENT_OBJ)
 	@mkdir -p $(dir $@);
