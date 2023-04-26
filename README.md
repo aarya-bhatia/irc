@@ -57,11 +57,12 @@ type `HELP USERCMDS`.
 
 Here are some channel specific commands: `JOIN, PART, LIST, TOPIC`.
 
-- JOIN: join a channel: `JOIN #channelName`
+- JOIN: join/create a channel: `JOIN #channelName`. 
+You can also see the channel list in the file `data/channels.txt`
 - PART: leave a channel: `PART #channelName`
-- LIST: get a list of members on some channel
-    - list members in specific channel `LIST #channel`
-    - list all channels: `LIST` 
+- LIST: get a list of available channels on the server
+    - list specific channel information: `LIST #channel`
+    - list all channel information: `LIST` 
 - PRIVMSG: to send a message to a channel, include the channel name as target: 
 `PRIVMSG #channelName :This message is sent to all members who have joined the channel.`
 - TOPIC: get or set channel topic

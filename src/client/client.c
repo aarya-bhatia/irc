@@ -264,7 +264,7 @@ int main(int argc, char *argv[]) {
 			client_add_message(&client, make_string("%s\r\n", line));
 		}
 
-		if (strstr(line, "QUIT")) {
+		if (strncmp(line, "QUIT", strlen("QUIT")) == 0) {
 			log_warn("quit");
 			pthread_mutex_lock(&mutex);
 			alive = false;
