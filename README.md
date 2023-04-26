@@ -38,7 +38,9 @@ Alternatively, you can save your login information in a file as follows:
 ```
 
 Here are some basic IRC commands that you can try after registering with the server.
-You can text a friend using the `PRIVMSG` command:
+For documentation on IRC commands please visit: <https://modern.ircdocs.horse/>.
+
+To text a friend, you can use the `PRIVMSG` command:
 
 ```
 PRIVMSG <Nick> :Hello!
