@@ -9,19 +9,32 @@ const char help_who[] =
 
 const char help_privmsg[] =
 	"The /PRIVMSG command is the main way to send messages to other users.\n"
-	"PRIVMSG Angel :yes I'm receiving it ! ; Command to send a message to Angel.\n"
-	"PRIVMSG #bunny :Hi! I have a problem! ; Command to send a message to channel #bunny.";
+	"PRIVMSG Angel :yes I'm receiving it ! ; Command to send a message to "
+	"Angel.\n"
+	"PRIVMSG #bunny :Hi! I have a problem! ; Command to send a message to "
+	"channel #bunny.";
+
+const char help_usercmds[] =
+	"This IRC server supports the following IRC commands:\n"
+	"PRIVMSG, NOTICE, NICK, USER, QUIT, JOIN, PART, TOPIC, LIST, NAMES, PING";
 
 const struct help_t help[] = {
 	{"HELP", "** Help system **",
-	 "Try /HELP <command> for specific help or type /USERCMDS for a complete list of IRC commands supported on this server."},
+	 "Try HELP <command> for specific help or type HELP USERCMDS for a "
+	 "complete "
+	 "list of IRC commands supported on this server."},
+	{"USERCMDS", "** HELP Commands **", help_usercmds},
 	{"PRIVMSG", "** The PRIVMSG Command **", help_privmsg},
 	{"NOTICE", "** The NOTICE Command **",
-	 "The /NOTICE command is used to send messages to a client. This command does not send back automatic replies to the user."},
+	 "The /NOTICE command is used to send messages to a client. This "
+	 "command "
+	 "does not send back automatic replies to the user."},
 	{"NICK", "** The NICK Command **",
 	 "The /NICK command is used to change your nick."},
 	{"USER", "** The USER Command **",
-	 "The /USER command is used to register a new client. It sets the username and realname of the client."},
+	 "The /USER command is used to register a new client. It sets the "
+	 "username "
+	 "and realname of the client."},
 	{"QUIT", "** The QUIT Command **",
 	 "The /QUIT command is used to close the connection with a client."},
 	{"WHO", "** The WHO Command **", help_who},
@@ -34,14 +47,11 @@ const struct help_t help[] = {
 	{"PING", "** The PING Command **", ""},
 };
 
-const struct help_t *get_help_text(const char *subject)
-{
+const struct help_t *get_help_text(const char *subject) {
 	static size_t n_help = sizeof help / sizeof *help;
 
-	for (size_t i = 0; i < n_help; i++)
-	{
-		if (!strcmp(help[i].subject, subject))
-		{
+	for (size_t i = 0; i < n_help; i++) {
+		if (!strcmp(help[i].subject, subject)) {
 			return help + i;
 		}
 	}

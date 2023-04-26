@@ -27,15 +27,49 @@ Example:
 
 ```
 NICK aarya
-USER aarya aaryab2 :Aarya Bhatia
+USER aaryab2 * * :Aarya Bhatia
 ```
 
+Alternatively, you can save your login information in a file as follows:
+`nick username :realname`. You can login with the following command:
+
+```
+/client <filename>
+```
+
+Here are some basic IRC commands that you can try after registering with the server.
 You can text a friend using the `PRIVMSG` command:
 
 ```
 PRIVMSG <Nick> :Hello!
 ```
 
+The `<Nick>` parameter should be replaced with the nick of the person you are texting. 
+The message after the ':' can contain your message.
+
 To close the client enter: `QUIT [:Bye!]`, where the parameter is optional.
 
 To close the server type CTRL-C.
+
+To get help on a specific IRC command, type the following: `HELP <Command>`. To see 
+what options are available, type `HELP`. To see the currently supported commands, 
+type `HELP USERCMDS`.
+
+Here are some channel specific commands: `JOIN, PART, LIST, TOPIC`.
+
+- JOIN: join a channel: `JOIN #channelName`
+- PART: leave a channel: `PART #channelName`
+- LIST: get a list of members on some channel
+    - list members in specific channel `LIST #channel`
+    - list all channels: `LIST` 
+- PRIVMSG: to send a message to a channel, include the channel name as target: 
+`PRIVMSG #channelName :This message is sent to all members who have joined the channel.`
+- TOPIC: get or set channel topic
+    - get channel topic: `TOPIC #channelName`
+    - set channel topic: `TOPIC #channelName :The topic goes here`
+
+Other commands:
+
+- WHO: this command is used to query user and channel information
+    - To get information about a user and what channels they are on: `WHO <nick>`
+    - To get information about which users are on a channel: `WHO #channelName`

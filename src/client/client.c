@@ -1,18 +1,17 @@
-#include "include/common.h"
-#include "include/list.h"
-#include "include/message.h"
-#include "include/connection.h"
-#include "include/server.h"
-
 #include <pthread.h>
 #include <sys/epoll.h>
 
+#include "include/common.h"
+#include "include/connection.h"
+#include "include/list.h"
+#include "include/message.h"
+#include "include/server.h"
+
 #define DEBUG
-#define EPOLL_TIMEOUT 2500 // Seconds
+#define EPOLL_TIMEOUT 2500	// Seconds
 #define PING_INTERVAL_SEC 10
 
-typedef struct Client
-{
+typedef struct Client {
 	char *hostname;
 	char *port;
 	Connection *conn;
@@ -26,8 +25,7 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void _signal_handler(int sig);
 
-void *client_thread(void *args)
-{
+void *client_thread(void *args) {
 	Client *client = (Client *)args;
 	assert(client);
 	assert(client->conn);
@@ -43,10 +41,9 @@ void *client_thread(void *args)
 
 	bool quit = false;
 
-	while (!quit)
-	{
+	while (!quit) {
 		pthread_mutex_lock(&mutex);
-		if(!alive) {
+		if (!alive) {
 			pthread_mutex_unlock(&mutex);
 			break;
 		}
@@ -54,55 +51,53 @@ void *client_thread(void *args)
 
 		int nfd = epoll_wait(epollfd, events, 1, EPOLL_TIMEOUT);
 
-		if (nfd == -1)
-		{
+		if (nfd == -1) {
 			log_error("epoll_wait: %s", strerror(errno));
 			break;
 		}
 
 		// No events polled
-		if (nfd == 0)
-		{
+		if (nfd == 0) {
 			continue;
 		}
 
 		// Server disconnect
-		if (events[0].events & (EPOLLERR | EPOLLHUP))
-		{
+		if (events[0].events & (EPOLLERR | EPOLLHUP)) {
 			SAFE(mutex, { log_info("Server disconnect"); });
 			break;
 		}
 
-		if (events[0].events & EPOLLIN)
-		{
-			if (Connection_read(client->conn) == -1)
-			{
+		if (events[0].events & EPOLLIN) {
+			if (Connection_read(client->conn) == -1) {
 				die(NULL);
 			}
 
-			if (List_size(client->conn->incoming_messages) > 0)
-			{
+			if (List_size(client->conn->incoming_messages) > 0) {
 				// size_t num_msg = 0;
 
-				Vector *messages = parse_message_list(client->conn->incoming_messages);
+				Vector *messages =
+					parse_message_list(client->conn->incoming_messages);
 
-				for (size_t i = 0; i < Vector_size(messages); i++)
-				{
+				for (size_t i = 0; i < Vector_size(messages); i++) {
 					Message *message = Vector_get_at(messages, i);
 					// log_debug("%s", message->message);
 
-					if (message->origin && message->body)
-					{
-						SAFE(mutex, {
-							printf("%s: %s\n", message->origin, message->body);
-						});
-					}
+					SAFE(mutex, { puts(message->message); });
+
+					// if (message->origin && message->body) {
+					// 	SAFE(mutex, {
+					// 					printf("%s: %s\n", message->origin,
+					// 					message->body);
+					// 				});
+					// }
 
 					// num_msg++;
 
-					if (strstr(message->message, "ERROR"))
-					{
-						SAFE(mutex, { log_info("Server has closed connection: %s", message->body); });
+					if (strstr(message->message, "ERROR")) {
+						SAFE(mutex, {
+							log_info("Server has closed connection: %s",
+									 message->body);
+						});
 						quit = true;
 						break;
 					}
@@ -112,12 +107,10 @@ void *client_thread(void *args)
 			}
 		}
 
-		if (events[0].events & EPOLLOUT)
-		{
+		if (events[0].events & EPOLLOUT) {
 			pthread_mutex_lock(&client->mutex);
 
-			if (Connection_write(client->conn) == -1)
-			{
+			if (Connection_write(client->conn) == -1) {
 				die(NULL);
 			}
 
@@ -131,17 +124,14 @@ void *client_thread(void *args)
 	return client;
 }
 
-void client_add_message(Client *client, char *message)
-{
+void client_add_message(Client *client, char *message) {
 	pthread_mutex_lock(&client->mutex);
 	List_push_back(client->conn->outgoing_messages, message);
 	pthread_mutex_unlock(&client->mutex);
 }
 
-int main(int argc, char *argv[])
-{
-	if (argc < 2)
-	{
+int main(int argc, char *argv[]) {
+	if (argc < 2) {
 		fprintf(stderr, "Usage: %s <server>\n", *argv);
 		return 1;
 	}
@@ -154,8 +144,7 @@ int main(int argc, char *argv[])
 	struct peer_info_t info;
 	memset(&info, 0, sizeof info);
 
-	if (!get_peer_info(CONFIG_FILENAME, argv[1], &info))
-	{
+	if (!get_peer_info(CONFIG_FILENAME, argv[1], &info)) {
 		die("Failed to get server info");
 	}
 
@@ -178,14 +167,13 @@ int main(int argc, char *argv[])
 	// create thread to communicate with server
 	pthread_create(&client.thread, NULL, client_thread, &client);
 
-	char *line = NULL;	 // buffer to store user input
-	size_t line_len = 0; // length of line buffer
+	char *line = NULL;	  // buffer to store user input
+	size_t line_len = 0;  // length of line buffer
 
 	// main thread will read commands from stdin
-	while (1)
-	{
+	while (1) {
 		pthread_mutex_lock(&mutex);
-		if(!alive) {
+		if (!alive) {
 			pthread_mutex_unlock(&mutex);
 			break;
 		}
@@ -193,37 +181,39 @@ int main(int argc, char *argv[])
 
 		// Read the next line till \n
 		ssize_t nread = getline(&line, &line_len, stdin);
-		if (nread == -1)
-			die("getline");
-		line[nread - 1] = 0; // remove newline character
+		if (nread == -1) die("getline");
+		line[nread - 1] = 0;  // remove newline character
 
 		// Empty
-		if (strlen(line) == 0)
-		{
+		if (strlen(line) == 0) {
 			continue;
 		}
 
-		if (strlen(line) > MAX_MSG_LEN)
-		{
-			SAFE(mutex, { log_error("Message is greater than %d bytes", MAX_MSG_LEN); });
+		if (strlen(line) > MAX_MSG_LEN) {
+			SAFE(mutex, {
+				log_error("Message is greater than %d bytes", MAX_MSG_LEN);
+			});
 			continue;
 		}
 
-		if (!strncmp(line, "/server ", strlen("/server "))) // register as server using the specified name
+		if (!strncmp(line, "/server ",
+					 strlen("/server ")))  // register as server using the
+										   // specified name
 		{
 			char *name = strstr(line, " ") + 1;
 			SAFE(mutex, { log_info("Registering as server %s", name); });
-			client_add_message(&client, make_string("PASS %s\r\n", info.peer_passwd));
+			client_add_message(&client,
+							   make_string("PASS %s\r\n", info.peer_passwd));
 			client_add_message(&client, make_string("SERVER %s\r\n", name));
-		}
-		else if (!strncmp(line, "/client ", strlen("/client "))) // register as user using the specified client file
+		} else if (!strncmp(line, "/client ",
+							strlen("/client ")))  // register as user using the
+												  // specified client file
 		{
 			char *fname = strstr(line, " ") + 1;
 
 			FILE *fptr = fopen(fname, "r");
 
-			if (!fptr)
-			{
+			if (!fptr) {
 				SAFE(mutex, { log_error("client file not found: %s", fname); });
 				continue;
 			}
@@ -232,13 +222,11 @@ int main(int argc, char *argv[])
 			size_t cap = 0;
 			ssize_t nread = getline(&contents, &cap, fptr);
 
-			if (nread == -1)
-				die("getline");
+			if (nread == -1) die("getline");
 
 			char *realname = strstr(contents, ":");
 
-			if (!realname)
-			{
+			if (!realname) {
 				SAFE(mutex, { log_error("realname not given"); });
 				continue;
 			}
@@ -248,35 +236,35 @@ int main(int argc, char *argv[])
 
 			char *nick = strtok(contents, " ");
 
-			if (!nick)
-			{
+			if (!nick) {
 				SAFE(mutex, { log_error("nick not given"); });
 				continue;
 			}
 
 			char *username = strtok(NULL, " ");
 
-			if (!username)
-			{
+			if (!username) {
 				SAFE(mutex, { log_error("username not given"); });
 				continue;
 			}
 
-			SAFE(mutex, { log_info("Registering as user: nick=%s, username=%s, realname=%s", nick, username, realname); });
+			SAFE(mutex, {
+				log_info(
+					"Registering as user: nick=%s, username=%s, realname=%s",
+					nick, username, realname);
+			});
 
 			client_add_message(&client, make_string("NICK %s\r\n", nick));
-			client_add_message(&client, make_string("USER %s * * :%s\r\n", username, realname));
+			client_add_message(&client, make_string("USER %s * * :%s\r\n",
+													username, realname));
 
 			free(contents);
 			fclose(fptr);
-		}
-		else
-		{
+		} else {
 			client_add_message(&client, make_string("%s\r\n", line));
 		}
 
-		if (strstr(line, "QUIT"))
-		{
+		if (strstr(line, "QUIT")) {
 			log_warn("quit");
 			pthread_mutex_lock(&mutex);
 			alive = false;
@@ -300,8 +288,7 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void _signal_handler(int sig)
-{
+void _signal_handler(int sig) {
 	(void)sig;
 	log_debug("alive: %d", alive);
 	alive = false;
