@@ -737,6 +737,18 @@ bool _remove_server_for_peer(char *name, Peer *peer,
 }
 
 /**
+ * Remove server from pending sets for TEST_LIST_SERVER command
+ */
+void remove_peer_from_tls_maps(Server *serv, Peer *peer) {
+	HashtableIter itr;
+	struct ListCommand *data = NULL;
+	ht_iter_init(&itr, serv->test_list_server_map);
+	while (ht_iter_next(&itr, NULL, (void **)&data)) {
+		ht_remove(data->pending, peer->name, NULL, NULL);
+	}
+}
+
+/**
  * Remove connection from server and free all its memory.
  *
  * TODO: Remove nicks and channels behind peer
@@ -780,6 +792,8 @@ void Server_remove_connection(Server *serv, Connection *connection) {
 								 (filter_type)_remove_nick_for_peer, &arg);
 			ht_remove_all_filter(serv->name_to_peer_map,
 								 (filter_type)_remove_server_for_peer, &arg);
+			// TODO: Remove servers from test_list_server_map
+			remove_peer_from_tls_maps(serv, peer);
 		}
 
 		Peer_free(peer);
