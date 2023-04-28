@@ -803,10 +803,12 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg) {
 	assert(target_server);
 
 	if (ht_contains(serv->name_to_peer_map, target_server)) {
+		log_warn("server already exists");
 		return;
 	}
 
-	if (!strcmp(serv->hostname, target_server)) {
+	if (!strcmp(serv->name, target_server)) {
+		log_warn("Cannot connect to the same server");
 		return;
 	}
 

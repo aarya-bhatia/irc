@@ -71,8 +71,31 @@ You can also see the channel list in the file `data/channels.txt`
     - get channel topic: `TOPIC #channelName`
     - set channel topic: `TOPIC #channelName :The topic goes here`
 
-Other commands:
+Example:
 
-- WHO: this command is used to query user and channel information
-    - To get information about a user and what channels they are on: `WHO <nick>`
-    - To get information about which users are on a channel: `WHO #channelName`
+```
+/client <LoginFile>
+JOIN #network
+TOPIC #network :computer networking
+PRIVMSG #network :Hello
+PART #network
+```
+
+The above command logs in a user, they join a channel called `#network`, and set its topic.
+Then, the user sends a message to everyone on the channel. Finally, the user leaves the channel.
+Further messages to the channel will not be delivered to the user.
+
+## CONNECT
+
+You can use the `CONNECT` command to establish a connection between two known IRC servers.
+Before you do this, you must add the entry `<Name, IP, Port, Password>` to the config.
+
+Suppose you are running server1 and server2 on two machines. A user can login and issue the 
+following command to connect the servers. The user can connect to either server and 
+link it with the other one. For this example, let's say the user is on server1.
+They run `CONNECT server2` to establish the connection between server1 and server2.
+
+Now users on server1 can talk to users on server2!
+
+
+
