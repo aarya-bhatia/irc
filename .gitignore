@@ -7,3 +7,6 @@ build/
 .DS_STORE
 tags
 tmp
+*.log
+*.aux
+*.out
