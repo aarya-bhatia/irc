@@ -254,10 +254,7 @@ The Server uses the following data structures:
 	      a user. The users get a random nick in the beginning. When the user
 	      updates
 	      their nick, the entry in the hashmap for that user is also updated.
-	      This map is
-	      useful to check which nicks are available and also access the user's
-	      data when
-	      we want to deliver a message to that user, but only knowing their nick.
+	      This map is used to check if a nick is available and fetch a user by their nick.
 	\item A hashtable \verb|name_to_channel_map| to map each channel name to a
 	      channel
 	      struct. Each server has their own copy of the channel. Since different
@@ -279,7 +276,7 @@ The Server uses the following data structures:
 	      registration
 	      as the peer name is not known before the SERVER message is received
 	      The IRC does not enforce `default names' unlike the case with users.
-	\item The entry for this peer is removed when the peer quits or disconnects.
+	\item The entry for a peer is removed when the peer quits or disconnects.
 	      The server that
 	      discovered
 	      the disconnected peer must generate a \verb|SQUIT| message to notify
@@ -303,12 +300,12 @@ The Server uses the following data structures:
 
 I implemented a simple message parser which is used to parse messages and check
 for errors. This is used by both server and client. The details about the
-syntax of the message is given in the RFC and is out of scope of this report.
-At a simple level, an IRC message includes the following tokens in the message:
+syntax of the message is given in the RFC and will be discussed briefly.
+Simply speaking, an IRC message includes the following tokens in the message:
 
 \begin{itemize}
 
-	\item source: This identifies the sender of the message. Clients never fill
+    \item \textbf{Source}: This identifies the sender of the message. Clients never fill
 	      in this
 	      field. However, a server fills in this field on behalf of the client
 	      for
@@ -317,7 +314,7 @@ At a simple level, an IRC message includes the following tokens in the message:
 	      own server name when sending a message to a user or peer. When this
 	      source
 	      field is used, it begins with a `:' character.
-	\item command: This field is filled by a `command' if the message is a
+	\item \textbf{Command}: This field is filled by a `command' if the message is a
 	      request from
 	      the client. It is filled by the `reply' if the message is a response
 	      from the
@@ -328,7 +325,7 @@ At a simple level, an IRC message includes the following tokens in the message:
 	      filled by a numerical code. A list of all numerical replies can be
 	      found in the
 	      RFC and also in the \verb|replies.h| file included in the source code.
-	\item parameters: There are 15 parameters that we can use in the IRC
+	\item \textbf{Parameters}: There are 15 parameters that we can use in the IRC
 	      protocol.
 	      These are filled with any parameters we might want to send with a
 	      message.
@@ -338,7 +335,7 @@ At a simple level, an IRC message includes the following tokens in the message:
 	      Parameters do not
 	      contain any spaces because space is the separator used between
 	      parameters.
-	\item body: This is considered as the final parameter and can contain
+	\item \textbf{Body}: This is considered as the final parameter and can contain
 	      arbitary
 	      text. This is where the user would add their `message' in a
 	      \verb|PRIVMSG|
@@ -358,8 +355,7 @@ At a simple level, an IRC message includes the following tokens in the message:
 
 The server currently supports the following commands from the clients: MOTD,
 NICK, USER, PING, QUIT, HELP, PRIVMSG, NOTICE, INFO, WHO, NAMES, LIST, PART,
-JOIN, TOPIC, CONNECT. There is a special command TEST\_LIST\_SERVER which is
-discussed later.
+JOIN, TOPIC, CONNECT. 
 
 \subsection{QUIT}
 
@@ -519,9 +515,11 @@ maintain the current state of the response to decide when the response is comple
 
 The command \verb|TEST_LIST_SERVER| is used to get a list of all servers on the
 network. Note that, in my implementation, each server knows which servers exist
-in the network. However, I purposely implemented the command to watch my servers
-communicate with each other to generate a response. To implement this command we use two kinds of
-replies.
+in the network. However, I the purpose of this command is to watch my servers
+communicate with each other to generate a response. This command should only be used 
+when running my servers, as other servers would not support this command.
+
+To implement this command we use two kinds of replies.
 
 \begin{itemize}
 	\item 901 \verb|RPL_TEST_LIST_SERVER|
@@ -567,11 +565,28 @@ The algorithm is described as follows:
 	      from seeing duplicate server names in the response because the command is asynchronous.
 \end{itemize}
 
+There are numerous ways to extend the functionality of the IRC
+protocol and add support for features like file transfer or unicode emojis.
+
+We can either send data through a custom client-side protocol or a server-side protocol.
+For example, our messages can encode a file and the target client can decode the bytes 
+to get the original file.
+
+In my example, \verb|TEST_LIST_SERVER| was a server-side protocol as the servers need 
+to implement the functionality of this command.
+
 \subsection{Network State}
 
-In this section, I explain how I keep the state of the network consistent.
+In this section, I list the important events in the network. It is critical to 
+handle these events properly or the network state will get corrupted.
 
 \begin{itemize}
+    \item Event of client connection:
+        \begin{itemize}
+            \item The client is removed if their nick is already in use by another client.
+            \item The network is notified about this new client using a NICK command, 
+                which is different from the NICK command used by the client.
+        \end{itemize}
 	\item Event of server disconnect:
 	      \begin{itemize}
 		      \item Broadcast a SQUIT message for each server
@@ -582,9 +597,13 @@ In this section, I explain how I keep the state of the network consistent.
 
 	\item Event of new server connection:
 	      \begin{itemize}
-		      \item Authenticate server- both servers must share the passwords of the
-		            other server in the PASS message and confirm that they match the configured
-		            password. Both servers also share their name with each other with the
+              \item Error checking: A server that is already known, either directly or 
+                  indirectly is not added again. If a server name is not found in the config,
+                  it is not accepted into the network. A server cannot connect to ``itself".
+              \item \textbf{Authenticate Server}: Both servers must share the passwords of the
+		            opposite server in the PASS message and confirm that they match the configured
+                    passwords (The servers can have a different config file). 
+                    Both servers also share their name with each other with the
 		            SERVER message.
 		      \item Both servers share the names of the servers that they know about
 		      \item Both servers share the nicks of the clients that they know of
@@ -657,27 +676,12 @@ then it may relay everywhere and still have the same outcome.
 
 \section{Conclusion}
 
-I learnt a lot about network programming and distributed
-systems from doing this project, and I also gained insight about the limitations
-of the IRC protocol.
-
-There are numerous ways to extend the functionality of the IRC
-protocol and add support for features like file transfer or unicode emojis.
-It is also interesting to consider more security features, as IRC
-text-based authentication is not very strong.
-
-In comparison to chat applications based on HTTP and WebSockets, the IRC
-protocol has a smaller message size and no overhead of HTTP headers.
-However, HTTP is a more flexible protocol, as we do not need
-to know the position of parameters that appear in a message.
-HTTP can be used to make more kinds of applications whereas IRC is specialised
-only for texting-based applications. Moreover, IRC is a multipart protocol, as
-longer messages need to be broken down into smaller ones and sent over a number
-of replies.
-
+While IRC protocol has its advantages, it should only be used in small networks.
 Several limitations of the IRC protocol are mentioned in section 9.1 of the
 RFC. There is an overhead of knowing the network state on every server. Also
 it is hard to communicate all network updates with very little latency at the scale
 of the IRC network. For such reasons, we should seek a more scalable protocol today.
+
+In conclusion, this project taught me a lot about networking protocols and distributed systems.
 
 \end{document}
