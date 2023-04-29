@@ -382,7 +382,7 @@ discussed later.
 
 \begin{itemize}
 
-	\item This command sends the "Message of the Day" to the user. - It looks
+	\item This command sends the ``Message of the Day" to the user. - It looks
 	      up the current message from a file (motd.txt) that contains a list of
 	      quotes.
 	\item This file was downloaded using the \verb|zenquotes.io| API using a
@@ -562,7 +562,7 @@ The algorithm is described as follows:
 	      they are removed from this set too, otherwise the client will wait forever.
 	\item If during this period a new server joins the network, we
 	      ignore them from the response. It is possible to add this peer to the set for
-	      "real time" updates.
+	      ``real time" updates.
 	\item If during this period the user sends another list command, we do not acknowledge it. This prevents us
 	      from seeing duplicate server names in the response because the command is asynchronous.
 \end{itemize}
@@ -611,7 +611,7 @@ A,B and C. There network graph has the following topology: $A \leftrightarrow B$
 	\leftrightarrow C$. Further, suppose Alice is connected to server A, Bob is connected to server B and Kate is
 connected to server C.
 
-Suppose alice wants to send a message "hello" to kate.
+Suppose alice wants to send a message ``hello" to kate.
 
 The following actions will take place:
 
@@ -652,7 +652,7 @@ This example was a general description of routing
 messages, however, we can do better- Since each server knows where the client lives,
 each server only needs to relay the message to one peer instead of all. As the servers
 send advertisments, the other servers in the network can update their tables and learn
-the "next hop" node for each target. If the server does not keep track of this data,
+the ``next hop" node for each target. If the server does not keep track of this data,
 then it may relay everywhere and still have the same outcome.
 
 \section{Conclusion}
