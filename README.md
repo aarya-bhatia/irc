@@ -12,6 +12,8 @@ To configure the servers, edit the [config.csv](config.csv) file. Each line
 should have the Name, IP address, port and password of the server. For example:
 `server1,127.0.0.1,5000,test1`.
 
+To general format for the config.csv file is as follows: `ServerName,ServerHostname,ServerPort,ServerPassword`.
+
 To compile this code, please use a Linux machine.
 
 1. Download the source code: `git clone https://github.com/aarya-bhatia/irc`
