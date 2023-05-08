@@ -1,12 +1,12 @@
-#include "include/server.h"
+#include "../include/server.h"
 
 #include <sys/epoll.h>
 #include <sys/stat.h>
 #include <time.h>
 
-#include "include/common.h"
-#include "include/hashtable.h"
-#include "include/list.h"
+#include "../include/common.h"
+#include "../include/hashtable.h"
+#include "../include/list.h"
 
 /**
  * Helper function to delimit the message before adding to queue.
