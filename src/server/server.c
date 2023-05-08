@@ -69,6 +69,19 @@ void User_free(User *usr) {
 	free(usr);
 }
 
+Service *Service_alloc(const char *hostname) {
+	Service *this = calloc(1, sizeof *this);
+	this->hostname = hostname;
+	return this;
+}
+
+void Service_free(Service *service) {
+	free(service->name);
+	free(service->distribution);
+	free(service->info);
+	free(service);
+}
+
 /**
  * Check if user is a member of given channel
  */
@@ -282,12 +295,48 @@ void Server_process_request_from_unknown(Server *serv, Connection *conn) {
 			   strncmp(message, "SERVER", 6) == 0) {
 		conn->conn_type = PEER_CONNECTION;
 		conn->data = Peer_alloc(ACTIVE_SERVER, conn->fd, conn->hostname);
+	} else if (strncmp(message, "SERVICE", strlen("SERVICE")) == 0) {
+		conn->conn_type = SERVICE_CONNECTION;
+		conn->data = Service_alloc(conn->hostname);
 	} else {
 		log_warn("Invalid message: %s",
 				 List_peek_front(conn->incoming_messages));
 		List_pop_front(conn->incoming_messages);
 		return;
 	}
+}
+
+void Server_process_request_from_service(Server *serv, Connection *conn) {
+	assert(conn->conn_type == SERVICE_CONNECTION);
+
+	Service *service = conn->data;
+	assert(service);
+
+	// Get array of parsed messages
+	Vector *messages = parse_message_list(conn->incoming_messages);
+	assert(messages);
+
+	// Iterate over the request messages and add response message(s) to user's
+	// message queue in the same order.
+	for (size_t i = 0; i < Vector_size(messages); i++) {
+		Message *message = Vector_get_at(messages, i);
+		assert(message);
+		log_debug("Message from service %s: %s", service->name,
+				  message->message);
+
+		if (!message->command) {
+			log_error("invalid message");
+			continue;
+		} else if (!strcmp(message->command, "SERVICE")) {
+			Server_handle_SERVICE(serv, service, message);
+		} else {
+			log_error("Unknown command from service: %s", message->command);
+		}
+
+		conn->quit = service->quit;
+	}
+
+	Vector_free(messages);
 }
 
 /**
@@ -670,6 +719,10 @@ void Server_process_request(Server *serv, Connection *conn) {
 
 	if (!conn->quit && conn->conn_type == USER_CONNECTION) {
 		Server_process_request_from_user(serv, conn);
+	}
+
+	if (!conn->quit && conn->conn_type == SERVICE_CONNECTION) {
+		Server_process_request_from_service(serv, conn);
 	}
 }
 

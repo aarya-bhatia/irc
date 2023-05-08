@@ -1125,3 +1125,63 @@ void Server_handle_peer_TEST_LIST_SERVER(Server *serv, Peer *peer,
 
 	ht_set(serv->test_list_server_map, target, list_data);
 }
+
+/**
+ * Command: SERVICE
+ * Parameters: <servicename> <servertoken> <distribution> <type> <hopcount>
+ * <info>
+ */
+void Server_handle_SERVICE(Server *serv, Service *service, Message *msg) {
+	assert(!strcmp(msg->command, "SERVICE"));
+
+	if (msg->n_params < 5 || !msg->body) {
+		List_push_back(service->msg_queue,
+					   Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG, "*",
+											 msg->command));
+		return;
+	}
+
+	if (service->registered) {
+		List_push_back(service->msg_queue,
+					   Server_create_message(serv, ERR_ALREADYREGISTRED_MSG,
+											 service->name));
+		return;
+	}
+
+	char *name = msg->params[0];
+	char *distribution = msg->params[2];
+	char *info = msg->body;
+
+	assert(name);
+	assert(distribution);
+	assert(info);
+
+	service->name = strdup(name);
+	service->distribution = strdup(distribution);
+	service->info = strdup(info);
+
+	if (!service->registered) {
+		service->registered = true;
+
+		// ht_set(serv->nick_to_user_map, service->nick, service);
+		// ht_set(serv->nick_to_serv_name_map, service->nick, serv->name);
+
+		List_push_back(service->msg_queue,
+					   Server_create_message(serv, RPL_YOURHOST_MSG, usr->nick,
+											 service->hostname));
+		List_push_back(
+			service->msg_queue,
+			Server_create_message(serv, RPL_MYINFO_MSG, service->name,
+								  serv->hostname, "*", "*", "*"));
+
+		log_debug("Registered service %s", usr->nick);
+
+		// notify peers about new service
+		char *message = Server_create_message(serv, "%s", msg->message);
+		Server_broadcast_message(serv, message);
+		free(message);
+		return true;
+	}
+
+	return false;
+}
