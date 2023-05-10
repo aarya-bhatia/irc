@@ -648,6 +648,10 @@ void Server_handle_PART(Server *serv, User *usr, Message *msg) {
  * TODO: Implement this
  */
 void Server_handle_LUSERS(Server *serv, User *usr, Message *msg) {
+	(void)serv;
+	(void)usr;
+	(void)msg;
+
 	assert(!strcmp(msg->command, "LUSERS"));
 
 	// List_push_back(usr->msg_queue, make_reply(":%s "
@@ -1165,23 +1169,21 @@ void Server_handle_SERVICE(Server *serv, Service *service, Message *msg) {
 
 		// ht_set(serv->nick_to_user_map, service->nick, service);
 		// ht_set(serv->nick_to_serv_name_map, service->nick, serv->name);
+		// TODO: Add services to a hashtable in the server
 
 		List_push_back(service->msg_queue,
-					   Server_create_message(serv, RPL_YOURHOST_MSG, usr->nick,
-											 service->hostname));
+					   Server_create_message(serv, RPL_YOURHOST_MSG,
+											 service->name, service->hostname));
 		List_push_back(
 			service->msg_queue,
 			Server_create_message(serv, RPL_MYINFO_MSG, service->name,
 								  serv->hostname, "*", "*", "*"));
 
-		log_debug("Registered service %s", usr->nick);
+		log_debug("Registered service %s", service->name);
 
 		// notify peers about new service
 		char *message = Server_create_message(serv, "%s", msg->message);
 		Server_broadcast_message(serv, message);
 		free(message);
-		return true;
 	}
-
-	return false;
 }

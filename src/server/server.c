@@ -72,6 +72,9 @@ void User_free(User *usr) {
 Service *Service_alloc(const char *hostname) {
 	Service *this = calloc(1, sizeof *this);
 	this->hostname = hostname;
+	this->msg_queue = List_alloc(NULL, free);
+	this->registered = false;
+	this->quit = false;
 	return this;
 }
 
@@ -79,6 +82,7 @@ void Service_free(Service *service) {
 	free(service->name);
 	free(service->distribution);
 	free(service->info);
+	List_free(service->msg_queue);
 	free(service);
 }
 
@@ -329,6 +333,10 @@ void Server_process_request_from_service(Server *serv, Connection *conn) {
 			continue;
 		} else if (!strcmp(message->command, "SERVICE")) {
 			Server_handle_SERVICE(serv, service, message);
+		} else if (!strcmp(message->command, "QUIT")) {
+			service->quit = true;
+		} else if (!strcmp(message->command, "NOTICE")) {
+			// TODO
 		} else {
 			log_error("Unknown command from service: %s", message->command);
 		}
@@ -832,6 +840,12 @@ void Server_remove_connection(Server *serv, Connection *connection) {
 					  usr, "QUIT :%s",
 					  usr->quit_message ? usr->quit_message : "Closing Link"));
 		User_free(usr);
+
+	} else if (connection->conn_type == SERVICE_CONNECTION) {
+		Service *service = connection->data;
+		Server_broadcast_message(
+			serv, Server_create_message(serv, "KILL %s", service->name));
+		Service_free(service);
 	} else if (connection->conn_type == PEER_CONNECTION) {
 		Peer *peer = connection->data;
 		log_info("Closing connection with peer %d", connection->fd);

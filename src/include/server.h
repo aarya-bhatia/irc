@@ -79,10 +79,10 @@ typedef struct _User {
 } User;
 
 typedef struct _Service {
+	const char *hostname;
 	bool registered;
 	bool quit;
 	char *name;
-	char *hostname;
 	char *distribution;
 	char *info;
 	List *msg_queue;
