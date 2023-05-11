@@ -2,9 +2,9 @@
  * Functions to read/write from a socket byte stream
  */
 
-#include "include/connection.h"
+#include "../include/connection.h"
 
-#include "include/server.h"
+#include "../include/server.h"
 
 Connection *Connection_alloc(int fd, struct sockaddr *addr, socklen_t addrlen) {
 	Connection *this = calloc(1, sizeof *this);
@@ -128,6 +128,8 @@ ssize_t Connection_write(Connection *this) {
 		queue = ((User *)this->data)->msg_queue;
 	} else if (this->conn_type == PEER_CONNECTION) {
 		queue = ((Peer *)this->data)->msg_queue;
+	} else if (this->conn_type == SERVICE_CONNECTION) {
+		queue = ((Service *)this->data)->msg_queue;
 	}
 
 	// Check for pending messages in outgoing list

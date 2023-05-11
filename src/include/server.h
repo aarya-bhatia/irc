@@ -94,6 +94,7 @@ typedef struct _Channel {
 	int mode;			  // channel mode
 	time_t time_created;  // time channel was created
 	Hashtable *members;	  // map username to User struct
+	Hashtable *services;  // map service name to Service struct
 
 	// time_t topic_changed_at;
 	// char *topic_changed_by;
@@ -150,6 +151,10 @@ void Server_handle_CONNECT(Server *serv, User *usr, Message *msg);
 void Server_handle_LUSERS(Server *serv, User *usr, Message *msg);
 void Server_handle_HELP(Server *serv, User *usr, Message *msg);
 void Server_handle_SERVICE(Server *serv, Service *service, Message *msg);
+
+void Server_handle_service_JOIN(Server *serv, Service *service, Message *msg);
+void Server_handle_service_PART(Server *serv, Service *service, Message *msg);
+void Server_handle_service_NOTICE(Server *serv, Service *service, Message *msg);
 
 void Server_handle_TEST_LIST_SERVER(Server *serv, User *usr, Message *msg);
 void Server_handle_peer_TEST_LIST_SERVER(Server *serv, Peer *peer,

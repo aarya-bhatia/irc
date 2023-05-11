@@ -1,7 +1,7 @@
-#include "include/common.h"
-#include "include/list.h"
-#include "include/replies.h"
-#include "include/server.h"
+#include "../include/common.h"
+#include "../include/list.h"
+#include "../include/replies.h"
+#include "../include/server.h"
 
 void Server_handle_PING(Server *serv, User *usr, Message *msg) {
 	assert(!strcmp(msg->command, "PING"));
@@ -106,9 +106,10 @@ bool check_user_registration(Server *serv, User *usr) {
 /**
  * Send RPL_NAMES as multipart message
  */
-void send_names_reply(Server *serv, User *usr, Channel *channel) {
-	char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->name, usr->nick,
-								"=", channel->name);
+void send_names_reply(Server *serv, Channel *channel, char *nick,
+					  List *msg_queue) {
+	char *subject = make_string(":%s " RPL_NAMREPLY_MSG, serv->name, nick, "=",
+								channel->name);
 	char message[MAX_MSG_LEN + 1];
 	memset(message, 0, sizeof message);
 	strcat(message, subject);
@@ -123,7 +124,7 @@ void send_names_reply(Server *serv, User *usr, Channel *channel) {
 
 		if (strlen(message) + len > MAX_MSG_LEN) {
 			// End current message
-			List_push_back(usr->msg_queue, make_string("%s\r\n", message));
+			List_push_back(msg_queue, make_string("%s\r\n", message));
 
 			// Start new message with subject
 			memset(message, 0, sizeof message);
@@ -134,10 +135,9 @@ void send_names_reply(Server *serv, User *usr, Channel *channel) {
 		strcat(message, " ");
 	}
 
-	List_push_back(usr->msg_queue, make_string("%s\r\n", message));
-	List_push_back(usr->msg_queue,
-				   Server_create_message(serv, RPL_ENDOFNAMES_MSG, usr->nick,
-										 channel->name));
+	List_push_back(msg_queue, make_string("%s\r\n", message));
+	List_push_back(msg_queue, Server_create_message(serv, RPL_ENDOFNAMES_MSG,
+													nick, channel->name));
 	free(subject);
 }
 
@@ -442,7 +442,7 @@ void Server_handle_JOIN(Server *serv, User *usr, Message *msg) {
 	free(join_message);
 
 	send_topic_reply(serv, usr, channel);
-	send_names_reply(serv, usr, channel);
+	send_names_reply(serv, channel, usr->nick, usr->msg_queue);
 }
 
 /**
@@ -516,7 +516,7 @@ void Server_handle_NAMES(Server *serv, User *usr, Message *msg) {
 		ht_iter_init(&itr, serv->name_to_channel_map);
 		Channel *channel = NULL;
 		while (ht_iter_next(&itr, NULL, (void **)&channel)) {
-			send_names_reply(serv, usr, channel);
+			send_names_reply(serv, channel, usr->nick, usr->msg_queue);
 		}
 
 		return;
@@ -539,7 +539,7 @@ void Server_handle_NAMES(Server *serv, User *usr, Message *msg) {
 			continue;
 		}
 
-		send_names_reply(serv, usr, channel);
+		send_names_reply(serv, channel, usr->nick, usr->msg_queue);
 	}
 }
 
@@ -1187,3 +1187,55 @@ void Server_handle_SERVICE(Server *serv, Service *service, Message *msg) {
 		free(message);
 	}
 }
+
+void Server_handle_service_JOIN(Server *serv, Service *service, Message *msg) {
+	assert(!strcmp(msg->command, "JOIN"));
+
+	if (!service->registered) {
+		return;
+	}
+
+	assert(service->name);
+
+	if (msg->n_params < 1) {
+		List_push_back(service->msg_queue,
+					   Server_create_message(serv, ERR_NEEDMOREPARAMS_MSG, "*",
+											 msg->command));
+		return;
+	}
+
+	char *channel_name = msg->params[0] + 1;
+	Channel *channel = ht_get(serv->name_to_channel_map, channel_name);
+
+	if (!channel) {
+		List_push_back(service->msg_queue,
+					   Server_create_message(serv, ERR_NOSUCHCHANNEL_MSG,
+											 service->name, msg->params[0]));
+		return;
+	}
+
+	ht_set(channel->services, service->name, service);
+	log_info("Added service %s to channel %s", service->name, channel_name);
+
+	// Broadcast JOIN to every client on channel
+	char *join_message = make_string(":%s %s\r\n", service->name, msg->message);
+	Server_message_channel(serv, serv->name, channel_name, join_message);
+	free(join_message);
+
+	if (channel->topic) {
+		List_push_back(service->msg_queue,
+					   Server_create_message(serv, RPL_TOPIC_MSG, service->name,
+											 channel->name, channel->topic));
+	} else {
+		List_push_back(service->msg_queue,
+					   Server_create_message(serv, RPL_NOTOPIC_MSG,
+											 service->name, channel->name));
+	}
+
+	send_names_reply(serv, channel, service->name, service->msg_queue);
+}
+
+void Server_handle_service_PART(Server *serv, Service *service, Message *msg) {}
+
+void Server_handle_service_NOTICE(Server *serv, Service *service,
+								  Message *msg) {}

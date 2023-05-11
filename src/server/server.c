@@ -316,6 +316,10 @@ void Server_process_request_from_service(Server *serv, Connection *conn) {
 	Service *service = conn->data;
 	assert(service);
 
+	if (service->quit) {
+		return;
+	}
+
 	// Get array of parsed messages
 	Vector *messages = parse_message_list(conn->incoming_messages);
 	assert(messages);
@@ -336,7 +340,11 @@ void Server_process_request_from_service(Server *serv, Connection *conn) {
 		} else if (!strcmp(message->command, "QUIT")) {
 			service->quit = true;
 		} else if (!strcmp(message->command, "NOTICE")) {
-			// TODO
+			Server_handle_service_NOTICE(serv, service, message);
+		} else if (!strcmp(message->command, "JOIN")) {
+			Server_handle_service_JOIN(serv, service, message);
+		} else if (!strcmp(message->command, "PART")) {
+			Server_handle_service_PART(serv, service, message);
 		} else {
 			log_error("Unknown command from service: %s", message->command);
 		}
@@ -446,6 +454,18 @@ void Server_message_channel(Server *serv, const char *origin,
 				log_debug("Sent message to user %s in channel %s on server %s",
 						  member->nick, channel->name, serv->name);
 				add_message(member->msg_queue, message);
+			}
+		}
+
+		ht_iter_init(&itr, channel->services);
+		Service *service = NULL;
+
+		// Send message to all services on channel
+		while (ht_iter_next(&itr, NULL, (void **)&service)) {
+			if (service->registered && !service->quit) {
+				log_debug("Sent me to service %s on channel %s", service->name,
+						  channel->name);
+				add_message(service->msg_queue, message);
 			}
 		}
 	}
